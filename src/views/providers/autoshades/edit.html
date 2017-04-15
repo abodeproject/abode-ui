@@ -54,9 +54,9 @@
         <li class="list-group-item" style="cursor: pointer;" ng-repeat="device in device.config.devices" ng-class="{'list-group-item-success': device === selected}">
           {{device.name}}
           <button class="pull-right btn btn-danger btn-xs" ng-click="deleteDevice(device.$index)"><i class="icon-trash"></i></button>
-          <rzslider rz-slider-model="device.min_level" rz-slider-options="{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true}" rz-slider-tpl-url="vendor/angularjs-slider/src/rzSliderTpl.html"></rzslider>
-          <div><small>Wait until level: {{device.wait_level}}%</small></div>
           <rzslider rz-slider-model="device.wait_level" rz-slider-options="{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true}" rz-slider-tpl-url="vendor/angularjs-slider/src/rzSliderTpl.html"></rzslider>
+          <div><small>Wait until level: {{device.wait_level}}%</small></div>
+          <rzslider rz-slider-model="device.min_level" rz-slider-options="{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true}" rz-slider-tpl-url="vendor/angularjs-slider/src/rzSliderTpl.html"></rzslider>
           <div><small>Min Level{{device.min_level}}%</small></div>
         </li>
     </div>
