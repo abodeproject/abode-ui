@@ -33,6 +33,45 @@ angular.module('insteon', [])
   };
 
 })
+.filter('insteonRate', function() {
+  rates = [
+    '9 min',
+    '8 min',
+    '7 min',
+    '6 min',
+    '5 min',
+    '4.5 min',
+    '4 min',
+    '3.5 min',
+    '3 min',
+    '2.5 min',
+    '2 min',
+    '1.5 min',
+    '1 min',
+    '47 sec',
+    '43 sec',
+    '38.5 sec',
+    '34 sec',
+    '32 sec',
+    '30 sec',
+    '28 sec',
+    '26 sec',
+    '23.5 sec',
+    '21.5 sec',
+    '19 sec',
+    '8.5 sec',
+    '6.5 sec',
+    '4.5 sec',
+    '2.0 sec',
+    '0.5 sec',
+    '0.3 sec',
+    '0.2 sec',
+    '0.1 sec'
+  ]
+  return function(rate) {
+    return (rates[rate]) ? rates[rate] : rate;
+  };
+})
 .controller('insteonSettings', function ($scope, insteon, abode, config) {
 
   $scope.config = config;
@@ -64,8 +103,35 @@ angular.module('insteon', [])
   };
 
 })
-.controller('insteonEdit', function () {
+.controller('insteonEdit', function ($scope, $http, abode) {
   $scope.device = $scope.$parent.device;
+  $scope.loading = false;
+  $scope.error = false;
+
+  $scope.reload_database = function () {
+    $scope.loading = true;
+    $http.post(abode.url('/api/insteon/devices/' + $scope.device.config.address + '/load_database').value()).then(function (response) {
+      $scope.loading = false;
+      $scope.error = false;
+      $scope.device.config.database = response.data;
+    }, function (err) {
+      $scope.loading = false;
+      $scope.error = true;
+    });
+  };
+
+  $scope.add_link = function () {
+    console.log('add');
+  };
+
+  $scope.edit_link = function () {
+    console.log('edit');
+  };
+
+  $scope.delete_link = function () {
+    console.log('delete');
+  };
+
 })
 .controller('insteonAdd', function ($scope, $http, $timeout, abode) {
   $scope.device = $scope.$parent.device;
@@ -74,31 +140,31 @@ angular.module('insteon', [])
     {
       'name': 'Dimmable Light',
       'capabilities': ['light', 'dimmer'],
-      'link_mode': 'responder',
+      'controller': true,
       'active': true,
     },
     {
       'name': 'On/Off Switch',
       'capabilities': ['light', 'onoff'],
-      'link_mode': 'responder',
+      'controller': true,
       'active': true,
     },
     {
       'name': 'Door Sensor',
       'capabilities': ['door', 'onoff'],
-      'link_mode': 'responder',
+      'controller': false,
       'active': false,
     },
     {
       'name': 'Window Sensor',
       'capabilities': ['window', 'onoff'],
-      'link_mode': 'responder',
+      'controller': false,
       'active': false,
     },
     {
       'name': 'Motion Sensor',
-      'capabilities': ['motion_sensor', 'onoff'],
-      'link_mode': 'responder',
+      'capabilities': ['motion_sensor'],
+      'controller': false,
       'active': false,
     },
     {
@@ -123,10 +189,12 @@ angular.module('insteon', [])
     });
   };
   $scope.check_linking = function () {
-    $http.get(abode.url('/api/insteon/linking/status').value()).then(function (response) {
+    $http.get(abode.url('/api/insteon').value()).then(function (response) {
       if (!response.data.linking) {
         $scope.link_status = 'idle';
-        $scope.get_last();
+        if (response.data.last_linked) {
+          $scope.device.config = response.data.last_linked;
+        }
 
       } else {
         $timeout($scope.check_linking, 2000);
@@ -139,7 +207,7 @@ angular.module('insteon', [])
   $scope.start_linking = function () {
     $scope.link_status = 'linking';
 
-    $http.post(abode.url('/api/insteon/linking/start').value(), {'auto_add': false, 'type': $scope.type.link_mode}).then(function (response) {
+    $http.post(abode.url('/api/insteon/start_all_linking').value(), {'controller': $scope.type.controller}).then(function (response) {
       $timeout($scope.check_linking, 2000);
     }, function (err) {
       $scope.error = err;
@@ -150,7 +218,7 @@ angular.module('insteon', [])
 
   $scope.cancel_linking = function () {
 
-    $http.post(abode.url('/api/insteon/linking/stop').value()).then(function (response) {
+    $http.post(abode.url('/api/insteon/cancel_all_linking').value()).then(function (response) {
       $scope.link_status = 'idle';
     }, function (err) {
       $scope.link_status = 'linking';
