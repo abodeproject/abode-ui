@@ -4,7 +4,7 @@ angular.module('insteonhub', [])
   $stateProvider
   .state('main.settings.insteonhub', {
     url: '/insteonhub',
-    templateUrl: '/views/providers/insteonhub/settings.html',
+    templateUrl: './views/providers/insteonhub/settings.html',
     controller: 'insteonHubSettings',
     resolve: {
       config: function (insteonhub) {

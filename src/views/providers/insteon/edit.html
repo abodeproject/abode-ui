@@ -12,10 +12,34 @@
 		</div>
 	</div>
 
+	<div ng-hide="has_capability('scene')">
+		<div class="form-group">
+			<div class="row">
+				<div class="col-sm-4">Device Cat</div>
+				<div class="col-sm-4">Sub Cat</div>
+				<div class="col-sm-4">Firmware</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">{{device.config.device_cat | toHex}}</div>
+				<div class="col-sm-4">{{device.config.device_subcat | toHex}}</div>
+				<div class="col-sm-4">{{device.config.firmware | toHex}}</div>
+			</div>
+		</div>
+	</div>
+
 	<div ng-show="has_capability('scene')">
 		<div class="form-group">
 		  <label for="name">Scene Number</label>
 		  <input type="text" class="form-control" id="scene" placeholder="Scene" required="" ng-model="device.config.address">
+		</div>
+	</div>
+
+	<div ng-hide="has_capability('scene')">
+		<div class="form-group">
+			<button class="btn btn-sm btn-primary" ng-click="beep()"><i class="icon-volume-down"></i> Beep</button>
+			<button class="btn btn-sm btn-primary" ng-click="enterlinking()"><i class="icon-link"></i> Enter Linking</button>
+			<button class="btn btn-sm btn-primary" ng-click="enterunlinking()"><i class="icon-brokenlink"></i> Enter Un-Linking</button>
+			<button class="btn btn-sm btn-primary" ng-click="set_button_tap()"><i class="icon-radiobutton"></i> Set Button</button>
 		</div>
 	</div>
 
@@ -31,24 +55,24 @@
 	      	<i class="icon-erroralt" ng-show="error"></i>
 	      	Reload</button>
 		  <ul class="list-group bg-muted select-list" style="height: 20em;">
-		    <li class="list-group-item" style="cursor: pointer;" ng-repeat="device in device.config.database | orderBy: 'name'" ng-click="edit_link(device)">
-		      <button class="btn btn-xs btn-danger pull-right" ng-click="delete_link(device)" stop-event>
+		    <li class="list-group-item" style="cursor: pointer;" ng-repeat="record in device.config.database | orderBy: 'name'" ng-click="edit_link(record)" ng-show="record.used">
+		      <button class="btn btn-xs btn-danger pull-right" ng-click="delete_link(record)" stop-event>
 		      	<i class="icon-trash"></i>
 		      </button>
 		      <div>
-		      	<i class="icon-uploadalt" ng-show="device.controller"></i>
-		      	<i class="icon-download-alt" ng-show="!device.controller"></i>
-		      	{{device.name || device.address}}
+		      	<i class="icon-uploadalt" ng-show="record.controller"></i>
+		      	<i class="icon-download-alt" ng-show="!record.controller"></i>
+		      	{{record.name || record.address}}
 		      </div>
 		      <div><small>
-			      <span ng-show="!device.controller">
-			      Level: {{device.on_level / 255 * 100 | number: 0}}% in {{device.ramp_rate | insteonRate}} 
+			      <span ng-show="!record.controller">
+			      Level: {{record.on_level / 255 * 100 | number: 0}}% in {{record.ramp_rate | insteonRate}}
 			      </span>
-			      <span ng-show="device.controller">
-			      Turn on <span ng-show="device.button > 1">button {{device.button}}</span>
+			      <span ng-show="record.controller">
+			      Turn on <span ng-show="record.button > 1">button {{record.button}}</span>
 			      </span>
-			      <span ng-show="device.group > 1">
-			      for scene {{device.group}}
+			      <span ng-show="record.group > 1">
+			      for scene {{record.group}}
 			      </span>
 		      </small></div>
 		    </li>

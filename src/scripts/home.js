@@ -33,7 +33,7 @@ home.config(['$stateProvider', '$urlRouterProvider', function($state, $urlRouter
           }, function () {
             defer.resolve({});
           });
-          
+
           return defer.promise;
         }]
       }
@@ -280,7 +280,7 @@ home.directive('controller', [function () {
       args: '=?',
       onsuccess: '=',
     },
-    templateUrl: '/views/home/controller.html',
+    templateUrl: './views/home/controller.html',
     controller: ['$scope', '$timeout', '$interval', 'abode', 'Devices', 'Scenes', 'Rooms', 'Notifications', function ($scope, $timeout, $interval, abode, Devices, Scenes, Rooms, Notifications) {
       var types = {
         'devices': Devices, 'device': Devices,
@@ -432,7 +432,7 @@ home.directive('controller', [function () {
           $timeout.cancel($scope.loader);
         }
         $scope.failed = false;
-        
+
         if (action === 'toggle') {
           func = ($scope.obj._on || $scope.obj._lights_on) ? $scope.obj.$off : $scope.obj.$on;
         } else if ($scope.obj['$' + action]) {

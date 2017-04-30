@@ -6,16 +6,16 @@ devices.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.devices', {
     url: '/devices',
-    templateUrl: '/views/devices/devices.html',
+    templateUrl: './views/devices/devices.html',
   })
   .state('main.devices.list', {
     url: '/list',
-    templateUrl: '/views/devices/devices.list.html',
+    templateUrl: './views/devices/devices.list.html',
     controller: 'devicesList'
   })
   .state('main.devices.add', {
     url: '/add',
-    templateUrl: '/views/devices/devices.add.html',
+    templateUrl: './views/devices/devices.add.html',
     controller: 'devicesAdd',
     resolve: {
       'providers': function ($q, $http, abode) {
@@ -44,7 +44,7 @@ devices.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.devices.edit', {
     url: '/:name',
-    templateUrl: '/views/devices/devices.edit.html',
+    templateUrl: './views/devices/devices.edit.html',
     controller: 'devicesEdit',
     resolve: {
       'device': function ($stateParams, $state, abode, Devices) {
@@ -1075,7 +1075,7 @@ devices.controller('devicesEdit', function ($scope, $state, $uibModal, abode, de
   $scope.rooms = [];
   $scope.loading = false;
   $scope.section = 'provider';
-  $scope.provider_template = '/views/providers/' + device.provider + '/edit.html';
+  $scope.provider_template = './views/providers/' + device.provider + '/edit.html';
 
 
   if (!device) {
@@ -1336,7 +1336,7 @@ devices.directive('selectDevice', function () {
                     found = (device.capabilities.indexOf(c) >= 0) ? true : found;
                   });
 
-                  return found; 
+                  return found;
                 });
               }
               $uiscope.loading = false;
