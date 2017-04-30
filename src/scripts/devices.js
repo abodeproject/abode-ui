@@ -1213,7 +1213,7 @@ devices.controller('devicesAdd', function ($scope, $state, abode, Devices, provi
   $scope.provider_templates = {};
 
   $scope.providers.forEach(function (p) {
-    $scope.provider_templates[p] = '/views/providers/' + p + '/add.html';
+    $scope.provider_templates[p] = './views/providers/' + p + '/add.html';
   });
 
   $scope.back = function () {
@@ -1227,7 +1227,7 @@ devices.controller('devicesAdd', function ($scope, $state, abode, Devices, provi
   $scope.changeProvider = function (p) {
     $scope.device.provider = p;
     $scope.section = 'settings';
-    $scope.provider_template = '/views/providers/' + p + '/add.html';
+    $scope.provider_template = './views/providers/' + p + '/add.html';
   };
 
   $scope.add = function () {

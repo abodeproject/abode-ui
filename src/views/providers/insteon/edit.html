@@ -15,14 +15,14 @@
 	<div ng-hide="has_capability('scene')">
 		<div class="form-group">
 			<div class="row">
-				<div class="col-sm-4">Device Cat</div>
-				<div class="col-sm-4">Sub Cat</div>
-				<div class="col-sm-4">Firmware</div>
+				<div class="col-xs-4">Device Cat</div>
+				<div class="col-xs-4">Sub Cat</div>
+				<div class="col-xs-4">Firmware</div>
 			</div>
 			<div class="row">
-				<div class="col-sm-4">{{device.config.device_cat | toHex}}</div>
-				<div class="col-sm-4">{{device.config.device_subcat | toHex}}</div>
-				<div class="col-sm-4">{{device.config.firmware | toHex}}</div>
+				<div class="col-xs-4">{{device.config.device_cat | toHex}}</div>
+				<div class="col-xs-4">{{device.config.device_subcat | toHex}}</div>
+				<div class="col-xs-4">{{device.config.firmware | toHex}}</div>
 			</div>
 		</div>
 	</div>
@@ -72,7 +72,7 @@
 			      Turn on <span ng-show="record.button > 1">button {{record.button}}</span>
 			      </span>
 			      <span ng-show="record.group > 1">
-			      scene {{record.group}}
+			      	with scene {{record.group}}
 			      </span>
 		      </small></div>
 		    </li>
