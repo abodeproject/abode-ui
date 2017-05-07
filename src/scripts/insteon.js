@@ -75,10 +75,11 @@ angular.module('insteon', [])
     return defer.promise;
   };
 
-  var enterlinking = function (addr) {
+  var enterlinking = function (addr, group) {
     var defer = $q.defer();
 
-    $http.post(abode.url('/api/insteon/devices/' + addr + '/enter_linking_mode').value()).then(function (response) {
+    group = group || 1;
+    $http.post(abode.url('/api/insteon/devices/' + addr + '/enter_linking_mode/' + group).value()).then(function (response) {
       defer.resolve(response.data);
     }, function (err) {
       defer.reject(err);
@@ -87,10 +88,11 @@ angular.module('insteon', [])
     return defer.promise;
   };
 
-  var enterunlinking = function (addr) {
+  var enterunlinking = function (addr, group) {
     var defer = $q.defer();
 
-    $http.post(abode.url('/api/insteon/devices/' + addr + '/enter_unlinking_mode').value()).then(function (response) {
+    group = group || 1;
+    $http.post(abode.url('/api/insteon/devices/' + addr + '/enter_unlinking_mode/' + group).value()).then(function (response) {
       defer.resolve(response.data);
     }, function (err) {
       defer.reject(err);
@@ -99,10 +101,10 @@ angular.module('insteon', [])
     return defer.promise;
   };
 
-  var set_button_tap = function (addr) {
+  var exitlinking = function (addr) {
     var defer = $q.defer();
 
-    $http.post(abode.url('/api/insteon/devices/' + addr + '/set_button_tap').value()).then(function (response) {
+    $http.post(abode.url('/api/insteon/devices/' + addr + '/exit_linking_mode').value()).then(function (response) {
       defer.resolve(response.data);
     }, function (err) {
       defer.reject(err);
@@ -213,7 +215,7 @@ angular.module('insteon', [])
     beep: beep,
     enterlinking: enterlinking,
     enterunlinking: enterunlinking,
-    set_button_tap: set_button_tap,
+    exitlinking: exitlinking,
     delete_database_record: delete_database_record,
     rates: rates,
     get_devices: get_devices,
@@ -355,16 +357,16 @@ angular.module('insteon', [])
     insteon.beep($scope.device.config.address);
   };
 
-  $scope.enterlinking = function () {
-    insteon.enterlinking($scope.device.config.address);
+  $scope.enterlinking = function (group) {
+    insteon.enterlinking($scope.device.config.address, group);
   };
 
-  $scope.enterunlinking = function () {
-    insteon.enterunlinking($scope.device.config.address);
+  $scope.enterunlinking = function (group) {
+    insteon.enterunlinking($scope.device.config.address, group);
   };
 
-  $scope.set_button_tap = function () {
-    insteon.set_button_tap($scope.device.config.address);
+  $scope.exitlinking = function () {
+    insteon.exitlinking($scope.device.config.address);
   };
 
   $scope.add_link = function () {

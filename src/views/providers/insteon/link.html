@@ -10,8 +10,20 @@
         <select class="form-control" ng-model="record.address" ng-options="device.config.address as device.name for device in devices"></select>
     </div>
     <div class="form-group" ng-show="!record.controller">
-        <label for="address">Scene</label>
+        <label for="address">
+            <span ng-show="!record.controller">When this Scene is received:</span>
+            <span ng-show="record.controller">Send this Scene</span>
+        </label>
         <rzslider rz-slider-model="record.group" rz-slider-options="{floor: 1, ceil: 255, hideLimitLabels: true}" rz-slider-tpl-url="vendor/angularjs-slider/src/rzSliderTpl.html"></rzslider>
+    </div>
+    <div class="form-group">
+        <label for="address">
+            <span ng-show="!record.controller">Set this button</span>
+            <span ng-show="record.controller">Button</span>
+        </label>
+        <rzslider rz-slider-model="record.button" rz-slider-options="{floor: 0, ceil: 255, hideLimitLabels: true}" rz-slider-tpl-url="vendor/angularjs-slider/src/rzSliderTpl.html"></rzslider>
+
+        </select>
     </div>
     <div class="form-group" ng-show="!record.controller">
         <label for="on_level">On Level</label>
@@ -20,12 +32,6 @@
     <div class="form-group" ng-show="!record.controller">
         <label for="address">Ramp Rate</label>
         <select size="1" class="form-control" ng-model="record.ramp_rate" ng-options="rate.value as rate.text for rate in rates | orderBy:'value':true">
-        </select>
-    </div>
-    <div class="form-group" ng-show="record.controller">
-        <label for="address">Button</label>
-        <rzslider rz-slider-model="record.button" rz-slider-options="{floor: 0, ceil: 255, hideLimitLabels: true}" rz-slider-tpl-url="vendor/angularjs-slider/src/rzSliderTpl.html"></rzslider>
-
         </select>
     </div>
     <div uib-alert class="alert-danger" ng-show="error">{{error.message}}</div>
