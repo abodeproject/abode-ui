@@ -42,7 +42,7 @@ module.exports = function(grunt) {
     watch: {
       scripts: {
         files: ['Gruntfile.js', 'src/scripts/**/*.js'],
-        tasks: ['jshint', 'concat:scripts'],
+        tasks: ['jshint', 'concat:scripts', 'includereplace'],
         options: {
           interrupt: true,
           livereload: true
@@ -50,7 +50,7 @@ module.exports = function(grunt) {
       },
       styles: {
         files: ['Gruntfile.js', 'src/scripts/**/*.js'],
-        tasks: ['concat:styles']
+        tasks: ['concat:styles', 'includereplace']
       },
       templates: {
         files: ['src/views/**/*.html'],
