@@ -242,5 +242,5 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-include-replace');
 
   grunt.registerTask('default', ['jshint', 'concurrent:dev']);
-  grunt.registerTask('gen', ['copy','ngtemplates', 'jshint', 'concat']);
+  grunt.registerTask('gen', ['copy','ngtemplates', 'jshint', 'concat', 'includereplace']);
 };
