@@ -11,7 +11,7 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.settings', {
     url: '/settings',
-    templateUrl: './views/settings/settings.html',
+    templateUrl: 'views/settings/settings.html',
     controller: 'settings',
     resolve: {
       config: function (settings) {
@@ -21,7 +21,7 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.list', {
     url: '/list',
-    templateUrl: './views/settings/settings.list.html',
+    templateUrl: 'views/settings/settings.list.html',
     controller: function ($scope) {
       $scope.settings = [
         {'name': 'General', 'route': 'main.settings.general'},
@@ -40,7 +40,7 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.general', {
     url: '/general',
-    templateUrl: './views/settings/settings.general.html',
+    templateUrl: 'views/settings/settings.general.html',
     controller: 'settings',
     resolve: {
       config: function (settings) {
@@ -50,7 +50,7 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.client', {
     url: '/client',
-    templateUrl: './views/settings/settings.client.html',
+    templateUrl: 'views/settings/settings.client.html',
     controller: 'clientEdit',
     resolve: {
       interfaces: ['Interfaces', function (Interfaces) {
@@ -64,21 +64,21 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.users', {
     url: '/users',
-    templateUrl: './views/settings/settings.users.html',
+    templateUrl: 'views/settings/settings.users.html',
   })
   .state('main.settings.users.list', {
     url: '/list',
-    templateUrl: './views/settings/settings.users.list.html',
+    templateUrl: 'views/settings/settings.users.list.html',
     controller: 'usersList',
   })
   .state('main.settings.users.add', {
     url: '/add',
-    templateUrl: './views/settings/settings.users.add.html',
+    templateUrl: 'views/settings/settings.users.add.html',
     controller: 'usersAdd',
   })
   .state('main.settings.users.edit', {
     url: '/:id',
-    templateUrl: './views/settings/settings.users.edit.html',
+    templateUrl: 'views/settings/settings.users.edit.html',
     controller: 'usersEdit',
     resolve: {
       'user': ['$q', '$stateParams', 'Users', function ($q, $stateParams, Users) {
@@ -97,21 +97,21 @@ settings.config(function($stateProvider, $urlRouterProvider) {
 
   .state('main.settings.pins', {
     url: '/pins',
-    templateUrl: './views/settings/settings.pins.html',
+    templateUrl: 'views/settings/settings.pins.html',
   })
   .state('main.settings.pins.list', {
     url: '/list',
-    templateUrl: './views/settings/settings.pins.list.html',
+    templateUrl: 'views/settings/settings.pins.list.html',
     controller: 'pinsList',
   })
   .state('main.settings.pins.add', {
     url: '/add',
-    templateUrl: './views/settings/settings.pins.add.html',
+    templateUrl: 'views/settings/settings.pins.add.html',
     controller: 'pinsAdd',
   })
   .state('main.settings.pins.edit', {
     url: '/:id',
-    templateUrl: './views/settings/settings.pins.edit.html',
+    templateUrl: 'views/settings/settings.pins.edit.html',
     controller: 'pinsEdit',
     resolve: {
       'pin': ['$q', '$stateParams', 'Pins', function ($q, $stateParams, Pins) {
@@ -129,21 +129,21 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.interfaces', {
     url: '/interfaces',
-    templateUrl: './views/settings/settings.interfaces.html',
+    templateUrl: 'views/settings/settings.interfaces.html',
   })
   .state('main.settings.interfaces.list', {
     url: '/list',
-    templateUrl: './views/settings/settings.interfaces.list.html',
+    templateUrl: 'views/settings/settings.interfaces.list.html',
     controller: 'interfacesList',
   })
   .state('main.settings.interfaces.add', {
     url: '/add',
-    templateUrl: './views/settings/settings.interfaces.add.html',
+    templateUrl: 'views/settings/settings.interfaces.add.html',
     controller: 'interfacesAdd',
   })
   .state('main.settings.interfaces.edit', {
     url: '/:id',
-    templateUrl: './views/settings/settings.interfaces.edit.html',
+    templateUrl: 'views/settings/settings.interfaces.edit.html',
     controller: 'interfacesEdit',
     resolve: {
       iface: ['$q', '$stateParams', 'Interfaces', function ($q, $stateParams, Interfaces) {
@@ -161,11 +161,11 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.sources', {
     url: '/sources',
-    templateUrl: './views/settings/settings.sources.html',
+    templateUrl: 'views/settings/settings.sources.html',
   })
   .state('main.settings.sources.list', {
     url: '/list',
-    templateUrl: './views/settings/settings.sources.list.html',
+    templateUrl: 'views/settings/settings.sources.list.html',
     controller: 'sourceSettings',
     resolve: {
       sources: function (settings) {
@@ -175,7 +175,7 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.sources.add', {
     url: '/add',
-    templateUrl: './views/settings/settings.sources.add.html',
+    templateUrl: 'views/settings/settings.sources.add.html',
     controller: 'addSourceSettings',
     resolve: {
       sources: function (settings) {
@@ -185,7 +185,7 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.sources.edit', {
     url: '/:name',
-    templateUrl: './views/settings/settings.sources.edit.html',
+    templateUrl: 'views/settings/settings.sources.edit.html',
     controller: 'editSourceSettings',
     resolve: {
       'source': function ($stateParams, $state, settings) {
@@ -197,23 +197,23 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.sensors', {
     url: '/sensors',
-    templateUrl: './views/settings/settings.sensors.html',
+    templateUrl: 'views/settings/settings.sensors.html',
   })
   .state('main.settings.providers', {
     url: '/providers',
-    templateUrl: './views/settings/settings.providers.html',
+    templateUrl: 'views/settings/settings.providers.html',
   })
   .state('main.settings.display', {
     url: '/display',
-    templateUrl: './views/settings/settings.display.html',
+    templateUrl: 'views/settings/settings.display.html',
   })
   .state('main.settings.networking', {
     url: '/networking',
-    templateUrl: './views/settings/settings.networking.html',
+    templateUrl: 'views/settings/settings.networking.html',
   })
   .state('main.settings.advanced', {
     url: '/advanced',
-    templateUrl: './views/settings/settings.advanced.html',
+    templateUrl: 'views/settings/settings.advanced.html',
   });
 });
 

@@ -4,7 +4,7 @@ angular.module('insteon', [])
   $stateProvider
   .state('main.settings.insteon', {
     url: '/settings',
-    templateUrl: './views/providers/insteon/settings.html',
+    templateUrl: 'views/providers/insteon/settings.html',
     controller: 'insteonSettings',
     resolve: {
       status: function (insteon) {

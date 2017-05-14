@@ -129,6 +129,27 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('views/confirm.html',
+    "<div class=\"modal-header\">\n" +
+    "	<h3 ng-show=\"options.title\"><i class=\"{{options.icon}}\" ng-show=\"options.icon\"></i> {{options.title}}</h3>\n" +
+    "	<h4>{{msg}}</h4>\n" +
+    "\n" +
+    "	<div class=\"row\">\n" +
+    "		<div class=\"col-xs-7 col-xs-offset-5\">\n" +
+    "			<div class=\"btn-group btn-group-justified\">\n" +
+    "				<div class=\"btn-group\" role=\"group\">\n" +
+    "			    	<button class=\"btn btn-primary btn-sm\" type=\"button\" ng-click=\"no()\">No</button>\n" +
+    "				</div>\n" +
+    "				<div class=\"btn-group\" role=\"group\">\n" +
+    "			    	<button class=\"btn btn-success btn-sm\" type=\"button\" ng-click=\"yes()\">Yes</button>\n" +
+    "				</div>\n" +
+    "		    </div>\n" +
+    "	    </div>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
   $templateCache.put('views/devices/assign.html',
     "<div class=\"modal-header\"><h3>Assign Room</h3></div>\n" +
     "\n" +
@@ -152,6 +173,206 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "<div class=\"modal-footer\">\n" +
     "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"cancel()\">Cancel</button>\n" +
     "</div>\n"
+  );
+
+
+  $templateCache.put('views/devices/capabilities/battery_sensor.html',
+    "\n" +
+    "<h4 style=\" white-space: nowrap\">{{device._battery | number:0}}%\n" +
+    "	<i class=\"icon-batteryaltthird text-danger\" ng-show=\"device._battery <= 50\"></i>\n" +
+    "	<i class=\"icon-batteryaltsixty text-warning\" ng-show=\"device._battery > 50 && device._battery < 75\"></i>\n" +
+    "	<i class=\"icon-batteryaltfull text-success\" ng-show=\"device._battery >= 75\"></i>\n" +
+    "</h4>\n"
+  );
+
+
+  $templateCache.put('views/devices/capabilities/camera.html',
+    "<div style=\"text-align: center;\">\n" +
+    "  <img src=\"/api/sources/{{source}}/devices/{{device.name}}/image\" style=\"width: 100%; cursor: pointer\" ng-click=\"openVideo(device)\" ng-if=\"source\">\n" +
+    "  <img src=\"/api/devices/{{device.name}}/image\" style=\"width: 100%; cursor: pointer\" ng-click=\"openVideo(device)\" ng-if=\"!source\">\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/devices/capabilities/conditioner.html',
+    "<div class=\"container-fluid\">\n" +
+    "  <div class=\"col-xs-5\" style=\"padding-top: 0em; font-size: .7em;\">\n" +
+    "    <div class=\"img-circle\" ng-click=\"set_mode('HEAT')\" ng-class=\"{'bg-muted': device._mode == 'HEAT', 'bg-danger': (device._mode == 'HEAT' && device._on)}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"icon-fire\"></i></div>\n" +
+    "    <div class=\"img-circle\" ng-click=\"set_mode('COOL')\"  ng-class=\"{'bg-muted': device._mode == 'COOL', 'bg-info': (device._mode == 'COOL' && device._on)}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"icon-snow\"></i></div>\n" +
+    "    <div class=\"img-circle\" ng-click=\"set_mode('OFF')\"  ng-class=\"{'bg-muted': device._mode == 'OFF'}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"glyphicon glyphicon-off\"></i></div>\n" +
+    "  </div>\n" +
+    "  <div class=\"col-xs-7 text-center\" style=\"font-size: 4em;padding-top: 0em;\">\n" +
+    "    <div><i class=\"icon-chevron-up\" style=\"cursor: pointer;\" ng-click=\"temp_up()\"></i></div>\n" +
+    "    <div>{{device._set_point}}</div>\n" +
+    "    <div><i class=\"icon-chevron-down\" style=\"cursor: pointer;\" ng-click=\"temp_down()\"></i></div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/devices/capabilities/display.html',
+    "<div class=\"row\">\n" +
+    "  <p><b>Backlight</b></p>\n" +
+    "  <div class=\"col-xs-5 text-left\" style=\"padding-top: 0em;\">\n" +
+    "    <div style=\"border: .1em solid white; border-radius: .4em; height: 10em; width: 4em; text-align: center; vertical-align: middle; position: relative; cursor: pointer; padding-top: 3em; transition: 2s;\" ng-class=\"{'bg-success':  device._on}\" ng-click=\"toggle_onoff(); device.locked=undefined\">\n" +
+    "      <div style=\"text-align: center;\">\n" +
+    "        <h2><i class=\"icon-lightbulb-idea\"></i></h2>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"col-xs-7\" style=\"font-size: 2.5em; text-align: right; padding-left: 1em;\" ng-show=\"has_capability('dimmer')\">\n" +
+    "    <div style=\"width: 1em;\">\n" +
+    "      <div><i class=\"icon-chevron-up\" style=\"cursor: pointer;\" ng-click=\"level_up();\"></i></div>\n" +
+    "      <div style=\"text-align: center; font-size: .75em\">{{device._level}}<i class=\"icon-ban-circle\" ng-show=\"device._level === undefined\"></i></div>\n" +
+    "      <div><i class=\"icon-chevron-down\" style=\"cursor: pointer;\" ng-click=\"level_down();\"></i></div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <p><b>Display Lock</b></p>\n" +
+    "  <div class=\"col-xs-12\">\n" +
+    "    <div class=\"btn-group btn-group-justified\" role=\"group\" >\n" +
+    "      <div class=\"btn-group\" role=\"group\">\n" +
+    "        <button type=\"button\" class=\"btn\" ng-click=\"display_unlock();\" ng-class=\"{'btn-success': device.locked === false, 'btn-default': device.locked !== false}\"><i class=\"icon-unlock\"></i></button>\n" +
+    "      </div>\n" +
+    "      <div class=\"btn-group\" role=\"group\">\n" +
+    "        <button type=\"button\" class=\"btn\" ng-click=\"display_lock();\" ng-class=\"{'btn-success': device.locked === true, 'btn-default': device.locked !== true}\"><i class=\"icon-lock\"></i></button>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/devices/capabilities/fan.html',
+    "<div style=\"text-align: center;\">\n" +
+    "  <div style=\"border: .1em solid white; border-radius: .4em; height: 18em; width: 10em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; cursor: pointer; padding-top: 5em; transition: 2s;\" ng-class=\"{'bg-success':  device._on}\" ng-click=\"toggle_onoff()\">\n" +
+    "    <div style=\"text-align: center;\">\n" +
+    "      <h2><i class=\"icon-fan\" ng-class=\"{'spin': device._on, 'spin-stop': !device._on}\"></i></h2>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/devices/capabilities/humidity_sensor.html',
+    "\n" +
+    "<h4 style=\" white-space: nowrap\">{{device._humidity}} <i class=\"wi wi-humidity wi-fw\"></i></h4>\n"
+  );
+
+
+  $templateCache.put('views/devices/capabilities/light.html',
+    "<div class=\"container-fluid\">\n" +
+    "  <div class=\"col-xs-5 text-left\" style=\"padding-top: 0em;\">\n" +
+    "    <div style=\"border: .1em solid white; border-radius: .4em; height: 10em; width: 4em; text-align: center; vertical-align: middle; position: relative; cursor: pointer; padding-top: 3em; transition: 2s;\" ng-class=\"{'bg-success':  device._on || device._level > 0}\" ng-click=\"toggle_onoff()\">\n" +
+    "      <div style=\"text-align: center;\">\n" +
+    "        <h2><i class=\"icon-lightbulb-idea\"></i></h2>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"col-xs-3\" style=\" ng-show=\"has_capability('dimmer')\">\n" +
+    "    <div style=\"height: 10em;\">\n" +
+    "      <rzslider rz-slider-model=\"device._level\" rz-slider-options=\"{floor: 0, ceil: 100, step: 1, vertical: true, hideLimitLabels: true, hidePointerLabels: true, onEnd: level_wait}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"col-xs-4\" style=\"text-align: center; padding-left: 1em;\" ng-show=\"has_capability('dimmer')\">\n" +
+    "    <div style=\"width: 1em; font-size: 1.75em\">\n" +
+    "      <div><i class=\"icon-chevron-up\" style=\"cursor: pointer;\" ng-click=\"level_up()\"></i></div>\n" +
+    "      <div style=\"text-align: center; font-size: .75em\">{{device._level}}</div>\n" +
+    "      <div><i class=\"icon-chevron-down\" style=\"cursor: pointer;\" ng-click=\"level_down()\"></i></div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/devices/capabilities/light_sensor.html',
+    "\n" +
+    "<h4 style=\" white-space: nowrap\">{{device._lumens | number:1}} <i class=\"wi wi-day-sunny wi-fw\"></i></h4>\n"
+  );
+
+
+  $templateCache.put('views/devices/capabilities/lock.html',
+    "<div style=\"text-align: center;\">\n" +
+    "  <div style=\"border: .1em solid white; border-radius: .4em; height: 12em; width: 8em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; padding-top: 1em; transition: 2s;\" >\n" +
+    "    <div style=\"text-align: center;\">\n" +
+    "      <h2 style=\" cursor: pointer;position: absolute; top: .25em; left: 0em; width: 100%; text-align: center;\" ng-click=\"lock()\"><i class=\"icon-lock\"></i></h2>\n" +
+    "      <h2 style=\" cursor: pointer;position: absolute; bottom: .25em; left: 0em; width: 100%; text-align: center;\"  ng-click=\"unlock()\"><i class=\"icon-unlock\"></i></h2>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/devices/capabilities/motion_sensor.html',
+    "<div style=\"text-align: center;\">\n" +
+    "  <button class=\"btn btn-sm\" ng-click=\"toggle_motion()\" ng-class=\"{'btn-danger':  device._motion, 'btn-primary': !device._motion}\">&nbsp;<i class=\"fi-motion\"></i>&nbsp;</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/devices/capabilities/onoff.html',
+    "<div style=\"text-align: center;\" ng-hide=\"has_capability('dimmer') || has_capability('scene')\">\n" +
+    "  <div style=\"border: .1em solid white; border-radius: .4em; height: 6em; width: 14em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; cursor: pointer; padding-top: 1em; transition: 2s;\" ng-class=\"{'bg-success':  !device._on, 'bg-danger':  device._on}\" ng-click=\"toggle_onoff()\">\n" +
+    "    <div style=\"text-align: center;\">\n" +
+    "      <h2 ng-show=\"device._on\">On</h2>\n" +
+    "      <h2 ng-show=\"!device._on\">Off</h2>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/devices/capabilities/openclose.html',
+    "<div style=\"text-align: center;\">\n" +
+    "  <div style=\"border: .1em solid white; border-radius: .4em; height: 4em; width: 10em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; cursor: pointer;  transition: 2s;\" ng-class=\"{'bg-success':  !device._on, 'bg-danger':  device._on}\" ng-click=\"toggle_onoff()\">\n" +
+    "    <div style=\"text-align: center;\">\n" +
+    "      <h2 ng-show=\"device._on\">Open</h2>\n" +
+    "      <h2 ng-show=\"!device._on\">Closed</h2>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/devices/capabilities/scene.html',
+    "<div style=\"text-align: center;\" ng-hide=\"has_capability('dimmer')\">\n" +
+    "  <div style=\"border: .1em solid white; border-radius: .4em; height: 10em; width: 14em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; cursor: pointer; transition: 2s;\">\n" +
+    "    <div style=\"text-align: center;\">\n" +
+    "      <h2  ng-click=\"on()\">On</h2>\n" +
+    "      <div>&nbsp;</div>\n" +
+    "      <h2  ng-click=\"off()\">Off</h2>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/devices/capabilities/shade.html',
+    "<div class=\"container-fluid\">\n" +
+    "  <div class=\"col-xs-5 text-left\" style=\"padding-top: 0em;\">\n" +
+    "    <div style=\"border: .1em solid white; border-radius: .4em; height: 10em; width: 4em; text-align: center; vertical-align: middle; position: relative; cursor: pointer; padding-top: 3em; transition: 2s;\" ng-click=\"toggle_onoff()\">\n" +
+    "      <div style=\"background-color: #666; position: absolute; left: 0px; right: 0px; top: 0px; bottom: {{device._level}}%;\"></div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"col-xs-3\">\n" +
+    "    <div style=\"height: 10em;\">\n" +
+    "      <rzslider rz-slider-model=\"device._level\" rz-slider-options=\"{floor: 0, ceil: 100, step: 1, vertical: true, hideLimitLabels: true, hidePointerLabels: true, onEnd: level_wait}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"col-xs-4\" style=\"text-align: center; padding-left: 1em;\">\n" +
+    "    <div style=\"width: 1em; font-size: 1.75em\">\n" +
+    "      <div><i class=\"icon-chevron-up\" style=\"cursor: pointer;\" ng-click=\"level_up()\"></i></div>\n" +
+    "      <div style=\"text-align: center; font-size: .75em\">{{device._level}}</div>\n" +
+    "      <div><i class=\"icon-chevron-down\" style=\"cursor: pointer;\" ng-click=\"level_down()\"></i></div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/devices/capabilities/temperature_sensor.html',
+    "\n" +
+    "<h4 style=\" white-space: nowrap\">{{device._temperature}} <i class=\"wi wi-thermometer wi-fw\"></i></h4>\n"
   );
 
 
@@ -546,6 +767,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('views/index.html',
+    "<div ui-view></div>"
+  );
+
+
   $templateCache.put('views/main/display_popover.html',
     "<div style=\"width: 240px;\">\n" +
     "  <div class=\"container-fluid\">\n" +
@@ -852,6 +1078,15 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "	<div class=\"tag-list-tags\">\n" +
     "		<div class=\"tag-list-tag\" ng-repeat=\"tag in tagModel\">{{tag}} <i class=\"icon-remove-circle text-default pointer\" ng-click=\"removeTag($index)\"></i></div>\n" +
     "	</div>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('views/message.html',
+    "<div class=\"messages\" ng-class=\"{'messages-active': messages.length > 0}\">\n" +
+    "  <div class=\"messages-message\" ng-repeat=\"message in messages\">\n" +
+    "    <i class=\"\" ng-class=\"{'text-success': message.type == 'success', 'text-info': message.type == 'info', 'text-danger': message.type == 'failed', 'icon-ok-sign': message.type == 'success', 'icon-info-sign': message.type == 'info', 'icon-warning-sign': message.type == 'failed'}\"></i> {{message.message}}\n" +
+    "  </div>\n" +
     "</div>"
   );
 
@@ -1231,6 +1466,1525 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "<div class=\"modal-footer\">\n" +
     "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"ok()\">Close</button>\n" +
     "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/autoshades/add.device.html',
+    "<div class=\"modal-header\"><h3>Assign Device</h3></div>\n" +
+    "\n" +
+    "<div class=\"modal-body\">\n" +
+    "  <p>\n" +
+    "    <div class=\"input-group\" ng-hide=\"loading\">\n" +
+    "      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"search\" autocomplete='off'>\n" +
+    "      <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "    </div>\n" +
+    "  </p>\n" +
+    "\n" +
+    "  <div ng-show=\"loading\"><i class=\"icon-refresh spin\"></i> Loading Shades</div>\n" +
+    "  <div class=\"form-group\" ng-hide=\"loading\">\n" +
+    "    <ul class=\"list-group\">\n" +
+    "      <li style=\"cursor: pointer;\" class=\"list-group-item\" ng-repeat=\"device in devices | filter: search | orderBy: '+name'\" ng-click=\"select(device)\" ng-show=\"assigned.indexOf(device.name) == -1\">{{device.name}}</li>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "\n" +
+    "\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"cancel()\">Cancel</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/autoshades/add.html',
+    "<div ng-controller=\"autoshadesAdd\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Level at Sunrise <toggle value=\"device.config.sunrise\" class=\"pull-right\"></toggle></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <rzslider rz-slider-model=\"device.config.sunrise_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.sunrise}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Follow the Sun <toggle value=\"device.config.track\" class=\"pull-right\"></toggle></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Mode</label>\n" +
+    "        <select class=\"form-control\" ng-model=\"device.config.mode\" ng-options=\"item for item in modes\" ng-disabled=\"!device.config.track\"></select>\n" +
+    "      </div>\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Min Azimuth</label>\n" +
+    "        <rzslider rz-slider-model=\"device.config.min_azimuth\" rz-slider-options=\"{floor: 0, ceil: 360, hideLimitLabels: true, disabled: !device.config.track}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "      </div>\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Max Azimuth</label>\n" +
+    "        <rzslider rz-slider-model=\"device.config.max_azimuth\" rz-slider-options=\"{floor: 0, ceil: 360, hideLimitLabels: true, disabled: !device.config.track}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Cloudy Level</div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Device</label>\n" +
+    "        <select-device value=\"device.config.weather\" capabilities=\"['weather']\"></select-device>\n" +
+    "      </div>\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <rzslider rz-slider-model=\"device.config.cloudy_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.weather}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Level at Sunset <toggle value=\"device.config.sunset\" class=\"pull-right\"></toggle></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <rzslider rz-slider-model=\"device.config.sunset_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.sunset}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">\n" +
+    "      Shades \n" +
+    "      <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"addDevice()\"><i class=\"icon-circleadd\"></i> Add</button>\n" +
+    "    </div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <ul class=\"list-group bg-muted select-list\" style=\"height: 20em;\">\n" +
+    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"device in device.config.devices\" ng-class=\"{'list-group-item-success': device === selected}\">\n" +
+    "          {{device.name}}\n" +
+    "          <button class=\"pull-right btn btn-danger btn-xs\" ng-click=\"deleteDevice(device.$index)\"><i class=\"icon-trash\"></i></button>\n" +
+    "          <rzslider rz-slider-model=\"device.min_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "          <div><small>Wait until level: {{device.wait_level}}%</small></div>\n" +
+    "          <rzslider rz-slider-model=\"device.wait_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "          <div><small>Min Level: {{device.min_level}}%</small></div>\n" +
+    "        </li>\n" +
+    "      </ul>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/autoshades/edit.html',
+    "<div ng-controller=\"autoshadesEdit\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Level at Sunrise <toggle value=\"device.config.sunrise\" class=\"pull-right\"></toggle></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <rzslider rz-slider-model=\"device.config.sunrise_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.sunrise}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Follow the Sun <toggle value=\"device.config.track\" class=\"pull-right\"></toggle></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Mode</label>\n" +
+    "        <select class=\"form-control\" ng-model=\"device.config.mode\" ng-options=\"item for item in modes\" ng-disabled=\"!device.config.track\"></select>\n" +
+    "      </div>\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Min Azimuth</label>\n" +
+    "        <rzslider rz-slider-model=\"device.config.min_azimuth\" rz-slider-options=\"{floor: 0, ceil: 360, hideLimitLabels: true, disabled: !device.config.track}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "      </div>\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Max Azimuth</label>\n" +
+    "        <rzslider rz-slider-model=\"device.config.max_azimuth\" rz-slider-options=\"{floor: 0, ceil: 360, hideLimitLabels: true, disabled: !device.config.track}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Cloudy Level</div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Device</label>\n" +
+    "        <select-device value=\"device.config.weather\" capabilities=\"['weather']\"></select-device>\n" +
+    "      </div>\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <rzslider rz-slider-model=\"device.config.cloudy_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.weather}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Level at Sunset <toggle value=\"device.config.sunset\" class=\"pull-right\"></toggle></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <rzslider rz-slider-model=\"device.config.sunset_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.sunset}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">\n" +
+    "      Shades \n" +
+    "      <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"addDevice()\"><i class=\"icon-circleadd\"></i> Add</button>\n" +
+    "    </div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <ul class=\"list-group bg-muted select-list\" style=\"height: 20em;\">\n" +
+    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"device in device.config.devices\" ng-class=\"{'list-group-item-success': device === selected}\">\n" +
+    "          {{device.name}}\n" +
+    "          <button class=\"pull-right btn btn-danger btn-xs\" ng-click=\"deleteDevice(device.$index)\"><i class=\"icon-trash\"></i></button>\n" +
+    "          <rzslider rz-slider-model=\"device.wait_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "          <div><small>Wait until level: {{device.wait_level}}%</small></div>\n" +
+    "          <rzslider rz-slider-model=\"device.min_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "          <div><small>Min Level: {{device.min_level}}%</small></div>\n" +
+    "        </li>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/autoshades/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Auto-Shades\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Process Interval (min)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Process Interval\" required=\"\" ng-model=\"config.interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"debug\">Debug Logging: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('views/providers/browser/edit.html',
+    "<div ng-controller=\"radEdit\">\n" +
+    "	<div class=\"form-group\">\n" +
+    "	  <label for=\"name\">Name</label>\n" +
+    "	  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\">\n" +
+    "		<label for=\"enabled\">Default Interface: </label>\n" +
+    "		<select class=\"form-control\" ng-model=\"device.config.interface\" ng-options=\"iface._id as iface.name for iface in interfaces | orderBy:'name'\"></select>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\">\n" +
+    "		<label for=\"enabled\">Show events in Browser: </label>\n" +
+    "		<toggle value=\"device.config.show_events\" class=\"pull-right\"></toggle>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\">\n" +
+    "		<label for=\"enabled\">Dim Display: </label>\n" +
+    "		<toggle value=\"device.config.dim_display\" class=\"pull-right\"></toggle>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\" ng-show=\"device.config.dim_display\">\n" +
+    "		<label for=\"enabled\">Dim After: </label>\n" +
+    "		<input class=\"form-control\" type=\"number\" placeholder=\"Seconds\" ng-model=\"device.config.dim_after\">\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\">\n" +
+    "		<label for=\"enabled\">Night Mode (changes text to red at night): </label>\n" +
+    "		<toggle value=\"device.config.night_mode\" class=\"pull-right\"></toggle>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\">\n" +
+    "		<label for=\"enabled\">Show Date: </label>\n" +
+    "		<toggle value=\"device.config.show_date\" class=\"pull-right\"></toggle>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\">\n" +
+    "		<label for=\"enabled\">Show Weather: </label>\n" +
+    "		<toggle value=\"device.config.show_weather\" class=\"pull-right\"></toggle>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\">\n" +
+    "	  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "	  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "	</div>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('views/providers/camera/add.html',
+    "<div ng-controller=\"cameraAdd\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Username</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"username\" placeholder=\"Username\" ng-model=\"device.config.username\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Password</label>\n" +
+    "    <input type=\"password\" class=\"form-control\" id=\"password\" placeholder=\"Password\" ng-model=\"device.config.password\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Video URL</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"video_url\" placeholder=\"Video URL\" ng-model=\"device.config.video_url\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Image URL</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"image_url\" placeholder=\"Image URL\" ng-model=\"device.config.image_url\">\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/camera/edit.html',
+    "<div ng-controller=\"cameraEdit\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Username</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"username\" placeholder=\"Username\" ng-model=\"device.config.username\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Password</label>\n" +
+    "    <input type=\"password\" class=\"form-control\" id=\"password\" placeholder=\"Password\" ng-model=\"device.config.password\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Video URL</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"video_url\" placeholder=\"Video URL\" ng-model=\"device.config.video_url\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Image URL</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"image_url\" placeholder=\"Image URL\" ng-model=\"device.config.image_url\">\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "    <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/camera/settings.html',
+    ""
+  );
+
+
+  $templateCache.put('views/providers/ifttt/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Providers / IFTTT\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Debug: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('views/providers/insteon/add.html',
+    "<div ng-controller=\"insteonAdd\">\n" +
+    "  <div class=\"form-group\" ng-hide=\"type\">\n" +
+    "    <h3>Step 1: Device Type</h3>\n" +
+    "    <ul class=\"insteon-types\">\n" +
+    "      <li ng-repeat=\"t in device_types\" ng-click=\"changeType(t)\" ng-class=\"{'bg-success': type.name == t.name}\">{{t.name}}</li>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
+    "  {{type}}\n" +
+    "  <div class=\"form-group\" ng-show=\"type.controller !== undefined && !device.config.address\">\n" +
+    "    <div>\n" +
+    "      <h3>Step 2: Link your Device</h3>\n" +
+    "      <div>&nbsp;</div>\n" +
+    "      <div>Link Status: {{link_status | capitalize}} {{error.message}}</div>\n" +
+    "      <div>&nbsp;</div>\n" +
+    "      <div>\n" +
+    "      <button ng-click=\"start_linking()\" class=\"btn btn-primary\" ng-disabled=\"link_status=='linking'\">Start Linking</button>\n" +
+    "      <button ng-click=\"cancel_linking()\" class=\"btn btn-warning\" ng-disabled=\"link_status=='idle'\">Cancel Linking</button>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\" ng-show=\"type.controller !== undefined && device.config.address\">\n" +
+    "    <h3>Step 3: Name Your Device</h3>\n" +
+    "    <label for=\"name\">Name ({{device.config.address}})</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div ng-show=\"type && type.controller === undefined\">\n" +
+    "    <h3>Step 2: Build Scene</h3>\n" +
+    "    <div>&nbsp;</div>\n" +
+    "\n" +
+    "    <div class=\"form-group\">\n" +
+    "      <label for=\"name\">Name</label>\n" +
+    "      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <div class=\"form-group\">\n" +
+    "      <label for=\"name\">Scene Number</label>\n" +
+    "      <input type=\"text\" class=\"form-control\" id=\"scene\" placeholder=\"Scene\" required=\"\" ng-model=\"device.config.address\">\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/insteon/confirm_delete.html',
+    "\n" +
+    "<div class=\"modal-body\">\n" +
+    "    <h3 class=\"text-center\"><i class=\"icon-warning-sign text-warning\"></i> Delete this link?</h3>\n" +
+    "    <p>\n" +
+    "        <small>If this is a battery operated device, hold the set button until linking mode has been entered.</small>\n" +
+    "    </p>\n" +
+    "    <div uib-alert class=\"alert-danger\" ng-show=\"error\">{{error.message}}</div>\n" +
+    "</div>\n" +
+    "\n" +
+    "\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"cancel()\" ng-disabled=\"loading\">Cancel</button>\n" +
+    "    <button class=\"btn btn-sm\" type=\"button\" ng-click=\"confirm()\" ng-disabled=\"loading\" ng-class=\"{'btn-primary': loading, 'btn-danger': !loading}\">\n" +
+    "        <span ng-hide=\"loading\"><i class=\"icon-trash\"></i> Yes</span>\n" +
+    "        <span ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Deleting</span></button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/insteon/edit.html',
+    "\n" +
+    "<div ng-controller=\"insteonEdit\">\n" +
+    "	<div class=\"form-group\">\n" +
+    "	  <label for=\"name\">Name</label>\n" +
+    "	  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div ng-hide=\"has_capability('scene')\">\n" +
+    "		<div class=\"form-group\">\n" +
+    "		  <label for=\"address\">Device Number</label>\n" +
+    "		  <input type=\"text\" class=\"form-control\" id=\"address\" placeholder=\"Address\" required=\"\" ng-model=\"device.config.address\" readonly>\n" +
+    "		</div>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div ng-hide=\"has_capability('scene')\">\n" +
+    "		<div class=\"form-group\">\n" +
+    "			<div class=\"row\">\n" +
+    "				<div class=\"col-xs-4\">Device Cat</div>\n" +
+    "				<div class=\"col-xs-4\">Sub Cat</div>\n" +
+    "				<div class=\"col-xs-4\">Firmware</div>\n" +
+    "			</div>\n" +
+    "			<div class=\"row\">\n" +
+    "				<div class=\"col-xs-4\">{{device.config.device_cat | toHex}}</div>\n" +
+    "				<div class=\"col-xs-4\">{{device.config.device_subcat | toHex}}</div>\n" +
+    "				<div class=\"col-xs-4\">{{device.config.firmware | toHex}}</div>\n" +
+    "			</div>\n" +
+    "		</div>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div ng-show=\"has_capability('scene')\">\n" +
+    "		<div class=\"form-group\">\n" +
+    "		  <label for=\"name\">Scene Number</label>\n" +
+    "		  <input type=\"text\" class=\"form-control\" id=\"scene\" placeholder=\"Scene\" required=\"\" ng-model=\"device.config.address\">\n" +
+    "		</div>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div ng-hide=\"has_capability('scene')\">\n" +
+    "		<div class=\"form-group\">\n" +
+    "			<button class=\"btn btn-sm btn-primary\" ng-click=\"beep()\"><i class=\"icon-volume-down\"></i> Beep</button>\n" +
+    "\n" +
+    "			<div class=\"btn-group\" uib-dropdown>\n" +
+    "			  <button id=\"split-button\" type=\"button\" class=\"btn btn-sm btn-primary\"  ng-click=\"enterlinking()\">Linking</button>\n" +
+    "			  <button type=\"button\" class=\"btn btn-sm btn-primary\" uib-dropdown-toggle>\n" +
+    "				<span class=\"caret\"></span>\n" +
+    "			  </button>\n" +
+    "			  <ul class=\"dropdown-menu\" uib-dropdown-menu role=\"menu\" aria-labelledby=\"split-button\">\n" +
+    "				<li role=\"menuitem\" ng-repeat=\"n in [].constructor(8) track by $index\"><a style=\"cursor: pointer\" ng-click=\"enterlinking($index + 1)\">Scene {{$index + 1}}</a></li>\n" +
+    "			  </ul>\n" +
+    "			</div>\n" +
+    "\n" +
+    "			<div class=\"btn-group\" uib-dropdown>\n" +
+    "			  <button id=\"split-button\" type=\"button\" class=\"btn btn-sm btn-primary\"  ng-click=\"enterunlinking()\">Un-Linking</button>\n" +
+    "			  <button type=\"button\" class=\"btn btn-sm btn-primary\" uib-dropdown-toggle>\n" +
+    "				<span class=\"caret\"></span>\n" +
+    "			  </button>\n" +
+    "			  <ul class=\"dropdown-menu\" uib-dropdown-menu role=\"menu\" aria-labelledby=\"split-button\">\n" +
+    "				<li role=\"menuitem\" ng-repeat=\"n in [].constructor(8) track by $index\"><a style=\"cursor: pointer\" ng-click=\"enterunlinking($index + 1)\">Scene {{$index + 1}}</a></li>\n" +
+    "			  </ul>\n" +
+    "			</div>\n" +
+    "\n" +
+    "			<button class=\"btn btn-sm btn-primary\" ng-click=\"exitlinking()\"><i class=\"icon-circlestopempty\"></i> Stop Linking</button>\n" +
+    "		</div>\n" +
+    "	</div>\n" +
+    "\n" +
+    "\n" +
+    "	<div>\n" +
+    "		<div class=\"form-group\">\n" +
+    "		  <label for=\"name\">Links</label>\n" +
+    "	      <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"add_link()\">\n" +
+    "	      	<i class=\"icon-circleadd\"></i> Add</button>\n" +
+    "	      <button class=\"pull-right btn btn-xs\" ng-class=\"{'btn-info': !loading && !error, 'btn-primary': loading, 'btn-danger': error}\" ng-click=\"reload_database()\" ng-disabled=\"loading\">\n" +
+    "	      	<i class=\"icon-refresh\" ng-show=\"!loading && !error\"></i>\n" +
+    "	      	<i class=\"icon-circleselection spin\" ng-show=\"loading\"></i>\n" +
+    "	      	<i class=\"icon-erroralt\" ng-show=\"error\"></i>\n" +
+    "	      	Reload</button>\n" +
+    "		  <ul class=\"list-group bg-muted select-list\" style=\"height: 20em;\">\n" +
+    "		    <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"record in device.config.database | orderBy: 'name'\" ng-click=\"edit_link(record)\" ng-show=\"record.used\">\n" +
+    "		      <button class=\"btn btn-xs btn-danger pull-right\" ng-click=\"delete_link(record)\" stop-event>\n" +
+    "		      	<i class=\"icon-trash\"></i>\n" +
+    "		      </button>\n" +
+    "		      <div>\n" +
+    "		      	<i class=\"icon-uploadalt\" ng-show=\"record.controller\"></i>\n" +
+    "		      	<i class=\"icon-download-alt\" ng-show=\"!record.controller\"></i>\n" +
+    "				  {{record.name || record.address}}<span ng-show=\"record.name\"> ({{record.address}})</span>\n" +
+    "		      </div>\n" +
+    "		      <div><small>\n" +
+    "			      <span ng-show=\"!record.controller\">\n" +
+    "					  When scene {{record.group}}, use on level of {{record.on_level / 255 * 100 | number: 0}}% in {{record.ramp_rate | insteonRate}}<span ng-show=\"record.button > 1\"> and button {{record.button}}</span>\n" +
+    "			      </span>\n" +
+    "			      <span ng-show=\"record.controller\">\n" +
+    "					  Send scene {{record.group}} <span ng-show=\"record.button > 1\">with button {{record.button}}</span>\n" +
+    "			      </span>\n" +
+    "		      </small></div>\n" +
+    "		    </li>\n" +
+    "		   </ul>\n" +
+    "		</div>\n" +
+    "	</div>\n" +
+    "</div>\n" +
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/insteon/link.html',
+    "<div class=\"modal-header\"><h3>{{action}} Link</h3></div>\n" +
+    "\n" +
+    "<div class=\"modal-body\">\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <select class=\"form-control\" ng-model=\"record.controller\" ng-options=\"controller.value as controller.text for controller in controller_options\">\n" +
+    "        </select>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <label for=\"on_level\">Device</label>\n" +
+    "        <select class=\"form-control\" ng-model=\"record.address\" ng-options=\"device.config.address as device.name for device in devices\"></select>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\" ng-show=\"!record.controller\">\n" +
+    "        <label for=\"address\">\n" +
+    "            <span ng-show=\"!record.controller\">When this Scene is received:</span>\n" +
+    "            <span ng-show=\"record.controller\">Send this Scene</span>\n" +
+    "        </label>\n" +
+    "        <rzslider rz-slider-model=\"record.group\" rz-slider-options=\"{floor: 1, ceil: 255, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <label for=\"address\">\n" +
+    "            <span ng-show=\"!record.controller\">Set this button</span>\n" +
+    "            <span ng-show=\"record.controller\">Button</span>\n" +
+    "        </label>\n" +
+    "        <rzslider rz-slider-model=\"record.button\" rz-slider-options=\"{floor: 0, ceil: 255, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "\n" +
+    "        </select>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\" ng-show=\"!record.controller\">\n" +
+    "        <label for=\"on_level\">On Level</label>\n" +
+    "        <rzslider rz-slider-model=\"record.on_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\" ng-show=\"!record.controller\">\n" +
+    "        <label for=\"address\">Ramp Rate</label>\n" +
+    "        <select size=\"1\" class=\"form-control\" ng-model=\"record.ramp_rate\" ng-options=\"rate.value as rate.text for rate in rates | orderBy:'value':true\">\n" +
+    "        </select>\n" +
+    "    </div>\n" +
+    "    <div uib-alert class=\"alert-danger\" ng-show=\"error\">{{error.message}}</div>\n" +
+    "</div>\n" +
+    "\n" +
+    "\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"cancel()\" ng-disabled=\"loading\">Cancel</button>\n" +
+    "    <button class=\"btn btn-sm\" type=\"button\" ng-click=\"save()\" ng-disabled=\"loading\" ng-class=\"{'btn-primary': loading, 'btn-success': !loading}\">\n" +
+    "        <span ng-hide=\"loading\"><i class=\"icon-save-floppy\"></i> Save</span>\n" +
+    "        <span ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Saving</span></button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/insteon/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Insteon\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "<!--\n" +
+    "\n" +
+    "enabled = false\n" +
+    "debug = false\n" +
+    "modem_debug = false\n" +
+    "serial_device = /dev/ttyUSB1\n" +
+    "\n" +
+    "delay = 300\n" +
+    "retries = 3\n" +
+    "\n" +
+    "-->\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Serial Device: </label>\n" +
+    "\n" +
+    "\n" +
+    "              <ul class=\"list-group bg-muted select-list\">\n" +
+    "                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"d in devices\" ng-click=\"config.serial_device = d\" ng-class=\"{'list-group-item-success': config.serial_device == d}\">\n" +
+    "                  {{d}}\n" +
+    "                </li>\n" +
+    "              </ul>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"serial_baudrate\">Serial Baudrate</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"serial_baudrate\" placeholder=\"Serial Baudrate\" required=\"\" ng-model=\"config.serial_baudrate\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"serial_databits\">Serial Databits</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"serial_databits\" placeholder=\"Serial Databits\" required=\"\" ng-model=\"config.serial_databits\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"serial_stopbits\">Serial Stopbits</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"serial_stopbits\" placeholder=\"Serial Stopbits\" required=\"\" ng-model=\"config.serial_stopbits\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"serial_parity\">Serial Parity</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"serial_parity\" placeholder=\"Serial Parity\" required=\"\" ng-model=\"config.serial_parity\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"serial_flowcontrol\">Serial Flowcontrol</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"serial_flowcontrol\" placeholder=\"Serial Flowcontrol\" required=\"\" ng-model=\"config.serial_flowcontrol\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"timeout\">Timeout (ms)</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"timeout\" placeholder=\"Timeout (ms)\" required=\"\" ng-model=\"config.timeout\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"queue_timeout\">Queue Timeout (ms)</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"queue_timeout\" placeholder=\"Queue Timeout (ms)\" required=\"\" ng-model=\"config.queue_timeout\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"delay\">Delay (ms)</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"delay\" placeholder=\"Delay (ms)\" required=\"\" ng-model=\"config.delay\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"retries\">Retries</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"retries\" placeholder=\"Retries\" required=\"\" ng-model=\"config.retries\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Debug: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Modem Debug: </label>\n" +
+    "              <toggle value=\"config.modem_debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('views/providers/insteonhub/add.html',
+    "<div ng-controller=\"insteonhubAdd\">\n" +
+    "  <div class=\"form-group\" ng-hide=\"type\">\n" +
+    "    <h3>Step 1: Device Type</h3>\n" +
+    "    <ul class=\"insteon-types\">\n" +
+    "      <li ng-repeat=\"t in device_types\" ng-click=\"changeType(t)\" ng-class=\"{'bg-success': type.name == t.name}\">{{t.name}}</li>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\" ng-show=\"type.type == 'devices' && !device.config.DeviceID\">\n" +
+    "      <button class=\"btn btn-primary btn-sm pull-right\" ng-hide=\"errors || processing\" ng-click=\"reload()\"><i class=\"icon-refresh\"></i></button>\n" +
+    "      <button class=\"btn btn-danger btn-sm pull-right\" ng-show=\"errors\" ng-click=\"reload()\"><i class=\"icon-erroralt\"></i></button>\n" +
+    "      <button class=\"btn btn-default btn-sm pull-right\" ng-show=\"processing\"><i class=\"icon-loadingalt spin\"></i></button>\n" +
+    "    <h3>Step 2: Select your Device</h3>\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div>\n" +
+    "      <ul class=\"list-group bg-muted select-list\">\n" +
+    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"d in devices\" ng-click=\"selectDevice(d)\">\n" +
+    "          {{d.DeviceName}}\n" +
+    "        </li>\n" +
+    "      </ul>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\" ng-show=\"type.type == 'scenes' && !device.config.SceneID\">\n" +
+    "      <button class=\"btn btn-primary btn-sm pull-right\" ng-hide=\"errors || processing\" ng-click=\"reload()\"><i class=\"icon-refresh\"></i></button>\n" +
+    "      <button class=\"btn btn-danger btn-sm pull-right\" ng-show=\"errors\" ng-click=\"reload()\"><i class=\"icon-erroralt\"></i></button>\n" +
+    "      <button class=\"btn btn-default btn-sm pull-right\" ng-show=\"processing\"><i class=\"icon-loadingalt spin\"></i></button>\n" +
+    "    <h3>Step 2: Select your Scene</h3>\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div>\n" +
+    "      <ul class=\"list-group bg-muted select-list\">\n" +
+    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"s in devices\" ng-click=\"selectScene(s)\">\n" +
+    "          {{s.SceneName}}\n" +
+    "        </li>\n" +
+    "      </ul>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\" ng-show=\"type.type == 'rooms' && !device.config.RoomID\">\n" +
+    "      <button class=\"btn btn-primary btn-sm pull-right\" ng-hide=\"errors || processing\" ng-click=\"reload()\"><i class=\"icon-refresh\"></i></button>\n" +
+    "      <button class=\"btn btn-danger btn-sm pull-right\" ng-show=\"errors\" ng-click=\"reload()\"><i class=\"icon-erroralt\"></i></button>\n" +
+    "      <button class=\"btn btn-default btn-sm pull-right\" ng-show=\"processing\"><i class=\"icon-loadingalt spin\"></i></button>\n" +
+    "    <h3>Step 2: Select your Room</h3>\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div>\n" +
+    "      <ul class=\"list-group bg-muted select-list\">\n" +
+    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"r in devices\" ng-click=\"selectRoom(r)\">\n" +
+    "          {{r.RoomName}}\n" +
+    "        </li>\n" +
+    "      </ul>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\" ng-show=\"device.config.DeviceID || device.config.SceneID || device.config.RoomID\">\n" +
+    "    <h3>Step 3: Confirm Your Device and Type</h3>\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/insteonhub/edit.html',
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <label for=\"name\">Name</label>\n" +
+    "  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "</div>\n" +
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/insteonhub/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Insteon Hub\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"api_key\">API Key</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"api_key\" placeholder=\"API Key\" required=\"\" ng-model=\"config.api_key\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"api_secret\">Client Secret</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"api_secret\" placeholder=\"Client Secret\" required=\"\" ng-model=\"config.api_secret\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"user\">User</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"user\" placeholder=\"Insteon User\" required=\"\" ng-model=\"config.user\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"password\">Password</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"password\" placeholder=\"Insteon Password\" required=\"\" ng-model=\"config.password\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Debug: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('views/providers/lutroncaseta/add.html',
+    "<div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Integration ID</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"integration_id\" placeholder=\"Integration ID\" required=\"\" ng-model=\"device.config.integration_id\">\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/lutroncaseta/edit.html',
+    "<div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Integration ID</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"integration_id\" placeholder=\"Integration ID\" required=\"\" ng-model=\"device.config.integration_id\">\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/lutroncaseta/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Lutron Caseta\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"key\">Bridge Host</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"key\" placeholder=\"Bridge Host\" required=\"\" ng-model=\"config.bridge_host\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"server\">Bridge Port</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"server\" placeholder=\"Bridge Port\" required=\"\" ng-model=\"config.bridge_port\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Username</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"interval\" placeholder=\"Username\" required=\"\" ng-model=\"config.username\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Password</label>\n" +
+    "              <input type=\"password\" class=\"form-control\" id=\"interval\" placeholder=\"Password\" required=\"\" ng-model=\"config.password\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Reconnect Timeout (seconds)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Reconnect Timeout\" required=\"\" ng-model=\"config.reconnect_timeout\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Message Timeout (seconds)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Message Timeout\" required=\"\" ng-model=\"config.message_time\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Queue Interval (ms)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Queue Interval\" required=\"\" ng-model=\"config.queue_interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Poll Interval (ms)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Poll Interval\" required=\"\" ng-model=\"config.poll_interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"debug\">Debug Logging: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('views/providers/mqtt/add.html',
+    "<div ng-controller=\"mqttAdd\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Topic</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"topic\" placeholder=\"Topic\" required=\"\" ng-model=\"device.config.topic\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Parser</label>\n" +
+    "    <select size=\"1\" ng-model=\"device.config.parser\"></select>\n" +
+    "    <select class=\"form-control\" size=\"1\" ng-model=\"device.config.parser\" ng-options=\"parser.value as parser.name for parser in parsers\"></select>\n" +
+    "  </div>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('views/providers/mqtt/edit.html',
+    "<div ng-controller=\"mqttEdit\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Topic</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"topic\" placeholder=\"Topic\" required=\"\" ng-model=\"device.config.topic\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Parser</label>\n" +
+    "    <select class=\"form-control\" size=\"1\" ng-model=\"device.config.parser\" ng-options=\"parser.value as parser.name for parser in parsers\"></select>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('views/providers/mqtt/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / MQTT\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"key\">Server</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"key\" placeholder=\"Server\" required=\"\" ng-model=\"config.server\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Save Wait (ms)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Reconnect Timeout\" required=\"\" ng-model=\"config.save_wait\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">min_save_age (ms)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Message Timeout\" required=\"\" ng-model=\"config.min_save_age\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('views/providers/rad/add.html',
+    "<div ng-controller=\"radAdd\">\n" +
+    "	<div ng-show=\"!connecting\">\n" +
+    "    <p ><strong>Connect to an Abode Device</strong></p>\n" +
+    "    <div class=\"list-group\">\n" +
+    "      <button type=\"button\" class=\"list-group-item list-group-item-danger\" ng-show=\"detected.length == 0 && !loading\" ng-click=\"load()\"><i class=\"icon-exclamation-sign text-danger\"></i> Unable to detect any Abode devices. Specify an address manually below or click here to retry</button>\n" +
+    "      <button type=\"button\" class=\"list-group-item\" ng-repeat=\"device in detected\" ng-click=\"connect(device)\"><i class=\"icon-home\"></i> {{device.name}}</button>\n" +
+    "      <button type=\"button\" class=\"list-group-item\" disabled ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Searching of devices...</button>\n" +
+    "      <button type=\"button\" class=\"list-group-item\" ng-show=\"!loading && sources.length > 0\" ng-click=\"load()\"><i class=\"icon-ok-sign text-success\"></i> Found {{detected.length}} Device[s]<div><small>Click to search again.</small></div></button>\n" +
+    "    </div>\n" +
+    "    <p class=\"text-center\"><strong>- or -</strong></p>\n" +
+    "    <form name=\"manualFrm\">\n" +
+    "      <div class=\"input-group\">\n" +
+    "        <input type=\"text\" class=\"form-control\" placeholder=\"Specify Manually\" ng-model=\"manual.url\">\n" +
+    "        <span class=\"input-group-btn\">\n" +
+    "          <button class=\"btn btn-default\" type=\"button\" ng-click=\"connect(manual)\">Go!</button>\n" +
+    "        </span>\n" +
+    "      </div>\n" +
+    "    </form>\n" +
+    "    </div>\n" +
+    "    <div ng-show=\"connecting\">\n" +
+    "	    <div class=\"list-group\">\n" +
+    "      		<button type=\"button\" class=\"list-group-item\" disabled ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Connecting to device...</button>\n" +
+    "      		<button type=\"button\" class=\"list-group-item\" disabled ng-show=\"!loading\"><i class=\"icon-ok-sign text-success\"></i> Connected to device, click \"Add\" to continue adding.</button>\n" +
+    "	    </div>\n" +
+    "      <div class=\"form-group\" ng-show=\"!loading\">\n" +
+    "        <label for=\"name\">Name</label>\n" +
+    "        <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" ng-model=\"device.name\" required>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/rad/edit.html',
+    "<div ng-controller=\"radEdit\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Address</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"address\" placeholder=\"Address\" required=\"\" ng-model=\"device.config.address\">\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"enabled\">Default Interface: </label>\n" +
+    "    <select class=\"form-control\" ng-model=\"device.config.interface\" ng-options=\"iface._id as iface.name for iface in interfaces | orderBy:'name'\"></select>\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"enabled\">Show events in Browser: </label>\n" +
+    "    <toggle value=\"device.config.show_events\" class=\"pull-right\"></toggle>\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"enabled\">Dim Display: </label>\n" +
+    "    <toggle value=\"device.config.dim_display\" class=\"pull-right\"></toggle>\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\" ng-show=\"device.config.dim_display\">\n" +
+    "    <label for=\"enabled\">Dim After: </label>\n" +
+    "    <rzslider rz-slider-model=\"device.config.dim_after\" rz-slider-options=\"{floor: 0, ceil: 120, step: 5, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"enabled\">Night Mode (changes text to red at night): </label>\n" +
+    "    <toggle value=\"device.config.night_mode\" class=\"pull-right\"></toggle>\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"enabled\">Show Date: </label>\n" +
+    "    <toggle value=\"device.config.show_date\" class=\"pull-right\"></toggle>\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"enabled\">Show Weather: </label>\n" +
+    "    <toggle value=\"device.config.show_weather\" class=\"pull-right\"></toggle>\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label>Minimum Brightness: </label>\n" +
+    "    <rzslider rz-slider-model=\"device.config.display.min_brightness\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"enabled\">Put Display Sleep: </label>\n" +
+    "    <toggle value=\"device.config.display.sleep\" class=\"pull-right\"></toggle>\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\" ng-show=\"device.config.display.sleep\">\n" +
+    "    <label for=\"enabled\">Sleep after (min): </label>\n" +
+    "    <rzslider rz-slider-model=\"device.config.display.wake_timer\" rz-slider-options=\"{floor: 0, ceil: 120, step: 5, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"enabled\">DHT Sensor: </label>\n" +
+    "    <select class=\"form-control\" ng-model=\"device.config.display.dht_sensor\" ng-options=\"sensor as sensor for sensor in dht_sensors\"></select>\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\" ng-show=\"device.config.display.dht_sensor\">\n" +
+    "    <label for=\"enabled\">DHT GPIO Pin: </label>\n" +
+    "        <rzslider rz-slider-model=\"device.config.display.dht_pin\" rz-slider-options=\"{floor: 0, ceil: 27, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"enabled\">Light GPIO Pin: </label>\n" +
+    "    <rzslider rz-slider-model=\"device.config.display.light_pin\" rz-slider-options=\"{floor: 0, ceil: 27, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"enabled\">Motion GPIO Pin: </label>\n" +
+    "    <rzslider rz-slider-model=\"device.config.display.motion_pin\" rz-slider-options=\"{floor: 0, ceil: 27, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "    <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "  </div>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('views/providers/rad/edit_bishop_Feb-06-121234-2016_Conflict.html',
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <label for=\"name\">Name</label>\n" +
+    "  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "</div>\n" +
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/rad/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Providers / Rad\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Interval (sec)</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"interval\" placeholder=\"Interval (sec)\" required=\"\" ng-model=\"config.interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Debug: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('views/providers/radiothermostat/edit.html',
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <label for=\"name\">Name</label>\n" +
+    "  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "</div>\n" +
+    "<div class=\"form-group\">\n" +
+    "  <label for=\"name\">Address</label>\n" +
+    "  <input type=\"text\" class=\"form-control\" id=\"address\" placeholder=\"Address\" required=\"\" ng-model=\"device.config.address\">\n" +
+    "</div>\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/radiothermostat/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Providers / Radiothermostat\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "            hi\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('views/providers/video/settings.html',
+    "\n" +
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Providers / Video\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"player\">Player</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"Player\" placeholder=\"Player\" required=\"\" ng-model=\"config.player\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"options\">Options</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"options\" placeholder=\"Options\" required=\"\" ng-model=\"config.options\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Debug: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('views/providers/wunderground/add.html',
+    "<div ng-controller=\"wundergroundAdd\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Location</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"location\" placeholder=\"Location\" required=\"\" ng-model=\"device.config.location\">\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/wunderground/edit.html',
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <label for=\"name\">Name</label>\n" +
+    "  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "</div>\n" +
+    "<div class=\"form-group\">\n" +
+    "  <label for=\"name\">Location</label>\n" +
+    "  <input type=\"text\" class=\"form-control\" id=\"location\" placeholder=\"Location\" required=\"\" ng-model=\"device.config.location\">\n" +
+    "</div>\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/wunderground/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Wunderground\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"key\">API Key</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"key\" placeholder=\"API Key\" required=\"\" ng-model=\"config.key\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"server\">Server</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"server\" placeholder=\"Server\" required=\"\" ng-model=\"config.server\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Interval (minutes)</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"interval\" placeholder=\"Interval\" required=\"\" ng-model=\"config.interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"temp_units\">Temp Units</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"temp_units\" placeholder=\"Temperature Units\" required=\"\" ng-model=\"config.temp_units\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"wind_units\">Wind Units</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"wind_units\" placeholder=\"Wind Units\" required=\"\" ng-model=\"config.wind_units\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"press_units\">Pressure Units</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"press_units\" placeholder=\"Pressure Units\" required=\"\" ng-model=\"config.press_units\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"dist_units\">Distance Units</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"dist_units\" placeholder=\"Distance Units\" required=\"\" ng-model=\"config.dist_units\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"rain_units\">Rain Units</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"rain_units\" placeholder=\"Rain Units\" required=\"\" ng-model=\"config.rain_units\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"debug\">Debug Logging: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('views/providers/zwave/add.html',
+    "<div ng-controller=\"zwaveAdd\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Pending Nodes </label><button class=\"btn btn-xs btn-primary pull-right\" ng-disabled=\"loading\" ng-click=\"refresh()\"><i class=\"icon-refresh\" ng-class=\"{spin: loading}\"></i></button>\n" +
+    "\n" +
+    "    <ul class=\"list-group bg-muted select-list\">\n" +
+    "      <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"device in devices\" ng-click=\"selectNode(device)\" ng-class=\"{'list-group-item-success': device === selected}\">\n" +
+    "      	{{device.config.nodeinfo.manufacturer}} {{device.config.nodeinfo.product}} ({{device.config.nodeinfo.type}})\n" +
+    "      	<div><small>name{{device.config.nodeinfo.name}} <span ng-show=\"device.config.nodeinfo.loc\">in {{device.config.nodeinfo.loc}}</span></small></div>\n" +
+    "      </li>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/zwave/edit.html',
+    "<div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Node ID</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"node_id\" placeholder=\"Node ID\" required=\"\" ng-model=\"device.config.node_id\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\" ng-repeat=\"(key, config) in device.config.commandclasses.CONFIGURATION['1']\" ng-hide=\"config.type == 'button'\">\n" +
+    "    <label for=\"name\">{{key}} <span ng-show=\"config.units\">({{config.units}})</span></label>\n" +
+    "\n" +
+    "    <ul ng-if=\"config.type=='list' && config.units==''\" class=\"list-group bg-muted select-list\" ng-show=\"config.type=='list' && config.units==''\">\n" +
+    "      <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"item in config.values\" ng-click=\"config.value=item\" ng-class=\"{'list-group-item-success': config.value==item}\">{{item}}</li>\n" +
+    "    </ul>\n" +
+    "    <rzslider ng-if=\"config.units=='%' || config.units=='LUX'\" rz-slider-model=\"config.value\" rz-slider-options=\"{floor: 0, ceil: 100, step: 1, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\" ng-show=\"config.units=='%' || config.units=='LUX'\"></rzslider>\n" +
+    "    <input ng-if=\"config.type=='byte' && config.units==''\" type=\"text\" class=\"form-control\" placeholder=\"{{key}}\" required=\"\" ng-model=\"config.value\" ng-show=\"config.type=='byte' && config.units==''\" min=\"{{config.min}}\" max=\"{{config.max}}\">\n" +
+    "    <input ng-if=\"config.type=='int' && config.units==''\" type=\"text\" class=\"form-control\" placeholder=\"{{key}}\" required=\"\" ng-model=\"config.value\" ng-show=\"config.type=='int' && config.units==''\" min=\"{{config.min}}\" max=\"{{config.max}}\">\n" +
+    "    <input ng-if=\"config.type=='short' && config.units==''\" type=\"text\" class=\"form-control\" placeholder=\"{{key}}\" required=\"\" ng-model=\"config.value\" ng-show=\"config.type=='short' && config.units==''\" min=\"{{config.min}}\" max=\"{{config.max}}\">\n" +
+    "    <epochduration ng-if=\"config.units=='seconds'\" time=\"config.value\" ng-show=\"config.units=='seconds'\"></epochduration>\n" +
+    "    <div class=\"help text-muted\" ng-show=\"config.help\"><small>{{config.help}}</small></div>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('views/providers/zwave/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Z-Wave\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"key\">Device</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"device\" placeholder=\"Device\" required=\"\" ng-model=\"config.device\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Message Timeout (sec)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Message Timeout\" required=\"\" ng-model=\"config.message_time\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Queue Interval (ms)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Queue Interval\" required=\"\" ng-model=\"config.queue_interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Poll Interval (sec)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Poll Interval\" required=\"\" ng-model=\"config.poll_interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"debug\">Debug Logging: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
   );
 
 
@@ -4461,6 +6215,34 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "<div class=\"modal-footer\">\n" +
     "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"cancel()\" ng-disabled=\"connecting\">Cancel</button>\n" +
     "    <button class=\"btn btn-primary btn-sm\" type=\"button\" ng-click=\"connect()\" ng-disabled=\"connecting\"><i class=\"icon-network\"></i> Connect</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('vendor/angularjs-slider/src/rzSliderTpl.html',
+    "<div class=\"rzslider\">\n" +
+    "<span class=\"rz-bar-wrapper\"><span class=\"rz-bar\"></span></span> <!-- // 0 The slider bar -->\n" +
+    "<span class=\"rz-bar-wrapper\">\n" +
+    "  <span class=\"rz-bar rz-selection\" ng-style=\"barStyle\"></span>\n" +
+    "</span> <!-- // 1 Highlight between two handles -->\n" +
+    "<span class=\"rz-pointer rz-pointer-min\" ng-style=minPointerStyle></span> <!-- // 2 Left slider handle -->\n" +
+    "<span class=\"rz-pointer rz-pointer-max\" ng-style=maxPointerStyle></span> <!-- // 3 Right slider handle -->\n" +
+    "<span class=\"rz-bubble rz-limit rz-floor\"></span> <!-- // 4 Floor label -->\n" +
+    "<span class=\"rz-bubble rz-limit rz-ceil\"></span> <!-- // 5 Ceiling label -->\n" +
+    "<span class=\"rz-bubble\"></span> <!-- // 6 Label above left slider handle -->\n" +
+    "<span class=\"rz-bubble\"></span> <!-- // 7 Label above right slider handle -->\n" +
+    "<span class=\"rz-bubble\"></span> <!-- // 8 Range label when the slider handles are close ex. 15 - 17 -->\n" +
+    "<ul ng-show=\"showTicks\" class=\"rz-ticks\"> <!-- // 9 The ticks -->\n" +
+    "  <li ng-repeat=\"t in ticks track by $index\" class=\"rz-tick\"\n" +
+    "      ng-class=\"{'rz-selected': t.selected}\" ng-style=\"t.style\"\n" +
+    "      ng-attr-uib-tooltip=\"{{ t.tooltip }}\" ng-attr-tooltip-placement=\"{{t.tooltipPlacement}}\"\n" +
+    "      ng-attr-tooltip-append-to-body=\"{{ t.tooltip ? true : undefined}}\">\n" +
+    "    <span ng-if=\"t.value != null\" class=\"rz-tick-value\"\n" +
+    "          ng-attr-uib-tooltip=\"{{ t.valueTooltip }}\"\n" +
+    "          ng-attr-tooltip-placement=\"{{t.valueTooltipPlacement}}\">{{ t.value }}</span>\n" +
+    "    <span ng-if=\"t.legend != null\" class=\"rz-tick-legend\">{{ t.legend }}</span>\n" +
+    "  </li>\n" +
+    "</ul>\n" +
     "</div>\n"
   );
 

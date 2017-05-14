@@ -2,27 +2,29 @@
 'use strict';
 
 module.exports = function(grunt) {
-  var server;
-  var proxy = require('grunt-connect-proxy/lib/utils').proxyRequest;
 
   grunt.initConfig({
     watch: {
       scripts: {
         files: ['Gruntfile.js', 'src/scripts/**/*.js'],
-        tasks: ['jshint'],
+        tasks: ['jshint', 'concat:scripts'],
         options: {
           interrupt: true,
-          livereload: true,
-        },
+          livereload: true
+        }
+      },
+      styles: {
+        files: ['Gruntfile.js', 'src/scripts/**/*.js'],
+        tasks: ['concat:styles']
       },
       templates: {
         files: ['src/views/**/*.html'],
-        tasks: ['ngtemplates'],
-      },
+        tasks: ['ngtemplates']
+      }
     },
     jshint: {
       options: {
-        force: true,
+        force: true
       },
       files: ['Gruntfile.js', 'src/scripts/**/*.js']
     },
@@ -36,7 +38,7 @@ module.exports = function(grunt) {
           hostname: '0.0.0.0',
           keepalive: true,
           debug: true,
-           middleware: function (connect, options, middlewares) {
+          middleware: function (connect, options, middlewares) {
             var httpProxy = require('http-proxy');
             var server_alive = true;
 
@@ -66,10 +68,10 @@ module.exports = function(grunt) {
             host: 'localhost',
             port: 8080,
             https: false,
-            xforward: true,
+            xforward: true
           }
-        ],
-      },
+        ]
+      }
     },
     concurrent: {
       dev: {
@@ -82,8 +84,87 @@ module.exports = function(grunt) {
     ngtemplates:  {
       abode:        {
         cwd: 'src',
-        src: 'views/*/**.html',
+        src: [
+          'views/**/*.html',
+          'vendor/angularjs-slider/src/rzSliderTpl.html'
+        ],
         dest: 'src/scripts/templates.js'
+      }
+    },
+    concat: {
+      options: {
+        separator: '\n\n'
+      },
+      scripts: {
+        src: [
+          'src/vendor/angular/angular.js',
+          'src/vendor/angular-resource/angular-resource.js',
+          'src/vendor/angular-ui-router/release/angular-ui-router.js',
+          'src/vendor/angular-bootstrap/ui-bootstrap-tpls.js',
+          'src/vendor/angularjs-slider/dist/rzslider.min.js',
+          'src/scripts/**/*.js'
+        ],
+        dest: 'dist/lib/scripts.js'
+      },
+      styles: {
+        src: [
+          'src/vendor/bootstrap/dist/css/bootstrap.css',
+          'src/vendor/whhg-font/css/whhg.css',
+          'src/vendor/angularjs-slider/dist/rzslider.min.css',
+          'src/styles/**/*.css'
+        ],
+        dest: 'dist/lib/styles.css'
+      }
+    },
+    copy: {
+      main: {
+        files: [
+          // includes files within path
+          {
+            expand: true,
+            cwd: 'src/styles',
+            src: [
+              '*.eot',
+              '*.svg',
+              '*.ttf',
+              '*.woff',
+              '*.woff2'
+            ],
+            dest: 'dist/lib',
+            filter: 'isFile'
+          },
+          {
+            expand: true,
+            cwd: 'src',
+            src: [
+              'favicon.ico',
+              'manifest.json',
+              'worker.js',
+              'fonts/*.*',
+              'images/*.*'
+            ],
+            dest: 'dist',
+            filter: 'isFile'
+          },
+          {
+            expand: true,
+            cwd: 'src/vendor/whhg-font',
+            src: [
+              'font/*.*'
+            ],
+            dest: 'dist',
+            filter: 'isFile'
+          },
+          {
+            expand: true,
+            cwd: 'src/vendor/bootstrap/dist/css',
+            src: [
+              'bootstrap.css.map'
+            ],
+            dest: 'dist/lib',
+            filter: 'isFile'
+          }
+        ]
       }
     }
   });
@@ -94,7 +175,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-connect-proxy');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-angular-templates');
+  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-copy');
 
   grunt.registerTask('default', ['jshint', 'concurrent:dev']);
-  grunt.registerTask('gen', ['jshint', 'ngtemplates']);
+  grunt.registerTask('gen', ['copy','ngtemplates', 'jshint', 'concat']);
 };

@@ -5,7 +5,7 @@ rad.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('index.settings.rad', {
     url: '/rad',
-    templateUrl: '/views/providers/rad/settings.html',
+    templateUrl: 'views/providers/rad/settings.html',
     controller: 'radSettings',
     resolve: {
       config: function (rad) {

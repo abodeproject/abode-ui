@@ -5,7 +5,7 @@ autoshades.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.settings.autoshades', {
     url: '/autoshades',
-    templateUrl: '/views/providers/autoshades/settings.html',
+    templateUrl: 'views/providers/autoshades/settings.html',
     controller: 'autoshadesSettings',
     resolve: {
       config: function (autoshades) {
