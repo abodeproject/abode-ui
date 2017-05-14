@@ -4,7 +4,7 @@ angular.module('video', [])
   $stateProvider
   .state('index.settings.video', {
     url: '/video',
-    templateUrl: '/views/providers/video/settings.html',
+    templateUrl: 'views/providers/video/settings.html',
     controller: 'videoSettings',
     resolve: {
       config: function (video) {

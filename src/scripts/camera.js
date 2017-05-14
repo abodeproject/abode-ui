@@ -4,7 +4,7 @@ angular.module('camera', [])
   $stateProvider
   .state('main.settings.camera', {
     url: '/camera',
-    templateUrl: '/views/providers/camera/settings.html',
+    templateUrl: 'views/providers/camera/settings.html',
     controller: 'cameraSettings',
     resolve: {
       config: function (camera) {

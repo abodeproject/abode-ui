@@ -280,7 +280,7 @@ home.directive('controller', [function () {
       args: '=?',
       onsuccess: '=',
     },
-    templateUrl: './views/home/controller.html',
+    templateUrl: 'views/home/controller.html',
     controller: ['$scope', '$timeout', '$interval', 'abode', 'Devices', 'Scenes', 'Rooms', 'Notifications', function ($scope, $timeout, $interval, abode, Devices, Scenes, Rooms, Notifications) {
       var types = {
         'devices': Devices, 'device': Devices,

@@ -5,7 +5,7 @@ zwave.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.settings.zwave', {
     url: '/zwave',
-    templateUrl: '/views/providers/zwave/settings.html',
+    templateUrl: 'views/providers/zwave/settings.html',
     controller: 'zwaveSettings',
     resolve: {
       config: function (zwave) {

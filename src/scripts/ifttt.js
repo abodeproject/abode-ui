@@ -4,7 +4,7 @@ angular.module('ifttt', [])
   $stateProvider
   .state('main.settings.ifttt', {
     url: '/ifttt',
-    templateUrl: '/views/providers/ifttt/settings.html',
+    templateUrl: 'views/providers/ifttt/settings.html',
     controller: 'iftttSettings',
     resolve: {
       config: function (ifttt) {

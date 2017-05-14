@@ -6,7 +6,7 @@ RUN dnf install -y httpd
 RUN rm -f /etc/httpd/conf.d/{README,autoindex.conf,userdir.conf,welcome.conf}
 
 COPY httpd.conf /etc/httpd/conf/
-COPY src/ /var/www/html/
+COPY dist/ /var/www/html/
 
 EXPOSE 80
 

@@ -5,7 +5,7 @@ lutroncaseta.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.settings.lutroncaseta', {
     url: '/lutroncaseta',
-    templateUrl: '/views/providers/lutroncaseta/settings.html',
+    templateUrl: 'views/providers/lutroncaseta/settings.html',
     controller: 'lutroncasetaSettings',
     resolve: {
       config: function (lutroncaseta) {

@@ -7,21 +7,21 @@ notifications.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.notifications', {
     url: '/notifications',
-    templateUrl: '/views/notifications/notifications.html',
+    templateUrl: 'views/notifications/notifications.html',
   })
   .state('main.notifications.list', {
     url: '/list',
-    templateUrl: '/views/notifications/notifications.list.html',
+    templateUrl: 'views/notifications/notifications.list.html',
     controller: 'notificationsList'
   })
   .state('main.notifications.add', {
     url: '/add',
-    templateUrl: '/views/notifications/notifications.add.html',
+    templateUrl: 'views/notifications/notifications.add.html',
     controller: 'notificationsAdd'
   })
   .state('main.notifications.edit', {
     url: '/:id',
-    templateUrl: '/views/notifications/notifications.edit.html',
+    templateUrl: 'views/notifications/notifications.edit.html',
     controller: 'notificationsEdit',
     resolve: {
       'notification': ['$stateParams', '$state', 'Notifications', function ($stateParams, $state, Notifications) {
@@ -172,7 +172,7 @@ notifications.directive('notificationsStatus', [function () {
       $scope.showNotifications = function () {
         $rootScope.notifications.hidden = false;
       };
-    }] 
+    }]
   };
 
 }]);

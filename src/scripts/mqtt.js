@@ -4,7 +4,7 @@ mqtt.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.settings.mqtt', {
     url: '/mqtt',
-    templateUrl: '/views/providers/mqtt/settings.html',
+    templateUrl: 'views/providers/mqtt/settings.html',
     controller: 'mqttSettings',
     resolve: {
       config: function (mqtt) {

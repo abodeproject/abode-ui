@@ -7,21 +7,21 @@ rooms.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.rooms', {
     url: '/rooms',
-    templateUrl: '/views/rooms/rooms.html',
+    templateUrl: 'views/rooms/rooms.html',
   })
   .state('main.rooms.list', {
     url: '/list',
-    templateUrl: '/views/rooms/rooms.list.html',
+    templateUrl: 'views/rooms/rooms.list.html',
     controller: 'roomsList'
   })
   .state('main.rooms.add', {
     url: '/add',
-    templateUrl: '/views/rooms/rooms.add.html',
+    templateUrl: 'views/rooms/rooms.add.html',
     controller: 'roomsAdd'
   })
   .state('main.rooms.edit', {
     url: '/:name',
-    templateUrl: '/views/rooms/rooms.edit.html',
+    templateUrl: 'views/rooms/rooms.edit.html',
     controller: 'roomsEdit',
     resolve: {
       'room': function ($stateParams, $state, Rooms) {

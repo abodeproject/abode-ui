@@ -4,7 +4,7 @@ angular.module('wunderground', [])
   $stateProvider
   .state('main.settings.wunderground', {
     url: '/wunderground',
-    templateUrl: '/views/providers/wunderground/settings.html',
+    templateUrl: 'views/providers/wunderground/settings.html',
     controller: 'wundergroundSettings',
     resolve: {
       config: function (wunderground) {

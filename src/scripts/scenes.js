@@ -7,21 +7,21 @@ scenes.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.scenes', {
     url: '/scenes',
-    templateUrl: '/views/scenes/scenes.html',
+    templateUrl: 'views/scenes/scenes.html',
   })
   .state('main.scenes.list', {
     url: '/list',
-    templateUrl: '/views/scenes/scenes.list.html',
+    templateUrl: 'views/scenes/scenes.list.html',
     controller: 'scenesList'
   })
   .state('main.scenes.add', {
     url: '/add',
-    templateUrl: '/views/scenes/scenes.add.html',
+    templateUrl: 'views/scenes/scenes.add.html',
     controller: 'scenesAdd'
   })
   .state('main.scenes.edit', {
     url: '/:name',
-    templateUrl: '/views/scenes/scenes.edit.html',
+    templateUrl: 'views/scenes/scenes.edit.html',
     controller: 'scenesEdit',
     resolve: {
       'scene': function ($stateParams, $state, $q, Scenes) {
@@ -790,7 +790,7 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
           $scope.device.locked = false;
           $scope.device._level = undefined;
           $scope.device._on = undefined;
-          
+
         };
 
         $scope.lock = function () {
@@ -804,7 +804,7 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
 
           $scope.device._on = false;
           $scope.device._level = 0;
-          
+
         };
 
         $scope.level_up = function () {
@@ -1071,7 +1071,7 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
         };
 
         $scope.lock = function () {
-          
+
           $scope.device._on = true;
           $scope.device._level = 100;
 
@@ -1081,7 +1081,7 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
 
           $scope.device._on = false;
           $scope.device._level = 0;
-          
+
         };
 
         $scope.display_lock = function () {

@@ -6,16 +6,16 @@ triggers.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.triggers', {
     url: '/triggers',
-    templateUrl: '/views/triggers/triggers.html',
+    templateUrl: 'views/triggers/triggers.html',
   })
   .state('main.triggers.list', {
     url: '/list',
-    templateUrl: '/views/triggers/triggers.list.html',
+    templateUrl: 'views/triggers/triggers.list.html',
     controller: 'triggersList'
   })
   .state('main.triggers.add', {
     url: '/add',
-    templateUrl: '/views/triggers/triggers.add.html',
+    templateUrl: 'views/triggers/triggers.add.html',
     controller: 'triggersEdit',
     resolve: {
       'trigger': function (Triggers) {
@@ -32,7 +32,7 @@ triggers.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.triggers.edit', {
     url: '/:name',
-    templateUrl: '/views/triggers/triggers.edit.html',
+    templateUrl: 'views/triggers/triggers.edit.html',
     controller: 'triggersEdit',
     resolve: {
       'trigger': function ($stateParams, $state, Triggers) {
@@ -834,7 +834,7 @@ triggers.controller('triggersEdit', function ($scope, $state, $uibModal, abode, 
   };
 
   $scope.load_notifications();
-  
+
   $scope.check = function () {
     var checker = $uibModal.open({
       animation: false,
@@ -866,7 +866,7 @@ triggers.controller('triggersEdit', function ($scope, $state, $uibModal, abode, 
           return $scope.trigger;
         }
       }
-    }); 
+    });
   };
 
   $scope.add_notification = function () {
@@ -915,7 +915,7 @@ triggers.controller('triggersEdit', function ($scope, $state, $uibModal, abode, 
 
   $scope.remove_notification = function (notification) {
     if (!$scope.trigger._id) {
-      
+
       $scope.trigger.notifications.splice($scope.trigger.notifications.indexOf(notification._id), 1);
       $scope.notifications = $scope.notifications.filter(function (item) {
         return (item._id !== notification._id);

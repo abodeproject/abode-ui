@@ -4,7 +4,7 @@ angular.module('radiothermostat', [])
   $stateProvider
   .state('index.settings.radiothermostat', {
     url: '/radiothermostat',
-    templateUrl: '/views/providers/radiothermostat/settings.html',
+    templateUrl: 'views/providers/radiothermostat/settings.html',
     controller: 'radiothermostatSettings',
     resolve: {
       config: function (radiothermostat) {
