@@ -2,6 +2,41 @@
 'use strict';
 
 module.exports = function(grunt) {
+  var scriptFiles = [
+    'src/vendor/angular/angular.js',
+    'src/vendor/angular-resource/angular-resource.js',
+    'src/vendor/angular-ui-router/release/angular-ui-router.js',
+    'src/vendor/angular-bootstrap/ui-bootstrap-tpls.js',
+    'src/vendor/angularjs-slider/dist/rzslider.min.js',
+    'src/scripts/**/*.js'
+  ];
+  var styleFiles = [
+    'src/vendor/bootstrap/dist/css/bootstrap.css',
+    'src/vendor/whhg-font/css/whhg.css',
+    'src/vendor/angularjs-slider/dist/rzslider.min.css',
+    'src/styles/**/*.css'
+  ];
+  var addTags = function (srcPattern, tag) {
+    if (srcPattern === undefined) {
+        throw new Error("srcPattern undefined");
+    }
+    return grunt.util._.reduce(
+        grunt.file.expandMapping(srcPattern, '.', {
+            filter: 'isFile',
+            flatten: false,
+            expand: false,
+            cwd: '.'
+        }),
+        function (sum, file) {
+          if (tag === 'scripts') {
+            return sum + '\n    <script src="' + file.dest.substr(4) + '" type="text/javascript"></script>';
+          } else if (tag === 'styles') {
+            return sum + '\n    <link rel="stylesheet" type="text/css" href="' + file.dest.substr(4) + '" />';
+          }
+        },
+        ''
+    );
+  };
 
   grunt.initConfig({
     watch: {
@@ -166,7 +201,34 @@ module.exports = function(grunt) {
           }
         ]
       }
-    }
+    },
+    includereplace: {
+      debug: {
+        options: {
+          globals: {
+            scriptTags: '<%= addTags(styleFiles, "styles")%>',
+            styleTags: '<%= addTags(scriptFiles, "scripts")%>'
+          }
+        },
+        src: 'src/index.html',
+        dest: 'src/index.debug.html',
+        expand: false,
+        flatten: true,
+      },
+      prod: {
+        options: {
+          globals: {
+            scriptTags: '<script src="lib/scripts.js" type="text/javascript"></script>',
+            styleTags: '<link rel="stylesheet" type="text/css" href="lib/styles.css" />'
+          }
+        },
+        src: 'src/index.html',
+        dest: 'dist/index.html'
+      }
+    },
+    addTags: addTags,
+    scriptFiles: scriptFiles,
+    styleFiles: styleFiles
   });
 
   grunt.loadNpmTasks('grunt-concurrent');
@@ -177,6 +239,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-angular-templates');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-include-replace');
 
   grunt.registerTask('default', ['jshint', 'concurrent:dev']);
   grunt.registerTask('gen', ['copy','ngtemplates', 'jshint', 'concat']);
