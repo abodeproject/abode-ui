@@ -15,6 +15,10 @@ module.exports = function(grunt) {
           livereload: true,
         },
       },
+      templates: {
+        files: ['src/views/**/*.html'],
+        tasks: ['ngtemplates'],
+      },
     },
     jshint: {
       options: {
@@ -35,8 +39,8 @@ module.exports = function(grunt) {
            middleware: function (connect, options, middlewares) {
             var httpProxy = require('http-proxy');
             var server_alive = true;
-             
-            var proxy = httpProxy.createProxyServer(options); // See (†) 
+
+            var proxy = httpProxy.createProxyServer(options); // See (†)
             proxy.on('error', function(e) {
               console.error('Could not proxy api endpoint');
               proxy = httpProxy.createProxyServer(options);
@@ -52,7 +56,7 @@ module.exports = function(grunt) {
 
               next();
             });
-             
+
             return middlewares;
           }
         },
@@ -74,6 +78,13 @@ module.exports = function(grunt) {
           logConcurrentOutput: true
         }
       }
+    },
+    ngtemplates:  {
+      abode:        {
+        cwd: 'src',
+        src: 'views/*/**.html',
+        dest: 'src/scripts/templates.js'
+      }
     }
   });
 
@@ -82,6 +93,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-connect-proxy');
   grunt.loadNpmTasks('grunt-contrib-connect');
+  grunt.loadNpmTasks('grunt-angular-templates');
 
   grunt.registerTask('default', ['jshint', 'concurrent:dev']);
+  grunt.registerTask('gen', ['jshint', 'ngtemplates']);
 };
