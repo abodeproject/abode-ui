@@ -10,22 +10,24 @@ module.exports = function(grunt) {
     'src/vendor/angularjs-slider/dist/rzslider.min.js',
     'src/scripts/**/*.js'
   ];
+
   var styleFiles = [
     'src/vendor/bootstrap/dist/css/bootstrap.css',
     'src/vendor/whhg-font/css/whhg.css',
     'src/vendor/angularjs-slider/dist/rzslider.min.css',
     'src/styles/**/*.css'
   ];
+
   var addTags = function (srcPattern, tag) {
     if (srcPattern === undefined) {
         throw new Error("srcPattern undefined");
     }
     return grunt.util._.reduce(
         grunt.file.expandMapping(srcPattern, '.', {
-            filter: 'isFile',
-            flatten: false,
-            expand: false,
-            cwd: '.'
+          filter: 'isFile',
+          flatten: false,
+          expand: false,
+          cwd: '.'
         }),
         function (sum, file) {
           if (tag === 'scripts') {
@@ -49,12 +51,16 @@ module.exports = function(grunt) {
         }
       },
       styles: {
-        files: ['Gruntfile.js', 'src/scripts/**/*.js'],
+        files: ['src/styles/**/*.css'],
         tasks: ['concat:styles', 'includereplace']
       },
       templates: {
         files: ['src/views/**/*.html'],
         tasks: ['ngtemplates']
+      },
+      index: {
+        files: ['src/index.html'],
+        tasks: ['includereplace']
       }
     },
     jshint: {
