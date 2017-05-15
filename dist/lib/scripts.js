@@ -47929,7 +47929,7 @@ devices.directive('selectDevice', function () {
       $scope.openAssign = function () {
         var assign = $uibModal.open({
           animation: true,
-          templateUrl: 'views/devices/devices.select.modal.html',
+          templateUrl: 'modules/devices/views/devices.select.modal.html',
           size: 'sm',
           controller: ['$scope', '$uibModalInstance', function ($uiscope, $uibModalInstance) {
             $uiscope.devices = [];
@@ -51821,7 +51821,7 @@ rooms.controller('roomsEdit', function ($scope, $state, $uibModal, abode, rooms,
   $scope.addDevice = function () {
     var assign = $uibModal.open({
       animation: true,
-      templateUrl: 'views/rooms/assign.html',
+      templateUrl: 'modules/rooms/views/assign.html',
       size: 'sm',
       resolve: {
         assigned: function () {
@@ -51885,7 +51885,7 @@ rooms.controller('roomsEdit', function ($scope, $state, $uibModal, abode, rooms,
   $scope.addScene = function () {
     var assign = $uibModal.open({
       animation: true,
-      templateUrl: 'views/rooms/assign.scene.html',
+      templateUrl: 'modules/rooms/views/assign.scene.html',
       size: 'sm',
       resolve: {
         assigned: function () {
@@ -52929,7 +52929,7 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
   $scope.sceneBuilder = function (actions) {
     var builder = $uibModal.open({
       animation: true,
-      templateUrl: 'views/scenes/scene.builder.html',
+      templateUrl: 'modules/scenes/views/scene.builder.html',
       resolve: {
       },
       controller: function ($scope, $uibModalInstance, $q, $timeout, Devices) {
@@ -52942,7 +52942,7 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
 
           var deviceModal = $uibModal.open({
             animation: false,
-            templateUrl: 'views/scenes/scene.builder.devices.html',
+            templateUrl: 'modules/scenes/views/scene.builder.devices.html',
             size: 'sm',
             controller: function ($scope, $uibModalInstance, Devices) {
               $scope.loading = true;
@@ -53047,7 +53047,7 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
   $scope.editAction = function (action) {
     var assign = $uibModal.open({
       animation: true,
-      templateUrl: 'views/scenes/edit.action.html',
+      templateUrl: 'modules/scenes/views/edit.action.html',
       resolve: {
         selected: function () {
           return action;
@@ -53093,7 +53093,7 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
         $scope.capabilities = angular.copy($scope.selected_capabilities).map(function (c) {
           return {
             'name': c,
-            'view': 'views/devices/capabilities/' + c + '.html'
+            'view': 'modules/devices/views/capabilities/' + c + '.html'
           };
 
         });
@@ -53297,7 +53297,7 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
   $scope.addAction = function (step) {
     var assign = $uibModal.open({
       animation: true,
-      templateUrl: 'views/scenes/add.action.html',
+      templateUrl: 'modules/scenes/views/add.action.html',
       resolve: {
         assigned: function () {
 
@@ -53348,7 +53348,7 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
           $scope.capabilities = angular.copy($scope.selected_capabilities).map(function (c) {
             return {
               'name': c,
-              'view': 'views/devices/capabilities/' + c + '.html'
+              'view': 'modules/devices/views/capabilities/' + c + '.html'
             };
 
           });
@@ -53379,7 +53379,7 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
             $scope.capabilities = angular.copy(device.capabilities).map(function (c) {
               return {
                 'name': c,
-                'view': 'views/devices/capabilities/' + c + '.html'
+                'view': 'modules/devices/views/capabilities/' + c + '.html'
               };
 
             });
@@ -53616,7 +53616,7 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
   $scope.addRoom = function () {
     var assign = $uibModal.open({
       animation: true,
-      templateUrl: 'views/scenes/assign.html',
+      templateUrl: 'modules/scenes/views/assign.html',
       size: 'sm',
       resolve: {
         assigned: function () {
@@ -55152,7 +55152,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('modules/abode/views/display_status.html',
-    "<div uib-popover-template=\"'views/main/display_popover.html'\" popover-trigger=\"'outsideClick click'\" popover-placement=\"bottom-right\" popover-is-open=\"popover\">\n" +
+    "<div uib-popover-template=\"'modules/abode/views/display_popover.html'\" popover-trigger=\"'outsideClick click'\" popover-placement=\"bottom-right\" popover-is-open=\"popover\">\n" +
     "  <i ng-show=\"loading\" class=\"text-muted pointer icon-circleselection spin\"></i>\n" +
     "  <i ng-hide=\"loading || device == false\" class=\"pointer\" ng-class=\"{'text-danger': !network.connected, 'text-success': network.connected, 'icon-lan': !network.essid, 'icon-lan': !network.essid, 'icon-networksignal': network.essid, 'text-warning': network.connected && !root.status.connected}\"></i>\n" +
     "  <i ng-hide=\"loading || device == true\" class=\"pointer\" ng-class=\"{'icon-plug': !root.status.connected, 'icon-networksignal': root.status.connected, 'text-success': root.status.connected, 'text-danger': !root.status.connected}\"></i>\n" +

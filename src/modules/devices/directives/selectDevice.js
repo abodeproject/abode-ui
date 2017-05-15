@@ -35,7 +35,7 @@ devices.directive('selectDevice', function () {
       $scope.openAssign = function () {
         var assign = $uibModal.open({
           animation: true,
-          templateUrl: 'views/devices/devices.select.modal.html',
+          templateUrl: 'modules/devices/views/devices.select.modal.html',
           size: 'sm',
           controller: ['$scope', '$uibModalInstance', function ($uiscope, $uibModalInstance) {
             $uiscope.devices = [];
