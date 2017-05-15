@@ -44750,6 +44750,2144 @@ angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInli
 !function(a,b){"use strict";if("function"==typeof define&&define.amd)define(["angular"],b);else if("object"==typeof module&&module.exports){var c=angular||require("angular");c&&c.module||"undefined"==typeof angular||(c=angular),module.exports=b(c)}else b(a.angular)}(this,function(a){"use strict";var b=a.module("rzModule",[]).factory("RzSliderOptions",function(){var b={floor:0,ceil:null,step:1,precision:0,minRange:null,maxRange:null,pushRange:!1,minLimit:null,maxLimit:null,id:null,translate:null,getLegend:null,stepsArray:null,bindIndexForStepsArray:!1,draggableRange:!1,draggableRangeOnly:!1,showSelectionBar:!1,showSelectionBarEnd:!1,showSelectionBarFromValue:null,hidePointerLabels:!1,hideLimitLabels:!1,autoHideLimitLabels:!0,readOnly:!1,disabled:!1,interval:350,showTicks:!1,showTicksValues:!1,ticksArray:null,ticksTooltip:null,ticksValuesTooltip:null,vertical:!1,getSelectionBarColor:null,getTickColor:null,getPointerColor:null,keyboardSupport:!0,scale:1,enforceStep:!0,enforceRange:!1,noSwitching:!1,onlyBindHandles:!1,onStart:null,onChange:null,onEnd:null,rightToLeft:!1,boundPointerLabels:!0,mergeRangeLabelsIfSame:!1,customTemplateScope:null,logScale:!1,customValueToPosition:null,customPositionToValue:null,selectionBarGradient:null},c={},d={};return d.options=function(b){a.extend(c,b)},d.getOptions=function(d){return a.extend({},b,c,d)},d}).factory("rzThrottle",["$timeout",function(a){return function(b,c,d){var e,f,g,h=Date.now||function(){return(new Date).getTime()},i=null,j=0;d=d||{};var k=function(){j=h(),i=null,g=b.apply(e,f),e=f=null};return function(){var l=h(),m=c-(l-j);return e=this,f=arguments,0>=m?(a.cancel(i),i=null,j=l,g=b.apply(e,f),e=f=null):i||d.trailing===!1||(i=a(k,m)),g}}}]).factory("RzSlider",["$timeout","$document","$window","$compile","RzSliderOptions","rzThrottle",function(b,c,d,e,f,g){var h=function(a,b){this.scope=a,this.lowValue=0,this.highValue=0,this.sliderElem=b,this.range=void 0!==this.scope.rzSliderModel&&void 0!==this.scope.rzSliderHigh,this.dragging={active:!1,value:0,difference:0,position:0,lowLimit:0,highLimit:0},this.positionProperty="left",this.dimensionProperty="width",this.handleHalfDim=0,this.maxPos=0,this.precision=0,this.step=1,this.tracking="",this.minValue=0,this.maxValue=0,this.valueRange=0,this.intermediateTicks=!1,this.initHasRun=!1,this.firstKeyDown=!1,this.internalChange=!1,this.cmbLabelShown=!1,this.currentFocusElement=null,this.fullBar=null,this.selBar=null,this.minH=null,this.maxH=null,this.flrLab=null,this.ceilLab=null,this.minLab=null,this.maxLab=null,this.cmbLab=null,this.ticks=null,this.init()};return h.prototype={init:function(){var b,c,e=this,f=function(){e.calcViewDimensions()};this.applyOptions(),this.syncLowValue(),this.range&&this.syncHighValue(),this.initElemHandles(),this.manageElementsStyle(),this.setDisabledState(),this.calcViewDimensions(),this.setMinAndMax(),this.addAccessibility(),this.updateCeilLab(),this.updateFloorLab(),this.initHandles(),this.manageEventsBindings(),this.scope.$on("reCalcViewDimensions",f),a.element(d).on("resize",f),this.initHasRun=!0,b=g(function(){e.onLowHandleChange()},e.options.interval),c=g(function(){e.onHighHandleChange()},e.options.interval),this.scope.$on("rzSliderForceRender",function(){e.resetLabelsValue(),b(),e.range&&c(),e.resetSlider()}),this.scope.$watch("rzSliderOptions()",function(a,b){a!==b&&(e.applyOptions(),e.syncLowValue(),e.range&&e.syncHighValue(),e.resetSlider())},!0),this.scope.$watch("rzSliderModel",function(a,c){e.internalChange||a!==c&&b()}),this.scope.$watch("rzSliderHigh",function(a,b){e.internalChange||a!==b&&(null!=a&&c(),(e.range&&null==a||!e.range&&null!=a)&&(e.applyOptions(),e.resetSlider()))}),this.scope.$on("$destroy",function(){e.unbindEvents(),a.element(d).off("resize",f),e.currentFocusElement=null})},findStepIndex:function(b){for(var c=0,d=0;d<this.options.stepsArray.length;d++){var e=this.options.stepsArray[d];if(e===b){c=d;break}if(a.isDate(e)){if(e.getTime()===b.getTime()){c=d;break}}else if(a.isObject(e)&&(a.isDate(e.value)&&e.value.getTime()===b.getTime()||e.value===b)){c=d;break}}return c},syncLowValue:function(){this.options.stepsArray?this.options.bindIndexForStepsArray?this.lowValue=this.scope.rzSliderModel:this.lowValue=this.findStepIndex(this.scope.rzSliderModel):this.lowValue=this.scope.rzSliderModel},syncHighValue:function(){this.options.stepsArray?this.options.bindIndexForStepsArray?this.highValue=this.scope.rzSliderHigh:this.highValue=this.findStepIndex(this.scope.rzSliderHigh):this.highValue=this.scope.rzSliderHigh},getStepValue:function(b){var c=this.options.stepsArray[b];return a.isDate(c)?c:a.isObject(c)?c.value:c},applyLowValue:function(){this.options.stepsArray?this.options.bindIndexForStepsArray?this.scope.rzSliderModel=this.lowValue:this.scope.rzSliderModel=this.getStepValue(this.lowValue):this.scope.rzSliderModel=this.lowValue},applyHighValue:function(){this.options.stepsArray?this.options.bindIndexForStepsArray?this.scope.rzSliderHigh=this.highValue:this.scope.rzSliderHigh=this.getStepValue(this.highValue):this.scope.rzSliderHigh=this.highValue},onLowHandleChange:function(){this.syncLowValue(),this.range&&this.syncHighValue(),this.setMinAndMax(),this.updateLowHandle(this.valueToPosition(this.lowValue)),this.updateSelectionBar(),this.updateTicksScale(),this.updateAriaAttributes(),this.range&&this.updateCmbLabel()},onHighHandleChange:function(){this.syncLowValue(),this.syncHighValue(),this.setMinAndMax(),this.updateHighHandle(this.valueToPosition(this.highValue)),this.updateSelectionBar(),this.updateTicksScale(),this.updateCmbLabel(),this.updateAriaAttributes()},applyOptions:function(){var b;b=this.scope.rzSliderOptions?this.scope.rzSliderOptions():{},this.options=f.getOptions(b),this.options.step<=0&&(this.options.step=1),this.range=void 0!==this.scope.rzSliderModel&&void 0!==this.scope.rzSliderHigh,this.options.draggableRange=this.range&&this.options.draggableRange,this.options.draggableRangeOnly=this.range&&this.options.draggableRangeOnly,this.options.draggableRangeOnly&&(this.options.draggableRange=!0),this.options.showTicks=this.options.showTicks||this.options.showTicksValues||!!this.options.ticksArray,this.scope.showTicks=this.options.showTicks,(a.isNumber(this.options.showTicks)||this.options.ticksArray)&&(this.intermediateTicks=!0),this.options.showSelectionBar=this.options.showSelectionBar||this.options.showSelectionBarEnd||null!==this.options.showSelectionBarFromValue,this.options.stepsArray?this.parseStepsArray():(this.options.translate?this.customTrFn=this.options.translate:this.customTrFn=function(a){return String(a)},this.getLegend=this.options.getLegend),this.options.vertical&&(this.positionProperty="bottom",this.dimensionProperty="height"),this.options.customTemplateScope&&(this.scope.custom=this.options.customTemplateScope)},parseStepsArray:function(){this.options.floor=0,this.options.ceil=this.options.stepsArray.length-1,this.options.step=1,this.options.translate?this.customTrFn=this.options.translate:this.customTrFn=function(a){return this.options.bindIndexForStepsArray?this.getStepValue(a):a},this.getLegend=function(b){var c=this.options.stepsArray[b];return a.isObject(c)?c.legend:null}},resetSlider:function(){this.manageElementsStyle(),this.addAccessibility(),this.setMinAndMax(),this.updateCeilLab(),this.updateFloorLab(),this.unbindEvents(),this.manageEventsBindings(),this.setDisabledState(),this.calcViewDimensions(),this.refocusPointerIfNeeded()},refocusPointerIfNeeded:function(){this.currentFocusElement&&(this.onPointerFocus(this.currentFocusElement.pointer,this.currentFocusElement.ref),this.focusElement(this.currentFocusElement.pointer))},initElemHandles:function(){a.forEach(this.sliderElem.children(),function(b,c){var d=a.element(b);switch(c){case 0:this.fullBar=d;break;case 1:this.selBar=d;break;case 2:this.minH=d;break;case 3:this.maxH=d;break;case 4:this.flrLab=d;break;case 5:this.ceilLab=d;break;case 6:this.minLab=d;break;case 7:this.maxLab=d;break;case 8:this.cmbLab=d;break;case 9:this.ticks=d}},this),this.selBar.rzsp=0,this.minH.rzsp=0,this.maxH.rzsp=0,this.flrLab.rzsp=0,this.ceilLab.rzsp=0,this.minLab.rzsp=0,this.maxLab.rzsp=0,this.cmbLab.rzsp=0},manageElementsStyle:function(){this.range?this.maxH.css("display",""):this.maxH.css("display","none"),this.alwaysHide(this.flrLab,this.options.showTicksValues||this.options.hideLimitLabels),this.alwaysHide(this.ceilLab,this.options.showTicksValues||this.options.hideLimitLabels);var a=this.options.showTicksValues&&!this.intermediateTicks;this.alwaysHide(this.minLab,a||this.options.hidePointerLabels),this.alwaysHide(this.maxLab,a||!this.range||this.options.hidePointerLabels),this.alwaysHide(this.cmbLab,a||!this.range||this.options.hidePointerLabels),this.alwaysHide(this.selBar,!this.range&&!this.options.showSelectionBar),this.options.vertical&&this.sliderElem.addClass("rz-vertical"),this.options.draggableRange?this.selBar.addClass("rz-draggable"):this.selBar.removeClass("rz-draggable"),this.intermediateTicks&&this.options.showTicksValues&&this.ticks.addClass("rz-ticks-values-under")},alwaysHide:function(a,b){a.rzAlwaysHide=b,b?this.hideEl(a):this.showEl(a)},manageEventsBindings:function(){this.options.disabled||this.options.readOnly?this.unbindEvents():this.bindEvents()},setDisabledState:function(){this.options.disabled?this.sliderElem.attr("disabled","disabled"):this.sliderElem.attr("disabled",null)},resetLabelsValue:function(){this.minLab.rzsv=void 0,this.maxLab.rzsv=void 0},initHandles:function(){this.updateLowHandle(this.valueToPosition(this.lowValue)),this.range&&this.updateHighHandle(this.valueToPosition(this.highValue)),this.updateSelectionBar(),this.range&&this.updateCmbLabel(),this.updateTicksScale()},translateFn:function(a,b,c,d){d=void 0===d?!0:d;var e="",f=!1,g=b.hasClass("no-label-injection");d?(this.options.stepsArray&&!this.options.bindIndexForStepsArray&&(a=this.getStepValue(a)),e=String(this.customTrFn(a,this.options.id,c))):e=String(a),(void 0===b.rzsv||b.rzsv.length!==e.length||b.rzsv.length>0&&0===b.rzsd)&&(f=!0,b.rzsv=e),g||b.html(e),this.scope[c+"Label"]=e,f&&this.getDimension(b)},setMinAndMax:function(){if(this.step=+this.options.step,this.precision=+this.options.precision,this.minValue=this.options.floor,this.options.logScale&&0===this.minValue)throw Error("Can't use floor=0 with logarithmic scale");this.options.enforceStep&&(this.lowValue=this.roundStep(this.lowValue),this.range&&(this.highValue=this.roundStep(this.highValue))),null!=this.options.ceil?this.maxValue=this.options.ceil:this.maxValue=this.options.ceil=this.range?this.highValue:this.lowValue,this.options.enforceRange&&(this.lowValue=this.sanitizeValue(this.lowValue),this.range&&(this.highValue=this.sanitizeValue(this.highValue))),this.applyLowValue(),this.range&&this.applyHighValue(),this.valueRange=this.maxValue-this.minValue},addAccessibility:function(){this.minH.attr("role","slider"),this.updateAriaAttributes(),!this.options.keyboardSupport||this.options.readOnly||this.options.disabled?this.minH.attr("tabindex",""):this.minH.attr("tabindex","0"),this.options.vertical&&this.minH.attr("aria-orientation","vertical"),this.range&&(this.maxH.attr("role","slider"),!this.options.keyboardSupport||this.options.readOnly||this.options.disabled?this.maxH.attr("tabindex",""):this.maxH.attr("tabindex","0"),this.options.vertical&&this.maxH.attr("aria-orientation","vertical"))},updateAriaAttributes:function(){this.minH.attr({"aria-valuenow":this.scope.rzSliderModel,"aria-valuetext":this.customTrFn(this.scope.rzSliderModel,this.options.id,"model"),"aria-valuemin":this.minValue,"aria-valuemax":this.maxValue}),this.range&&this.maxH.attr({"aria-valuenow":this.scope.rzSliderHigh,"aria-valuetext":this.customTrFn(this.scope.rzSliderHigh,this.options.id,"high"),"aria-valuemin":this.minValue,"aria-valuemax":this.maxValue})},calcViewDimensions:function(){var a=this.getDimension(this.minH);if(this.handleHalfDim=a/2,this.barDimension=this.getDimension(this.fullBar),this.maxPos=this.barDimension-a,this.getDimension(this.sliderElem),this.sliderElem.rzsp=this.sliderElem[0].getBoundingClientRect()[this.positionProperty],this.initHasRun){this.updateFloorLab(),this.updateCeilLab(),this.initHandles();var c=this;b(function(){c.updateTicksScale()})}},updateTicksScale:function(){if(this.options.showTicks){var a=this.options.ticksArray||this.getTicksArray(),b=this.options.vertical?"translateY":"translateX",c=this;this.options.rightToLeft&&a.reverse(),this.scope.ticks=a.map(function(a){var d=c.valueToPosition(a);c.options.vertical&&(d=c.maxPos-d);var e={selected:c.isTickSelected(a),style:{transform:b+"("+Math.round(d)+"px)"}};if(e.selected&&c.options.getSelectionBarColor&&(e.style["background-color"]=c.getSelectionBarColor()),!e.selected&&c.options.getTickColor&&(e.style["background-color"]=c.getTickColor(a)),c.options.ticksTooltip&&(e.tooltip=c.options.ticksTooltip(a),e.tooltipPlacement=c.options.vertical?"right":"top"),c.options.showTicksValues&&(e.value=c.getDisplayValue(a,"tick-value"),c.options.ticksValuesTooltip&&(e.valueTooltip=c.options.ticksValuesTooltip(a),e.valueTooltipPlacement=c.options.vertical?"right":"top")),c.getLegend){var f=c.getLegend(a,c.options.id);f&&(e.legend=f)}return e})}},getTicksArray:function(){var a=this.step,b=[];this.intermediateTicks&&(a=this.options.showTicks);for(var c=this.minValue;c<=this.maxValue;c+=a)b.push(c);return b},isTickSelected:function(a){if(!this.range)if(null!==this.options.showSelectionBarFromValue){var b=this.options.showSelectionBarFromValue;if(this.lowValue>b&&a>=b&&a<=this.lowValue)return!0;if(this.lowValue<b&&b>=a&&a>=this.lowValue)return!0}else if(this.options.showSelectionBarEnd){if(a>=this.lowValue)return!0}else if(this.options.showSelectionBar&&a<=this.lowValue)return!0;return this.range&&a>=this.lowValue&&a<=this.highValue?!0:!1},updateFloorLab:function(){this.translateFn(this.minValue,this.flrLab,"floor"),this.getDimension(this.flrLab);var a=this.options.rightToLeft?this.barDimension-this.flrLab.rzsd:0;this.setPosition(this.flrLab,a)},updateCeilLab:function(){this.translateFn(this.maxValue,this.ceilLab,"ceil"),this.getDimension(this.ceilLab);var a=this.options.rightToLeft?0:this.barDimension-this.ceilLab.rzsd;this.setPosition(this.ceilLab,a)},updateHandles:function(a,b){"lowValue"===a?this.updateLowHandle(b):this.updateHighHandle(b),this.updateSelectionBar(),this.updateTicksScale(),this.range&&this.updateCmbLabel()},getHandleLabelPos:function(a,b){var c=this[a].rzsd,d=b-c/2+this.handleHalfDim,e=this.barDimension-c;return this.options.boundPointerLabels?this.options.rightToLeft&&"minLab"===a||!this.options.rightToLeft&&"maxLab"===a?Math.min(d,e):Math.min(Math.max(d,0),e):d},updateLowHandle:function(a){if(this.setPosition(this.minH,a),this.translateFn(this.lowValue,this.minLab,"model"),this.setPosition(this.minLab,this.getHandleLabelPos("minLab",a)),this.options.getPointerColor){var b=this.getPointerColor("min");this.scope.minPointerStyle={backgroundColor:b}}this.options.autoHideLimitLabels&&this.shFloorCeil()},updateHighHandle:function(a){if(this.setPosition(this.maxH,a),this.translateFn(this.highValue,this.maxLab,"high"),this.setPosition(this.maxLab,this.getHandleLabelPos("maxLab",a)),this.options.getPointerColor){var b=this.getPointerColor("max");this.scope.maxPointerStyle={backgroundColor:b}}this.options.autoHideLimitLabels&&this.shFloorCeil()},shFloorCeil:function(){if(!this.options.hidePointerLabels){var a=!1,b=!1,c=this.isLabelBelowFloorLab(this.minLab),d=this.isLabelAboveCeilLab(this.minLab),e=this.isLabelAboveCeilLab(this.maxLab),f=this.isLabelBelowFloorLab(this.cmbLab),g=this.isLabelAboveCeilLab(this.cmbLab);if(c?(a=!0,this.hideEl(this.flrLab)):(a=!1,this.showEl(this.flrLab)),d?(b=!0,this.hideEl(this.ceilLab)):(b=!1,this.showEl(this.ceilLab)),this.range){var h=this.cmbLabelShown?g:e,i=this.cmbLabelShown?f:c;h?this.hideEl(this.ceilLab):b||this.showEl(this.ceilLab),i?this.hideEl(this.flrLab):a||this.showEl(this.flrLab)}}},isLabelBelowFloorLab:function(a){var b=this.options.rightToLeft,c=a.rzsp,d=a.rzsd,e=this.flrLab.rzsp,f=this.flrLab.rzsd;return b?c+d>=e-2:e+f+2>=c},isLabelAboveCeilLab:function(a){var b=this.options.rightToLeft,c=a.rzsp,d=a.rzsd,e=this.ceilLab.rzsp,f=this.ceilLab.rzsd;return b?e+f+2>=c:c+d>=e-2},updateSelectionBar:function(){var a=0,b=0,c=this.options.rightToLeft?!this.options.showSelectionBarEnd:this.options.showSelectionBarEnd,d=this.options.rightToLeft?this.maxH.rzsp+this.handleHalfDim:this.minH.rzsp+this.handleHalfDim;if(this.range)b=Math.abs(this.maxH.rzsp-this.minH.rzsp),a=d;else if(null!==this.options.showSelectionBarFromValue){var e=this.options.showSelectionBarFromValue,f=this.valueToPosition(e),g=this.options.rightToLeft?this.lowValue<=e:this.lowValue>e;g?(b=this.minH.rzsp-f,a=f+this.handleHalfDim):(b=f-this.minH.rzsp,a=this.minH.rzsp+this.handleHalfDim)}else c?(b=Math.abs(this.maxPos-this.minH.rzsp)+this.handleHalfDim,a=this.minH.rzsp+this.handleHalfDim):(b=Math.abs(this.maxH.rzsp-this.minH.rzsp)+this.handleHalfDim,a=0);if(this.setDimension(this.selBar,b),this.setPosition(this.selBar,a),this.options.getSelectionBarColor){var h=this.getSelectionBarColor();this.scope.barStyle={backgroundColor:h}}else if(this.options.selectionBarGradient){var i=null!==this.options.showSelectionBarFromValue?this.valueToPosition(this.options.showSelectionBarFromValue):0,j=i-a>0^c,k=this.options.vertical?j?"bottom":"top":j?"left":"right";this.scope.barStyle={backgroundImage:"linear-gradient(to "+k+", "+this.options.selectionBarGradient.from+" 0%,"+this.options.selectionBarGradient.to+" 100%)"},this.options.vertical?(this.scope.barStyle.backgroundPosition="center "+(i+b+a+(j?-this.handleHalfDim:0))+"px",this.scope.barStyle.backgroundSize="100% "+(this.barDimension-this.handleHalfDim)+"px"):(this.scope.barStyle.backgroundPosition=i-a+(j?this.handleHalfDim:0)+"px center",this.scope.barStyle.backgroundSize=this.barDimension-this.handleHalfDim+"px 100%")}},getSelectionBarColor:function(){return this.range?this.options.getSelectionBarColor(this.scope.rzSliderModel,this.scope.rzSliderHigh):this.options.getSelectionBarColor(this.scope.rzSliderModel)},getPointerColor:function(a){return"max"===a?this.options.getPointerColor(this.scope.rzSliderHigh,a):this.options.getPointerColor(this.scope.rzSliderModel,a)},getTickColor:function(a){return this.options.getTickColor(a)},updateCmbLabel:function(){var a=null;if(a=this.options.rightToLeft?this.minLab.rzsp-this.minLab.rzsd-10<=this.maxLab.rzsp:this.minLab.rzsp+this.minLab.rzsd+10>=this.maxLab.rzsp){var b=this.getDisplayValue(this.lowValue,"model"),c=this.getDisplayValue(this.highValue,"high"),d="";d=this.options.mergeRangeLabelsIfSame&&b===c?b:this.options.rightToLeft?c+" - "+b:b+" - "+c,this.translateFn(d,this.cmbLab,"cmb",!1);var e=this.options.boundPointerLabels?Math.min(Math.max(this.selBar.rzsp+this.selBar.rzsd/2-this.cmbLab.rzsd/2,0),this.barDimension-this.cmbLab.rzsd):this.selBar.rzsp+this.selBar.rzsd/2-this.cmbLab.rzsd/2;this.setPosition(this.cmbLab,e),this.cmbLabelShown=!0,this.hideEl(this.minLab),this.hideEl(this.maxLab),this.showEl(this.cmbLab)}else this.cmbLabelShown=!1,this.showEl(this.maxLab),this.showEl(this.minLab),this.hideEl(this.cmbLab);this.options.autoHideLimitLabels&&this.shFloorCeil()},getDisplayValue:function(a,b){return this.options.stepsArray&&!this.options.bindIndexForStepsArray&&(a=this.getStepValue(a)),this.customTrFn(a,this.options.id,b)},roundStep:function(a,b){var c=b?b:this.step,d=parseFloat((a-this.minValue)/c).toPrecision(12);d=Math.round(+d)*c;var e=(this.minValue+d).toFixed(this.precision);return+e},hideEl:function(a){return a.css({visibility:"hidden"})},showEl:function(a){return a.rzAlwaysHide?a:a.css({visibility:"visible"})},setPosition:function(a,b){a.rzsp=b;var c={};return c[this.positionProperty]=Math.round(b)+"px",a.css(c),b},getDimension:function(a){var b=a[0].getBoundingClientRect();return this.options.vertical?a.rzsd=(b.bottom-b.top)*this.options.scale:a.rzsd=(b.right-b.left)*this.options.scale,a.rzsd},setDimension:function(a,b){a.rzsd=b;var c={};return c[this.dimensionProperty]=Math.round(b)+"px",a.css(c),b},sanitizeValue:function(a){return Math.min(Math.max(a,this.minValue),this.maxValue)},valueToPosition:function(a){var b=this.linearValueToPosition;this.options.customValueToPosition?b=this.options.customValueToPosition:this.options.logScale&&(b=this.logValueToPosition),a=this.sanitizeValue(a);var c=b(a,this.minValue,this.maxValue)||0;return this.options.rightToLeft&&(c=1-c),c*this.maxPos},linearValueToPosition:function(a,b,c){var d=c-b;return(a-b)/d},logValueToPosition:function(a,b,c){a=Math.log(a),b=Math.log(b),c=Math.log(c);var d=c-b;return(a-b)/d},positionToValue:function(a){var b=a/this.maxPos;this.options.rightToLeft&&(b=1-b);var c=this.linearPositionToValue;return this.options.customPositionToValue?c=this.options.customPositionToValue:this.options.logScale&&(c=this.logPositionToValue),c(b,this.minValue,this.maxValue)||0},linearPositionToValue:function(a,b,c){return a*(c-b)+b},logPositionToValue:function(a,b,c){b=Math.log(b),c=Math.log(c);var d=a*(c-b)+b;return Math.exp(d)},getEventXY:function(a){var b=this.options.vertical?"clientY":"clientX";return void 0!==a[b]?a[b]:void 0===a.originalEvent?a.touches[0][b]:a.originalEvent.touches[0][b]},getEventPosition:function(a){var b=this.sliderElem.rzsp,c=0;return c=this.options.vertical?-this.getEventXY(a)+b:this.getEventXY(a)-b,c*this.options.scale-this.handleHalfDim},getEventNames:function(a){var b={moveEvent:"",endEvent:""};return a.touches||void 0!==a.originalEvent&&a.originalEvent.touches?(b.moveEvent="touchmove",b.endEvent="touchend"):(b.moveEvent="mousemove",b.endEvent="mouseup"),b},getNearestHandle:function(a){if(!this.range)return this.minH;var b=this.getEventPosition(a),c=Math.abs(b-this.minH.rzsp),d=Math.abs(b-this.maxH.rzsp);return d>c?this.minH:c>d?this.maxH:this.options.rightToLeft?b>this.minH.rzsp?this.minH:this.maxH:b<this.minH.rzsp?this.minH:this.maxH},focusElement:function(a){var b=0;a[b].focus()},bindEvents:function(){var b,c,d;this.options.draggableRange?(b="rzSliderDrag",c=this.onDragStart,d=this.onDragMove):(b="lowValue",c=this.onStart,d=this.onMove),this.options.onlyBindHandles||(this.selBar.on("mousedown",a.bind(this,c,null,b)),this.selBar.on("mousedown",a.bind(this,d,this.selBar))),this.options.draggableRangeOnly?(this.minH.on("mousedown",a.bind(this,c,null,b)),this.maxH.on("mousedown",a.bind(this,c,null,b))):(this.minH.on("mousedown",a.bind(this,this.onStart,this.minH,"lowValue")),this.range&&this.maxH.on("mousedown",a.bind(this,this.onStart,this.maxH,"highValue")),this.options.onlyBindHandles||(this.fullBar.on("mousedown",a.bind(this,this.onStart,null,null)),this.fullBar.on("mousedown",a.bind(this,this.onMove,this.fullBar)),this.ticks.on("mousedown",a.bind(this,this.onStart,null,null)),this.ticks.on("mousedown",a.bind(this,this.onTickClick,this.ticks)))),this.options.onlyBindHandles||(this.selBar.on("touchstart",a.bind(this,c,null,b)),this.selBar.on("touchstart",a.bind(this,d,this.selBar))),this.options.draggableRangeOnly?(this.minH.on("touchstart",a.bind(this,c,null,b)),this.maxH.on("touchstart",a.bind(this,c,null,b))):(this.minH.on("touchstart",a.bind(this,this.onStart,this.minH,"lowValue")),this.range&&this.maxH.on("touchstart",a.bind(this,this.onStart,this.maxH,"highValue")),this.options.onlyBindHandles||(this.fullBar.on("touchstart",a.bind(this,this.onStart,null,null)),this.fullBar.on("touchstart",a.bind(this,this.onMove,this.fullBar)),this.ticks.on("touchstart",a.bind(this,this.onStart,null,null)),this.ticks.on("touchstart",a.bind(this,this.onTickClick,this.ticks)))),this.options.keyboardSupport&&(this.minH.on("focus",a.bind(this,this.onPointerFocus,this.minH,"lowValue")),this.range&&this.maxH.on("focus",a.bind(this,this.onPointerFocus,this.maxH,"highValue")))},unbindEvents:function(){this.minH.off(),this.maxH.off(),this.fullBar.off(),this.selBar.off(),this.ticks.off()},onStart:function(b,d,e){var f,g,h=this.getEventNames(e);e.stopPropagation(),e.preventDefault(),this.calcViewDimensions(),b?this.tracking=d:(b=this.getNearestHandle(e),this.tracking=b===this.minH?"lowValue":"highValue"),b.addClass("rz-active"),this.options.keyboardSupport&&this.focusElement(b),f=a.bind(this,this.dragging.active?this.onDragMove:this.onMove,b),g=a.bind(this,this.onEnd,f),c.on(h.moveEvent,f),c.one(h.endEvent,g),this.callOnStart()},onMove:function(b,c,d){var e,f=this.getEventPosition(c),g=this.options.rightToLeft?this.minValue:this.maxValue,h=this.options.rightToLeft?this.maxValue:this.minValue;0>=f?e=h:f>=this.maxPos?e=g:(e=this.positionToValue(f),e=d&&a.isNumber(this.options.showTicks)?this.roundStep(e,this.options.showTicks):this.roundStep(e)),this.positionTrackingHandle(e)},onEnd:function(a,b){var d=this.getEventNames(b).moveEvent;this.options.keyboardSupport||(this.minH.removeClass("rz-active"),this.maxH.removeClass("rz-active"),this.tracking=""),this.dragging.active=!1,c.off(d,a),this.callOnEnd()},onTickClick:function(a,b){this.onMove(a,b,!0)},onPointerFocus:function(b,c){this.tracking=c,b.one("blur",a.bind(this,this.onPointerBlur,b)),b.on("keydown",a.bind(this,this.onKeyboardEvent)),b.on("keyup",a.bind(this,this.onKeyUp)),this.firstKeyDown=!0,b.addClass("rz-active"),this.currentFocusElement={pointer:b,ref:c}},onKeyUp:function(){this.firstKeyDown=!0,this.callOnEnd()},onPointerBlur:function(a){a.off("keydown"),a.off("keyup"),this.tracking="",a.removeClass("rz-active"),this.currentFocusElement=null},getKeyActions:function(a){var b=a+this.step,c=a-this.step,d=a+this.valueRange/10,e=a-this.valueRange/10,f={UP:b,DOWN:c,LEFT:c,RIGHT:b,PAGEUP:d,PAGEDOWN:e,HOME:this.minValue,END:this.maxValue};return this.options.rightToLeft&&(f.LEFT=b,f.RIGHT=c,this.options.vertical&&(f.UP=c,f.DOWN=b)),f},onKeyboardEvent:function(a){var c=this[this.tracking],d=a.keyCode||a.which,e={38:"UP",40:"DOWN",37:"LEFT",39:"RIGHT",33:"PAGEUP",34:"PAGEDOWN",36:"HOME",35:"END"},f=this.getKeyActions(c),g=e[d],h=f[g];if(null!=h&&""!==this.tracking){a.preventDefault(),this.firstKeyDown&&(this.firstKeyDown=!1,this.callOnStart());var i=this;b(function(){var a=i.roundStep(i.sanitizeValue(h));if(i.options.draggableRangeOnly){var b,c,d=i.highValue-i.lowValue;"lowValue"===i.tracking?(b=a,c=a+d,c>i.maxValue&&(c=i.maxValue,b=c-d)):(c=a,b=a-d,b<i.minValue&&(b=i.minValue,c=b+d)),i.positionTrackingBar(b,c)}else i.positionTrackingHandle(a)})}},onDragStart:function(a,b,c){var d=this.getEventPosition(c);this.dragging={active:!0,value:this.positionToValue(d),difference:this.highValue-this.lowValue,lowLimit:this.options.rightToLeft?this.minH.rzsp-d:d-this.minH.rzsp,highLimit:this.options.rightToLeft?d-this.maxH.rzsp:this.maxH.rzsp-d},this.onStart(a,b,c)},getValue:function(a,b,c,d){var e=this.options.rightToLeft,f=null;return f="min"===a?c?d?e?this.minValue:this.maxValue-this.dragging.difference:e?this.maxValue-this.dragging.difference:this.minValue:e?this.positionToValue(b+this.dragging.lowLimit):this.positionToValue(b-this.dragging.lowLimit):c?d?e?this.minValue+this.dragging.difference:this.maxValue:e?this.maxValue:this.minValue+this.dragging.difference:e?this.positionToValue(b+this.dragging.lowLimit)+this.dragging.difference:this.positionToValue(b-this.dragging.lowLimit)+this.dragging.difference,this.roundStep(f)},onDragMove:function(a,b){var c,d,e,f,g,h,i,j,k=this.getEventPosition(b);if(this.options.rightToLeft?(e=this.dragging.lowLimit,f=this.dragging.highLimit,i=this.maxH,j=this.minH):(e=this.dragging.highLimit,f=this.dragging.lowLimit,i=this.minH,j=this.maxH),g=f>=k,h=k>=this.maxPos-e,g){if(0===i.rzsp)return;c=this.getValue("min",k,!0,!1),d=this.getValue("max",k,!0,!1)}else if(h){if(j.rzsp===this.maxPos)return;d=this.getValue("max",k,!0,!0),c=this.getValue("min",k,!0,!0)}else c=this.getValue("min",k,!1),d=this.getValue("max",k,!1);this.positionTrackingBar(c,d)},positionTrackingBar:function(a,b){null!=this.options.minLimit&&a<this.options.minLimit&&(a=this.options.minLimit,b=a+this.dragging.difference),null!=this.options.maxLimit&&b>this.options.maxLimit&&(b=this.options.maxLimit,a=b-this.dragging.difference),this.lowValue=a,this.highValue=b,this.applyLowValue(),this.range&&this.applyHighValue(),this.applyModel(),this.updateHandles("lowValue",this.valueToPosition(a)),this.updateHandles("highValue",this.valueToPosition(b))},positionTrackingHandle:function(a){var b=!1;a=this.applyMinMaxLimit(a),this.range&&(this.options.pushRange?(a=this.applyPushRange(a),b=!0):(this.options.noSwitching&&("lowValue"===this.tracking&&a>this.highValue?a=this.applyMinMaxRange(this.highValue):"highValue"===this.tracking&&a<this.lowValue&&(a=this.applyMinMaxRange(this.lowValue))),a=this.applyMinMaxRange(a),"lowValue"===this.tracking&&a>this.highValue?(this.lowValue=this.highValue,this.applyLowValue(),this.updateHandles(this.tracking,this.maxH.rzsp),this.updateAriaAttributes(),this.tracking="highValue",this.minH.removeClass("rz-active"),this.maxH.addClass("rz-active"),this.options.keyboardSupport&&this.focusElement(this.maxH),b=!0):"highValue"===this.tracking&&a<this.lowValue&&(this.highValue=this.lowValue,this.applyHighValue(),this.updateHandles(this.tracking,this.minH.rzsp),this.updateAriaAttributes(),this.tracking="lowValue",this.maxH.removeClass("rz-active"),this.minH.addClass("rz-active"),this.options.keyboardSupport&&this.focusElement(this.minH),b=!0))),this[this.tracking]!==a&&(this[this.tracking]=a,"lowValue"===this.tracking?this.applyLowValue():this.applyHighValue(),this.updateHandles(this.tracking,this.valueToPosition(a)),this.updateAriaAttributes(),b=!0),b&&this.applyModel()},applyMinMaxLimit:function(a){return null!=this.options.minLimit&&a<this.options.minLimit?this.options.minLimit:null!=this.options.maxLimit&&a>this.options.maxLimit?this.options.maxLimit:a},applyMinMaxRange:function(a){var b="lowValue"===this.tracking?this.highValue:this.lowValue,c=Math.abs(a-b);return null!=this.options.minRange&&c<this.options.minRange?"lowValue"===this.tracking?this.highValue-this.options.minRange:this.lowValue+this.options.minRange:null!=this.options.maxRange&&c>this.options.maxRange?"lowValue"===this.tracking?this.highValue-this.options.maxRange:this.lowValue+this.options.maxRange:a},applyPushRange:function(a){var b="lowValue"===this.tracking?this.highValue-a:a-this.lowValue,c=null!==this.options.minRange?this.options.minRange:this.options.step,d=this.options.maxRange;return c>b?("lowValue"===this.tracking?(this.highValue=Math.min(a+c,this.maxValue),a=this.highValue-c,this.applyHighValue(),this.updateHandles("highValue",this.valueToPosition(this.highValue))):(this.lowValue=Math.max(a-c,this.minValue),a=this.lowValue+c,this.applyLowValue(),this.updateHandles("lowValue",this.valueToPosition(this.lowValue))),this.updateAriaAttributes()):null!==d&&b>d&&("lowValue"===this.tracking?(this.highValue=a+d,this.applyHighValue(),this.updateHandles("highValue",this.valueToPosition(this.highValue))):(this.lowValue=a-d,this.applyLowValue(),this.updateHandles("lowValue",this.valueToPosition(this.lowValue))),this.updateAriaAttributes()),a},applyModel:function(){this.internalChange=!0,this.scope.$apply(),this.callOnChange(),this.internalChange=!1},callOnStart:function(){if(this.options.onStart){var a=this,b="lowValue"===this.tracking?"min":"max";this.scope.$evalAsync(function(){a.options.onStart(a.options.id,a.scope.rzSliderModel,a.scope.rzSliderHigh,b)})}},callOnChange:function(){if(this.options.onChange){var a=this,b="lowValue"===this.tracking?"min":"max";this.scope.$evalAsync(function(){a.options.onChange(a.options.id,a.scope.rzSliderModel,a.scope.rzSliderHigh,b)})}},callOnEnd:function(){if(this.options.onEnd){var a=this,b="lowValue"===this.tracking?"min":"max";this.scope.$evalAsync(function(){a.options.onEnd(a.options.id,a.scope.rzSliderModel,a.scope.rzSliderHigh,b)})}this.scope.$emit("slideEnded")}},h}]).directive("rzslider",["RzSlider",function(a){return{restrict:"AE",replace:!0,scope:{rzSliderModel:"=?",rzSliderHigh:"=?",rzSliderOptions:"&?",rzSliderTplUrl:"@"},templateUrl:function(a,b){
 return b.rzSliderTplUrl||"rzSliderTpl.html"},link:function(b,c){b.slider=new a(b,c)}}}]);return b.run(["$templateCache",function(a){a.put("rzSliderTpl.html",'<div class=rzslider><span class=rz-bar-wrapper><span class=rz-bar></span></span> <span class=rz-bar-wrapper><span class="rz-bar rz-selection" ng-style=barStyle></span></span> <span class="rz-pointer rz-pointer-min" ng-style=minPointerStyle></span> <span class="rz-pointer rz-pointer-max" ng-style=maxPointerStyle></span> <span class="rz-bubble rz-limit rz-floor"></span> <span class="rz-bubble rz-limit rz-ceil"></span> <span class=rz-bubble></span> <span class=rz-bubble></span> <span class=rz-bubble></span><ul ng-show=showTicks class=rz-ticks><li ng-repeat="t in ticks track by $index" class=rz-tick ng-class="{\'rz-selected\': t.selected}" ng-style=t.style ng-attr-uib-tooltip="{{ t.tooltip }}" ng-attr-tooltip-placement={{t.tooltipPlacement}} ng-attr-tooltip-append-to-body="{{ t.tooltip ? true : undefined}}"><span ng-if="t.value != null" class=rz-tick-value ng-attr-uib-tooltip="{{ t.valueTooltip }}" ng-attr-tooltip-placement={{t.valueTooltipPlacement}}>{{ t.value }}</span> <span ng-if="t.legend != null" class=rz-tick-legend>{{ t.legend }}</span></li></ul></div>')}]),b.name});
 
+var abode = angular.module('abode', [
+  'ng',
+  'ngResource',
+  'ui.router',
+  'ui.bootstrap',
+  'rzModule',
+  'abode.welcome',
+  'abode.home',
+  'abode.devices',
+  'abode.rooms',
+  'abode.scenes',
+  'abode.triggers',
+  'abode.settings',
+  'abode.weather',
+  'abode.alarmclock',
+  'abode.notifications',
+  'insteon',
+  'insteonhub',
+  'camera',
+  'wunderground',
+  'ifttt',
+  'rad',
+  'lutroncaseta',
+  'radiothermostat',
+  'mqtt',
+  'zwave',
+  'video',
+  'autoshades',
+]);
+
+abode.config(['$stateProvider', '$urlRouterProvider', 'abodeProvider', function($state, $urlRouter, abode) {
+
+  abode.load();
+
+  if (abode.config && abode.config.auth && abode.config.auth.device && abode.config.auth.device.config && abode.config.auth.device.config.interface) {
+    $urlRouter.otherwise('/Home/' + abode.config.auth.device.config.interface);
+    $urlRouter.when('', '/Home/' + abode.config.auth.device.config.interface);
+  } else {
+    $urlRouter.otherwise('/Welcome');
+    $urlRouter.when('', '/Welcome');
+  }
+
+  $state
+    .state('main', {
+      url: '',
+      templateUrl: "modules/abode/views/index.html",
+      controller: 'mainController',
+      resolve: {
+        auth: ['$q', '$uibModal', 'abode', 'Auth', function ($q, $uibModal, abode, Auth) {
+          var defer = $q.defer();
+
+          if (!abode.config.server) {
+            defer.reject({'state': 'welcome', 'message': 'Login Expired'});
+            return defer.promise;
+          }
+
+          Auth.check().$promise.then(function (auth) {
+            abode.config.auth = auth;
+            abode.save(abode.config);
+            abode.load();
+            defer.resolve(auth);
+          },
+          function (response) {
+            delete abode.config.auth;
+            abode.save();
+
+            if (response.status === 403) {
+              defer.reject({'state': 'welcome', 'message': 'Login Expired'});
+            } else if (response.status === 401) {
+              defer.reject({'state': 'welcome', 'message': 'Login Expired'});
+            } else {
+              defer.reject({'message': 'Server has gone away', 'action': 'serverGone'});
+
+            }
+
+          });
+
+          return defer.promise;
+        }],
+        'time': ['$q', '$http', 'abode', function ($q, $http, abode) {
+          var defer = $q.defer();
+
+          $http.get(abode.url('/api/time').value()).then(function (response) {
+            defer.resolve(response.data);
+          }, function () {
+            defer.resolve({});
+          });
+
+          return defer.promise;
+        }]
+      }
+    });
+
+}]);
+
+
+
+var abode = angular.module('abode');
+
+abode.controller('mainController', ['$scope', '$state', '$interval', 'abode', 'Security', 'Interfaces', 'auth', 'time', function ($scope, $state, $interval, abode, Security, Interfaces, auth, time) {
+
+  $scope.date = new Date();
+  $scope.root = abode.scope;
+  $scope.client = abode.config.auth.device.config;
+  $scope.device = abode.config.auth.device;
+  $scope.interfaces = Interfaces.query();
+  $scope.time = time;
+  abode.get_events();
+
+  if ($scope.device.locked) {
+    Security.show_lock();
+  }
+
+  //If we get an EVENTS_RESET event, schedule a refresh
+  var time_events = abode.scope.$on('TIME_CHANGE', function (event, msg) {
+    angular.merge($scope.time, msg.object);
+  });
+
+  //If we get an CLIENT_UPDATED event, merge our client config
+  var client_events = abode.scope.$on('CLIENT_UPDATED', function (event, msg) {
+    if ($scope.device.locked !== msg.object.locked) {
+      if (msg.object.locked) {
+        Security.show_lock();
+      } else {
+        Security.hide_lock();
+      }
+    }
+    angular.merge($scope.client, msg.object.config);
+    angular.merge($scope.device, msg.object);
+
+  });
+
+  $interval(function () {
+    $scope.date = new Date();
+  },10 * 1000);
+
+  $scope.logout = function () {
+    auth.$logout().then(function () {
+      abode.save({'server': abode.config.server});
+      $state.go('welcome');
+    }, function (err) {
+      abode.message({'message': err.message || 'Unknown Error Occured', 'type': 'failed'});
+      /*
+      abode.config = {};
+      abode.save({});
+      $state.go('welcome');
+      */
+    });
+  };
+}]);
+
+
+
+var abode = angular.module('abode');
+
+abode.controller('rootController', ['$rootScope', '$scope', '$state', '$window', 'abode', '$timeout', '$uibModal', function ($rootScope, $scope, $state, $window, abode, $timeout, $uibModal) {
+
+  var idleTimer;
+
+  $scope.is_idle = false;
+
+  $rootScope.breakIdle = function ($event) {
+    var dim,
+      delay;
+
+    if (abode.config && abode.config.auth && abode.config.auth.device) {
+      dim = abode.config.auth.device.config.dim_display;
+      delay = abode.config.auth.device.config.dim_after || 15;
+    }
+    if (idleTimer) {
+      $timeout.cancel(idleTimer);
+    }
+
+    if ($scope.is_idle) {
+      if ($event) { $event.preventDefault(); }
+      $timeout(function () {
+        $scope.is_idle = false;
+        $scope.$digest();
+      }, 250);
+    }
+
+    if (dim) {
+      idleTimer = $timeout(function () {
+        $scope.is_idle = true;
+      }, 1000 * delay);
+
+    }
+  };
+
+  $window.addEventListener('click', $rootScope.breakIdle);
+  $window.addEventListener('mousemove', $rootScope.breakIdle);
+  $window.addEventListener('keypress', $rootScope.breakIdle);
+
+  $rootScope.breakIdle();
+
+  $scope.serverGone_modal = false;
+  $scope.serverGone = function (toState, toParams) {
+
+    if ($scope.serverGone_modal) {
+      return;
+    }
+
+    $scope.serverGone_modal = true;
+    return $uibModal.open({
+      animation: false,
+      keyboard: false,
+      backdrop: 'static',
+      templateUrl: 'modules/abode/views/server_gone.html',
+      size: 'lg',
+      controller: ['$scope', '$uibModalInstance', '$state', function (scope, $uibModalInstance, $state) {
+
+        scope.retry = function () {
+          $scope.serverGone_modal = false;
+          $uibModalInstance.close();
+          $state.go(toState, toParams);
+        };
+
+        scope.select = function () {
+          $scope.serverGone_modal = false;
+          abode.save({});
+
+          $uibModalInstance.close();
+          $state.go('welcome');
+        };
+      }]
+    });
+  };
+
+  $rootScope.$on('$stateChangeError', function (event, toState, toParams, fromState, fromParams, error) {
+
+    if (error.action && $scope[error.action]) {
+      $scope[error.action](toState, toParams);
+      return;
+    }
+    if (error.message || error.state !== 'welcome') {
+      abode.message({'message': error.message || 'Error Loading Page', 'type': 'error'});
+      console.dir(error);
+    }
+    $rootScope.loading = false;
+    event.preventDefault();
+    if ( ! error ) {
+      alert('Application failed to load');
+    } else {
+      if (error.state && toState.name !== error.state) {
+        $state.go(error.state, error);
+      }
+    }
+  });
+
+}]);
+
+
+
+var abode = angular.module('abode');
+
+abode.directive('datetime', function () {
+
+  return {
+    restrict: 'E',
+    transclude: true,
+    scope: {
+      format: '@',
+      top: '@',
+      bottom: '@',
+      left: '@',
+      right: '@',
+      height: '@',
+      width: '@',
+      align: '@',
+      size: '@',
+      background: '@',
+      color: '@',
+      shadow: '@',
+      margin: '@'
+    },
+    controller: function ($scope, $filter, $interval, datetime) {
+      $scope.styles = {position: 'absolute'};
+      $scope.now = datetime.get();
+      $scope.format = $scope.format || 'short';
+      $scope.interval = $scope.interval || 1;
+
+      if ($scope.top) { $scope.styles.top = $scope.top + 'em'; }
+      if ($scope.bottom) { $scope.styles.bottom = $scope.bottom + 'em'; }
+      if ($scope.left) { $scope.styles.left = $scope.left + 'em'; }
+      if ($scope.right) { $scope.styles.right = $scope.right + 'em'; }
+      if ($scope.height) { $scope.styles.height = $scope.height + 'em'; }
+      if ($scope.width) { $scope.styles.width = $scope.width + 'em'; }
+      if ($scope.align) { $scope.styles['text-align'] = $scope.align; }
+      if ($scope.size) { $scope.styles['font-size'] = $scope.size + 'em'; }
+      if ($scope.background) { $scope.styles.background = $scope.background; }
+      if ($scope.color) { $scope.styles.color = $scope.color; }
+      if ($scope.shadow) { $scope.styles['text-shadow'] = $scope.shadow; }
+      if ($scope.margin) { $scope.styles.margin = (isNaN($scope.margin)) ? $scope.margin : $scope.margin + 'em'; }
+
+      $interval(function () {
+        $scope.formatted = $filter('date')($scope.now.date, $scope.format);
+      }, $scope.interval * 1000);
+
+    },
+    template: '<div class="datetime" ng-style="styles">{{formatted}}</div>',
+    replace: true,
+  };
+
+});
+
+
+
+var abode = angular.module('abode');
+
+abode.directive('deviceStatus', function () {
+
+  return {
+    scope: {
+    },
+    restrict: 'E',
+    replace: true,
+    templateUrl: 'modules/abode/views/display_status.html',
+    controller: ['$scope', '$timeout', '$http', '$uibModal', '$location', 'abode', 'Security', 'power', 'network', function ($scope, $timeout, $http, $uibModal, $location, abode, Security, power, network) {
+
+      var timer;
+      var changing = false;
+      $scope.display = {};
+      $scope.network = {};
+      $scope.loading = true;
+      $scope.error = false;
+      $scope.popover = false;
+      $scope.root = abode.scope;
+
+      //This probably needs some work
+      //If we get an CLIENT_UPDATED event, merge our client config
+      var client_events = abode.scope.$on('CLIENT_UPDATED', function (event, msg) {
+        if (msg.object._level !== undefined) {
+          changing = true;
+          $scope.display.brightness = msg.object._level;
+          $scope.slider.level = msg.object._level;
+          $timeout(function () {
+            changing = false;
+          }, 100);
+        }
+      });
+
+      var set_brightness = function () {
+        changing = true;
+        $scope.slider.options.disabled = true;
+        $http.post('/api/display/brightness/' + $scope.slider.level).then(function () {
+          changing = false;
+          $scope.slider.options.disabled = false;
+        }, function (err) {
+          $scope.slider.level = parseInt($scope.display.brightness, 10);
+          $timeout(function () {
+            $scope.slider.options.disabled = false;
+            changing = false;
+          }, 100);
+        });
+      };
+
+      $scope.slider = {
+        level: 0,
+        options: {
+          floor: 0,
+          ceil: 100,
+          hideLimitLabels: true
+        }
+      };
+
+      $scope.network = function () {
+        $scope.popover = false;
+        console.log(network.open());
+      };
+
+      $scope.power = function () {
+        $scope.popover = false;
+        power.open();
+      };
+
+      $scope.lock = function () {
+        $scope.popover = false;
+        Security.lock();
+      };
+
+      $scope.load = function () {
+        if ($location.host().indexOf('localhost') !== 0) {
+          $scope.loading = false;
+          $scope.device = false;
+          return;
+        }
+        $scope.error = false;
+        $scope.loading = true;
+
+        var done = function () {
+          $scope.loading = false;
+        };
+
+        var load_network = function () {
+
+          $http.get('/api/network').then(function (result) {
+            angular.merge($scope.network, result.data);
+            done();
+          }, function (err) {
+            $scope.error = true;
+            done();
+          });
+
+        };
+
+        var load_display = function () {
+
+          $http.get('/api/display').then(function (result) {
+            $scope.device = true;
+            angular.merge($scope.display, result.data);
+            $scope.slider.level = $scope.display.brightness;
+            load_network();
+          }, function (err) {
+            $scope.error = true;
+            $scope.device = false;
+            done();
+          });
+
+        };
+
+        load_display();
+
+      };
+
+      $timeout($scope.load, 100);
+
+      $scope.$watch('slider.level', function () {
+        if (changing || $scope.display.max_brightness === undefined) {
+          return;
+        }
+        if (parseInt($scope.display.brightness) !== parseInt($scope.slider.level)) {
+          if (timer) {
+            $timeout.cancel(timer);
+          }
+          timer = $timeout(set_brightness, 1000);
+        }
+      }, true);
+
+    }]
+  };
+
+});
+
+
+
+var abode = angular.module('abode');
+
+abode.directive('epochduration', ['$compile', function () {
+  return {
+    restrict: 'E',
+    replace: 'true',
+    scope: {
+      time: '='
+    },
+    template: '<div class="epochtime"><div class="epochtime-days"><button ng-click="increaseDay()"><i class="icon-pigpenv"></i></button><input type="text" ng-model="days"><button ng-click="decreaseDay()"><i class="icon-pigpens"></i></button></div><div class="epochtime-label">:</div><div class="epochtime-hours"><button ng-click="increaseHour()"><i class="icon-pigpenv"></i></button><input type="text" ng-model="hours"><button ng-click="decreaseHour()"><i class="icon-pigpens"></i></button></div><div class="epochtime-label">:</div><div class="epochtime-minutes"><button ng-click="increaseMinute()"><i class="icon-pigpenv"></i></button><input type="text" ng-model="minutes"><button ng-click="decreaseMinute()"><i class="icon-pigpens"></i></button></div></div>',
+    link: function (scope) {
+      scope.time = scope.time || 0;
+      var dayWatch, timeWatch, hourWatch, minuteWatch, meridianWatch;
+
+      var updateTime = function () {
+        clearWatches();
+
+        var d = 60 * 60 * 24 * scope.days;
+        var h = 60 * 60 * scope.hours;
+        var m = 60 * scope.minutes;
+
+        scope.time = h + m + d;
+
+        makeWatches();
+      };
+
+      var splitTime = function () {
+        clearWatches();
+
+        scope.time = scope.time || 0;
+        scope.days =  parseInt(scope.time / (60 * 60 * 24));
+        scope.hours =  parseInt(scope.time / 60 / 60);
+        scope.minutes =  parseInt(scope.time % (60 * 60) / 60);
+
+        makeWatches();
+      };
+
+      scope.increaseDay = function () {
+        scope.days = parseInt(scope.days, 10);
+        scope.days += 1;
+      };
+
+      scope.decreaseDay = function () {
+        scope.days = parseInt(scope.days, 10);
+        if (scope.days === 0) {
+          scope.days = 0;
+        } else {
+          scope.days -= 1;
+        }
+      };
+
+      scope.increaseHour = function () {
+        scope.hours = parseInt(scope.hours, 10);
+        if (scope.hours === 23) {
+          scope.hours = 0;
+          scope.increaseDay();
+        } else {
+          scope.hours += 1;
+        }
+      };
+
+      scope.decreaseHour = function () {
+        scope.hours = parseInt(scope.hours, 10);
+        if (scope.hours === 0) {
+          scope.hours = 23;
+          scope.decreaseDay();
+        } else {
+          scope.hours -= 1;
+        }
+      };
+
+      scope.increaseMinute = function () {
+        scope.minutes = parseInt(scope.minutes, 10);
+        if (scope.minutes === 59) {
+          scope.minutes = 0;
+          scope.increaseHour();
+        } else {
+          scope.minutes += 1;
+        }
+      };
+
+      scope.decreaseMinute = function () {
+        scope.minutes = parseInt(scope.minutes, 10);
+        if (scope.minutes === 0) {
+          scope.minutes = 0;
+          scope.decreaseHour();
+        } else {
+          scope.minutes -= 1;
+        }
+      };
+
+      var clearWatches = function () {
+        if (dayWatch !== undefined) {
+          dayWatch();
+        }
+        if (hourWatch !== undefined) {
+          hourWatch();
+        }
+        if (minuteWatch !== undefined) {
+          minuteWatch();
+        }
+        if (meridianWatch !== undefined) {
+          meridianWatch();
+        }
+        if (timeWatch !== undefined) {
+          timeWatch();
+        }
+      };
+
+      var makeWatches = function () {
+        dayWatch = scope.$watch('days', function (newVal, oldVal) {
+          if (newVal !== oldVal) {
+            updateTime();
+          }
+        });
+
+        hourWatch = scope.$watch('hours', function (newVal, oldVal) {
+          if (newVal !== oldVal) {
+            updateTime();
+          }
+        });
+
+        minuteWatch = scope.$watch('minutes', function (newVal, oldVal) {
+          if (newVal !== oldVal) {
+            updateTime();
+          }
+        });
+
+        meridianWatch = scope.$watch('meridian', function (newVal, oldVal) {
+          if (newVal !== oldVal) {
+            updateTime();
+          }
+        });
+
+        timeWatch = scope.$watch('time', function (newVal, oldVal) {
+          if (newVal !== oldVal) {
+            console.log('time change', newVal, oldVal);
+            splitTime();
+          }
+        });
+      };
+
+      scope.changeMeridian = function () {
+        scope.meridian = (scope.meridian === 'PM') ? 'AM' : 'PM';
+      };
+
+
+      splitTime();
+    }
+  };
+}]);
+
+
+
+var abode = angular.module('abode');
+
+abode.directive('epochtime', ['$compile', function () {
+  return {
+    restrict: 'E',
+    replace: 'true',
+    scope: {
+      time: '=',
+      disabled: '@'
+    },
+    template: '<div class="epochtime"><div class="epochtime-hours"><button ng-click="increaseHour()"><i class="icon-pigpenv"></i></button><input type="text" ng-model="hours"><button ng-click="decreaseHour()"><i class="icon-pigpens"></i></button></div><div class="epochtime-label">:</div><div class="epochtime-minutes"><button ng-click="increaseMinute()"><i class="icon-pigpenv"></i></button><input type="text" ng-model="minutes"><button ng-click="decreaseMinute()"><i class="icon-pigpens"></i></button></div><div class="epochtime-meridian"><button ng-click="changeMeridian()">{{meridian}}</button></div></div>',
+    link: function (scope) {
+      scope.meridian = 'AM';
+      var timeWatch, hourWatch, minuteWatch, meridianWatch;
+
+      scope.$watch('disabled', function (newVal, oldVal) {
+        if (newVal !== oldVal) {
+          if (newVal === 'true') {
+            clearWatches();
+          } else {
+            scope.time = (!isNaN(scope.time)) ? scope.time : 0;
+            scope.meridian = 'AM';
+
+            splitTime();
+          }
+        }
+      });
+
+      var updateTime = function () {
+        clearWatches();
+
+        var h = 60 * 60 * scope.hours;
+        var m = 60 * scope.minutes;
+        var o = (scope.meridian === 'PM') ? (60 * 60 * 12) : 0;
+
+        scope.time = h + m + o;
+
+        makeWatches();
+      };
+
+      var splitTime = function () {
+        clearWatches();
+
+        scope.hours =  parseInt(scope.time / 60 / 60);
+        scope.minutes =  parseInt(scope.time % (60 * 60) / 60);
+        scope.meridian = (scope.hours >= 12) ? 'PM' : 'AM';
+
+        console.log(scope.hours);
+        if (scope.meridian === 'PM') {
+          scope.hours = scope.hours - 12;
+        }
+
+        makeWatches();
+      };
+
+      scope.increaseHour = function () {
+        scope.hours = parseInt(scope.hours, 10);
+        if (scope.hours === 12 && scope.meridian === 'AM') {
+          scope.hours = 1;
+          scope.meridian = 'PM';
+        } else if (scope.hours === 12 && scope.meridian === 'PM') {
+          scope.hours = 1;
+          scope.meridian = 'AM';
+        } else {
+          scope.hours += 1;
+        }
+      };
+
+      scope.decreaseHour = function () {
+        scope.hours = parseInt(scope.hours, 10);
+        if (scope.hours === 1 && scope.meridian === 'AM') {
+          scope.hours = 12;
+          scope.meridian = 'PM';
+        } else if (scope.hours === 1 && scope.meridian === 'PM') {
+          scope.hours =12;
+          scope.meridian = 'AM';
+        } else {
+          scope.hours -= 1;
+        }
+      };
+
+      scope.increaseMinute = function () {
+        scope.minutes = parseInt(scope.minutes, 10);
+        if (scope.minutes === 59) {
+          scope.minutes = 0;
+          scope.increaseHour();
+        } else {
+          scope.minutes += 1;
+        }
+      };
+
+      scope.decreaseMinute = function () {
+        scope.minutes = parseInt(scope.minutes, 10);
+        if (scope.minutes === 0) {
+          scope.minutes = 0;
+          scope.decreaseHour();
+        } else {
+          scope.minutes -= 1;
+        }
+      };
+      var clearWatches = function () {
+        if (hourWatch !== undefined) {
+          hourWatch();
+        }
+        if (minuteWatch !== undefined) {
+          minuteWatch();
+        }
+        if (meridianWatch !== undefined) {
+          meridianWatch();
+        }
+        if (timeWatch !== undefined) {
+          timeWatch();
+        }
+      };
+
+      var makeWatches = function () {
+        hourWatch = scope.$watch('hours', function (newVal, oldVal) {
+          if (newVal !== oldVal) {
+            updateTime();
+          }
+        });
+
+        minuteWatch = scope.$watch('minutes', function (newVal, oldVal) {
+          if (newVal !== oldVal) {
+            updateTime();
+          }
+        });
+
+        meridianWatch = scope.$watch('meridian', function (newVal, oldVal) {
+          if (newVal !== oldVal) {
+            updateTime();
+          }
+        });
+
+        timeWatch = scope.$watch('time', function (newVal, oldVal) {
+          if (newVal !== oldVal) {
+            splitTime();
+          }
+        });
+      };
+
+      scope.changeMeridian = function () {
+        scope.meridian = (scope.meridian === 'PM') ? 'AM' : 'PM';
+      };
+
+      if (scope.disabled === 'false') {
+        scope.time = (!isNaN(scope.time)) ? scope.time : 0;
+
+        splitTime();
+      }
+
+    }
+  };
+}]);
+
+
+
+var abode = angular.module('abode');
+
+abode.directive('iconSelector', ['$compile', function () {
+  return {
+    restrict: 'E',
+    replace: 'true',
+    scope: {
+      value: '='
+    },
+    templateUrl: 'modules/abode/views/icons.html',
+    controller: ['$scope', function ($scope) {
+
+      $scope.selectIcon = function (icon) {
+        $scope.value = icon.class;
+      };
+
+      $scope.icons = [
+        {
+          'name': 'Power ',
+          'class': 'icon-off'
+        },
+        {
+          'name': 'Window',
+          'class': 'fi-window'
+        },
+        {
+          'name': 'Door Open',
+          'class': 'fi-door-open'
+        },
+        {
+          'name': 'Door Closed',
+          'class': 'fi-door-closed'
+        },
+        {
+          'name': 'Motion',
+          'class': 'fi-motion'
+        },
+        {
+          'name': 'Light',
+          'class': 'icon-lightbulb-idea'
+        },
+        {
+          'name': 'Fan',
+          'class': 'icon-fan'
+        },
+        {
+          'name': 'Heat',
+          'class': 'icon-fire'
+        },
+        {
+          'name': 'Cool',
+          'class': 'icon-snow'
+        },
+        {
+          'name': 'Monitor',
+          'class': 'icon-monitor'
+        },
+        {
+          'name': 'Security',
+          'class': 'icon-securityalt-shieldalt'
+        },
+        {
+          'name': 'Security Alt1',
+          'class': 'icon-security-shield'
+        },
+        {
+          'name': 'Controller',
+          'class': 'icon-controlpanelalt'
+        },
+        {
+          'name': 'Scene',
+          'class': 'icon-picture'
+        },
+        {
+          'name': 'Home',
+          'class': 'icon-home'
+        },
+        {
+          'name': 'Notification',
+          'class': 'icon-commenttyping'
+        },
+        {
+          'name': 'Laptop',
+          'class': 'icon-laptop'
+        },
+        {
+          'name': 'Computer',
+          'class': 'icon-server'
+        },
+        {
+          'name': 'Phone',
+          'class': 'icon-mobile',
+        },
+        {
+          'name': 'Laptop',
+          'class': 'icon-iphone'
+        },
+        {
+          'name': 'Browser',
+          'class': 'icon-browser'
+        },
+        {
+          'name': 'Alarm',
+          'class': 'icon-alarm'
+        },
+        {
+          'name': 'Alarm Off',
+          'class': 'icon-turnoffalarm'
+        },
+        {
+          'name': 'Garage',
+          'class': 'icon-garage'
+        },
+        {
+          'name': 'Lock',
+          'class': 'icon-lock'
+        },
+        {
+          'name': 'Unlock',
+          'class': 'icon-unlock'
+        },
+        {
+          'name': 'Sleep',
+          'class': 'icon-sleep'
+        },
+        {
+          'name': 'Away',
+          'class': 'icon-travel'
+        },
+        {
+          'name': 'Video Camera',
+          'class': 'icon-videocamerathree',
+        },
+        {
+          'name': 'Still Camera',
+          'class': 'icon-camera',
+        },
+        {
+          'name': 'Sunset',
+          'class': 'wi wi-sunset'
+        },
+        {
+          'name': 'Sunrise',
+          'class': 'wi wi-sunrise'
+        },
+        {
+          'name': 'Lamp',
+          'class': 'icon-lamp'
+        },
+        {
+          'name': 'Lamp Alt1',
+          'class': 'icon-desklamp'
+        },
+        {
+          'name': 'Lamp Alt2',
+          'class': 'icon-lampalt'
+        },
+        {
+          'name': 'Tablet',
+          'class': 'icon-tablet'
+        },
+        {
+          'name': 'Mute',
+          'class': 'icon-mutealt'
+        },
+        {
+          'name': 'Horn',
+          'class': 'icon-bullhorn'
+        },
+        {
+          'name': 'Torch',
+          'class': 'icon-torch'
+        },
+        {
+          'name': 'Pendant',
+          'class': 'icon-ceilinglight'
+        },
+        {
+          'name': 'Battery',
+          'class': 'icon-aaabattery'
+        },
+        {
+          'name': 'Key Hole',
+          'class': 'icon-lockalt-keyhole'
+        },
+        {
+          'name': 'Umbrella',
+          'class': 'wi wi-umbrella',
+        },
+        {
+          'name': 'Room',
+          'class': 'icon-snaptogrid'
+        },
+        {
+          'name': 'Office Chair',
+          'class': 'icon-officechair'
+        },
+        {
+          'name': 'Bed',
+          'class': 'icon-bed'
+        },
+        {
+          'name': 'TV',
+          'class': 'icon-tv'
+        },
+        {
+          'name': 'Fork',
+          'class': 'icon-fork'
+        },
+        {
+          'name': 'Washer',
+          'class': 'icon-washer'
+        },
+        {
+          'name': 'Modes',
+          'class': 'icon-burstmode'
+        },
+        {
+          'name': 'Tree',
+          'class': 'icon-forest-tree'
+        },
+        {
+          'name': 'Tree Christmas',
+          'class': 'icon-christmastree'
+        },
+        {
+          'name': 'Tree Alt',
+          'class': 'icon-treethree'
+        },
+        {
+          'name': 'Plant',
+          'class': 'icon-plantalt'
+        },
+        {
+          'name': 'Plant Alt1',
+          'class': 'icon-macro-plant'
+        },
+        {
+          'name': 'Plant Alt2',
+          'class': 'icon-flowerpot'
+        },
+        {
+          'name': 'Broom',
+          'class': 'icon-broom'
+        },
+        {
+          'name': 'Dog',
+          'class': 'icon-dog'
+        },
+        {
+          'name': 'Dog House',
+          'class': 'icon-doghouse'
+        },
+        {
+          'name': 'Timer',
+          'class': 'icon-timer'
+        },
+        {
+          'name': 'Travel',
+          'class': 'icon-travel'
+        },
+        {
+          'name': 'Car',
+          'class': 'icon-automobile-car',
+        },
+        {
+          'name': 'Moon',
+          'class': 'icon-moon-night',
+        },
+        {
+          'name': 'Hat',
+          'class': 'icon-tophat',
+        },
+        {
+          'name': 'Alert',
+          'class': 'icon-alertalt'
+        },
+        {
+          'name': 'Baby',
+          'class': 'icon-baby'
+        },
+        {
+          'name': 'Speaker Off',
+          'class': 'icon-volume-off',
+        },
+        {
+          'name': 'Speaker Up',
+          'class': 'icon-volume-up'
+        },
+        {
+          'name': 'Speaker Down',
+          'class': 'icon-volume-down'
+        },
+        {
+          'name': 'Office',
+          'class': 'icon-office-building'
+        },
+        {
+          'name': 'Weather Hot',
+          'class': 'wi wi-hot',
+        },
+        {
+          'name': 'Weather Rain',
+          'class': 'wi wi-rain'
+        },
+        {
+          'name': 'Thermometer',
+          'class': 'wi wi-thermometer'
+        },
+        {
+          'name': 'Music',
+          'class': 'icon-music'
+        },
+        {
+          'name': 'Bath',
+          'class': 'icon-bathtub'
+        },
+        {
+          'name': 'Movie',
+          'class': 'icon-movieclapper'
+        },
+        {
+          'name': 'Movie Alt',
+          'class': 'icon-moviereel'
+        },
+        {
+          'name': 'Events',
+          'class': 'icon-eventum'
+        },
+        {
+          'name': 'Chandelier',
+          'class': 'icon-chandelier'
+        },
+        {
+          'name': 'Tools',
+          'class': 'icon-tools'
+        },
+        {
+          'name': 'Tools Alt1',
+          'class': 'icon-mootoolsthree'
+        },
+        {
+          'name': 'Tools Alt2',
+          'class': 'icon-screwdriver'
+        },
+        {
+          'name': 'Tools Alt3',
+          'class': 'icon-screw'
+        },
+        {
+          'name': 'Glass',
+          'class': 'icon-wineglass'
+        },
+        {
+          'name': 'Glass Alt1',
+          'class': 'icon-glass'
+        },
+        {
+          'name': 'Glass Alt2',
+          'class': 'icon-beeralt'
+        },
+        {
+          'name': 'Sport',
+          'class': 'icon-football-soccer'
+        },
+        {
+          'name': 'Sport Alt1',
+          'class': 'icon-usfootball'
+        },
+        {
+          'name': 'Camp Fire',
+          'class': 'icon-campfire'
+        },
+        {
+          'name': 'Tent',
+          'class': 'icon-tent-camping'
+        },
+        {
+          'name': 'Tie',
+          'class': 'icon-tie-business'
+        },
+        {
+          'name': 'Shirt',
+          'class': 'icon-workshirt'
+        },
+        {
+          'name': 'Security Camera',
+          'class': 'icon-cctv'
+        },
+        {
+          'name': 'Chair',
+          'class': 'icon-chair'
+        },
+        {
+          'name': 'Mirror',
+          'class': 'icon-mirror'
+        },
+        {
+          'name': 'Microwave',
+          'class': 'icon-microwave'
+        },
+        {
+          'name': 'Turntable',
+          'class': 'icon-gramophone'
+        },
+        {
+          'name': 'shade',
+          'class': 'icon-pattern'
+        },
+        {
+          'name': 'Windows Alt',
+          'class': 'icon-windows'
+        },
+        {
+          'name': 'Drawer',
+          'class': 'icon-storagealt-drawer'
+        },
+        {
+          'name': 'Enter',
+          'class': 'icon-enter'
+        },
+        {
+          'name': 'Exit',
+          'class': 'icon-exit'
+        }
+      ];
+    }]
+  };
+}]);
+
+
+
+var abode = angular.module('abode');
+
+abode.directive('messages', function () {
+  return {
+    restrict: 'E',
+    replace: true,
+    scope: {
+    },
+    templateUrl: 'modules/abode/views/message.html',
+    controller: ['$scope', 'abode', function ($scope, abode) {
+      abode.message_scope($scope);
+      $scope.messages = abode.messages;
+    }]
+  };
+});
+
+
+
+var abode = angular.module('abode');
+
+abode.directive('pinEntry', function () {
+
+  return {
+    restrict: 'E',
+    replace: true,
+    scope: {
+      pinModel: '=',
+      randomize: '=?',
+      showSubmit: '=?',
+      submit: '&',
+      checking: '=?',
+      error: '=?',
+      success: '=?',
+    },
+    templateUrl: 'modules/abode/views/pin_entry.html',
+    controller: ['$scope', function ($scope) {
+      $scope.pinModel = '';
+      $scope.hashed = '';
+      $scope.randomize = $scope.randomize || false;
+      $scope.showSubmit = $scope.showSubmit || false;
+      $scope.checking = $scope.checking || false;
+      $scope.error = $scope.error || false;
+      $scope.success = $scope.success || false;
+      $scope.numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+
+      var shuffle = function (array) {
+        var currentIndex = array.length, temporaryValue, randomIndex;
+
+        while (0 !== currentIndex) {
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex -= 1;
+
+          temporaryValue = array[currentIndex];
+          array[currentIndex] = array[randomIndex];
+          array[randomIndex] = temporaryValue;
+        }
+
+        return array;
+      };
+
+      if ($scope.randomize) {
+        $scope.numbers = shuffle($scope.numbers);
+      }
+
+      $scope.entry = function (v) {
+        if (v === 'back') {
+          $scope.pinModel = $scope.pinModel.slice(0, $scope.pinModel.length - 1);
+          return;
+        }
+        $scope.pinModel += String(v);
+      };
+    }]
+  };
+
+});
+
+
+
+var abode = angular.module('abode');
+
+abode.directive('slider', function () {
+
+  return {
+    scope: {
+      'min': '=?',
+      'max': '=?',
+      'level': '=',
+    },
+    restrict: 'E',
+    replace: true,
+    templateUrl: 'modules/abode/views/slider.html',
+    controller: ['$scope', '$document', function ($scope, $document) {
+      var startY;
+      $scope.level = $scope.level || 0;
+      $scope.min = $scope.min || 0;
+      $scope.max = $scope.max || 100;
+
+      $scope.level = ($scope.level > $scope.max) ? parseInt($scope.max) : $scope.level;
+      $scope.level = ($scope.level < $scope.min) ? parseInt($scope.min) : $scope.level;
+
+      $scope.sliderPosition = {
+        'bottom': $scope.level + '%'
+      };
+
+      $scope.start = function (event) {
+        event.target.setCapture();
+        startY = event.clientY;
+        $document.on('mousemove', $scope.move);
+      };
+
+      $scope.end = function () {
+        $document.unbind('mousemove', $scope.move);
+      };
+
+      $scope.move = function (event) {
+        var value = (startY - event.clientY) + $scope.level;
+        if (value > $scope.max) {
+          $scope.level = parseInt($scope.max, 10);
+          $scope.sliderPosition.bottom = $scope.level + '%';
+        console.log($scope.level);
+          return;
+        }
+        if (value < $scope.min) {
+          $scope.level = parseInt($scope.min, 10);
+          $scope.sliderPosition.bottom = $scope.level + '%';
+        console.log($scope.level);
+          return;
+        }
+        $scope.level = parseInt(value, 10);
+        $scope.sliderPosition.bottom = $scope.level + '%';
+        console.log($scope.level);
+      };
+
+    }],
+    link: function ($scope, $element) {
+      $scope.element = $element;
+
+      $scope.slider = $element.find('div.slider-track');
+      console.dir($scope.slider);
+    }
+  };
+
+});
+
+
+
+var abode = angular.module('abode');
+
+abode.directive('stopEvent', function () {
+  return {
+    restrict: 'A',
+    link: function (scope, element, attr) {
+      element.bind('click', function (e) {
+          e.stopPropagation();
+      });
+    }
+  };
+});
+
+
+
+var abode = angular.module('abode');
+
+abode.directive('tags', function () {
+  return {
+    restrict: 'E',
+    replace: true,
+    scope: {
+      tagModel: '='
+    },
+    templateUrl: 'modules/abode/views/tags.html',
+    controller: ['$scope', '$uibModal', function ($scope, $uibModal) {
+
+      $scope.tagModel = $scope.tagModel || [];
+
+      $scope.removeTag = function (index) {
+        $scope.tagModel.splice(index, 1);
+      };
+
+      $scope.addTag = function () {
+        $uibModal.open({
+          animation: false,
+          templateUrl: 'modules/abode/views/tags.add.html',
+          size: 'sm',
+          controller: ['$scope', '$uibModalInstance', function ($uiScope, $uibModalInstance) {
+
+            $uiScope.error = '';
+            $uiScope.tag = {'name': undefined};
+
+            $uiScope.add = function () {
+              if ($uiScope.tag.name === '' || $uiScope.tag.name === undefined) {
+                $uiScope.error = 'Tag not specified';
+                return;
+              }
+              var matches = $scope.tagModel.filter(function (tag) {
+                return (tag.toLowerCase() === $uiScope.tag.name.toLowerCase());
+              });
+
+              if (matches.length > 0) {
+                $uiScope.error = 'Tag already exists';
+                return;
+              }
+
+              $uiScope.error = '';
+              $scope.tagModel.push($uiScope.tag.name);
+
+              $uibModalInstance.close();
+            };
+
+            $uiScope.cancel = function () {
+              $uibModalInstance.dismiss();
+            };
+          }]
+        });
+      };
+    }]
+  };
+});
+
+
+
+var abode = angular.module('abode');
+
+abode.directive('toggle', function () {
+  return {
+    restrict: 'E',
+    transclude: false,
+    scope: {
+      on: '@',
+      off: '@',
+      value: '=',
+    },
+    controller: function ($scope) {
+      $scope.styles = {};
+      $scope.value = ($scope.value === true) ? true : false;
+
+      if (!$scope.on) { $scope.on = 'On'; }
+      if (!$scope.off) { $scope.on = 'Off'; }
+
+      var setStyles = function () {
+        if ($scope.value) {
+          $scope.styles.left = '1em';
+        } else {
+          $scope.styles.left = '0em';
+        }
+      };
+
+      setStyles();
+
+      $scope.styles = {
+        'top': '0em',
+        'bottom': '0em',
+        'width': '1em',
+        'background-color': '#eee',
+        'box-sizing': 'border-box',
+        'position': 'absolute',
+        'transition': '.2s',
+        'border-radius': '.1em',
+      };
+
+      $scope.toggle = function () {
+        if ($scope.value) {
+          $scope.value = false;
+        } else {
+          $scope.value = true;
+        }
+      };
+
+      $scope.$watch('value', function () {
+        setStyles();
+      }, true);
+
+    },
+    template: '<div ng-click="toggle()" ng-class="{\'bg-success\': (value == true)}" style="border-radius: .1em; cursor: pointer; transition: .2s; position: relative; box-sizing: border-box; width: 2em; height: 1em; line-height: 1em; display:inline-block; border: 1px solid #aaa;"><div ng-style="styles"></div></div>',
+    replace: true,
+  };
+});
+
+
+
+var abode = angular.module('abode');
+
+abode.factory('Auth', ['$resource', '$q', '$http', 'abode', function($resource, $q, $http, abode) {
+
+  var model = $resource(abode.url('/api/auth/:action'), {}, {
+    login: {
+      method: 'POST',
+      params: {'action': 'login'}
+    },
+    logout: {
+      method: 'POST',
+      params: {'action': 'logout'}
+    },
+    check: {
+      method: 'GET',
+      params: {'action': 'check'}
+    },
+  });
+
+  model.prototype.$assign = function (device) {
+    var defer = $q.defer(),
+      url = abode.url('/api/auth/assign').value();
+
+    $http.post(url, device).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
+  return model;
+}]);
+
+
+
+var abode = angular.module('abode');
+
+abode.factory('AuthDevice', ['$resource', '$q', '$http', 'abode', function($resource, $q, $http, abode) {
+
+  var model = $resource(abode.url('/api/auth/device'), {}, {
+    'update': {'method': 'PUT'}
+  });
+
+  model.prototype.$set_interface = function (interface) {
+    var defer = $q.defer(),
+      url = abode.url('/api/auth/device/set_interface').value();
+
+    $http.post(url, {'interface': interface}).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
+  return model;
+}]);
+
+
+
+var abode = angular.module('abode');
+
+abode.factory('AuthDevices', ['$resource', 'abode', function($resource, abode) {
+
+  var model = $resource(abode.url('/api/auth/devices'), {}, {
+  });
+
+  return model;
+}]);
+
+
+
+var abode = angular.module('abode');
+
+abode.filter('ageHumanReadable', function () {
+
+
+  var secondsToString = function (seconds) {
+    var numyears = Math.floor(seconds / 31536000);
+    var numdays = Math.floor((seconds % 31536000) / 86400);
+    var numhours = Math.floor(((seconds % 31536000) % 86400) / 3600);
+    var numminutes = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
+    var numseconds = Math.floor((((seconds % 31536000) % 86400) % 3600) % 60);
+    numyears = (numyears === 0) ? '' : numyears + ' years ';
+    numdays = (numdays === 0) ? '' : numdays + ' days ';
+    numhours = (numhours === 0) ? '' : numhours + ' hours ';
+    numminutes = (numminutes === 0) ? '' : numminutes + ' min ';
+    numseconds = (numseconds === 0) ? '' : numseconds + ' sec ';
+
+    return numyears + numdays + numhours + numminutes + numseconds;
+
+  };
+
+  return function (input) {
+    return (!isNaN(input)) ? secondsToString(input): '&nbsp;';
+  };
+
+});
+
+
+
+var abode = angular.module('abode');
+
+abode.filter('capitalize', function() {
+  return function(token) {
+    return (typeof(token) === 'string') ? token.charAt(0).toUpperCase() + token.slice(1) : token;
+  };
+});
+
+
+
+var abode = angular.module('abode');
+
+abode.filter('time', function() {
+  return function(seconds) {
+    var r = 'AM';
+    var h = Math.floor(((seconds % 31536000) % 86400) / 3600);
+    var m = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
+    m = (m < 10) ? '0' + m : m;
+    if (h > 12) {
+      h = h - 12;
+      r = 'PM';
+    } else if (h === 0) {
+      h = 12;
+    }
+    return h + ':' + m + ' ' + r;
+  };
+});
+
+
+
+var abode = angular.module('abode');
+
+abode.provider('abode', ['$httpProvider', function ($httpProvider) {
+  var self = this,
+    headers = {},
+    initInjector = angular.injector(['ng']);
+
+  var $q = initInjector.get('$q'),
+    $http = initInjector.get('$http'),
+    $timeout = initInjector.get('$timeout'),
+    $rootScope = initInjector.get('$rootScope');
+
+  this.config = {};
+  this.auth = {};
+  this.messages = [];
+  this.message_scope = null;
+  this.scope = $rootScope;
+  this.scope.status = {'connected': false, 'messages': 0, 'errors': 0};
+  this.last_event = new Date();
+  this.last_event = this.last_event.getTime();
+  this.starting_events = false;
+
+  this.get_events = function () {
+    var eventSource;
+
+    if (self.starting_events || self.scope.status.connected) {
+      return;
+    }
+
+    self.starting_events = true;
+
+    $http.post(self.url('/api/events').value(),{}, {'headers': $httpProvider.defaults.headers.common}).then(function (result) {
+      var key = result.data.key;
+
+      //Get the current time
+      var now = new Date();
+      now = now.getTime();
+
+      //If it's been over 10 minutes, reset our event stream
+      if ((now - self.last_event) > 1000 * 60 * 10) {
+        this.last_event = now;
+        self.scope.$broadcast('EVENTS_RESET', {});
+      }
+
+      self.eventSource = new EventSource(self.url('/api/events/feed/' + key + '?last=' + self.last_event).value());
+
+      self.eventSource.addEventListener('message', function (msg) {
+        var event = JSON.parse(msg.data);
+        var client_name = (self.config.auth && self.config.auth.device && self.config.auth.device.name) ? self.config.auth.device.name : '';
+        self.last_event = event.id;
+
+        //If our client device got updated, update our auth object
+        if (event.type === 'device' && event.object.name === client_name) {
+          self.scope.$broadcast('CLIENT_UPDATED', event);
+        }
+
+        if (event.event) {
+          self.scope.$broadcast(event.event, event);
+        }
+        self.scope.$broadcast('ABODE_EVENT', event);
+        self.scope.status.messages += 1;
+
+
+      }, false);
+
+      self.eventSource.onopen = function () {
+        self.scope.status.connected = true;
+        self.starting_events = false;
+        $timeout.cancel(self.event_error);
+      };
+
+      self.eventSource.onerror = function (err) {
+        console.error('Event feed died');
+        self.scope.status.errors += 1;
+        self.scope.status.connected = false;
+        self.starting_events = false;
+        err.target.close();
+        self.scope.$broadcast('EVENTS_DIED', err);
+      };
+    }, function (err) {
+      console.dir('Failed to get event feed');
+      self.starting_events = false;
+      self.scope.status.connected = false;
+      self.scope.$broadcast('EVENTS_DIED', err);
+    });
+
+  };
+
+  this.scope.$on('EVENTS_DIED', function (event) {
+    self.event_error = $timeout(function () {
+      //self.message({'type': 'failed', 'message': 'Connection to Abode Died.', 'details': event});
+      self.get_events();
+    }, 5 * 1000);
+  });
+
+  this.url = function (uri, source) {
+    var url = {};
+
+    url.value = function() {self.load(); return self.config.server + uri; };
+    url.split = function (separator,limit) { return url.value().split(separator,limit); };
+    url.replace = function (match, other) { return url.value().replace(match, other); };
+    url.toString = function() { return url.value(); };
+
+    return url;
+  };
+
+  this.message = function (config) {
+    config.type = config.type || 'info';
+    self.messages.push(config);
+
+    $timeout(function () {
+      self.messages.shift();
+      if (self.message_scope) {
+        self.message_scope.$digest();
+      }
+    }, 5000 * self.messages.length);
+  };
+
+  this.load = function () {
+
+    try {
+      this.config = JSON.parse(localStorage.getItem('abode'));
+      this.config = this.config || {};
+
+      if (this.config.auth && this.config.auth.token) {
+        $httpProvider.defaults.headers.common.client_token = this.config.auth.token.client_token;
+        $httpProvider.defaults.headers.common.auth_token = this.config.auth.token.auth_token;
+      }
+    } catch (e) {
+      this.config = {};
+    }
+  };
+  this.save = function (config) {
+    config = config || self.config;
+
+    localStorage.setItem('abode', JSON.stringify(config));
+
+  };
+
+  this.lock = function () {
+
+  };
+
+  this.unlock = function () {
+
+  };
+
+  this.$get = function () {
+    return {
+      config: self.config,
+      load: self.load,
+      save: self.save,
+      auth: self.auth,
+      url: self.url,
+      messages: self.messages,
+      message: self.message,
+      message_scope: function (scope) {
+        self.message_scope = scope;
+      },
+      get_events: self.get_events,
+      scope: self.scope,
+      lock: self.lock,
+      unlock: self.unlock
+    };
+  };
+
+}]);
+
+
+
+var abode = angular.module('abode');
+
+abode.service('Security', ['$uibModal', '$http', '$timeout', 'abode', function ($uibModal, $http, $timeout, abode) {
+  var self = this;
+  var lockModal;
+  var unlock_timer;
+
+  self.lock = function () {
+    var device_id = abode.config.auth.device._id;
+    $http.post(abode.url('/api/devices/' + device_id + '/lock').value()).then(undefined, function (err) {
+      abode.message({'type': 'failed', 'message': err.data.message || err.data.msg || 'Could not lock device'});
+    });
+  };
+
+  self.show_lock = function () {
+    lockModal = $uibModal.open({
+      animation: false,
+      templateUrl: 'modules/abode/views/locked.html',
+      size: 'sm',
+      keyboard: false,
+      backdrop: 'static',
+      controller: ['$scope', '$http', '$uibModalInstance', 'abode', function ($uiScope, $http, $uibModalInstance, abode) {
+        $uiScope.pin = '';
+        $uiScope.checking = false;
+        $uiScope.error = false;
+        $uiScope.success = false;
+
+        $uiScope.unlock = function () {
+          if ($uiScope.pin.length === 0) {
+            return;
+          }
+
+          $uiScope.checking = true;
+          var device_id = abode.config.auth.device._id;
+          $http.post(abode.url('/api/auth/check_pin').value(), {'pin': $uiScope.pin}).then(function (result) {
+            $uiScope.success = true;
+            unlock_timer = $timeout(function () {
+              $uiScope.success = false;
+              $uiScope.checking = false;
+              abode.message({'type': 'failed', 'message': 'Timeout waiting for unlock'});
+            }, 10000);
+          }, function () {
+            $uiScope.error = true;
+            $timeout(function () {
+              $uiScope.pin = '';
+              $uiScope.checking = false;
+              $uiScope.error = false;
+            }, 2000);
+          });
+        };
+
+      }]
+    });
+  };
+
+  self.hide_lock = function () {
+    if (lockModal && lockModal.close) {
+      lockModal.close();
+    }
+
+    if (unlock_timer) {
+      $timeout.cancel(unlock_timer);
+    }
+  };
+
+  return {
+    lock: self.lock,
+    show_lock: self.show_lock,
+    hide_lock: self.hide_lock,
+  };
+
+}]);
+
+
+
+var abode = angular.module('abode');
+
+abode.service('confirm', function ($q, $uibModal) {
+  return function (msg, options) {
+    var defer = $q.defer();
+
+    var modal = $uibModal.open({
+      animation: true,
+      templateUrl: 'modules/abode/views/confirm.html',
+      size: 'sm',
+      controller: function ($scope, $uibModalInstance) {
+        $scope.msg = msg;
+        $scope.options = options;
+
+        $scope.no = function () {
+          $uibModalInstance.dismiss();
+        };
+
+        $scope.yes = function () {
+          $uibModalInstance.close();
+        };
+
+      }
+    });
+
+    modal.result.then(function () {
+      defer.resolve();
+    }, function () {
+      defer.reject();
+    });
+
+    return defer.promise;
+  };
+});
+
+
+
+var abode = angular.module('abode');
+
+abode.service('datetime', function ($interval, $http, $state) {
+
+  var obj = {is: {}};
+  var updater;
+
+  var parseDetails = function (response) {
+    obj.time = response.data.time;
+    obj.is = response.data.is;
+  };
+
+  var getDetails = function () {
+    if ($state.current.name !== 'index.home') {
+      $interval.cancel(updater);
+      return;
+    }
+    $http({ url: '/api/time' }).then(parseDetails);
+  };
+
+  var updateTime = function () {
+    obj.date = new Date();
+  };
+
+  updateTime();
+  getDetails();
+
+  $interval(updateTime, 200);
+  updater = $interval(getDetails, 1000 * 60);
+
+  return {
+    get: function () {
+      return obj;
+    }
+  };
+});
+
+
+
+var abode = angular.module('abode');
+
+abode.service('network', ['$uibModal', function ($uibModal) {
+  return {
+    open: function () {
+      return $uibModal.open({
+          animation: false,
+          templateUrl: 'modules/abode/views/network.html',
+          size: 'lg',
+          controller: ['$scope', '$uibModalInstance', '$timeout', '$interval', '$http', function ($scope, $uibModalInstance, $timeout, $interval, $http) {
+            $scope.networks = [];
+            $scope.status = {};
+            $scope.scanning = true;
+            $scope.checking = true;
+            $scope.manual_wifi = {'encryption': true};
+
+            $scope.scan = function () {
+              var attempt_defers = [];
+              $scope.networks = [];
+              $scope.scanning = true;
+
+              $timeout(function () {
+
+                $http.get('/api/network/wireless').then(function (response) {
+                  $scope.scanning = false;
+                  $scope.networks = response.data;
+                }, function (err) {
+                  $scope.scanning = false;
+                });
+
+              }, 100);
+
+            };
+
+            $scope.get_status = function () {
+              $scope.checking = true;
+
+              $timeout(function () {
+
+                $http.get('/api/network').then(function (response) {
+                  $scope.checking = false;
+                  $scope.status = response.data;
+                }, function (err) {
+                  $scope.checking = false;
+                });
+
+              }, 100);
+            };
+
+            $scope.close = function () {
+              $uibModalInstance.dismiss();
+            };
+
+            $scope.connect_wifi = function (ssid) {
+
+              var modal = $uibModal.open({
+                animation: false,
+                templateUrl: 'modules/welcome/views/wifi.connect.html',
+                size: 'sm',
+                keyboard: false,
+                backdrop: 'static',
+                controller: ['$scope', '$uibModalInstance', '$timeout', function ($uiScope, $uibModalInstance, $timeout) {
+                  $uiScope.ssid = ssid;
+                  $uiScope.connecting = false;
+                  $uiScope.error = false;
+                  $uiScope.checking = false;
+                  $uiScope.attempts = 0;
+                  $uiScope.max_attempts = 30;
+
+                  var wait_interval;
+
+                  $uiScope.wait = function () {
+                    if ($uiScope.checking) {
+                      return;
+                    }
+
+                    $uiScope.attempts += 1;
+                    if ($uiScope.attempts >= $uiScope.max_attempts) {
+                      $interval.cancel(wait_interval);
+                      $uiScope.error = 'Timeout waiting for network to become available';
+                      $uiScope.connecting = false;
+                      $uiScope.checking = false;
+                      return;
+                    }
+
+                    $http.get('/api/network').then(function (response) {
+                      $uiScope.checking = false;
+                      if (!response.data.connected) {
+                        $timeout($uiScope.wait, 5 * 1000);
+                        return;
+                      }
+
+                      $uiScope.connected();
+                    }, function () {
+                      $uiScope.error = 'Error setting new wireless settings';
+                      $uiScope.checking = false;
+                    });
+
+                  };
+
+                  $uiScope.connected = function () {
+                    $uibModalInstance.close();
+                  };
+
+                  $uiScope.connect = function () {
+                    $uiScope.connecting = true;
+                    $uiScope.attempts = 0;
+
+                    $http.post('/api/network/connect', ssid).then(function (response) {
+                      $timeout($uiScope.wait, 5 * 1000);
+                    }, function () {
+                      $uiScope.connecting = false;
+                      $uiScope.error = false;
+                    });
+                  };
+
+                  $uiScope.cancel = function () {
+                    $uibModalInstance.dismiss();
+                  };
+
+                  if (!ssid.encryption) {
+                    $uiScope.connect();
+                  }
+                }]
+              });
+
+              modal.result.then(function () {
+                $scope.get_status();
+              });
+            };
+
+            $timeout($scope.scan, 100);
+            $timeout($scope.get_status, 100);
+
+          }]
+      });
+    }
+  };
+}]);
+
+
+
+var abode = angular.module('abode');
+
+abode.service('power', ['$uibModal', function ($uibModal) {
+
+  return {
+    open: function () {
+      return $uibModal.open({
+        animation: false,
+        templateUrl: 'modules/abode/views/power.html',
+        size: 'sm',
+        keyboard: false,
+        backdrop: 'static',
+        controller: ['$scope', '$http', '$uibModalInstance', '$timeout', '$interval', function ($uiScope, $http, $uibModalInstance, $timeout, $interval) {
+          var timer;
+
+          $uiScope.count_down = 0;
+          $uiScope.action = "";
+
+          var do_action = function (uri) {
+            $http.post(uri).then(function () {
+
+            }, function (err) {
+              $uiScope.error = err.data.error || err.data.message || err;
+            });
+          };
+
+          $uiScope.restart = function () {
+            $uiScope.error = '';
+            $uiScope.action = 'restart';
+            $uiScope.count_down = 30;
+            timer = $interval(function () {
+              $uiScope.count_down -= 1;
+
+              if ($uiScope.count_down === 0) {
+                $interval.cancel(timer);
+                do_action('/api/abode/restart');
+              }
+            }, 1000);
+          };
+
+          $uiScope.shutdown = function () {
+            $uiScope.error = '';
+            $uiScope.action = 'shutdown';
+            $uiScope.count_down = 30;
+            timer = $interval(function () {
+              $uiScope.count_down -= 1;
+
+              if ($uiScope.count_down === 0) {
+                $interval.cancel(timer);
+                do_action('/api/abode/shutdown');
+              }
+            }, 1000);
+          };
+
+          $uiScope.cancel = function () {
+            if ($uiScope.count_down > 0) {
+              $interval.cancel(timer);
+              $uiScope.action = '';
+              $uiScope.count_down = 0;
+              return;
+            }
+
+            $uibModalInstance.dismiss();
+          };
+
+        }]
+      });
+    }
+  };
+
+}]);
+
+
 var alarmclock = angular.module('abode.alarmclock', ['ngResource']);
 
 
@@ -44767,7 +46905,7 @@ alarmclock.factory('AlarmClocks', ['$resource', '$uibModal', 'abode', function (
 
     return $uibModal.open({
       animation: true,
-      templateUrl: 'views/alarmclocks/edit.html',
+      templateUrl: 'modules/alarmclock/views/edit.html',
       size: 'lg',
       controller: function ($scope, $uibModalInstance, triggers) {
         $scope.alarm = angular.copy(self);
@@ -44805,7 +46943,7 @@ alarmclock.factory('AlarmClocks', ['$resource', '$uibModal', 'abode', function (
 
     return $uibModal.open({
       animation: true,
-      templateUrl: 'views/alarmclocks/add.html',
+      templateUrl: 'modules/alarmclock/views/add.html',
       size: 'lg',
       controller: function ($scope, $uibModalInstance, AlarmClocks, triggers) {
         $scope.alarm = new AlarmClocks(base);
@@ -44837,7 +46975,7 @@ alarmclock.directive('alarmClocks', function () {  return {
     replace: true,
     scope: {
     },
-    templateUrl: 'views/alarmclocks/list.html',
+    templateUrl: 'modules/alarmclock/views/list.html',
     controller: ['$scope', 'AlarmClocks', function ($scope, AlarmClocks) {
       $scope.AlarmClocks = AlarmClocks;
       $scope.alarms = AlarmClocks.query();
@@ -44869,7 +47007,7 @@ autoshades.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.settings.autoshades', {
     url: '/autoshades',
-    templateUrl: 'views/providers/autoshades/settings.html',
+    templateUrl: 'modules/autoshades/views/settings.html',
     controller: 'autoshadesSettings',
     resolve: {
       config: function (autoshades) {
@@ -44896,7 +47034,7 @@ autoshades.service('autoshades', function ($q, settings, $uibModal, devices) {
   var add_device = function (assigned) {
     return $uibModal.open({
       animation: true,
-      templateUrl: 'views/providers/autoshades/add.device.html',
+      templateUrl: 'modules/autoshades/views/add.device.html',
       size: 'sm',
       controller: function ($scope, $uibModalInstance) {
         $scope.devices = [];
@@ -45023,7 +47161,7 @@ angular.module('camera', [])
   $stateProvider
   .state('main.settings.camera', {
     url: '/camera',
-    templateUrl: 'views/providers/camera/settings.html',
+    templateUrl: 'modules/camera/views/settings.html',
     controller: 'cameraSettings',
     resolve: {
       config: function (camera) {
@@ -45396,16 +47534,16 @@ devices.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.devices', {
     url: '/devices',
-    templateUrl: 'views/devices/devices.html',
+    templateUrl: 'modules/devices/views/devices.html',
   })
   .state('main.devices.list', {
     url: '/list',
-    templateUrl: 'views/devices/devices.list.html',
+    templateUrl: 'modules/devices/views/devices.list.html',
     controller: 'devicesList'
   })
   .state('main.devices.add', {
     url: '/add',
-    templateUrl: 'views/devices/devices.add.html',
+    templateUrl: 'modules/devices/views/devices.add.html',
     controller: 'devicesAdd',
     resolve: {
       'providers': function ($q, $http, abode) {
@@ -45434,7 +47572,7 @@ devices.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.devices.edit', {
     url: '/:name',
-    templateUrl: 'views/devices/devices.edit.html',
+    templateUrl: 'modules/devices/views/devices.edit.html',
     controller: 'devicesEdit',
     resolve: {
       'device': function ($stateParams, $state, abode, Devices) {
@@ -45467,6 +47605,417 @@ devices.config(function($stateProvider, $urlRouterProvider) {
     }
   });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var devices = angular.module('abode.devices');
+
+devices.controller('devicesAdd', function ($scope, $state, abode, Devices, providers, capabilities) {
+  $scope.device = new Devices({'capabilities': []});
+  $scope.alerts = [];
+  $scope.providers = providers;
+  $scope.capabilities = capabilities;
+  $scope.section = 'provider';
+  $scope.provider_templates = {};
+
+  $scope.providers.forEach(function (p) {
+    $scope.provider_templates[p] = 'modules/' + p + '/views/add.html';
+  });
+
+  $scope.back = function () {
+    $state.go('main.devices');
+  };
+
+  $scope.closeAlert = function(index) {
+    $scope.alerts.splice(index, 1);
+  };
+
+  $scope.changeProvider = function (p) {
+    $scope.device.provider = p;
+    $scope.section = 'settings';
+    $scope.provider_template = 'modules/' + p + '/views/add.html';
+  };
+
+  $scope.add = function () {
+    $scope.device.$save().then(function () {
+      abode.message({'type': 'success', 'message': 'Device Added'});
+      $scope.device = new Devices({'capabilities': []});
+      $scope.section = 'provider';
+    }, function (err) {
+        abode.message({'type': 'failed', 'message': 'Failed to add Device', 'details': err});
+      $scope.errors = err;
+    });
+  };
+
+  $scope.toggle_capability = function (capability) {
+    if ($scope.has_capability(capability)) {
+      console.log('removing', capability);
+      $scope.device.capabilities.splice($scope.device.capabilities.indexOf(capability), 1);
+    } else {
+      console.log('adding', capability);
+      $scope.device.capabilities.push(capability);
+    }
+  };
+
+  $scope.has_capability = function (capability) {
+    return ($scope.device.capabilities.indexOf(capability) !== -1);
+  };
+});
+
+
+
+var devices = angular.module('abode.devices');
+
+devices.controller('devicesEdit', function ($scope, $state, $uibModal, abode, devices, device, confirm, providers, capabilities) {
+  $scope.providers = providers;
+  $scope.capabilities = capabilities;
+  $scope.device = device;
+  $scope.alerts = [];
+  $scope.rooms = [];
+  $scope.loading = false;
+  $scope.section = 'provider';
+  $scope.provider_template = 'modules/' + device.provider + '/views/edit.html';
+
+
+  if (!device) {
+    $state.go('index.devices.list');
+  }
+
+  var getRooms = function () {
+    $scope.loading = true;
+    $scope.device.$rooms().$promise.then(function(rooms) {
+      $scope.rooms = rooms;
+      $scope.loading = false;
+    }, function () {
+      $scope.loading = false;
+    });
+  };
+
+  getRooms();
+
+  $scope.back = function () {
+    $state.go('main.devices.list');
+  };
+
+  $scope.closeAlert = function(index) {
+    $scope.alerts.splice(index, 1);
+  };
+
+  $scope.save = function () {
+    $scope.device.$update().then(function () {
+      abode.message({'type': 'success', 'message': 'Device Saved'});
+    }, function (err) {
+        abode.message({'type': 'failed', 'message': 'Failed to save Device', 'details': err});
+      $scope.errors = err;
+    });
+  };
+
+  $scope.remove = function () {
+    confirm('Are you sure you want to remove this Device?').then(function () {
+      $scope.device.$remove().then(function () {
+        abode.message({'type': 'success', 'message': 'Device Removed'});
+        $state.go('main.devices');
+      }, function (err) {
+        abode.message({'type': 'failed', 'message': 'Failed to remove Device', 'details': err});
+        $scope.errors = err;
+      });
+    });
+  };
+
+  $scope.removeRoom = function (id) {
+
+    confirm('Are you sure?').then(function () {
+      devices.removeRoom(device.name, id).then(function () {
+        getRooms();
+        abode.message({'type': 'success', 'message': 'Room removed from Device'});
+      }, function () {
+        abode.message({'type': 'failed', 'message': 'Failed to remove Room from Device', 'details': err});
+      });
+    });
+
+  };
+
+  $scope.addRoom = function () {
+    var assign = $uibModal.open({
+      animation: true,
+      templateUrl: 'modules/devices/views/assign.html',
+      size: 'sm',
+      resolve: {
+        assigned: function () {
+          return $scope.rooms.map(function (obj) {return obj.name; });
+        }
+      },
+      controller: function ($scope, $uibModalInstance, Rooms, assigned) {
+        $scope.loading = true;
+        $scope.rooms = [];
+        $scope.assigned = assigned;
+
+        $scope.cancel = function () {
+          $uibModalInstance.dismiss();
+        };
+
+        $scope.select = function (room) {
+          $uibModalInstance.close(room);
+        };
+
+        $scope.load = function () {
+          Rooms.query().$promise.then(function (rooms) {
+            $scope.rooms = rooms;
+            $scope.loading = false;
+            $scope.error = false;
+          }, function () {
+            $scope.loading = false;
+            $scope.error = true;
+          });
+        };
+
+        $scope.load();
+
+      }
+    });
+
+    assign.result.then(function (room) {
+
+      devices.addRoom(device.name, room.name).then(function () {
+        getRooms();
+        abode.message({'type': 'success', 'message': 'Room added to Device'});
+      }, function () {
+        abode.message({'type': 'failed', 'message': 'Failed to add Room to Device', 'details': err});
+      });
+
+    });
+
+  };
+
+  $scope.toggle_capability = function (capability) {
+    if ($scope.has_capability(capability)) {
+      console.log('removing', capability);
+      $scope.device.capabilities.splice($scope.device.capabilities.indexOf(capability), 1);
+    } else {
+      console.log('adding', capability);
+      $scope.device.capabilities.push(capability);
+    }
+  };
+
+  $scope.has_capability = function (capability) {
+    return ($scope.device.capabilities.indexOf(capability) !== -1);
+  };
+
+});
+
+
+
+var devices = angular.module('abode.devices');
+
+devices.controller('devicesList', function ($scope, $state, Devices) {
+  $scope.devices = [];
+  $scope.loading = true;
+
+  $scope.view = function (device) {
+    device.$open();
+  };
+
+  $scope.edit = function (device) {
+    $state.go('main.devices.edit', {'name': device.name});
+  };
+
+  $scope.load = function () {
+    Devices.query().$promise.then(function (results) {
+      $scope.devices = results;
+      $scope.loading = false;
+      $scope.error = false;
+    }, function () {
+      $scope.loading = false;
+      $scope.error = true;
+    });
+  };
+
+  $scope.has_capability = function (device, cap) {
+    return (device.capabilities.indexOf(cap) !== -1);
+  };
+
+  $scope.load();
+});
+
+
+
+var devices = angular.module('abode.devices');
+
+devices.factory('Devices', ['$resource', '$http', '$q', 'abode', 'devices', function($resource, $http, $q, abode, devices) {
+
+  var Devices = $resource(abode.url('/api/devices/:id'),{
+    'id': '@_id'
+  },{
+    'update': {'method': 'PUT'},
+  });
+
+  angular.merge(Devices.prototype, devices.methods);
+
+  return Devices;
+
+}]);
+
+
+
+var devices = angular.module('abode.devices');
+
+devices.directive('device', function () {
+
+  return {
+    restrict: 'E',
+    transclude: true,
+    scope: {      device: '@'
+    },
+    controller: function ($scope, device) {
+
+      $scope.device = device.get($scope.device);
+
+    },
+    template: '<div>{{device.name}}</div>',
+    replace: true,
+  };
+
+});
+
+
+
+var devices = angular.module('abode.devices');
+
+devices.directive('selectDevice', function () {
+
+  return {
+    restrict: 'E',
+    transclude: true,
+    scope: {
+      value: '=',
+      required: '=',
+      capabilities: '='
+    },
+    controller: function ($scope, $uibModal, devices) {
+      $scope.capabilities = $scope.capabilities || [];
+      $scope.loading = false;
+      $scope.error = false;
+
+      if ($scope.value) {
+        $scope.loading = true;
+        devices.get($scope.value._id).then(function (device) {
+          $scope.error = false;
+          $scope.loading = false;
+          $scope.device = {
+            '_id': device._id,
+            'name': device.name,
+            'icon': device.icon,
+          };
+        }, function () {
+          $scope.error = true;
+          $scope.loading = false;
+        });
+      }
+
+      $scope.openAssign = function () {
+        var assign = $uibModal.open({
+          animation: true,
+          templateUrl: 'views/devices/devices.select.modal.html',
+          size: 'sm',
+          controller: ['$scope', '$uibModalInstance', function ($uiscope, $uibModalInstance) {
+            $uiscope.devices = [];
+            $uiscope.loading = true;
+            $uiscope.required = $scope.required;
+
+            $uiscope.select = function (selected) {
+              if (selected) {
+                $uibModalInstance.close({'_id': selected._id, 'name': selected.name, 'icon': selected.icon});
+              } else {
+                $uibModalInstance.close();
+              }
+            };
+
+            $uiscope.cancel = function () {
+              $uibModalInstance.dismiss();
+            };
+
+            devices.load().then(function (devices) {
+              if ($scope.capabilities.length > 0) {
+                $uiscope.devices = devices.filter(function (device) {
+                  var found = false;
+
+                  $scope.capabilities.forEach(function (c) {
+                    found = (device.capabilities.indexOf(c) >= 0) ? true : found;
+                  });
+
+                  return found;
+                });
+              }
+              $uiscope.loading = false;
+              $uiscope.error = false;
+            }, function () {
+              $uiscope.loading = false;
+              $uiscope.error = true;
+            });
+          }]
+        });
+
+        assign.result.then(function (result) {
+          if (result) {
+            $scope.device = result;
+            $scope.value = {
+              '_id': result._id,
+              'name': result.name,
+            };
+            $scope.error = false;
+          } else {
+            $scope.device = undefined;
+            $scope.value = undefined;
+            $scope.error = false;
+          }
+        });
+      };
+
+  var add_device = function (assigned) {
+    return;
+  };
+    },
+    templateUrl: 'modules/devices/views/devices.select.html',
+    replace: true,
+  };
+});
+
+
+
+var devices = angular.module('abode.devices');
+
+devices.factory('DeviceRooms', ['$resource', 'abode', function ($resource, abode) {
+  'use strict';
+
+  var model = $resource(abode.url('/api/devices/:device/rooms/:id'), {id: '@_id'}, {
+    'query': {
+      isArray: true,
+    }
+  });
+
+  //angular.merge(model.prototype, rooms.methods);
+
+  return model;
+
+}]);
+
+
+
+var devices = angular.module('abode.devices');
 
 devices.factory('RoomDevices', ['$resource', 'abode', 'devices', function ($resource, abode, devices) {
 
@@ -45503,33 +48052,9 @@ devices.factory('RoomDevices', ['$resource', 'abode', 'devices', function ($reso
 
 }]);
 
-devices.factory('DeviceRooms', ['$resource', 'abode', function ($resource, abode) {
 
-  var model = $resource(abode.url('/api/devices/:device/rooms/:id'), {id: '@_id'}, {
-    'query': {
-      isArray: true,
-    }
-  });
 
-  //angular.merge(model.prototype, rooms.methods);
-
-  return model;
-
-}]);
-
-devices.factory('Devices', ['$resource', '$http', '$q', 'abode', 'devices', function($resource, $http, $q, abode, devices) {
-
-  var Devices = $resource(abode.url('/api/devices/:id'),{
-    'id': '@_id'
-  },{
-    'update': {'method': 'PUT'},
-  });
-
-  angular.merge(Devices.prototype, devices.methods);
-
-  return Devices;
-
-}]);
+var devices = angular.module('abode.devices');
 
 devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout, $resource, abode, DeviceRooms) {
   var model = $resource(abode.url('/api/devices/:id/:action'), {id: '@_id'}, {
@@ -45948,7 +48473,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
   var openCamera = function (device, source) {
     return $uibModal.open({
       animation: true,
-      templateUrl: 'views/devices/devices.camera.html',
+      templateUrl: 'modules/devices/views/devices.camera.html',
       size: 'lg',
       controller: function ($scope, $uibModalInstance) {
         var source_uri = (source === undefined) ? '/api' : '/api/sources/' + source;
@@ -45972,7 +48497,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
 
     return $uibModal.open({
       animation: false,
-      templateUrl: 'views/devices/devices.view.html',
+      templateUrl: 'modules/devices/views/devices.view.html',
       size: 'sm',
       controller: function ($scope, $uibModalInstance, $interval, $timeout, $state, device, source) {
         var intervals = [];
@@ -45990,7 +48515,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
         $scope.capabilities = angular.copy(device.capabilities).map(function (c) {
           return {
             'name': c,
-            'view': 'views/devices/capabilities/' + c + '.html'
+            'view': 'modules/devices/views/capabilities/' + c + '.html'
           };
 
         });
@@ -46427,342 +48952,6 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
   };
 });
 
-devices.controller('devicesList', function ($scope, $state, Devices) {
-  $scope.devices = [];
-  $scope.loading = true;
-
-  $scope.view = function (device) {
-    device.$open();
-  };
-
-  $scope.edit = function (device) {
-    $state.go('main.devices.edit', {'name': device.name});
-  };
-
-  $scope.load = function () {
-    Devices.query().$promise.then(function (results) {
-      $scope.devices = results;
-      $scope.loading = false;
-      $scope.error = false;
-    }, function () {
-      $scope.loading = false;
-      $scope.error = true;
-    });
-  };
-
-  $scope.has_capability = function (device, cap) {
-    return (device.capabilities.indexOf(cap) !== -1);
-  };
-
-  $scope.load();
-});
-
-devices.controller('devicesEdit', function ($scope, $state, $uibModal, abode, devices, device, confirm, providers, capabilities) {
-  $scope.providers = providers;
-  $scope.capabilities = capabilities;
-  $scope.device = device;
-  $scope.alerts = [];
-  $scope.rooms = [];
-  $scope.loading = false;
-  $scope.section = 'provider';
-  $scope.provider_template = 'views/providers/' + device.provider + '/edit.html';
-
-
-  if (!device) {
-    $state.go('index.devices.list');
-  }
-
-  var getRooms = function () {
-    $scope.loading = true;
-    $scope.device.$rooms().$promise.then(function(rooms) {
-      $scope.rooms = rooms;
-      $scope.loading = false;
-    }, function () {
-      $scope.loading = false;
-    });
-  };
-
-  getRooms();
-
-  $scope.back = function () {
-    $state.go('main.devices.list');
-  };
-
-  $scope.closeAlert = function(index) {
-    $scope.alerts.splice(index, 1);
-  };
-
-  $scope.save = function () {
-    $scope.device.$update().then(function () {
-      abode.message({'type': 'success', 'message': 'Device Saved'});
-    }, function (err) {
-        abode.message({'type': 'failed', 'message': 'Failed to save Device', 'details': err});
-      $scope.errors = err;
-    });
-  };
-
-  $scope.remove = function () {
-    confirm('Are you sure you want to remove this Device?').then(function () {
-      $scope.device.$remove().then(function () {
-        abode.message({'type': 'success', 'message': 'Device Removed'});
-        $state.go('main.devices');
-      }, function (err) {
-        abode.message({'type': 'failed', 'message': 'Failed to remove Device', 'details': err});
-        $scope.errors = err;
-      });
-    });
-  };
-
-  $scope.removeRoom = function (id) {
-
-    confirm('Are you sure?').then(function () {
-      devices.removeRoom(device.name, id).then(function () {
-        getRooms();
-        abode.message({'type': 'success', 'message': 'Room removed from Device'});
-      }, function () {
-        abode.message({'type': 'failed', 'message': 'Failed to remove Room from Device', 'details': err});
-      });
-    });
-
-  };
-
-  $scope.addRoom = function () {
-    var assign = $uibModal.open({
-      animation: true,
-      templateUrl: 'views/devices/assign.html',
-      size: 'sm',
-      resolve: {
-        assigned: function () {
-          return $scope.rooms.map(function (obj) {return obj.name; });
-        }
-      },
-      controller: function ($scope, $uibModalInstance, Rooms, assigned) {
-        $scope.loading = true;
-        $scope.rooms = [];
-        $scope.assigned = assigned;
-
-        $scope.cancel = function () {
-          $uibModalInstance.dismiss();
-        };
-
-        $scope.select = function (room) {
-          $uibModalInstance.close(room);
-        };
-
-        $scope.load = function () {
-          Rooms.query().$promise.then(function (rooms) {
-            $scope.rooms = rooms;
-            $scope.loading = false;
-            $scope.error = false;
-          }, function () {
-            $scope.loading = false;
-            $scope.error = true;
-          });
-        };
-
-        $scope.load();
-
-      }
-    });
-
-    assign.result.then(function (room) {
-
-      devices.addRoom(device.name, room.name).then(function () {
-        getRooms();
-        abode.message({'type': 'success', 'message': 'Room added to Device'});
-      }, function () {
-        abode.message({'type': 'failed', 'message': 'Failed to add Room to Device', 'details': err});
-      });
-
-    });
-
-  };
-
-  $scope.toggle_capability = function (capability) {
-    if ($scope.has_capability(capability)) {
-      console.log('removing', capability);
-      $scope.device.capabilities.splice($scope.device.capabilities.indexOf(capability), 1);
-    } else {
-      console.log('adding', capability);
-      $scope.device.capabilities.push(capability);
-    }
-  };
-
-  $scope.has_capability = function (capability) {
-    return ($scope.device.capabilities.indexOf(capability) !== -1);
-  };
-
-});
-
-devices.controller('devicesAdd', function ($scope, $state, abode, Devices, providers, capabilities) {
-  $scope.device = new Devices({'capabilities': []});
-  $scope.alerts = [];
-  $scope.providers = providers;
-  $scope.capabilities = capabilities;
-  $scope.section = 'provider';
-  $scope.provider_templates = {};
-
-  $scope.providers.forEach(function (p) {
-    $scope.provider_templates[p] = 'views/providers/' + p + '/add.html';
-  });
-
-  $scope.back = function () {
-    $state.go('main.devices');
-  };
-
-  $scope.closeAlert = function(index) {
-    $scope.alerts.splice(index, 1);
-  };
-
-  $scope.changeProvider = function (p) {
-    $scope.device.provider = p;
-    $scope.section = 'settings';
-    $scope.provider_template = './views/providers/' + p + '/add.html';
-  };
-
-  $scope.add = function () {
-    $scope.device.$save().then(function () {
-      abode.message({'type': 'success', 'message': 'Device Added'});
-      $scope.device = new Devices({'capabilities': []});
-      $scope.section = 'provider';
-    }, function (err) {
-        abode.message({'type': 'failed', 'message': 'Failed to add Device', 'details': err});
-      $scope.errors = err;
-    });
-  };
-
-  $scope.toggle_capability = function (capability) {
-    if ($scope.has_capability(capability)) {
-      console.log('removing', capability);
-      $scope.device.capabilities.splice($scope.device.capabilities.indexOf(capability), 1);
-    } else {
-      console.log('adding', capability);
-      $scope.device.capabilities.push(capability);
-    }
-  };
-
-  $scope.has_capability = function (capability) {
-    return ($scope.device.capabilities.indexOf(capability) !== -1);
-  };
-});
-
-devices.directive('device', function () {
-
-  return {
-    restrict: 'E',
-    transclude: true,
-    scope: {      device: '@'
-    },
-    controller: function ($scope, device) {
-
-      $scope.device = device.get($scope.device);
-
-    },
-    template: '<div>{{device.name}}</div>',
-    replace: true,
-  };
-
-});
-
-devices.directive('selectDevice', function () {
-
-  return {
-    restrict: 'E',
-    transclude: true,
-    scope: {
-      value: '=',
-      required: '=',
-      capabilities: '='
-    },
-    controller: function ($scope, $uibModal, devices) {
-      $scope.capabilities = $scope.capabilities || [];
-      $scope.loading = false;
-      $scope.error = false;
-
-      if ($scope.value) {
-        $scope.loading = true;
-        devices.get($scope.value._id).then(function (device) {
-          $scope.error = false;
-          $scope.loading = false;
-          $scope.device = {
-            '_id': device._id,
-            'name': device.name,
-            'icon': device.icon,
-          };
-        }, function () {
-          $scope.error = true;
-          $scope.loading = false;
-        });
-      }
-
-      $scope.openAssign = function () {
-        var assign = $uibModal.open({
-          animation: true,
-          templateUrl: 'views/devices/devices.select.modal.html',
-          size: 'sm',
-          controller: ['$scope', '$uibModalInstance', function ($uiscope, $uibModalInstance) {
-            $uiscope.devices = [];
-            $uiscope.loading = true;
-            $uiscope.required = $scope.required;
-
-            $uiscope.select = function (selected) {
-              if (selected) {
-                $uibModalInstance.close({'_id': selected._id, 'name': selected.name, 'icon': selected.icon});
-              } else {
-                $uibModalInstance.close();
-              }
-            };
-
-            $uiscope.cancel = function () {
-              $uibModalInstance.dismiss();
-            };
-
-            devices.load().then(function (devices) {
-              if ($scope.capabilities.length > 0) {
-                $uiscope.devices = devices.filter(function (device) {
-                  var found = false;
-
-                  $scope.capabilities.forEach(function (c) {
-                    found = (device.capabilities.indexOf(c) >= 0) ? true : found;
-                  });
-
-                  return found;
-                });
-              }
-              $uiscope.loading = false;
-              $uiscope.error = false;
-            }, function () {
-              $uiscope.loading = false;
-              $uiscope.error = true;
-            });
-          }]
-        });
-
-        assign.result.then(function (result) {
-          if (result) {
-            $scope.device = result;
-            $scope.value = {
-              '_id': result._id,
-              'name': result.name,
-            };
-            $scope.error = false;
-          } else {
-            $scope.device = undefined;
-            $scope.value = undefined;
-            $scope.error = false;
-          }
-        });
-      };
-
-  var add_device = function (assigned) {
-    return;
-  };
-    },
-    templateUrl: 'views/devices/devices.select.html',
-    replace: true,
-  };
-});
-
 
 var home = angular.module('abode.home', []);
 
@@ -46807,207 +48996,8 @@ home.config(['$stateProvider', '$urlRouterProvider', function($state, $urlRouter
 
 }]);
 
-home.factory('Interfaces', ['$resource', '$http', '$q', 'abode', function($resource, $http, $q, abode) {
 
-  var interfaces = $resource(abode.url('/api/interfaces/:id'),{
-    'id': '@_id'
-  },{
-    'update': {'method': 'PUT'},
-  });
-
-  interfaces.template = function (name) {
-    var defer = $q.defer();
-
-    $http.get(abode.url('/api/interfaces/' + name + '/template').value()).then(function (result) {
-      defer.resolve(result.data);
-    }, function (err) {
-      defer.reject(err);
-    });
-
-    return defer.promise;
-  };
-
-  return interfaces;
-}]);
-
-home.factory('EventCache', ['$resource', '$http', '$q', 'abode', function($resource, $http, $q, abode) {
-
-  var eventcache = $resource(abode.url('/api/events?last=:last'),{},{});
-
-  return eventcache;
-}]);
-
-home.directive('interface', ['$sce', 'abode', function ($sce, abode) {
-  return {
-    restrict: 'E',
-    replace: false,
-    scope: {
-      'view': '@',
-      'time': '=',
-      'client': '='
-    },
-    controller: ['$scope', function ($scope) {
-    }],
-    templateUrl: function () {
-      //return $sce.trustAsResourceUrl(abode.url('/api/abode/views/home.html').value());
-      return $sce.trustAsResourceUrl(abode.url('/api/interfaces/' + abode.config.interface + '/template').value());
-    },
-  };
-}]);
-
-home.directive('events', [function () {
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      'show': '=',
-      'excludeEvents': '=',
-      'excludeNames': '=',
-      'excludeTags': '=',
-      'excludeTypes': '='
-    },
-    templateUrl: 'views/home/events.html',
-    controller: ['$scope', 'abode', 'EventCache', function ($scope, abode, EventCache) {
-      $scope.show = $scope.show || 100;
-      $scope.exclude_events = (Array.isArray($scope.excludeEvents)) ? $scope.excludeEvents : [];
-      $scope.exclude_names = (Array.isArray($scope.excludeBames)) ? $scope.excludeNames : [];
-      $scope.exclude_tags = (Array.isArray($scope.excludeTags)) ? $scope.excludeTags : [];
-      $scope.exclude_types = (Array.isArray($scope.excludeTypes)) ? $scope.excludeTypes : [];
-
-      $scope.events = [];
-      var event_details= {
-        'UNKNOWN': {'icon': 'icon-question-sign', 'message': '', 'key': ''},
-        'HEARTBEAT': {'icon': 'icon-heart', 'message': 'Abode Heartbeat', 'key': '', 'name': false},
-        'TIME_CHANGE': {'icon': 'icon-time', 'message': 'Time Change', 'key': '', 'name': false},
-        'DAY_CHANGE': {'icon': 'icon-calendarthree', 'message': 'Day Change', 'key': '', 'name': false},
-        'SUNSET': {'icon': 'icon-sunset', 'message': 'Sunset', 'key': '', 'name': false},
-        'SUNRISE': {'icon': 'icon-sunrise', 'message': 'Sunrise', 'key': '', 'name': false},
-        'SOLAR_NOON': {'icon': 'icon-sun-day', 'message': 'Noon', 'key': '', 'name': false},
-        'ON': {'icon': '', 'message': 'is now on', 'key': ''},
-        'OFF': {'icon': '', 'message': 'is now off', 'key': ''},
-        'OPEN': {'icon': '', 'message': 'is now open', 'key': ''},
-        'CLOSE': {'icon': '', 'message': 'is now closed', 'key': ''},
-        'LIGHTS_ON': {'icon': 'icon-lightbulb-idea', 'message': 'is now on', 'key': ''},
-        'LIGHTS_OFF': {'icon': 'icon-lightbulb-idea', 'message': 'is now off', 'key': ''},
-        'FANS_ON': {'icon': 'icon-fan', 'message': 'is now on', 'key': ''},
-        'FANS_OFF': {'icon': 'icon-fan', 'message': 'is now off', 'key': ''},
-        'APPLIANCES_ON': {'icon': '', 'message': 'is now on', 'key': ''},
-        'APPLIANCES_OFF': {'icon': '', 'message': 'is now off', 'key': ''},
-        'CONDITIONING_ON': {'icon': '', 'message': 'is now on ', 'key': '_mode'},
-        'CONDITIONING_OFF': {'icon': '', 'message': 'is now off', 'key': ''},
-        'WINDOWS_OPEN': {'icon': 'fi-window', 'message': 'is now open', 'key': ''},
-        'WINDOWS_CLOSED': {'icon': 'fi-window', 'message': 'is now closed', 'key': ''},
-        'DOORS_OPEN': {'icon': 'fi-door-closed', 'message': 'is now open', 'key': ''},
-        'DOORS_CLOSED': {'icon': 'fi-door-closed', 'message': 'is now closed', 'key': ''},
-        'SHADES_OPEN': {'icon': '', 'message': 'is now open', 'key': ''},
-        'SHADES_CLOSED': {'icon': '', 'message': 'is now closed', 'key': ''},
-        'MOTION_ON': {'icon': 'fi-motion', 'message': 'detected motion', 'key': ''},
-        'MOTION_OFF': {'icon': 'fi-motion', 'message': 'no longer detects motion', 'key': ''},
-        'TEMPERATURE_CHANGE': {'icon': 'wi wi-thermometer wi-fw', 'message': 'temperature is now', 'key': '_temperature', 'units': '°'},
-        'TEMPERATURE_UP': {'icon': 'wi wi-thermometer wi-fw', 'message': 'temperature went up to', 'key': '_temperature', 'units': '°'},
-        'TEMPERATURE_DOWN': {'icon': 'wi wi-thermometer wi-fw', 'message': 'temperature went down to', 'key': '_temperature', 'units': '°'},
-        'HUMIDITY_CHANGE': {'icon': 'wi wi-humidity wi-fw', 'message': 'humidity is now', 'key': '_humidity', 'units': '%'},
-        'HUMIDITY_UP': {'icon': 'wi wi-humidity wi-fw', 'message': 'humidity went up to', 'key': '_humidity', 'units': '%'},
-        'HUMIDITY_DOWN': {'icon': 'wi wi-humidity wi-fw', 'message': 'humidity went down to', 'key': '_humidity', 'units': '%'},
-        'LUMACITY_CHANGE': {'icon': 'wi wi-day-sunny wi-fw', 'message': 'lumens are now', 'key': '_lumens', 'units': '%'},
-        'LUMACITY_UP': {'icon': 'wi wi-day-sunny wi-fw', 'message': 'lumens went up to', 'key': '_lumens', 'units': '%'},
-        'LUMACITY_DOWN': {'icon': 'wi wi-day-sunny wi-fw', 'message': 'lumens went down to', 'key': '_lumens', 'units': '%'},
-        'UPDATED': {'icon': 'icon-edit', 'message': ' has been updated', 'key': ''},
-      };
-
-      var excluded_tag = function (tags) {
-        tags = tags || [];
-        var has_tag = false;
-
-        tags.forEach(function (tag) {
-          has_tag = ($scope.exclude_tags.indexOf(tag) !== -1) ? true : has_tag;
-        });
-
-        return has_tag;
-      };
-
-      var process_event = function (msg) {
-        var details = (event_details[msg.event]) ? event_details[msg.event] : event_details.UNKNOWN;
-
-        msg.icon = details.icon;
-        msg.message = details.message || msg.event;
-        msg.value = (details.key && msg.object && msg.object[details.key]) ? msg.object[details.key] : '';
-        msg.show_name = (details.name === false) ? false : true;
-        msg.units = details.units;
-        msg.object = msg.object || {};
-        msg.object.tags = msg.object.tags || [];
-
-        if ($scope.exclude_events.indexOf(msg.event) === -1 && $scope.exclude_names.indexOf(msg.event) === -1 && $scope.exclude_types.indexOf(msg.type) === -1 && excluded_tag(msg.object.tags) === false) {
-          $scope.events.unshift(msg);
-
-          if ($scope.events.length > $scope.show) {
-            $scope.events.pop();
-          }
-        }
-      };
-
-      var start_listener = function () {
-
-        abode.scope.$on('ABODE_EVENT', function (event, msg) {
-          process_event(msg);
-        });
-
-      };
-
-      var last_event = new Date();
-      last_event = last_event.getTime() - (1000 * 60 * 30);
-
-      EventCache.query({'last': last_event}).$promise.then(function (response) {
-        response = response.map(function (record) { return record.event; });
-        response.forEach(process_event);
-        start_listener();
-      }, function () {
-        start_listener();
-      });
-
-    }]
-  };
-}]);
-
-home.directive('interfaceList', function () {  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      'show': '@'
-    },
-    templateUrl: 'views/home/interfaceList.html',
-    controller: ['$scope', 'Interfaces', function ($scope, Interfaces) {
-      $scope.interfaces = [];
-
-      Interfaces.query().$promise.then(function (results) {
-        if (!$scope.show) {
-          $scope.interfaces = results;
-        } else {
-          ifaces = $scope.show.split(',');
-          ifaces.forEach(function (show) {
-            match = results.filter(function (iface) { return show === iface.name; });
-            if (match.length !== 0) {
-              $scope.interfaces.push(match[0]);
-            }
-          });
-        }
-
-      });
-
-
-    }]
-  };
-});
-
-home.directive('interfaceLink', function () {  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      'interface': '='
-    },
-    templateUrl: 'views/home/interfaceLink.html',
-  };
-});
+var home = angular.module('abode.home');
 
 home.controller('homeController', ['$scope', '$state', '$templateCache', 'abode', 'Interfaces', 'time', function ($scope, $state, $templateCache, abode, Interfaces, time) {
   $scope.interface = $state.params.interface || abode.config.interface;
@@ -47029,244 +49019,9 @@ home.controller('homeController', ['$scope', '$state', '$templateCache', 'abode'
 
 }]);
 
-home.directive('controller', [function () {
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      type: '@',
-      name: '@',
-      title: '@',
-      icon: '@',
-      spin: '@',
-      showTitle: '@',
-      source: '@',
-      action: '@',
-      longPress: '@',
-      args: '=?',
-      onsuccess: '=',
-    },
-    templateUrl: 'views/home/controller.html',
-    controller: ['$scope', '$timeout', '$interval', 'abode', 'Devices', 'Scenes', 'Rooms', 'Notifications', function ($scope, $timeout, $interval, abode, Devices, Scenes, Rooms, Notifications) {
-      var types = {
-        'devices': Devices, 'device': Devices,
-        'rooms': Rooms, 'room': Rooms,
-        'scenes': Scenes, 'scene': Scenes,
-        'notifications': Notifications, 'notification': Notifications
-      };
-
-      var success_splay = 1000 * 60 * Math.floor((Math.random() * 5) + 5);
-      var error_splay = 1000 * Math.floor((Math.random() * 5) + 1);
-      var press_time = 0;
-      var press_timer;
-
-      $scope.title = $scope.title || $scope.name;
-      $scope.loading = false;
-      $scope.failed = false;
-      $scope.error = false;
-      $scope.pending = false;
-      $scope.type = $scope.type || 'device';
-      $scope.action = $scope.action || 'open';
-      $scope.args = $scope.args || [];
 
 
-      //If we get an EVENTS_RESET event, schedule a refresh
-      var feed_detector = abode.scope.$on('EVENTS_RESET', function (event, msg) {
-        $scope.loader = $timeout($scope.refresh, error_splay);
-      });
-
-      var event_handler = abode.scope.$on('ABODE_EVENT', function (event, msg) {
-
-        if (!$scope.obj) {
-          return;
-        }
-
-        if (msg.type === $scope.type && $scope.name === msg.name) {
-          if ($scope.loader) {
-            $timeout.cancel($scope.loader);
-          }
-
-          if (msg.event === 'ON' && $scope.obj._on === false)  {
-            //$scope.obj._on = true;
-          } else if (msg.event === 'OFF' && $scope.obj._on === true) {
-            //$scope.obj._on = false;
-          } else if (msg.event === 'UPDATED') {
-
-            for (var key in msg.object) {
-              if (msg.object.hasOwnProperty(key) && key[0] === '_') {
-                $scope.obj[key] = msg.object[key];
-              }
-            }
-          }
-
-          //If we got an event, hold off on our normal refresh
-          if (['toggle', 'open', 'on', 'off'].indexOf($scope.action) > -1) {
-            $scope.loader = $timeout($scope.refresh, success_splay);
-          }
-
-          $scope.$digest();
-        }
-      });
-
-      $scope.load = function () {
-        if (!types[$scope.type]) {
-          console.log('Invalid type: ', $scope.type);
-          $scope.error = true;
-          return;
-        }
-        if ($scope.loading) {
-          return;
-        }
-
-        $scope.loading = true;
-        $scope.error = false;
-
-        types[$scope.type].get({'id': $scope.name}).$promise.then(function (result) {
-          $scope.obj = result;
-          $scope.icon = $scope.icon || $scope.obj.icon || 'icon-lightbulb-idea';
-          $scope.loading = false;
-          $scope.error = false;
-
-
-          if (['toggle', 'open', 'on', 'off'].indexOf($scope.action) > -1) {
-            $scope.loader = $timeout($scope.refresh, success_splay);
-          }
-
-        }, function () {
-          $scope.loading = false;
-          $scope.error = true;
-
-          //If we got an error, try again in 5 seconds
-          $scope.loader = $timeout($scope.load, error_splay);
-        });
-      };
-
-      $scope.refresh = function () {
-        if (!$scope.obj || $scope.loading) {
-          return;
-        }
-
-        $scope.loading = true;
-        $scope.obj.$refresh().then(function () {
-          $scope.loading = false;
-          $scope.error = false;
-
-          $scope.loader = $timeout($scope.refresh, success_splay);
-        }, function () {
-          $scope.loading = false;
-          $scope.error = true;
-
-          $scope.loader = $timeout($scope.refresh, error_splay);
-        });
-      };
-
-      $scope.start = function () {
-        press_time = new Date();
-        press_time = press_time.getTime();
-
-        press_timer = $timeout(function () {
-          $scope.do_action($scope.longPress || $scope.action);
-        }, 2000);
-      };
-
-      $scope.stop = function () {
-        var now = new Date();
-        now = now.getTime();
-
-        $timeout.cancel(press_timer);
-
-        if (now - press_time <= 500) {
-          $scope.do_action($scope.action);
-        } else {
-          $scope.do_action($scope.longPress || $scope.action);
-        }
-      };
-
-      $scope.do_action = function (action) {
-        if (!$scope.obj || $scope.failed) {
-          $scope.failed = true;
-          $timeout(function () {
-            $scope.failed = false;
-          }, 2000);
-
-          return;
-        }
-
-        var func;
-
-        if ($scope.loader) {
-          $timeout.cancel($scope.loader);
-        }
-        $scope.failed = false;
-
-        if (action === 'toggle') {
-          func = ($scope.obj._on || $scope.obj._lights_on) ? $scope.obj.$off : $scope.obj.$on;
-        } else if ($scope.obj['$' + action]) {
-          func = $scope.obj['$' + action];
-        } else if (action === 'open_controls') {
-          func = function () {
-            return $scope.obj.$open(true);
-          };
-        } else {
-          func = $scope.obj.$open;
-        }
-
-        $scope.pending = true;
-        var result = func.apply($scope.obj, $scope.args);
-        if (result && result.then) {
-            result.then(function () {
-            $scope.pending = false;
-            $scope.success = true;
-            if (action === 'toggle' || action === 'open' || action === 'on' || action === 'toggle') {
-              $scope.loader = $timeout($scope.refresh, 5000);
-            }
-            if ($scope.onsuccess) {
-              $scope.onsuccess();
-            }
-            $timeout(function () {
-              $scope.success = false;
-            }, 4000);
-          }, function (err) {
-            $scope.pending = false;
-            $scope.failed = true;
-            if (action === 'toggle' || action === 'open' || action === 'on' || action === 'toggle') {
-              $scope.loader = $timeout($scope.refresh, 5000);
-            }
-            $timeout(function () {
-              $scope.failed = false;
-            }, 4000);
-          });
-        } else if (result && result.closed) {
-            $scope.pending = false;
-            $scope.loading = true;
-            if (action === 'toggle' || action === 'open' || action === 'on' || action === 'toggle') {
-              $scope.loader = $timeout($scope.refresh, 5000);
-            }
-            result.closed.then(function (result) {
-              if ($scope.onsuccess) {
-                $scope.onsuccess();
-              }
-              $scope.loading = false;
-            });
-        } else {
-          if (action === 'toggle' || action === 'open' || action === 'on' || action === 'toggle') {
-            $scope.loader = $timeout($scope.refresh, 5000);
-          }
-          $scope.pending = false;
-        }
-      };
-
-      $scope.loader = $timeout($scope.load, 100);
-
-      $scope.$on('$destroy', function () {
-        event_handler();
-        feed_detector();
-        $timeout.cancel($scope.loader);
-      });
-
-    }]
-  };
-}]);
+var home = angular.module('abode.home');
 
 home.directive('background', function () {
 
@@ -47541,13 +49296,532 @@ home.directive('background', function () {
 });
 
 
+
+var home = angular.module('abode.home');
+
+home.directive('content', function () {
+  return {
+    restrict: 'E',
+    transclude: true,
+    scope: {
+      format: '@',
+      top: '@',
+      bottom: '@',
+      left: '@',
+      right: '@',
+      height: '@',
+      width: '@',
+      align: '@',
+      valign: '@',
+      size: '@',
+      background: '@',
+      color: '@',
+      shadow: '@',
+      margin: '@',
+      overflow: '@'
+    },
+    controller: function ($scope) {
+      $scope.outerStyles = {};
+      $scope.innerStyles = {};
+
+      if ($scope.top) { $scope.outerStyles.top = ($scope.top.indexOf('%') === -1) ? $scope.top + 'em' : $scope.top; }
+      if ($scope.bottom) { $scope.outerStyles.bottom = ($scope.bottom.indexOf('%') === -1) ? $scope.bottom + 'em' : $scope.bottom; }
+      if ($scope.left) { $scope.outerStyles.left = ($scope.left.indexOf('%') === -1) ? $scope.left + 'em' : $scope.left; }
+      if ($scope.right) { $scope.outerStyles.right = ($scope.right.indexOf('%') === -1) ? $scope.right + 'em' : $scope.right; }
+      if ($scope.height) { $scope.outerStyles.height = ($scope.height.indexOf('%') === -1) ? $scope.height + 'em' : $scope.height; }
+      if ($scope.width) { $scope.outerStyles.width = ($scope.width.indexOf('%') === -1) ? $scope.width + 'em' : $scope.width; }
+      if ($scope.align) { $scope.innerStyles['text-align'] = $scope.align; }
+      if ($scope.valign) { $scope.innerStyles['vertical-align'] = $scope.valign; }
+      if ($scope.size) { $scope.innerStyles['font-size'] = $scope.size + 'em'; }
+      if ($scope.background) { $scope.outerStyles.background = $scope.background; }
+      if ($scope.color) { $scope.innerStyles.color = $scope.color; }
+      if ($scope.shadow) { $scope.innerStyles['text-shadow'] = $scope.shadow; }
+      if ($scope.margin) { $scope.innerStyles.margin = (isNaN($scope.margin)) ? $scope.margin : $scope.margin + 'em'; }
+      if ($scope.overflow) { $scope.outerStyles.overflow = $scope.overflow || 'hidden'; }
+
+    },
+    template: '<div class="content" ng-style="outerStyles"><div style="display:table; height: 100%; width: 100%"><div style="display:table-cell;" ng-style="innerStyles" ng-transclude></div></div></div>',
+    replace: true,
+  };
+});
+
+
+
+var home = angular.module('abode.home');
+
+home.directive('controller', [function () {
+  return {
+    restrict: 'E',
+    replace: true,
+    scope: {
+      type: '@',
+      name: '@',
+      title: '@',
+      icon: '@',
+      spin: '@',
+      showTitle: '@',
+      source: '@',
+      action: '@',
+      longPress: '@',
+      args: '=?',
+      onsuccess: '=',
+    },
+    templateUrl: 'modules/home/views/controller.html',
+    controller: ['$scope', '$timeout', '$interval', 'abode', 'Devices', 'Scenes', 'Rooms', 'Notifications', function ($scope, $timeout, $interval, abode, Devices, Scenes, Rooms, Notifications) {
+      var types = {
+        'devices': Devices, 'device': Devices,
+        'rooms': Rooms, 'room': Rooms,
+        'scenes': Scenes, 'scene': Scenes,
+        'notifications': Notifications, 'notification': Notifications
+      };
+
+      var success_splay = 1000 * 60 * Math.floor((Math.random() * 5) + 5);
+      var error_splay = 1000 * Math.floor((Math.random() * 5) + 1);
+      var press_time = 0;
+      var press_timer;
+
+      $scope.title = $scope.title || $scope.name;
+      $scope.loading = false;
+      $scope.failed = false;
+      $scope.error = false;
+      $scope.pending = false;
+      $scope.type = $scope.type || 'device';
+      $scope.action = $scope.action || 'open';
+      $scope.args = $scope.args || [];
+
+
+      //If we get an EVENTS_RESET event, schedule a refresh
+      var feed_detector = abode.scope.$on('EVENTS_RESET', function (event, msg) {
+        $scope.loader = $timeout($scope.refresh, error_splay);
+      });
+
+      var event_handler = abode.scope.$on('ABODE_EVENT', function (event, msg) {
+
+        if (!$scope.obj) {
+          return;
+        }
+
+        if (msg.type === $scope.type && $scope.name === msg.name) {
+          if ($scope.loader) {
+            $timeout.cancel($scope.loader);
+          }
+
+          if (msg.event === 'ON' && $scope.obj._on === false)  {
+            //$scope.obj._on = true;
+          } else if (msg.event === 'OFF' && $scope.obj._on === true) {
+            //$scope.obj._on = false;
+          } else if (msg.event === 'UPDATED') {
+
+            for (var key in msg.object) {
+              if (msg.object.hasOwnProperty(key) && key[0] === '_') {
+                $scope.obj[key] = msg.object[key];
+              }
+            }
+          }
+
+          //If we got an event, hold off on our normal refresh
+          if (['toggle', 'open', 'on', 'off'].indexOf($scope.action) > -1) {
+            $scope.loader = $timeout($scope.refresh, success_splay);
+          }
+
+          $scope.$digest();
+        }
+      });
+
+      $scope.load = function () {
+        if (!types[$scope.type]) {
+          console.log('Invalid type: ', $scope.type);
+          $scope.error = true;
+          return;
+        }
+        if ($scope.loading) {
+          return;
+        }
+
+        $scope.loading = true;
+        $scope.error = false;
+
+        types[$scope.type].get({'id': $scope.name}).$promise.then(function (result) {
+          $scope.obj = result;
+          $scope.icon = $scope.icon || $scope.obj.icon || 'icon-lightbulb-idea';
+          $scope.loading = false;
+          $scope.error = false;
+
+
+          if (['toggle', 'open', 'on', 'off'].indexOf($scope.action) > -1) {
+            $scope.loader = $timeout($scope.refresh, success_splay);
+          }
+
+        }, function () {
+          $scope.loading = false;
+          $scope.error = true;
+
+          //If we got an error, try again in 5 seconds
+          $scope.loader = $timeout($scope.load, error_splay);
+        });
+      };
+
+      $scope.refresh = function () {
+        if (!$scope.obj || $scope.loading) {
+          return;
+        }
+
+        $scope.loading = true;
+        $scope.obj.$refresh().then(function () {
+          $scope.loading = false;
+          $scope.error = false;
+
+          $scope.loader = $timeout($scope.refresh, success_splay);
+        }, function () {
+          $scope.loading = false;
+          $scope.error = true;
+
+          $scope.loader = $timeout($scope.refresh, error_splay);
+        });
+      };
+
+      $scope.start = function () {
+        press_time = new Date();
+        press_time = press_time.getTime();
+
+        press_timer = $timeout(function () {
+          $scope.do_action($scope.longPress || $scope.action);
+        }, 2000);
+      };
+
+      $scope.stop = function () {
+        var now = new Date();
+        now = now.getTime();
+
+        $timeout.cancel(press_timer);
+
+        if (now - press_time <= 500) {
+          $scope.do_action($scope.action);
+        } else {
+          $scope.do_action($scope.longPress || $scope.action);
+        }
+      };
+
+      $scope.do_action = function (action) {
+        if (!$scope.obj || $scope.failed) {
+          $scope.failed = true;
+          $timeout(function () {
+            $scope.failed = false;
+          }, 2000);
+
+          return;
+        }
+
+        var func;
+
+        if ($scope.loader) {
+          $timeout.cancel($scope.loader);
+        }
+        $scope.failed = false;
+
+        if (action === 'toggle') {
+          func = ($scope.obj._on || $scope.obj._lights_on) ? $scope.obj.$off : $scope.obj.$on;
+        } else if ($scope.obj['$' + action]) {
+          func = $scope.obj['$' + action];
+        } else if (action === 'open_controls') {
+          func = function () {
+            return $scope.obj.$open(true);
+          };
+        } else {
+          func = $scope.obj.$open;
+        }
+
+        $scope.pending = true;
+        var result = func.apply($scope.obj, $scope.args);
+        if (result && result.then) {
+            result.then(function () {
+            $scope.pending = false;
+            $scope.success = true;
+            if (action === 'toggle' || action === 'open' || action === 'on' || action === 'toggle') {
+              $scope.loader = $timeout($scope.refresh, 5000);
+            }
+            if ($scope.onsuccess) {
+              $scope.onsuccess();
+            }
+            $timeout(function () {
+              $scope.success = false;
+            }, 4000);
+          }, function (err) {
+            $scope.pending = false;
+            $scope.failed = true;
+            if (action === 'toggle' || action === 'open' || action === 'on' || action === 'toggle') {
+              $scope.loader = $timeout($scope.refresh, 5000);
+            }
+            $timeout(function () {
+              $scope.failed = false;
+            }, 4000);
+          });
+        } else if (result && result.closed) {
+            $scope.pending = false;
+            $scope.loading = true;
+            if (action === 'toggle' || action === 'open' || action === 'on' || action === 'toggle') {
+              $scope.loader = $timeout($scope.refresh, 5000);
+            }
+            result.closed.then(function (result) {
+              if ($scope.onsuccess) {
+                $scope.onsuccess();
+              }
+              $scope.loading = false;
+            });
+        } else {
+          if (action === 'toggle' || action === 'open' || action === 'on' || action === 'toggle') {
+            $scope.loader = $timeout($scope.refresh, 5000);
+          }
+          $scope.pending = false;
+        }
+      };
+
+      $scope.loader = $timeout($scope.load, 100);
+
+      $scope.$on('$destroy', function () {
+        event_handler();
+        feed_detector();
+        $timeout.cancel($scope.loader);
+      });
+
+    }]
+  };
+}]);
+
+
+
+var home = angular.module('abode.home');
+
+home.directive('events', [function () {
+  return {
+    restrict: 'E',
+    replace: true,
+    scope: {
+      'show': '=',
+      'excludeEvents': '=',
+      'excludeNames': '=',
+      'excludeTags': '=',
+      'excludeTypes': '='
+    },
+    templateUrl: 'modules/home/views/events.html',
+    controller: ['$scope', 'abode', 'EventCache', function ($scope, abode, EventCache) {
+      $scope.show = $scope.show || 100;
+      $scope.exclude_events = (Array.isArray($scope.excludeEvents)) ? $scope.excludeEvents : [];
+      $scope.exclude_names = (Array.isArray($scope.excludeBames)) ? $scope.excludeNames : [];
+      $scope.exclude_tags = (Array.isArray($scope.excludeTags)) ? $scope.excludeTags : [];
+      $scope.exclude_types = (Array.isArray($scope.excludeTypes)) ? $scope.excludeTypes : [];
+
+      $scope.events = [];
+      var event_details= {
+        'UNKNOWN': {'icon': 'icon-question-sign', 'message': '', 'key': ''},
+        'HEARTBEAT': {'icon': 'icon-heart', 'message': 'Abode Heartbeat', 'key': '', 'name': false},
+        'TIME_CHANGE': {'icon': 'icon-time', 'message': 'Time Change', 'key': '', 'name': false},
+        'DAY_CHANGE': {'icon': 'icon-calendarthree', 'message': 'Day Change', 'key': '', 'name': false},
+        'SUNSET': {'icon': 'icon-sunset', 'message': 'Sunset', 'key': '', 'name': false},
+        'SUNRISE': {'icon': 'icon-sunrise', 'message': 'Sunrise', 'key': '', 'name': false},
+        'SOLAR_NOON': {'icon': 'icon-sun-day', 'message': 'Noon', 'key': '', 'name': false},
+        'ON': {'icon': '', 'message': 'is now on', 'key': ''},
+        'OFF': {'icon': '', 'message': 'is now off', 'key': ''},
+        'OPEN': {'icon': '', 'message': 'is now open', 'key': ''},
+        'CLOSE': {'icon': '', 'message': 'is now closed', 'key': ''},
+        'LIGHTS_ON': {'icon': 'icon-lightbulb-idea', 'message': 'is now on', 'key': ''},
+        'LIGHTS_OFF': {'icon': 'icon-lightbulb-idea', 'message': 'is now off', 'key': ''},
+        'FANS_ON': {'icon': 'icon-fan', 'message': 'is now on', 'key': ''},
+        'FANS_OFF': {'icon': 'icon-fan', 'message': 'is now off', 'key': ''},
+        'APPLIANCES_ON': {'icon': '', 'message': 'is now on', 'key': ''},
+        'APPLIANCES_OFF': {'icon': '', 'message': 'is now off', 'key': ''},
+        'CONDITIONING_ON': {'icon': '', 'message': 'is now on ', 'key': '_mode'},
+        'CONDITIONING_OFF': {'icon': '', 'message': 'is now off', 'key': ''},
+        'WINDOWS_OPEN': {'icon': 'fi-window', 'message': 'is now open', 'key': ''},
+        'WINDOWS_CLOSED': {'icon': 'fi-window', 'message': 'is now closed', 'key': ''},
+        'DOORS_OPEN': {'icon': 'fi-door-closed', 'message': 'is now open', 'key': ''},
+        'DOORS_CLOSED': {'icon': 'fi-door-closed', 'message': 'is now closed', 'key': ''},
+        'SHADES_OPEN': {'icon': '', 'message': 'is now open', 'key': ''},
+        'SHADES_CLOSED': {'icon': '', 'message': 'is now closed', 'key': ''},
+        'MOTION_ON': {'icon': 'fi-motion', 'message': 'detected motion', 'key': ''},
+        'MOTION_OFF': {'icon': 'fi-motion', 'message': 'no longer detects motion', 'key': ''},
+        'TEMPERATURE_CHANGE': {'icon': 'wi wi-thermometer wi-fw', 'message': 'temperature is now', 'key': '_temperature', 'units': '°'},
+        'TEMPERATURE_UP': {'icon': 'wi wi-thermometer wi-fw', 'message': 'temperature went up to', 'key': '_temperature', 'units': '°'},
+        'TEMPERATURE_DOWN': {'icon': 'wi wi-thermometer wi-fw', 'message': 'temperature went down to', 'key': '_temperature', 'units': '°'},
+        'HUMIDITY_CHANGE': {'icon': 'wi wi-humidity wi-fw', 'message': 'humidity is now', 'key': '_humidity', 'units': '%'},
+        'HUMIDITY_UP': {'icon': 'wi wi-humidity wi-fw', 'message': 'humidity went up to', 'key': '_humidity', 'units': '%'},
+        'HUMIDITY_DOWN': {'icon': 'wi wi-humidity wi-fw', 'message': 'humidity went down to', 'key': '_humidity', 'units': '%'},
+        'LUMACITY_CHANGE': {'icon': 'wi wi-day-sunny wi-fw', 'message': 'lumens are now', 'key': '_lumens', 'units': '%'},
+        'LUMACITY_UP': {'icon': 'wi wi-day-sunny wi-fw', 'message': 'lumens went up to', 'key': '_lumens', 'units': '%'},
+        'LUMACITY_DOWN': {'icon': 'wi wi-day-sunny wi-fw', 'message': 'lumens went down to', 'key': '_lumens', 'units': '%'},
+        'UPDATED': {'icon': 'icon-edit', 'message': ' has been updated', 'key': ''},
+      };
+
+      var excluded_tag = function (tags) {
+        tags = tags || [];
+        var has_tag = false;
+
+        tags.forEach(function (tag) {
+          has_tag = ($scope.exclude_tags.indexOf(tag) !== -1) ? true : has_tag;
+        });
+
+        return has_tag;
+      };
+
+      var process_event = function (msg) {
+        var details = (event_details[msg.event]) ? event_details[msg.event] : event_details.UNKNOWN;
+
+        msg.icon = details.icon;
+        msg.message = details.message || msg.event;
+        msg.value = (details.key && msg.object && msg.object[details.key]) ? msg.object[details.key] : '';
+        msg.show_name = (details.name === false) ? false : true;
+        msg.units = details.units;
+        msg.object = msg.object || {};
+        msg.object.tags = msg.object.tags || [];
+
+        if ($scope.exclude_events.indexOf(msg.event) === -1 && $scope.exclude_names.indexOf(msg.event) === -1 && $scope.exclude_types.indexOf(msg.type) === -1 && excluded_tag(msg.object.tags) === false) {
+          $scope.events.unshift(msg);
+
+          if ($scope.events.length > $scope.show) {
+            $scope.events.pop();
+          }
+        }
+      };
+
+      var start_listener = function () {
+
+        abode.scope.$on('ABODE_EVENT', function (event, msg) {
+          process_event(msg);
+        });
+
+      };
+
+      var last_event = new Date();
+      last_event = last_event.getTime() - (1000 * 60 * 30);
+
+      EventCache.query({'last': last_event}).$promise.then(function (response) {
+        response = response.map(function (record) { return record.event; });
+        response.forEach(process_event);
+        start_listener();
+      }, function () {
+        start_listener();
+      });
+
+    }]
+  };
+}]);
+
+
+
+var home = angular.module('abode.home');
+
+home.directive('interface', ['$sce', 'abode', function ($sce, abode) {
+  return {
+    restrict: 'E',
+    replace: false,
+    scope: {
+      'view': '@',
+      'time': '=',
+      'client': '='
+    },
+    controller: ['$scope', function ($scope) {
+    }],
+    templateUrl: function () {
+      //return $sce.trustAsResourceUrl(abode.url('/api/abode/views/home.html').value());
+      return $sce.trustAsResourceUrl(abode.url('/api/interfaces/' + abode.config.interface + '/template').value());
+    },
+  };
+}]);
+
+
+
+var home = angular.module('abode.home');
+
+home.directive('interfaceLink', function () {  return {
+    restrict: 'E',
+    replace: true,
+    scope: {
+      'interface': '='
+    },
+    templateUrl: 'modules/home/views/interfaceLink.html',
+  };
+});
+
+
+
+var home = angular.module('abode.home');
+
+home.directive('interfaceList', function () {  return {
+    restrict: 'E',
+    replace: true,
+    scope: {
+      'show': '@'
+    },
+    templateUrl: 'modules/home/views/interfaceList.html',
+    controller: ['$scope', 'Interfaces', function ($scope, Interfaces) {
+      $scope.interfaces = [];
+
+      Interfaces.query().$promise.then(function (results) {
+        if (!$scope.show) {
+          $scope.interfaces = results;
+        } else {
+          ifaces = $scope.show.split(',');
+          ifaces.forEach(function (show) {
+            match = results.filter(function (iface) { return show === iface.name; });
+            if (match.length !== 0) {
+              $scope.interfaces.push(match[0]);
+            }
+          });
+        }
+
+      });
+
+
+    }]
+  };
+});
+
+
+
+var home = angular.module('abode.home');
+
+home.factory('EventCache', ['$resource', '$http', '$q', 'abode', function($resource, $http, $q, abode) {
+
+  var eventcache = $resource(abode.url('/api/events?last=:last'),{},{});
+
+  return eventcache;
+}]);
+
+
+
+var home = angular.module('abode.home');
+
+home.factory('Interfaces', ['$resource', '$http', '$q', 'abode', function($resource, $http, $q, abode) {
+
+  var interfaces = $resource(abode.url('/api/interfaces/:id'),{
+    'id': '@_id'
+  },{
+    'update': {'method': 'PUT'},
+  });
+
+  interfaces.template = function (name) {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/interfaces/' + name + '/template').value()).then(function (result) {
+      defer.resolve(result.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  return interfaces;
+}]);
+
+
 angular.module('ifttt', [])
 .config(function($stateProvider, $urlRouterProvider) {
 
   $stateProvider
   .state('main.settings.ifttt', {
     url: '/ifttt',
-    templateUrl: 'views/providers/ifttt/settings.html',
+    templateUrl: 'modules/ifttt/views/settings.html',
     controller: 'iftttSettings',
     resolve: {
       config: function (ifttt) {
@@ -47615,7 +49889,7 @@ angular.module('insteon', [])
   $stateProvider
   .state('main.settings.insteon', {
     url: '/settings',
-    templateUrl: 'views/providers/insteon/settings.html',
+    templateUrl: 'modules/insteon/views/settings.html',
     controller: 'insteonSettings',
     resolve: {
       status: function (insteon) {
@@ -47983,7 +50257,7 @@ angular.module('insteon', [])
   $scope.add_link = function () {
     var modal = $uibModal.open({
       animation: false,
-      templateUrl: 'views/providers/insteon/link.html',
+      templateUrl: 'modules/insteon/views/link.html',
       size: 'sm',
       backdrop: 'static',
       keyboard: false,
@@ -48045,7 +50319,7 @@ angular.module('insteon', [])
   $scope.edit_link = function (record) {
     var modal = $uibModal.open({
       animation: false,
-      templateUrl: 'views/providers/insteon/link.html',
+      templateUrl: 'modules/insteon/views/link.html',
       size: 'sm',
       resolve: {
         device: function () { return $scope.device; },
@@ -48118,7 +50392,7 @@ angular.module('insteon', [])
   $scope.delete_link = function (record) {
     var modal = $uibModal.open({
       animation: false,
-      templateUrl: 'views/providers/insteon/confirm_delete.html',
+      templateUrl: 'modules/insteon/views/confirm_delete.html',
       size: 'sm',
       backdrop: 'static',
       keyboard: false,
@@ -48258,7 +50532,7 @@ angular.module('insteonhub', [])
   $stateProvider
   .state('main.settings.insteonhub', {
     url: '/insteonhub',
-    templateUrl: 'views/providers/insteonhub/settings.html',
+    templateUrl: 'modules/insteonhub/views/settings.html',
     controller: 'insteonHubSettings',
     resolve: {
       config: function (insteonhub) {
@@ -48407,7 +50681,7 @@ lutroncaseta.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.settings.lutroncaseta', {
     url: '/lutroncaseta',
-    templateUrl: 'views/providers/lutroncaseta/settings.html',
+    templateUrl: 'modules/lutroncaseta/views/settings.html',
     controller: 'lutroncasetaSettings',
     resolve: {
       config: function (lutroncaseta) {
@@ -48474,2087 +50748,13 @@ lutroncaseta.controller('lutroncasetaAdd', function ($scope) {
 });
 
 
-var abode = angular.module('abode', [
-  'ng',
-  'ngResource',
-  'ui.router',
-  'ui.bootstrap',
-  'rzModule',
-  'abode.welcome',
-  'abode.home',
-  'abode.devices',
-  'abode.rooms',
-  'abode.scenes',
-  'abode.triggers',
-  'abode.settings',
-  'abode.weather',
-  'abode.alarmclock',
-  'abode.notifications',
-  'insteon',
-  'insteonhub',
-  'camera',
-  'wunderground',
-  'ifttt',
-  'rad',
-  'lutroncaseta',
-  'mqtt',
-  'zwave',
-  'autoshades',
-]);
-
-abode.directive('iconSelector', ['$compile', function () {
-  return {
-    restrict: 'E',
-    replace: 'true',
-    scope: {
-      value: '='
-    },
-    templateUrl: 'views/main/icons.html',
-    controller: ['$scope', function ($scope) {
-
-      $scope.selectIcon = function (icon) {
-        $scope.value = icon.class;
-      };
-
-      $scope.icons = [
-        {
-          'name': 'Power ',
-          'class': 'icon-off'
-        },
-        {
-          'name': 'Window',
-          'class': 'fi-window'
-        },
-        {
-          'name': 'Door Open',
-          'class': 'fi-door-open'
-        },
-        {
-          'name': 'Door Closed',
-          'class': 'fi-door-closed'
-        },
-        {
-          'name': 'Motion',
-          'class': 'fi-motion'
-        },
-        {
-          'name': 'Light',
-          'class': 'icon-lightbulb-idea'
-        },
-        {
-          'name': 'Fan',
-          'class': 'icon-fan'
-        },
-        {
-          'name': 'Heat',
-          'class': 'icon-fire'
-        },
-        {
-          'name': 'Cool',
-          'class': 'icon-snow'
-        },
-        {
-          'name': 'Monitor',
-          'class': 'icon-monitor'
-        },
-        {
-          'name': 'Security',
-          'class': 'icon-securityalt-shieldalt'
-        },
-        {
-          'name': 'Security Alt1',
-          'class': 'icon-security-shield'
-        },
-        {
-          'name': 'Controller',
-          'class': 'icon-controlpanelalt'
-        },
-        {
-          'name': 'Scene',
-          'class': 'icon-picture'
-        },
-        {
-          'name': 'Home',
-          'class': 'icon-home'
-        },
-        {
-          'name': 'Notification',
-          'class': 'icon-commenttyping'
-        },
-        {
-          'name': 'Laptop',
-          'class': 'icon-laptop'
-        },
-        {
-          'name': 'Computer',
-          'class': 'icon-server'
-        },
-        {
-          'name': 'Phone',
-          'class': 'icon-mobile',
-        },
-        {
-          'name': 'Laptop',
-          'class': 'icon-iphone'
-        },
-        {
-          'name': 'Browser',
-          'class': 'icon-browser'
-        },
-        {
-          'name': 'Alarm',
-          'class': 'icon-alarm'
-        },
-        {
-          'name': 'Alarm Off',
-          'class': 'icon-turnoffalarm'
-        },
-        {
-          'name': 'Garage',
-          'class': 'icon-garage'
-        },
-        {
-          'name': 'Lock',
-          'class': 'icon-lock'
-        },
-        {
-          'name': 'Unlock',
-          'class': 'icon-unlock'
-        },
-        {
-          'name': 'Sleep',
-          'class': 'icon-sleep'
-        },
-        {
-          'name': 'Away',
-          'class': 'icon-travel'
-        },
-        {
-          'name': 'Video Camera',
-          'class': 'icon-videocamerathree',
-        },
-        {
-          'name': 'Still Camera',
-          'class': 'icon-camera',
-        },
-        {
-          'name': 'Sunset',
-          'class': 'wi wi-sunset'
-        },
-        {
-          'name': 'Sunrise',
-          'class': 'wi wi-sunrise'
-        },
-        {
-          'name': 'Lamp',
-          'class': 'icon-lamp'
-        },
-        {
-          'name': 'Lamp Alt1',
-          'class': 'icon-desklamp'
-        },
-        {
-          'name': 'Lamp Alt2',
-          'class': 'icon-lampalt'
-        },
-        {
-          'name': 'Tablet',
-          'class': 'icon-tablet'
-        },
-        {
-          'name': 'Mute',
-          'class': 'icon-mutealt'
-        },
-        {
-          'name': 'Horn',
-          'class': 'icon-bullhorn'
-        },
-        {
-          'name': 'Torch',
-          'class': 'icon-torch'
-        },
-        {
-          'name': 'Pendant',
-          'class': 'icon-ceilinglight'
-        },
-        {
-          'name': 'Battery',
-          'class': 'icon-aaabattery'
-        },
-        {
-          'name': 'Key Hole',
-          'class': 'icon-lockalt-keyhole'
-        },
-        {
-          'name': 'Umbrella',
-          'class': 'wi wi-umbrella',
-        },
-        {
-          'name': 'Room',
-          'class': 'icon-snaptogrid'
-        },
-        {
-          'name': 'Office Chair',
-          'class': 'icon-officechair'
-        },
-        {
-          'name': 'Bed',
-          'class': 'icon-bed'
-        },
-        {
-          'name': 'TV',
-          'class': 'icon-tv'
-        },
-        {
-          'name': 'Fork',
-          'class': 'icon-fork'
-        },
-        {
-          'name': 'Washer',
-          'class': 'icon-washer'
-        },
-        {
-          'name': 'Modes',
-          'class': 'icon-burstmode'
-        },
-        {
-          'name': 'Tree',
-          'class': 'icon-forest-tree'
-        },
-        {
-          'name': 'Tree Christmas',
-          'class': 'icon-christmastree'
-        },
-        {
-          'name': 'Tree Alt',
-          'class': 'icon-treethree'
-        },
-        {
-          'name': 'Plant',
-          'class': 'icon-plantalt'
-        },
-        {
-          'name': 'Plant Alt1',
-          'class': 'icon-macro-plant'
-        },
-        {
-          'name': 'Plant Alt2',
-          'class': 'icon-flowerpot'
-        },
-        {
-          'name': 'Broom',
-          'class': 'icon-broom'
-        },
-        {
-          'name': 'Dog',
-          'class': 'icon-dog'
-        },
-        {
-          'name': 'Dog House',
-          'class': 'icon-doghouse'
-        },
-        {
-          'name': 'Timer',
-          'class': 'icon-timer'
-        },
-        {
-          'name': 'Travel',
-          'class': 'icon-travel'
-        },
-        {
-          'name': 'Car',
-          'class': 'icon-automobile-car',
-        },
-        {
-          'name': 'Moon',
-          'class': 'icon-moon-night',
-        },
-        {
-          'name': 'Hat',
-          'class': 'icon-tophat',
-        },
-        {
-          'name': 'Alert',
-          'class': 'icon-alertalt'
-        },
-        {
-          'name': 'Baby',
-          'class': 'icon-baby'
-        },
-        {
-          'name': 'Speaker Off',
-          'class': 'icon-volume-off',
-        },
-        {
-          'name': 'Speaker Up',
-          'class': 'icon-volume-up'
-        },
-        {
-          'name': 'Speaker Down',
-          'class': 'icon-volume-down'
-        },
-        {
-          'name': 'Office',
-          'class': 'icon-office-building'
-        },
-        {
-          'name': 'Weather Hot',
-          'class': 'wi wi-hot',
-        },
-        {
-          'name': 'Weather Rain',
-          'class': 'wi wi-rain'
-        },
-        {
-          'name': 'Thermometer',
-          'class': 'wi wi-thermometer'
-        },
-        {
-          'name': 'Music',
-          'class': 'icon-music'
-        },
-        {
-          'name': 'Bath',
-          'class': 'icon-bathtub'
-        },
-        {
-          'name': 'Movie',
-          'class': 'icon-movieclapper'
-        },
-        {
-          'name': 'Movie Alt',
-          'class': 'icon-moviereel'
-        },
-        {
-          'name': 'Events',
-          'class': 'icon-eventum'
-        },
-        {
-          'name': 'Chandelier',
-          'class': 'icon-chandelier'
-        },
-        {
-          'name': 'Tools',
-          'class': 'icon-tools'
-        },
-        {
-          'name': 'Tools Alt1',
-          'class': 'icon-mootoolsthree'
-        },
-        {
-          'name': 'Tools Alt2',
-          'class': 'icon-screwdriver'
-        },
-        {
-          'name': 'Tools Alt3',
-          'class': 'icon-screw'
-        },
-        {
-          'name': 'Glass',
-          'class': 'icon-wineglass'
-        },
-        {
-          'name': 'Glass Alt1',
-          'class': 'icon-glass'
-        },
-        {
-          'name': 'Glass Alt2',
-          'class': 'icon-beeralt'
-        },
-        {
-          'name': 'Sport',
-          'class': 'icon-football-soccer'
-        },
-        {
-          'name': 'Sport Alt1',
-          'class': 'icon-usfootball'
-        },
-        {
-          'name': 'Camp Fire',
-          'class': 'icon-campfire'
-        },
-        {
-          'name': 'Tent',
-          'class': 'icon-tent-camping'
-        },
-        {
-          'name': 'Tie',
-          'class': 'icon-tie-business'
-        },
-        {
-          'name': 'Shirt',
-          'class': 'icon-workshirt'
-        },
-        {
-          'name': 'Security Camera',
-          'class': 'icon-cctv'
-        },
-        {
-          'name': 'Chair',
-          'class': 'icon-chair'
-        },
-        {
-          'name': 'Mirror',
-          'class': 'icon-mirror'
-        },
-        {
-          'name': 'Microwave',
-          'class': 'icon-microwave'
-        },
-        {
-          'name': 'Turntable',
-          'class': 'icon-gramophone'
-        },
-        {
-          'name': 'shade',
-          'class': 'icon-pattern'
-        },
-        {
-          'name': 'Windows Alt',
-          'class': 'icon-windows'
-        },
-        {
-          'name': 'Drawer',
-          'class': 'icon-storagealt-drawer'
-        },
-        {
-          'name': 'Enter',
-          'class': 'icon-enter'
-        },
-        {
-          'name': 'Exit',
-          'class': 'icon-exit'
-        }
-      ];
-    }]
-  };
-}]);
-
-abode.directive('pinEntry', function () {
-
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      pinModel: '=',
-      randomize: '=?',
-      showSubmit: '=?',
-      submit: '&',
-      checking: '=?',
-      error: '=?',
-      success: '=?',
-    },
-    templateUrl: 'views/main/pin_entry.html',
-    controller: ['$scope', function ($scope) {
-      $scope.pinModel = '';
-      $scope.hashed = '';
-      $scope.randomize = $scope.randomize || false;
-      $scope.showSubmit = $scope.showSubmit || false;
-      $scope.checking = $scope.checking || false;
-      $scope.error = $scope.error || false;
-      $scope.success = $scope.success || false;
-      $scope.numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
-
-      var shuffle = function (array) {
-        var currentIndex = array.length, temporaryValue, randomIndex;
-
-        while (0 !== currentIndex) {
-          randomIndex = Math.floor(Math.random() * currentIndex);
-          currentIndex -= 1;
-
-          temporaryValue = array[currentIndex];
-          array[currentIndex] = array[randomIndex];
-          array[randomIndex] = temporaryValue;
-        }
-
-        return array;
-      };
-
-      if ($scope.randomize) {
-        $scope.numbers = shuffle($scope.numbers);
-      }
-
-      $scope.entry = function (v) {
-        if (v === 'back') {
-          $scope.pinModel = $scope.pinModel.slice(0, $scope.pinModel.length - 1);
-          return;
-        }
-        $scope.pinModel += String(v);
-      };
-    }]
-  };
-
-});
-
-abode.directive('tags', function () {
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      tagModel: '='
-    },
-    templateUrl: 'views/main/tags.html',
-    controller: ['$scope', '$uibModal', function ($scope, $uibModal) {
-
-      $scope.tagModel = $scope.tagModel || [];
-
-      $scope.removeTag = function (index) {
-        $scope.tagModel.splice(index, 1);
-      };
-
-      $scope.addTag = function () {
-        $uibModal.open({
-          animation: false,
-          templateUrl: 'views/main/tags.add.html',
-          size: 'sm',
-          controller: ['$scope', '$uibModalInstance', function ($uiScope, $uibModalInstance) {
-
-            $uiScope.error = '';
-            $uiScope.tag = {'name': undefined};
-
-            $uiScope.add = function () {
-              if ($uiScope.tag.name === '' || $uiScope.tag.name === undefined) {
-                $uiScope.error = 'Tag not specified';
-                return;
-              }
-              var matches = $scope.tagModel.filter(function (tag) {
-                return (tag.toLowerCase() === $uiScope.tag.name.toLowerCase());
-              });
-
-              if (matches.length > 0) {
-                $uiScope.error = 'Tag already exists';
-                return;
-              }
-
-              $uiScope.error = '';
-              $scope.tagModel.push($uiScope.tag.name);
-
-              $uibModalInstance.close();
-            };
-
-            $uiScope.cancel = function () {
-              $uibModalInstance.dismiss();
-            };
-          }]
-        });
-      };
-    }]
-  };
-});
-
-abode.config(['$stateProvider', '$urlRouterProvider', 'abodeProvider', function($state, $urlRouter, abode) {
-
-  abode.load();
-
-  if (abode.config && abode.config.auth && abode.config.auth.device && abode.config.auth.device.config && abode.config.auth.device.config.interface) {
-    $urlRouter.otherwise('/Home/' + abode.config.auth.device.config.interface);
-    $urlRouter.when('', '/Home/' + abode.config.auth.device.config.interface);
-  } else {
-    $urlRouter.otherwise('/Welcome');
-    $urlRouter.when('', '/Welcome');
-  }
-
-  $state
-    .state('main', {
-      url: '',
-      templateUrl: "views/main/index.html",
-      controller: 'mainController',
-      resolve: {
-        auth: ['$q', '$uibModal', 'abode', 'Auth', function ($q, $uibModal, abode, Auth) {
-          var defer = $q.defer();
-
-          if (!abode.config.server) {
-            defer.reject({'state': 'welcome', 'message': 'Login Expired'});
-            return defer.promise;
-          }
-
-          Auth.check().$promise.then(function (auth) {
-            abode.config.auth = auth;
-            abode.save(abode.config);
-            abode.load();
-            defer.resolve(auth);
-          },
-          function (response) {
-            delete abode.config.auth;
-            abode.save();
-
-            if (response.status === 403) {
-              defer.reject({'state': 'welcome', 'message': 'Login Expired'});
-            } else if (response.status === 401) {
-              defer.reject({'state': 'welcome', 'message': 'Login Expired'});
-            } else {
-              defer.reject({'message': 'Server has gone away', 'action': 'serverGone'});
-
-            }
-
-          });
-
-          return defer.promise;
-        }],
-        'time': ['$q', '$http', 'abode', function ($q, $http, abode) {
-          var defer = $q.defer();
-
-          $http.get(abode.url('/api/time').value()).then(function (response) {
-            defer.resolve(response.data);
-          }, function () {
-            defer.resolve({});
-          });
-          
-          return defer.promise;
-        }]
-      }
-    });
-
-}]);
-
-abode.factory('Auth', ['$resource', '$q', '$http', 'abode', function($resource, $q, $http, abode) {
-
-  var model = $resource(abode.url('/api/auth/:action'), {}, {
-    login: {
-      method: 'POST',
-      params: {'action': 'login'}
-    },
-    logout: {
-      method: 'POST',
-      params: {'action': 'logout'}
-    },
-    check: {
-      method: 'GET',
-      params: {'action': 'check'}
-    },
-  });
-
-  model.prototype.$assign = function (device) {
-    var defer = $q.defer(),
-      url = abode.url('/api/auth/assign').value();
-
-    $http.post(url, device).then(function (response) {
-      defer.resolve(response.data);
-    }, function (err) {
-      defer.reject(err.data);
-    });
-
-    return defer.promise;
-  };
-
-  return model;
-}]);
-
-abode.factory('AuthDevices', ['$resource', 'abode', function($resource, abode) {
-
-  var model = $resource(abode.url('/api/auth/devices'), {}, {
-  });
-
-  return model;
-}]);
-
-abode.factory('AuthDevice', ['$resource', '$q', '$http', 'abode', function($resource, $q, $http, abode) {
-
-  var model = $resource(abode.url('/api/auth/device'), {}, {
-    'update': {'method': 'PUT'}
-  });
-
-  model.prototype.$set_interface = function (interface) {
-    var defer = $q.defer(),
-      url = abode.url('/api/auth/device/set_interface').value();
-
-    $http.post(url, {'interface': interface}).then(function (response) {
-      defer.resolve(response.data);
-    }, function (err) {
-      defer.reject(err.data);
-    });
-
-    return defer.promise;
-  };
-
-  return model;
-}]);
-
-abode.provider('abode', ['$httpProvider', function ($httpProvider) {
-  var self = this,
-    headers = {},
-    initInjector = angular.injector(['ng']);
-
-  var $q = initInjector.get('$q'),
-    $http = initInjector.get('$http'),
-    $timeout = initInjector.get('$timeout'),
-    $rootScope = initInjector.get('$rootScope');
-
-  this.config = {};
-  this.auth = {};
-  this.messages = [];
-  this.message_scope = null;
-  this.scope = $rootScope;
-  this.scope.status = {'connected': false, 'messages': 0, 'errors': 0};
-  this.last_event = new Date();
-  this.last_event = this.last_event.getTime();
-  this.starting_events = false;
-
-  this.get_events = function () {
-    var eventSource;
-
-    if (self.starting_events || self.scope.status.connected) {
-      return;
-    }
-
-    self.starting_events = true;
-
-    $http.post(self.url('/api/events').value(),{}, {'headers': $httpProvider.defaults.headers.common}).then(function (result) {
-      var key = result.data.key;
-
-      //Get the current time
-      var now = new Date();
-      now = now.getTime();
-
-      //If it's been over 10 minutes, reset our event stream
-      if ((now - self.last_event) > 1000 * 60 * 10) {
-        this.last_event = now;
-        self.scope.$broadcast('EVENTS_RESET', {});
-      }
-
-      self.eventSource = new EventSource(self.url('/api/events/feed/' + key + '?last=' + self.last_event).value());
-
-      self.eventSource.addEventListener('message', function (msg) {
-        var event = JSON.parse(msg.data);
-        var client_name = (self.config.auth && self.config.auth.device && self.config.auth.device.name) ? self.config.auth.device.name : '';
-        self.last_event = event.id;
-        
-        //If our client device got updated, update our auth object
-        if (event.type === 'device' && event.object.name === client_name) {
-          self.scope.$broadcast('CLIENT_UPDATED', event);
-        }
-
-        if (event.event) {
-          self.scope.$broadcast(event.event, event);
-        }
-        self.scope.$broadcast('ABODE_EVENT', event);
-        self.scope.status.messages += 1;
-
-
-      }, false);
-
-      self.eventSource.onopen = function () {
-        self.scope.status.connected = true;
-        self.starting_events = false;
-        $timeout.cancel(self.event_error);
-      };
-
-      self.eventSource.onerror = function (err) {
-        console.error('Event feed died');
-        self.scope.status.errors += 1;
-        self.scope.status.connected = false;
-        self.starting_events = false;
-        err.target.close();
-        self.scope.$broadcast('EVENTS_DIED', err);
-      };
-    }, function (err) {
-      console.dir('Failed to get event feed');
-      self.starting_events = false;
-      self.scope.status.connected = false;
-      self.scope.$broadcast('EVENTS_DIED', err);
-    });
-
-  };
-
-  this.scope.$on('EVENTS_DIED', function (event) {
-    self.event_error = $timeout(function () {
-      //self.message({'type': 'failed', 'message': 'Connection to Abode Died.', 'details': event});
-      self.get_events();
-    }, 5 * 1000);
-  });
-
-  this.url = function (uri, source) {
-    var url = {};
-
-    url.value = function() {self.load(); return self.config.server + uri; };
-    url.split = function (separator,limit) { return url.value().split(separator,limit); };
-    url.replace = function (match, other) { return url.value().replace(match, other); };
-    url.toString = function() { return url.value(); };
-
-    return url;
-  };
-
-  this.message = function (config) {
-    config.type = config.type || 'info';
-    self.messages.push(config);
-
-    $timeout(function () {
-      self.messages.shift();
-      if (self.message_scope) {
-        self.message_scope.$digest();
-      }
-    }, 5000 * self.messages.length);
-  };
-
-  this.load = function () {
-
-    try {
-      this.config = JSON.parse(localStorage.getItem('abode'));
-      this.config = this.config || {};
-
-      if (this.config.auth && this.config.auth.token) {
-        $httpProvider.defaults.headers.common.client_token = this.config.auth.token.client_token;
-        $httpProvider.defaults.headers.common.auth_token = this.config.auth.token.auth_token;
-      }
-    } catch (e) {
-      this.config = {};
-    }
-  };
-  this.save = function (config) {
-    config = config || self.config;
-
-    localStorage.setItem('abode', JSON.stringify(config));
-
-  };
-
-  this.lock = function () {
-
-  };
-
-  this.unlock = function () {
-
-  };
-
-  this.$get = function () {
-    return {
-      config: self.config,
-      load: self.load,
-      save: self.save,
-      auth: self.auth,
-      url: self.url,
-      messages: self.messages,
-      message: self.message,
-      message_scope: function (scope) {
-        self.message_scope = scope;
-      },
-      get_events: self.get_events,
-      scope: self.scope,
-      lock: self.lock,
-      unlock: self.unlock
-    };
-  };
-
-}]);
-
-abode.service('Security', ['$uibModal', '$http', '$timeout', 'abode', function ($uibModal, $http, $timeout, abode) {
-  var self = this;
-  var lockModal;
-  var unlock_timer;
-
-  self.lock = function () {
-    var device_id = abode.config.auth.device._id;
-    $http.post(abode.url('/api/devices/' + device_id + '/lock').value()).then(undefined, function (err) {
-      abode.message({'type': 'failed', 'message': err.data.message || err.data.msg || 'Could not lock device'});
-    });
-  };
-
-  self.show_lock = function () {
-    lockModal = $uibModal.open({
-      animation: false,
-      templateUrl: 'views/main/locked.html',
-      size: 'sm',
-      keyboard: false,
-      backdrop: 'static',
-      controller: ['$scope', '$http', '$uibModalInstance', 'abode', function ($uiScope, $http, $uibModalInstance, abode) {
-        $uiScope.pin = '';
-        $uiScope.checking = false;
-        $uiScope.error = false;
-        $uiScope.success = false;
-
-        $uiScope.unlock = function () {
-          if ($uiScope.pin.length === 0) {
-            return;
-          }
-
-          $uiScope.checking = true;
-          var device_id = abode.config.auth.device._id;
-          $http.post(abode.url('/api/auth/check_pin').value(), {'pin': $uiScope.pin}).then(function (result) {
-            $uiScope.success = true;
-            unlock_timer = $timeout(function () {
-              $uiScope.success = false;
-              $uiScope.checking = false;
-              abode.message({'type': 'failed', 'message': 'Timeout waiting for unlock'});
-            }, 10000);
-          }, function () {
-            $uiScope.error = true;
-            $timeout(function () {
-              $uiScope.pin = '';
-              $uiScope.checking = false;
-              $uiScope.error = false;
-            }, 2000);
-          });
-        };
-
-      }]
-    });
-  };
-
-  self.hide_lock = function () {
-    if (lockModal && lockModal.close) {
-      lockModal.close();
-    }
-
-    if (unlock_timer) {
-      $timeout.cancel(unlock_timer);
-    }
-  };
-
-  return {
-    lock: self.lock,
-    show_lock: self.show_lock,
-    hide_lock: self.hide_lock,
-  };
-
-}]);
-
-abode.directive('messages', function () {
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-    },
-    templateUrl: 'views/message.html',
-    controller: ['$scope', 'abode', function ($scope, abode) {
-      abode.message_scope($scope);
-      $scope.messages = abode.messages;
-    }]
-  };
-});
-
-abode.controller('rootController', ['$rootScope', '$scope', '$state', '$window', 'abode', '$timeout', '$uibModal', function ($rootScope, $scope, $state, $window, abode, $timeout, $uibModal) {
-
-  var idleTimer;
-
-  $scope.is_idle = false;
-
-  $rootScope.breakIdle = function ($event) {
-    var dim,
-      delay;
-
-    if (abode.config && abode.config.auth && abode.config.auth.device) {
-      dim = abode.config.auth.device.config.dim_display;
-      delay = abode.config.auth.device.config.dim_after || 15;
-    }
-    if (idleTimer) {
-      $timeout.cancel(idleTimer);
-    }
-
-    if ($scope.is_idle) {
-      if ($event) { $event.preventDefault(); }
-      $timeout(function () {
-        $scope.is_idle = false;
-        $scope.$digest();
-      }, 250);
-    }
-
-    if (dim) {
-      idleTimer = $timeout(function () {
-        $scope.is_idle = true;
-      }, 1000 * delay);
-
-    }
-  };
-
-  $window.addEventListener('click', $rootScope.breakIdle);
-  $window.addEventListener('mousemove', $rootScope.breakIdle);
-  $window.addEventListener('keypress', $rootScope.breakIdle);
-
-  $rootScope.breakIdle();
-
-  $scope.serverGone_modal = false;
-  $scope.serverGone = function (toState, toParams) {
-
-    if ($scope.serverGone_modal) {
-      return;
-    }
-
-    $scope.serverGone_modal = true;
-    return $uibModal.open({
-      animation: false,
-      keyboard: false,
-      backdrop: 'static',
-      templateUrl: 'views/main/server_gone.html',
-      size: 'lg',
-      controller: ['$scope', '$uibModalInstance', '$state', function (scope, $uibModalInstance, $state) {
-
-        scope.retry = function () {
-          $scope.serverGone_modal = false;
-          $uibModalInstance.close();
-          $state.go(toState, toParams);
-        };
-
-        scope.select = function () {
-          $scope.serverGone_modal = false;
-          abode.save({});
-
-          $uibModalInstance.close();
-          $state.go('welcome');
-        };
-      }]
-    });
-  };
-
-  $rootScope.$on('$stateChangeError', function (event, toState, toParams, fromState, fromParams, error) {
-
-    if (error.action && $scope[error.action]) {
-      $scope[error.action](toState, toParams);
-      return;
-    }
-    if (error.message || error.state !== 'welcome') {
-      abode.message({'message': error.message || 'Error Loading Page', 'type': 'error'});
-      console.dir(error);
-    }
-    $rootScope.loading = false;
-    event.preventDefault();
-    if ( ! error ) {
-      alert('Application failed to load');
-    } else {
-      if (error.state && toState.name !== error.state) {
-        $state.go(error.state, error);
-      }
-    }
-  });
-
-}]);
-
-abode.controller('mainController', ['$scope', '$state', '$interval', 'abode', 'Security', 'Interfaces', 'auth', 'time', function ($scope, $state, $interval, abode, Security, Interfaces, auth, time) {
-
-  $scope.date = new Date();
-  $scope.root = abode.scope;
-  $scope.client = abode.config.auth.device.config;
-  $scope.device = abode.config.auth.device;
-  $scope.interfaces = Interfaces.query();
-  $scope.time = time;
-  abode.get_events();
-
-  if ($scope.device.locked) {
-    Security.show_lock();
-  }
-
-  //If we get an EVENTS_RESET event, schedule a refresh
-  var time_events = abode.scope.$on('TIME_CHANGE', function (event, msg) {
-    angular.merge($scope.time, msg.object);
-  });
-
-  //If we get an CLIENT_UPDATED event, merge our client config
-  var client_events = abode.scope.$on('CLIENT_UPDATED', function (event, msg) {
-    if ($scope.device.locked !== msg.object.locked) {
-      if (msg.object.locked) {
-        Security.show_lock();
-      } else {
-        Security.hide_lock();
-      }
-    }
-    angular.merge($scope.client, msg.object.config);
-    angular.merge($scope.device, msg.object);
-
-  });
-
-  $interval(function () {
-    $scope.date = new Date();
-  },10 * 1000);
-
-  $scope.logout = function () {
-    auth.$logout().then(function () {
-      abode.save({'server': abode.config.server});
-      $state.go('welcome');
-    }, function (err) {
-      abode.message({'message': err.message || 'Unknown Error Occured', 'type': 'failed'});
-      /*
-      abode.config = {};
-      abode.save({});
-      $state.go('welcome');
-      */
-    });
-  };
-}]);
-
-abode.service('confirm', function ($q, $uibModal) {
-  return function (msg, options) {
-    var defer = $q.defer();
-
-    var modal = $uibModal.open({
-      animation: true,
-      templateUrl: 'views/confirm.html',
-      size: 'sm',
-      controller: function ($scope, $uibModalInstance) {
-        $scope.msg = msg;
-        $scope.options = options;
-
-        $scope.no = function () {
-          $uibModalInstance.dismiss();
-        };
-
-        $scope.yes = function () {
-          $uibModalInstance.close();
-        };
-
-      }
-    });
-
-    modal.result.then(function () {
-      defer.resolve();
-    }, function () {
-      defer.reject();
-    });
-
-    return defer.promise;
-  };
-});
-
-abode.filter('capitalize', function() {
-  return function(token) {
-    return (typeof(token) === 'string') ? token.charAt(0).toUpperCase() + token.slice(1) : token;
-  };
-});
-abode.filter('ageHumanReadable', function () {
-
-
-  var secondsToString = function (seconds) {
-    var numyears = Math.floor(seconds / 31536000);
-    var numdays = Math.floor((seconds % 31536000) / 86400);
-    var numhours = Math.floor(((seconds % 31536000) % 86400) / 3600);
-    var numminutes = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
-    var numseconds = Math.floor((((seconds % 31536000) % 86400) % 3600) % 60);
-    numyears = (numyears === 0) ? '' : numyears + ' years ';
-    numdays = (numdays === 0) ? '' : numdays + ' days ';
-    numhours = (numhours === 0) ? '' : numhours + ' hours ';
-    numminutes = (numminutes === 0) ? '' : numminutes + ' min ';
-    numseconds = (numseconds === 0) ? '' : numseconds + ' sec ';
-
-    return numyears + numdays + numhours + numminutes + numseconds;
-
-  };
-
-  return function (input) {
-    return (!isNaN(input)) ? secondsToString(input): '&nbsp;';
-  };
-
-});
-abode.filter('time', function() {
-  return function(seconds) {
-    var r = 'AM';
-    var h = Math.floor(((seconds % 31536000) % 86400) / 3600);
-    var m = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
-    m = (m < 10) ? '0' + m : m;
-    if (h > 12) {
-      h = h - 12;
-      r = 'PM';
-    } else if (h === 0) {
-      h = 12;
-    }
-    return h + ':' + m + ' ' + r;
-  };
-});
-abode.directive('epochtime', ['$compile', function () {
-  return {
-    restrict: 'E',
-    replace: 'true',
-    scope: {
-      time: '=',
-      disabled: '@'
-    },
-    template: '<div class="epochtime"><div class="epochtime-hours"><button ng-click="increaseHour()"><i class="icon-pigpenv"></i></button><input type="text" ng-model="hours"><button ng-click="decreaseHour()"><i class="icon-pigpens"></i></button></div><div class="epochtime-label">:</div><div class="epochtime-minutes"><button ng-click="increaseMinute()"><i class="icon-pigpenv"></i></button><input type="text" ng-model="minutes"><button ng-click="decreaseMinute()"><i class="icon-pigpens"></i></button></div><div class="epochtime-meridian"><button ng-click="changeMeridian()">{{meridian}}</button></div></div>',
-    link: function (scope) {
-      scope.meridian = 'AM';
-      var timeWatch, hourWatch, minuteWatch, meridianWatch;
-
-      scope.$watch('disabled', function (newVal, oldVal) {
-        if (newVal !== oldVal) {
-          if (newVal === 'true') {
-            clearWatches();
-          } else {
-            scope.time = (!isNaN(scope.time)) ? scope.time : 0;
-            scope.meridian = 'AM';
-
-            splitTime();
-          }
-        }
-      });
-
-      var updateTime = function () {
-        clearWatches();
-
-        var h = 60 * 60 * scope.hours;
-        var m = 60 * scope.minutes;
-        var o = (scope.meridian === 'PM') ? (60 * 60 * 12) : 0;
-
-        scope.time = h + m + o;
-
-        makeWatches();
-      };
-
-      var splitTime = function () {
-        clearWatches();
-
-        scope.hours =  parseInt(scope.time / 60 / 60);
-        scope.minutes =  parseInt(scope.time % (60 * 60) / 60);
-        scope.meridian = (scope.hours >= 12) ? 'PM' : 'AM';
-
-        console.log(scope.hours);
-        if (scope.meridian === 'PM') {
-          scope.hours = scope.hours - 12;
-        }
-
-        makeWatches();
-      };
-
-      scope.increaseHour = function () {
-        scope.hours = parseInt(scope.hours, 10);
-        if (scope.hours === 12 && scope.meridian === 'AM') {
-          scope.hours = 1;
-          scope.meridian = 'PM';
-        } else if (scope.hours === 12 && scope.meridian === 'PM') {
-          scope.hours = 1;
-          scope.meridian = 'AM';
-        } else {
-          scope.hours += 1;
-        }
-      };
-
-      scope.decreaseHour = function () {
-        scope.hours = parseInt(scope.hours, 10);
-        if (scope.hours === 1 && scope.meridian === 'AM') {
-          scope.hours = 12;
-          scope.meridian = 'PM';
-        } else if (scope.hours === 1 && scope.meridian === 'PM') {
-          scope.hours =12;
-          scope.meridian = 'AM';
-        } else {
-          scope.hours -= 1;
-        }
-      };
-
-      scope.increaseMinute = function () {
-        scope.minutes = parseInt(scope.minutes, 10);
-        if (scope.minutes === 59) {
-          scope.minutes = 0;
-          scope.increaseHour();
-        } else {
-          scope.minutes += 1;
-        }
-      };
-
-      scope.decreaseMinute = function () {
-        scope.minutes = parseInt(scope.minutes, 10);
-        if (scope.minutes === 0) {
-          scope.minutes = 0;
-          scope.decreaseHour();
-        } else {
-          scope.minutes -= 1;
-        }
-      };
-      var clearWatches = function () {
-        if (hourWatch !== undefined) {
-          hourWatch();
-        }
-        if (minuteWatch !== undefined) {
-          minuteWatch();
-        }
-        if (meridianWatch !== undefined) {
-          meridianWatch();
-        }
-        if (timeWatch !== undefined) {
-          timeWatch();
-        }
-      };
-
-      var makeWatches = function () {
-        hourWatch = scope.$watch('hours', function (newVal, oldVal) {
-          if (newVal !== oldVal) {
-            updateTime();
-          }
-        });
-
-        minuteWatch = scope.$watch('minutes', function (newVal, oldVal) {
-          if (newVal !== oldVal) {
-            updateTime();
-          }
-        });
-
-        meridianWatch = scope.$watch('meridian', function (newVal, oldVal) {
-          if (newVal !== oldVal) {
-            updateTime();
-          }
-        });
-
-        timeWatch = scope.$watch('time', function (newVal, oldVal) {
-          if (newVal !== oldVal) {
-            splitTime();
-          }
-        });
-      };
-
-      scope.changeMeridian = function () {
-        scope.meridian = (scope.meridian === 'PM') ? 'AM' : 'PM';
-      };
-
-      if (scope.disabled === 'false') {
-        scope.time = (!isNaN(scope.time)) ? scope.time : 0;
-
-        splitTime();
-      }
-
-    }
-  };
-}]);
-abode.directive('epochduration', ['$compile', function () {
-  return {
-    restrict: 'E',
-    replace: 'true',
-    scope: {
-      time: '='
-    },
-    template: '<div class="epochtime"><div class="epochtime-days"><button ng-click="increaseDay()"><i class="icon-pigpenv"></i></button><input type="text" ng-model="days"><button ng-click="decreaseDay()"><i class="icon-pigpens"></i></button></div><div class="epochtime-label">:</div><div class="epochtime-hours"><button ng-click="increaseHour()"><i class="icon-pigpenv"></i></button><input type="text" ng-model="hours"><button ng-click="decreaseHour()"><i class="icon-pigpens"></i></button></div><div class="epochtime-label">:</div><div class="epochtime-minutes"><button ng-click="increaseMinute()"><i class="icon-pigpenv"></i></button><input type="text" ng-model="minutes"><button ng-click="decreaseMinute()"><i class="icon-pigpens"></i></button></div></div>',
-    link: function (scope) {
-      scope.time = scope.time || 0;
-      var dayWatch, timeWatch, hourWatch, minuteWatch, meridianWatch;
-
-      var updateTime = function () {
-        clearWatches();
-
-        var d = 60 * 60 * 24 * scope.days;
-        var h = 60 * 60 * scope.hours;
-        var m = 60 * scope.minutes;
-
-        scope.time = h + m + d;
-
-        makeWatches();
-      };
-
-      var splitTime = function () {
-        clearWatches();
-
-        scope.time = scope.time || 0;
-        scope.days =  parseInt(scope.time / (60 * 60 * 24));
-        scope.hours =  parseInt(scope.time / 60 / 60);
-        scope.minutes =  parseInt(scope.time % (60 * 60) / 60);
-
-        makeWatches();
-      };
-
-      scope.increaseDay = function () {
-        scope.days = parseInt(scope.days, 10);
-        scope.days += 1;
-      };
-
-      scope.decreaseDay = function () {
-        scope.days = parseInt(scope.days, 10);
-        if (scope.days === 0) {
-          scope.days = 0;
-        } else {
-          scope.days -= 1;
-        }
-      };
-
-      scope.increaseHour = function () {
-        scope.hours = parseInt(scope.hours, 10);
-        if (scope.hours === 23) {
-          scope.hours = 0;
-          scope.increaseDay();
-        } else {
-          scope.hours += 1;
-        }
-      };
-
-      scope.decreaseHour = function () {
-        scope.hours = parseInt(scope.hours, 10);
-        if (scope.hours === 0) {
-          scope.hours = 23;
-          scope.decreaseDay();
-        } else {
-          scope.hours -= 1;
-        }
-      };
-
-      scope.increaseMinute = function () {
-        scope.minutes = parseInt(scope.minutes, 10);
-        if (scope.minutes === 59) {
-          scope.minutes = 0;
-          scope.increaseHour();
-        } else {
-          scope.minutes += 1;
-        }
-      };
-
-      scope.decreaseMinute = function () {
-        scope.minutes = parseInt(scope.minutes, 10);
-        if (scope.minutes === 0) {
-          scope.minutes = 0;
-          scope.decreaseHour();
-        } else {
-          scope.minutes -= 1;
-        }
-      };
-
-      var clearWatches = function () {
-        if (dayWatch !== undefined) {
-          dayWatch();
-        }
-        if (hourWatch !== undefined) {
-          hourWatch();
-        }
-        if (minuteWatch !== undefined) {
-          minuteWatch();
-        }
-        if (meridianWatch !== undefined) {
-          meridianWatch();
-        }
-        if (timeWatch !== undefined) {
-          timeWatch();
-        }
-      };
-
-      var makeWatches = function () {
-        dayWatch = scope.$watch('days', function (newVal, oldVal) {
-          if (newVal !== oldVal) {
-            updateTime();
-          }
-        });
-
-        hourWatch = scope.$watch('hours', function (newVal, oldVal) {
-          if (newVal !== oldVal) {
-            updateTime();
-          }
-        });
-
-        minuteWatch = scope.$watch('minutes', function (newVal, oldVal) {
-          if (newVal !== oldVal) {
-            updateTime();
-          }
-        });
-
-        meridianWatch = scope.$watch('meridian', function (newVal, oldVal) {
-          if (newVal !== oldVal) {
-            updateTime();
-          }
-        });
-
-        timeWatch = scope.$watch('time', function (newVal, oldVal) {
-          if (newVal !== oldVal) {
-            console.log('time change', newVal, oldVal);
-            splitTime();
-          }
-        });
-      };
-
-      scope.changeMeridian = function () {
-        scope.meridian = (scope.meridian === 'PM') ? 'AM' : 'PM';
-      };
-
-
-      splitTime();
-    }
-  };
-}]);
-abode.directive('toggle', function () {
-  return {
-    restrict: 'E',
-    transclude: false,
-    scope: {
-      on: '@',
-      off: '@',
-      value: '=',
-    },
-    controller: function ($scope) {
-      $scope.styles = {};
-      $scope.value = ($scope.value === true) ? true : false;
-
-      if (!$scope.on) { $scope.on = 'On'; }
-      if (!$scope.off) { $scope.on = 'Off'; }
-
-      var setStyles = function () {
-        if ($scope.value) {
-          $scope.styles.left = '1em';
-        } else {
-          $scope.styles.left = '0em';
-        }
-      };
-
-      setStyles();
-
-      $scope.styles = {
-        'top': '0em',
-        'bottom': '0em',
-        'width': '1em',
-        'background-color': '#eee',
-        'box-sizing': 'border-box',
-        'position': 'absolute',
-        'transition': '.2s',
-        'border-radius': '.1em',
-      };
-
-      $scope.toggle = function () {
-        if ($scope.value) {
-          $scope.value = false;
-        } else {
-          $scope.value = true;
-        }
-      };
-
-      $scope.$watch('value', function () {
-        setStyles();
-      }, true);
-
-    },
-    template: '<div ng-click="toggle()" ng-class="{\'bg-success\': (value == true)}" style="border-radius: .1em; cursor: pointer; transition: .2s; position: relative; box-sizing: border-box; width: 2em; height: 1em; line-height: 1em; display:inline-block; border: 1px solid #aaa;"><div ng-style="styles"></div></div>',
-    replace: true,
-  };
-});
-abode.directive('stopEvent', function () {
-  return {
-    restrict: 'A',
-    link: function (scope, element, attr) {
-      element.bind('click', function (e) {
-          e.stopPropagation();
-      });
-    }
-  };
-});
-abode.directive('content', function () {
-  return {
-    restrict: 'E',
-    transclude: true,
-    scope: {
-      format: '@',
-      top: '@',
-      bottom: '@',
-      left: '@',
-      right: '@',
-      height: '@',
-      width: '@',
-      align: '@',
-      valign: '@',
-      size: '@',
-      background: '@',
-      color: '@',
-      shadow: '@',
-      margin: '@',
-      overflow: '@'
-    },
-    controller: function ($scope) {
-      $scope.outerStyles = {};
-      $scope.innerStyles = {};
-
-      if ($scope.top) { $scope.outerStyles.top = ($scope.top.indexOf('%') === -1) ? $scope.top + 'em' : $scope.top; }
-      if ($scope.bottom) { $scope.outerStyles.bottom = ($scope.bottom.indexOf('%') === -1) ? $scope.bottom + 'em' : $scope.bottom; }
-      if ($scope.left) { $scope.outerStyles.left = ($scope.left.indexOf('%') === -1) ? $scope.left + 'em' : $scope.left; }
-      if ($scope.right) { $scope.outerStyles.right = ($scope.right.indexOf('%') === -1) ? $scope.right + 'em' : $scope.right; }
-      if ($scope.height) { $scope.outerStyles.height = ($scope.height.indexOf('%') === -1) ? $scope.height + 'em' : $scope.height; }
-      if ($scope.width) { $scope.outerStyles.width = ($scope.width.indexOf('%') === -1) ? $scope.width + 'em' : $scope.width; }
-      if ($scope.align) { $scope.innerStyles['text-align'] = $scope.align; }
-      if ($scope.valign) { $scope.innerStyles['vertical-align'] = $scope.valign; }
-      if ($scope.size) { $scope.innerStyles['font-size'] = $scope.size + 'em'; }
-      if ($scope.background) { $scope.outerStyles.background = $scope.background; }
-      if ($scope.color) { $scope.innerStyles.color = $scope.color; }
-      if ($scope.shadow) { $scope.innerStyles['text-shadow'] = $scope.shadow; }
-      if ($scope.margin) { $scope.innerStyles.margin = (isNaN($scope.margin)) ? $scope.margin : $scope.margin + 'em'; }
-      if ($scope.overflow) { $scope.outerStyles.overflow = $scope.overflow || 'hidden'; }
-
-    },
-    template: '<div class="content" ng-style="outerStyles"><div style="display:table; height: 100%; width: 100%"><div style="display:table-cell;" ng-style="innerStyles" ng-transclude></div></div></div>',
-    replace: true,
-  };
-});
-
-abode.service('datetime', function ($interval, $http, $state) {
-
-  var obj = {is: {}};
-  var updater;
-
-  var parseDetails = function (response) {
-    obj.time = response.data.time;
-    obj.is = response.data.is;
-  };
-
-  var getDetails = function () {
-    if ($state.current.name !== 'index.home') {
-      $interval.cancel(updater);
-      return;
-    }
-    $http({ url: '/api/time' }).then(parseDetails);
-  };
-
-  var updateTime = function () {
-    obj.date = new Date();
-  };
-
-  updateTime();
-  getDetails();
-
-  $interval(updateTime, 200);
-  updater = $interval(getDetails, 1000 * 60);
-
-  return {
-    get: function () {
-      return obj;
-    }
-  };
-});
-
-abode.directive('datetime', function () {
-
-  return {
-    restrict: 'E',
-    transclude: true,
-    scope: {
-      format: '@',
-      top: '@',
-      bottom: '@',
-      left: '@',
-      right: '@',
-      height: '@',
-      width: '@',
-      align: '@',
-      size: '@',
-      background: '@',
-      color: '@',
-      shadow: '@',
-      margin: '@'
-    },
-    controller: function ($scope, $filter, $interval, datetime) {
-      $scope.styles = {position: 'absolute'};
-      $scope.now = datetime.get();
-      $scope.format = $scope.format || 'short';
-      $scope.interval = $scope.interval || 1;
-
-      if ($scope.top) { $scope.styles.top = $scope.top + 'em'; }
-      if ($scope.bottom) { $scope.styles.bottom = $scope.bottom + 'em'; }
-      if ($scope.left) { $scope.styles.left = $scope.left + 'em'; }
-      if ($scope.right) { $scope.styles.right = $scope.right + 'em'; }
-      if ($scope.height) { $scope.styles.height = $scope.height + 'em'; }
-      if ($scope.width) { $scope.styles.width = $scope.width + 'em'; }
-      if ($scope.align) { $scope.styles['text-align'] = $scope.align; }
-      if ($scope.size) { $scope.styles['font-size'] = $scope.size + 'em'; }
-      if ($scope.background) { $scope.styles.background = $scope.background; }
-      if ($scope.color) { $scope.styles.color = $scope.color; }
-      if ($scope.shadow) { $scope.styles['text-shadow'] = $scope.shadow; }
-      if ($scope.margin) { $scope.styles.margin = (isNaN($scope.margin)) ? $scope.margin : $scope.margin + 'em'; }
-
-      $interval(function () {
-        $scope.formatted = $filter('date')($scope.now.date, $scope.format);
-      }, $scope.interval * 1000);
-
-    },
-    template: '<div class="datetime" ng-style="styles">{{formatted}}</div>',
-    replace: true,
-  };
-
-});
-
-abode.service('network', ['$uibModal', function ($uibModal) {
-  return {
-    open: function () {
-      return $uibModal.open({
-          animation: false,
-          templateUrl: 'views/main/network.html',
-          size: 'lg',
-          controller: ['$scope', '$uibModalInstance', '$timeout', '$interval', '$http', function ($scope, $uibModalInstance, $timeout, $interval, $http) {
-            $scope.networks = [];
-            $scope.status = {};
-            $scope.scanning = true;
-            $scope.checking = true;
-            $scope.manual_wifi = {'encryption': true};
-
-            $scope.scan = function () {
-              var attempt_defers = [];
-              $scope.networks = [];
-              $scope.scanning = true;
-
-              $timeout(function () {
-
-                $http.get('/api/network/wireless').then(function (response) {
-                  $scope.scanning = false;
-                  $scope.networks = response.data;
-                }, function (err) {
-                  $scope.scanning = false;
-                });
-
-              }, 100);
-
-            };
-
-            $scope.get_status = function () {
-              $scope.checking = true;
-
-              $timeout(function () {
-
-                $http.get('/api/network').then(function (response) {
-                  $scope.checking = false;
-                  $scope.status = response.data;
-                }, function (err) {
-                  $scope.checking = false;
-                });
-
-              }, 100);
-            };
-
-            $scope.close = function () {
-              $uibModalInstance.dismiss();
-            };
-
-            $scope.connect_wifi = function (ssid) {
-
-              var modal = $uibModal.open({
-                animation: false,
-                templateUrl: 'views/welcome/wifi.connect.html',
-                size: 'sm',
-                keyboard: false,
-                backdrop: 'static',
-                controller: ['$scope', '$uibModalInstance', '$timeout', function ($uiScope, $uibModalInstance, $timeout) {
-                  $uiScope.ssid = ssid;
-                  $uiScope.connecting = false;
-                  $uiScope.error = false;
-                  $uiScope.checking = false;
-                  $uiScope.attempts = 0;
-                  $uiScope.max_attempts = 30;
-
-                  var wait_interval;
-
-                  $uiScope.wait = function () {
-                    if ($uiScope.checking) {
-                      return;
-                    }
-
-                    $uiScope.attempts += 1;
-                    if ($uiScope.attempts >= $uiScope.max_attempts) {
-                      $interval.cancel(wait_interval);
-                      $uiScope.error = 'Timeout waiting for network to become available';
-                      $uiScope.connecting = false;
-                      $uiScope.checking = false;
-                      return;
-                    }
-
-                    $http.get('/api/network').then(function (response) {
-                      $uiScope.checking = false;
-                      if (!response.data.connected) {
-                        $timeout($uiScope.wait, 5 * 1000);
-                        return;
-                      }
-
-                      $uiScope.connected();
-                    }, function () {
-                      $uiScope.error = 'Error setting new wireless settings';
-                      $uiScope.checking = false;
-                    });
-
-                  };
-
-                  $uiScope.connected = function () {
-                    $uibModalInstance.close();
-                  };
-
-                  $uiScope.connect = function () {
-                    $uiScope.connecting = true;
-                    $uiScope.attempts = 0;
-
-                    $http.post('/api/network/connect', ssid).then(function (response) {
-                      $timeout($uiScope.wait, 5 * 1000);
-                    }, function () {
-                      $uiScope.connecting = false;
-                      $uiScope.error = false;
-                    });
-                  };
-
-                  $uiScope.cancel = function () {
-                    $uibModalInstance.dismiss();
-                  };
-
-                  if (!ssid.encryption) {
-                    $uiScope.connect();
-                  }
-                }]
-              });
-
-              modal.result.then(function () {
-                $scope.get_status();
-              });
-            };
-
-            $timeout($scope.scan, 100);
-            $timeout($scope.get_status, 100);
-
-          }]
-      });
-    }
-  };
-}]);
-
-abode.service('power', ['$uibModal', function ($uibModal) {
-
-  return {
-    open: function () {
-      return $uibModal.open({
-        animation: false,
-        templateUrl: 'views/main/power.html',
-        size: 'sm',
-        keyboard: false,
-        backdrop: 'static',
-        controller: ['$scope', '$http', '$uibModalInstance', '$timeout', '$interval', function ($uiScope, $http, $uibModalInstance, $timeout, $interval) {
-          var timer;
-
-          $uiScope.count_down = 0;
-          $uiScope.action = "";
-
-          var do_action = function (uri) {
-            $http.post(uri).then(function () {
-
-            }, function (err) {
-              $uiScope.error = err.data.error || err.data.message || err;
-            });
-          };
-
-          $uiScope.restart = function () {
-            $uiScope.error = '';
-            $uiScope.action = 'restart';
-            $uiScope.count_down = 30;
-            timer = $interval(function () {
-              $uiScope.count_down -= 1;
-
-              if ($uiScope.count_down === 0) {
-                $interval.cancel(timer);
-                do_action('/api/abode/restart');
-              }
-            }, 1000);
-          };
-
-          $uiScope.shutdown = function () {
-            $uiScope.error = '';
-            $uiScope.action = 'shutdown';
-            $uiScope.count_down = 30;
-            timer = $interval(function () {
-              $uiScope.count_down -= 1;
-
-              if ($uiScope.count_down === 0) {
-                $interval.cancel(timer);
-                do_action('/api/abode/shutdown');
-              }
-            }, 1000);
-          };
-
-          $uiScope.cancel = function () {
-            if ($uiScope.count_down > 0) {
-              $interval.cancel(timer);
-              $uiScope.action = '';
-              $uiScope.count_down = 0;
-              return;
-            }
-
-            $uibModalInstance.dismiss();
-          };
-
-        }]
-      });
-    }
-  };
-
-}]);
-
-abode.directive('deviceStatus', function () {
-
-  return {
-    scope: {
-    },
-    restrict: 'E',
-    replace: true,
-    templateUrl: 'views/main/display_status.html',
-    controller: ['$scope', '$timeout', '$http', '$uibModal', '$location', 'abode', 'Security', 'power', 'network', function ($scope, $timeout, $http, $uibModal, $location, abode, Security, power, network) {
-
-      var timer;
-      var changing = false;
-      $scope.display = {};
-      $scope.network = {};
-      $scope.loading = true;
-      $scope.error = false;
-      $scope.popover = false;
-      $scope.root = abode.scope;
-
-      //This probably needs some work
-      //If we get an CLIENT_UPDATED event, merge our client config
-      var client_events = abode.scope.$on('CLIENT_UPDATED', function (event, msg) {
-        if (msg.object._level !== undefined) {
-          changing = true;
-          $scope.display.brightness = msg.object._level;
-          $scope.slider.level = msg.object._level;
-          $timeout(function () {
-            changing = false;
-          }, 100);
-        }
-      });
-
-      var set_brightness = function () {
-        changing = true;
-        $scope.slider.options.disabled = true;
-        $http.post('/api/display/brightness/' + $scope.slider.level).then(function () {
-          changing = false;
-          $scope.slider.options.disabled = false;
-        }, function (err) {
-          $scope.slider.level = parseInt($scope.display.brightness, 10);
-          $timeout(function () {
-            $scope.slider.options.disabled = false;
-            changing = false;
-          }, 100);
-        });
-      };
-
-      $scope.slider = {
-        level: 0,
-        options: {
-          floor: 0,
-          ceil: 100,
-          hideLimitLabels: true
-        }
-      };
-
-      $scope.network = function () {
-        $scope.popover = false;
-        console.log(network.open());
-      };
-
-      $scope.power = function () {
-        $scope.popover = false;
-        power.open();
-      };
-
-      $scope.lock = function () {
-        $scope.popover = false;
-        Security.lock();
-      };
-
-      $scope.load = function () {
-        if ($location.host().indexOf('localhost') !== 0) {
-          $scope.loading = false;
-          $scope.device = false;
-          return;
-        }
-        $scope.error = false;
-        $scope.loading = true;
-
-        var done = function () {
-          $scope.loading = false;
-        };
-
-        var load_network = function () {
-
-          $http.get('/api/network').then(function (result) {
-            angular.merge($scope.network, result.data);
-            done();
-          }, function (err) {
-            $scope.error = true;
-            done();
-          });
-
-        };
-
-        var load_display = function () {
-
-          $http.get('/api/display').then(function (result) {
-            $scope.device = true;
-            angular.merge($scope.display, result.data);
-            $scope.slider.level = $scope.display.brightness;
-            load_network();
-          }, function (err) {
-            $scope.error = true;
-            $scope.device = false;
-            done();
-          });
-
-        };
-
-        load_display();
-
-      };
-
-      $timeout($scope.load, 100);
-
-      $scope.$watch('slider.level', function () {
-        if (changing || $scope.display.max_brightness === undefined) {
-          return;
-        }
-        if (parseInt($scope.display.brightness) !== parseInt($scope.slider.level)) {
-          if (timer) {
-            $timeout.cancel(timer);
-          }
-          timer = $timeout(set_brightness, 1000);
-        }
-      }, true);
-
-    }]
-  };
-
-});
-
-abode.directive('slider', function () {
-
-  return {
-    scope: {
-      'min': '=?',
-      'max': '=?',
-      'level': '=',
-    },
-    restrict: 'E',
-    replace: true,
-    templateUrl: 'views/main/slider.html',
-    controller: ['$scope', '$document', function ($scope, $document) {
-      var startY;
-      $scope.level = $scope.level || 0;
-      $scope.min = $scope.min || 0;
-      $scope.max = $scope.max || 100;
-
-      $scope.level = ($scope.level > $scope.max) ? parseInt($scope.max) : $scope.level;
-      $scope.level = ($scope.level < $scope.min) ? parseInt($scope.min) : $scope.level;
-
-      $scope.sliderPosition = {
-        'bottom': $scope.level + '%'
-      };
-
-      $scope.start = function (event) {
-        event.target.setCapture();
-        startY = event.clientY;
-        $document.on('mousemove', $scope.move);
-      };
-
-      $scope.end = function () {
-        $document.unbind('mousemove', $scope.move);
-      };
-
-      $scope.move = function (event) {
-        var value = (startY - event.clientY) + $scope.level;
-        if (value > $scope.max) {
-          $scope.level = parseInt($scope.max, 10);
-          $scope.sliderPosition.bottom = $scope.level + '%';
-        console.log($scope.level);
-          return;
-        }
-        if (value < $scope.min) {
-          $scope.level = parseInt($scope.min, 10);
-          $scope.sliderPosition.bottom = $scope.level + '%';
-        console.log($scope.level);
-          return;
-        }
-        $scope.level = parseInt(value, 10);
-        $scope.sliderPosition.bottom = $scope.level + '%';
-        console.log($scope.level);
-      };
-
-    }],
-    link: function ($scope, $element) {
-      $scope.element = $element;
-
-      $scope.slider = $element.find('div.slider-track');
-      console.dir($scope.slider);
-    }
-  };
-
-});
-
 var mqtt = angular.module('mqtt', []);
 mqtt.config(function($stateProvider, $urlRouterProvider) {
 
   $stateProvider
   .state('main.settings.mqtt', {
     url: '/mqtt',
-    templateUrl: 'views/providers/mqtt/settings.html',
+    templateUrl: 'modules/mqtt/views/settings.html',
     controller: 'mqttSettings',
     resolve: {
       config: function (mqtt) {
@@ -50635,21 +50835,21 @@ notifications.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.notifications', {
     url: '/notifications',
-    templateUrl: 'views/notifications/notifications.html',
+    templateUrl: 'modules/notifications/views/notifications.html',
   })
   .state('main.notifications.list', {
     url: '/list',
-    templateUrl: 'views/notifications/notifications.list.html',
+    templateUrl: 'modules/notifications/views/notifications.list.html',
     controller: 'notificationsList'
   })
   .state('main.notifications.add', {
     url: '/add',
-    templateUrl: 'views/notifications/notifications.add.html',
+    templateUrl: 'modules/notifications/views/notifications.add.html',
     controller: 'notificationsAdd'
   })
   .state('main.notifications.edit', {
     url: '/:id',
-    templateUrl: 'views/notifications/notifications.edit.html',
+    templateUrl: 'modules/notifications/views/notifications.edit.html',
     controller: 'notificationsEdit',
     resolve: {
       'notification': ['$stateParams', '$state', 'Notifications', function ($stateParams, $state, Notifications) {
@@ -50661,149 +50861,315 @@ notifications.config(function($stateProvider, $urlRouterProvider) {
   });
 });
 
-notifications.factory('Notifications', ['$resource', '$http', '$q', '$uibModal', 'abode', function ($resource, $http, $q, $uibModal, abode) {
 
-  var model = $resource(abode.url('/api/notifications/:id/:action'), {id: '@_id'}, {
-    'update': { method: 'PUT' },
-    'refresh': { method: 'GET' },
-    'active': { method: 'GET', isArray: true, params: {'id': 'active'} },
+
+var notifications = angular.module('abode.notifications');
+
+notifications.controller('notificationsAdd', ['$scope', '$state', 'abode', 'Notifications', function ($scope, $state, abode, Notifications) {
+
+  $scope.saving = false;
+  $scope.notification = new Notifications({'actions': [], 'triggers': [], 'check_threshold': 1, 'hold_off_time': 10, 'expire_after': 0, 'push': true});
+
+
+  $scope.add = function () {
+    $scope.saving = true;
+
+    $scope.notification.$save().then(function () {
+      $scope.saving = false;
+      abode.message({'type': 'success', 'message': 'Notification Added'});
+
+      $state.go('^.list');
+    }, function (err) {
+      $scope.saving = false;
+      abode.message({'type': 'failed', 'message': 'Failed to Add Notification', 'details': err});
+      $scope.errors = err;
+    });
+
+  };
+
+}]);
+
+
+
+var notifications = angular.module('abode.notifications');
+
+notifications.controller('notificationsEdit', ['$scope', '$state', '$uibModal', 'abode', 'notification', function ($scope, $state, $uibModal, abode, notification) {
+
+  $scope.notification = notification;
+  $scope.saving = false;
+  $scope.deleting = false;
+  $scope.loading = false;
+  $scope.action = {};
+
+  //If we get an EVENTS_RESET event, schedule a refresh
+  var feed_activated = abode.scope.$on('UPDATED', function (event, msg) {
+    if (msg.type === 'notification' && msg.object._id === $scope.notification._id) {
+      angular.merge($scope.notification, msg.object);
+    }
   });
 
-  model.prototype.$reset = function () {
-    var self = this,
-      defer = $q.defer(),
-      url = abode.url('/api/notifications/' + this._id + '/reset').value();
+  $scope.load_triggers = function () {
+    $scope.loading = true;
+    $scope.notification.$triggers().then(function (results) {
+      $scope.loading = false;
+      $scope.triggers = results;
 
-    $http.post(url).then(function () {
-      defer.resolve(self);
-    }, function (err) {
-      defer.reject(err.data);
+    }, function () {
+      $scope.loading = false;
     });
-
-    return defer.promise;
   };
 
-  model.prototype.$activate = function () {
-    var self = this,
-      defer = $q.defer(),
-      url = abode.url('/api/notifications/' + this._id + '/activate').value();
-
-    $http.post(url).then(function () {
-      defer.resolve(self);
+  $scope.activate = function () {
+    $scope.action.status = 'pending';
+    $scope.notification.$activate().then(function () {
+      $scope.notification.active = true;
+      $scope.action.status = 'success';
+      $scope.action.message = 'Notification activated';
     }, function (err) {
-      defer.reject(err.data);
+      $scope.action.status = 'error';
+      $scope.action.message = err.message;
     });
-
-    return defer.promise;
   };
 
-  model.prototype.$deactivate = function () {
-    var self = this,
-      defer = $q.defer(),
-      url = abode.url('/api/notifications/' + this._id + '/deactivate').value();
-
-    $http.post(url).then(function () {
-      defer.resolve(self);
+  $scope.deactivate = function () {
+    $scope.action.status = 'pending';
+    $scope.notification.$deactivate().then(function () {
+      $scope.notification.active = false;
+      $scope.action.status = 'success';
+      $scope.action.message = 'Notification de-activated';
     }, function (err) {
-      defer.reject(err.data);
+      $scope.action.status = 'error';
+      $scope.action.message = err.message;
     });
-
-    return defer.promise;
   };
 
-  model.prototype.$triggers = function () {
-    var self = this,
-      defer = $q.defer(),
-      url = abode.url('/api/notifications/' + this._id + '/triggers').value();
-
-    $http.get(url).then(function (results) {
-      defer.resolve(results.data);
+  $scope.reset = function () {
+    $scope.action.status = 'pending';
+    $scope.notification.$reset().then(function () {
+      $scope.action.status = 'success';
+      $scope.action.status = 'Notification reset';
     }, function (err) {
-      defer.reject(err.data);
+      $scope.action.status = 'error';
+      $scope.action.message = err;
     });
-
-    return defer.promise;
   };
 
-  model.prototype.$add_trigger = function (trigger) {
-    var self = this,
-      defer = $q.defer(),
-      url = abode.url('/api/notifications/' + this._id + '/triggers').value();
+  $scope.load_triggers();
 
-    $http.post(url, {'_id': trigger._id || trigger}).then(function (results) {
-      defer.resolve();
-    }, function (err) {
-      defer.reject(err.data);
+  $scope.add_action = function () {
+    var picker = $uibModal.open({
+      animation: false,
+      templateUrl: 'modules/notifications/views/action.builder.html',
+      size: 'lg',
+      controller: ['$scope', '$uibModalInstance', 'Devices', 'Scenes', 'Rooms', 'notification', function ($scope, $uibModalInstance, Devices, Scenes, Rooms, notification) {
+        $scope.loading = true;
+        $scope.action = {};
+        $scope.notification = notification;
+        $scope.devices = Devices.query();
+        $scope.scenes = Scenes.query();
+        $scope.rooms = Rooms.query();
+        $scope.item = {};
+        $scope.type_args = [];
+
+        $scope.action_types = [
+          {name: 'Device', value: 'devices', icon: 'glyphicon glyphicon-oil'},
+          {name: 'Room', value: 'rooms', icon: 'glyphicon glyphicon-modal-window', capabilities: ['light', 'dimmer', 'conditioner', 'lock']},
+          {name: 'Scene', value: 'scenes', icon: 'icon-picture', capabilities: ['light']},
+        ];
+
+        $scope.type_actions = [
+          {name: 'On', value: 'on', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff','motion_sensor']},
+          {name: 'Off', value: 'off', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff','motion_sensor']},
+          {name: 'Lock', value: 'lock', arguments: [], capabilities: ['lock']},
+          {name: 'Unlock', value: 'unlock', arguments: [], capabilities: ['lock']},
+          {name: 'Open', value: 'on', arguments: [], capabilities: ['door','window']},
+          {name: 'Close', value: 'off', arguments: [], capabilities: ['door','window']},
+          {name: 'Level', value: 'set_level', arguments: ['level'], capabilities: ['dimmer']},
+          {name: 'Status', value: 'status', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
+          {name: 'Mode', value: 'set_mode', arguments: ['mode'], capabilities: ['conditioner']},
+          {name: 'Temperature', value: 'set_point', arguments: ['temperature'], capabilities: ['conditioner']},
+        ];
+
+        $scope.changeType = function (t) {
+          $scope.action.type = t;
+        };
+
+        $scope.changeItem = function (i) {
+          $scope.item = i;
+          $scope.action.name = i.name;
+        };
+
+        $scope.change_action = function(a) {
+          $scope.action.action = a.value;
+          $scope.type_args = a.arguments;
+          $scope.action.args = [];
+        };
+
+        var get_type = function (t) {
+          var matches = $scope.action_types.filter(function (i) {
+            return (i.value === t);
+          });
+
+          if (matches.length === 1) {
+            return matches[0];
+          }
+        };
+
+        $scope.has_capability = function (c) {
+          var capabilities = [];
+          var type = get_type($scope.action.type);
+
+          if (type && type.capabilities) {
+            capabilities = type.capabilities;
+          } else if (type && type.value === 'devices' && $scope.action.name) {
+            capabilities = $scope.item.capabilities || [];
+          }
+
+          var has = false;
+
+          capabilities.forEach(function (capability) {
+            if (c.indexOf(capability) !== -1) {
+              has = true;
+            }
+          });
+
+          return has;
+        };
+
+        $scope.close = function () {
+          $uibModalInstance.dismiss();
+        };
+
+        $scope.save = function() {
+          $scope.notification.$add_action($scope.action).then(function (result) {
+            $uibModalInstance.close(result);
+            abode.message({'type': 'success', 'message': 'Action Added'});
+          }, function () {
+            abode.message({'type': 'failed', 'message': 'Failed to add trigger'});
+          });
+        };
+      }],
+      resolve: {
+        notification: function () {
+          return $scope.notification;
+        }
+      }
     });
 
-    return defer.promise;
+    picker.result.then(function (action) {
+      console.dir(action);
+      $scope.notification.actions.push(action);
+    });
   };
 
-  model.prototype.$remove_trigger = function (trigger) {
-    var self = this,
-      defer = $q.defer(),
-      trigger_id = trigger._id || trigger;
-      url = abode.url('/api/notifications/' + this._id + '/triggers/' + trigger_id).value();
-
-    $http.delete(url).then(function (results) {
-      defer.resolve();
+  $scope.remove_action = function (action) {
+    $scope.notification.$remove_action(action).then(function () {
+      $scope.notification.actions.splice($scope.notification.actions.indexOf(action), 1);
+      abode.message({'type': 'success', 'message': 'Action Removed'});
     }, function (err) {
-      defer.reject(err.data);
+      abode.message({'type': 'failed', 'message': 'Failed to remove action'});
+    });
+  };
+
+  $scope.add_trigger = function () {
+    var picker = $uibModal.open({
+      animation: false,
+      templateUrl: 'modules/notifications/views/triggers.picker.html',
+      size: 'sm',
+      controller: ['$scope', '$uibModalInstance', 'Triggers', 'notification', function ($scope, $uibModalInstance, Triggers, notification) {
+        $scope.loading = true;
+        $scope.triggers = [];
+        $scope.notification = notification;
+
+        $scope.close = function () {
+          $uibModalInstance.dismiss();
+        };
+
+        $scope.select = function(trigger) {
+          $scope.notification.$add_trigger(trigger).then(function () {
+            $uibModalInstance.close(trigger);
+          }, function () {
+            abode.message({'type': 'failed', 'message': 'Failed to add trigger'});
+          });
+        };
+
+        Triggers.query().$promise.then(function (results) {
+          $scope.triggers = results;
+          $scope.loading = false;
+        });
+      }],
+      resolve: {
+        notification: function () {
+          return $scope.notification;
+        }
+      }
     });
 
-    return defer.promise;
+    picker.result.then(function (trigger) {
+      $scope.notification.triggers.push(trigger._id);
+      $scope.load_triggers();
+    });
   };
 
-  model.prototype.$add_action = function (action) {
-    var self = this,
-      defer = $q.defer(),
-      url = abode.url('/api/notifications/' + this._id + '/actions').value();
-
-    $http.post(url, action).then(function (result) {
-      defer.resolve(result.data);
+  $scope.remove_trigger = function (trigger) {
+    $scope.notification.$remove_trigger(trigger).then(function () {
+      $scope.load_triggers();
+      $scope.notification.triggers.splice($scope.notification.triggers.indexOf(trigger._id), 1);
+      abode.message({'type': 'success', 'message': 'Trigger Removed'});
     }, function (err) {
-      defer.reject(err.data);
+      abode.message({'type': 'failed', 'message': 'Failed to remove trigger'});
+    });
+  };
+
+  $scope.save = function () {
+    $scope.saving = true;
+
+    $scope.notification.$update().then(function () {
+      $scope.saving = false;
+      abode.message({'type': 'success', 'message': 'Notification Updated'});
+    }, function (err) {
+      $scope.saving = false;
+      abode.message({'type': 'failed', 'message': 'Failed to Update Notification', 'details': err});
+      $scope.errors = err;
     });
 
-    return defer.promise;
   };
 
-  model.prototype.$remove_action = function (action) {
-    var self = this,
-      defer = $q.defer(),
-      action_id = action._id || action;
-      url = abode.url('/api/notifications/' + this._id + '/actions/' + action_id).value();
+  $scope.delete = function () {
 
-    $http.delete(url).then(function (results) {
-      defer.resolve();
+    $scope.deleting = true;
+
+    $scope.notification.$delete().then(function () {
+      $scope.deleting = false;
+      abode.message({'type': 'success', 'message': 'Notification Deleted'});
+
+      $state.go('^.list');
     }, function (err) {
-      defer.reject(err.data);
+      $scope.deleting = false;
+      abode.message({'type': 'failed', 'message': 'Failed to Delete Notification', 'details': err});
+      $scope.errors = err;
     });
-
-    return defer.promise;
   };
-
-  return model;
 
 }]);
 
-notifications.directive('notificationsStatus', [function () {
 
-  return {
-    restrict: 'E',
-    replace: true,
-    templateUrl: 'views/notifications/status.html',
-    controller: ['$rootScope', '$scope', function ($rootScope, $scope) {
-      $rootScope.notifications = $rootScope.notifications || {'hidden': false, 'notifications': []};
-      $scope.notifications = $rootScope.notifications;
 
-      $scope.showNotifications = function () {
-        $rootScope.notifications.hidden = false;
-      };
-    }]
+var notifications = angular.module('abode.notifications');
+
+notifications.controller('notificationsList', ['$scope', 'Notifications', function ($scope, Notifications) {
+
+  $scope.notifications = Notifications.query();
+
+  $scope.add = function () {
+
   };
 
 }]);
+
+
+
+var notifications = angular.module('abode.notifications');
 
 notifications.directive('notifications', [function () {
   return {
@@ -50967,301 +51333,159 @@ notifications.directive('notifications', [function () {
         $timeout.cancel($scope.loader);
       });
     }],
-    templateUrl: 'views/notifications/index.html'
+    templateUrl: 'modules/notifications/views/index.html'
   };
 }]);
 
-notifications.controller('notificationsList', ['$scope', 'Notifications', function ($scope, Notifications) {
-
-  $scope.notifications = Notifications.query();
-
-  $scope.add = function () {
-
-  };
-
-}]);
-
-notifications.controller('notificationsAdd', ['$scope', '$state', 'abode', 'Notifications', function ($scope, $state, abode, Notifications) {
-
-  $scope.saving = false;
-  $scope.notification = new Notifications({'actions': [], 'triggers': [], 'check_threshold': 1, 'hold_off_time': 10, 'expire_after': 0, 'push': true});
 
 
-  $scope.add = function () {
-    $scope.saving = true;
+var notifications = angular.module('abode.notifications');
 
-    $scope.notification.$save().then(function () {
-      $scope.saving = false;
-      abode.message({'type': 'success', 'message': 'Notification Added'});
+notifications.directive('notificationsStatus', [function () {
 
-      $state.go('^.list');
-    }, function (err) {
-      $scope.saving = false;
-      abode.message({'type': 'failed', 'message': 'Failed to Add Notification', 'details': err});
-      $scope.errors = err;
-    });
+  return {
+    restrict: 'E',
+    replace: true,
+    templateUrl: 'modules/notifications/views/status.html',
+    controller: ['$rootScope', '$scope', function ($rootScope, $scope) {
+      $rootScope.notifications = $rootScope.notifications || {'hidden': false, 'notifications': []};
+      $scope.notifications = $rootScope.notifications;
 
+      $scope.showNotifications = function () {
+        $rootScope.notifications.hidden = false;
+      };
+    }]
   };
 
 }]);
 
-notifications.controller('notificationsEdit', ['$scope', '$state', '$uibModal', 'abode', 'notification', function ($scope, $state, $uibModal, abode, notification) {
 
-  $scope.notification = notification;
-  $scope.saving = false;
-  $scope.deleting = false;
-  $scope.loading = false;
-  $scope.action = {};
 
-  //If we get an EVENTS_RESET event, schedule a refresh
-  var feed_activated = abode.scope.$on('UPDATED', function (event, msg) {
-    if (msg.type === 'notification' && msg.object._id === $scope.notification._id) {
-      angular.merge($scope.notification, msg.object);
-    }
+var notifications = angular.module('abode.notifications');
+
+notifications.factory('Notifications', ['$resource', '$http', '$q', '$uibModal', 'abode', function ($resource, $http, $q, $uibModal, abode) {
+
+  var model = $resource(abode.url('/api/notifications/:id/:action'), {id: '@_id'}, {
+    'update': { method: 'PUT' },
+    'refresh': { method: 'GET' },
+    'active': { method: 'GET', isArray: true, params: {'id': 'active'} },
   });
 
-  $scope.load_triggers = function () {
-    $scope.loading = true;
-    $scope.notification.$triggers().then(function (results) {
-      $scope.loading = false;
-      $scope.triggers = results;
+  model.prototype.$reset = function () {
+    var self = this,
+      defer = $q.defer(),
+      url = abode.url('/api/notifications/' + this._id + '/reset').value();
 
-    }, function () {
-      $scope.loading = false;
-    });
-  };
-
-  $scope.activate = function () {
-    $scope.action.status = 'pending';
-    $scope.notification.$activate().then(function () {
-      $scope.notification.active = true;
-      $scope.action.status = 'success';
-      $scope.action.message = 'Notification activated';
+    $http.post(url).then(function () {
+      defer.resolve(self);
     }, function (err) {
-      $scope.action.status = 'error';
-      $scope.action.message = err.message;
+      defer.reject(err.data);
     });
+
+    return defer.promise;
   };
 
-  $scope.deactivate = function () {
-    $scope.action.status = 'pending';
-    $scope.notification.$deactivate().then(function () {
-      $scope.notification.active = false;
-      $scope.action.status = 'success';
-      $scope.action.message = 'Notification de-activated';
+  model.prototype.$activate = function () {
+    var self = this,
+      defer = $q.defer(),
+      url = abode.url('/api/notifications/' + this._id + '/activate').value();
+
+    $http.post(url).then(function () {
+      defer.resolve(self);
     }, function (err) {
-      $scope.action.status = 'error';
-      $scope.action.message = err.message;
+      defer.reject(err.data);
     });
+
+    return defer.promise;
   };
 
-  $scope.reset = function () {
-    $scope.action.status = 'pending';
-    $scope.notification.$reset().then(function () {
-      $scope.action.status = 'success';
-      $scope.action.status = 'Notification reset';
+  model.prototype.$deactivate = function () {
+    var self = this,
+      defer = $q.defer(),
+      url = abode.url('/api/notifications/' + this._id + '/deactivate').value();
+
+    $http.post(url).then(function () {
+      defer.resolve(self);
     }, function (err) {
-      $scope.action.status = 'error';
-      $scope.action.message = err;
+      defer.reject(err.data);
     });
+
+    return defer.promise;
   };
 
-  $scope.load_triggers();
+  model.prototype.$triggers = function () {
+    var self = this,
+      defer = $q.defer(),
+      url = abode.url('/api/notifications/' + this._id + '/triggers').value();
 
-  $scope.add_action = function () {
-    var picker = $uibModal.open({
-      animation: false,
-      templateUrl: 'views/notifications/action.builder.html',
-      size: 'lg',
-      controller: ['$scope', '$uibModalInstance', 'Devices', 'Scenes', 'Rooms', 'notification', function ($scope, $uibModalInstance, Devices, Scenes, Rooms, notification) {
-        $scope.loading = true;
-        $scope.action = {};
-        $scope.notification = notification;
-        $scope.devices = Devices.query();
-        $scope.scenes = Scenes.query();
-        $scope.rooms = Rooms.query();
-        $scope.item = {};
-        $scope.type_args = [];
-
-        $scope.action_types = [
-          {name: 'Device', value: 'devices', icon: 'glyphicon glyphicon-oil'},
-          {name: 'Room', value: 'rooms', icon: 'glyphicon glyphicon-modal-window', capabilities: ['light', 'dimmer', 'conditioner', 'lock']},
-          {name: 'Scene', value: 'scenes', icon: 'icon-picture', capabilities: ['light']},
-        ];
-
-        $scope.type_actions = [
-          {name: 'On', value: 'on', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff','motion_sensor']},
-          {name: 'Off', value: 'off', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff','motion_sensor']},
-          {name: 'Lock', value: 'lock', arguments: [], capabilities: ['lock']},
-          {name: 'Unlock', value: 'unlock', arguments: [], capabilities: ['lock']},
-          {name: 'Open', value: 'on', arguments: [], capabilities: ['door','window']},
-          {name: 'Close', value: 'off', arguments: [], capabilities: ['door','window']},
-          {name: 'Level', value: 'set_level', arguments: ['level'], capabilities: ['dimmer']},
-          {name: 'Status', value: 'status', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
-          {name: 'Mode', value: 'set_mode', arguments: ['mode'], capabilities: ['conditioner']},
-          {name: 'Temperature', value: 'set_point', arguments: ['temperature'], capabilities: ['conditioner']},
-        ];
-
-        $scope.changeType = function (t) {
-          $scope.action.type = t;
-        };
-
-        $scope.changeItem = function (i) {
-          $scope.item = i;
-          $scope.action.name = i.name;
-        };
-
-        $scope.change_action = function(a) {
-          $scope.action.action = a.value;
-          $scope.type_args = a.arguments;
-          $scope.action.args = [];
-        };
-
-        var get_type = function (t) {
-          var matches = $scope.action_types.filter(function (i) {
-            return (i.value === t);
-          });
-
-          if (matches.length === 1) {
-            return matches[0];
-          }
-        };
-
-        $scope.has_capability = function (c) {
-          var capabilities = [];
-          var type = get_type($scope.action.type);
-
-          if (type && type.capabilities) {
-            capabilities = type.capabilities;
-          } else if (type && type.value === 'devices' && $scope.action.name) {
-            capabilities = $scope.item.capabilities || [];
-          }
-
-          var has = false;
-
-          capabilities.forEach(function (capability) {
-            if (c.indexOf(capability) !== -1) {
-              has = true;
-            }
-          });
-
-          return has;
-        };
-
-        $scope.close = function () {
-          $uibModalInstance.dismiss();
-        };
-
-        $scope.save = function() {
-          $scope.notification.$add_action($scope.action).then(function (result) {
-            $uibModalInstance.close(result);
-            abode.message({'type': 'success', 'message': 'Action Added'});
-          }, function () {
-            abode.message({'type': 'failed', 'message': 'Failed to add trigger'});
-          });
-        };
-      }],
-      resolve: {
-        notification: function () {
-          return $scope.notification;
-        }
-      }
-    });
-
-    picker.result.then(function (action) {
-      console.dir(action);
-      $scope.notification.actions.push(action);
-    });
-  };
-
-  $scope.remove_action = function (action) {
-    $scope.notification.$remove_action(action).then(function () {
-      $scope.notification.actions.splice($scope.notification.actions.indexOf(action), 1);
-      abode.message({'type': 'success', 'message': 'Action Removed'});
+    $http.get(url).then(function (results) {
+      defer.resolve(results.data);
     }, function (err) {
-      abode.message({'type': 'failed', 'message': 'Failed to remove action'});
+      defer.reject(err.data);
     });
+
+    return defer.promise;
   };
 
-  $scope.add_trigger = function () {
-    var picker = $uibModal.open({
-      animation: false,
-      templateUrl: 'views/notifications/triggers.picker.html',
-      size: 'sm',
-      controller: ['$scope', '$uibModalInstance', 'Triggers', 'notification', function ($scope, $uibModalInstance, Triggers, notification) {
-        $scope.loading = true;
-        $scope.triggers = [];
-        $scope.notification = notification;
+  model.prototype.$add_trigger = function (trigger) {
+    var self = this,
+      defer = $q.defer(),
+      url = abode.url('/api/notifications/' + this._id + '/triggers').value();
 
-        $scope.close = function () {
-          $uibModalInstance.dismiss();
-        };
-
-        $scope.select = function(trigger) {
-          $scope.notification.$add_trigger(trigger).then(function () {
-            $uibModalInstance.close(trigger);
-          }, function () {
-            abode.message({'type': 'failed', 'message': 'Failed to add trigger'});
-          });
-        };
-
-        Triggers.query().$promise.then(function (results) {
-          $scope.triggers = results;
-          $scope.loading = false;
-        });
-      }],
-      resolve: {
-        notification: function () {
-          return $scope.notification;
-        }
-      }
-    });
-
-    picker.result.then(function (trigger) {
-      $scope.notification.triggers.push(trigger._id);
-      $scope.load_triggers();
-    });
-  };
-
-  $scope.remove_trigger = function (trigger) {
-    $scope.notification.$remove_trigger(trigger).then(function () {
-      $scope.load_triggers();
-      $scope.notification.triggers.splice($scope.notification.triggers.indexOf(trigger._id), 1);
-      abode.message({'type': 'success', 'message': 'Trigger Removed'});
+    $http.post(url, {'_id': trigger._id || trigger}).then(function (results) {
+      defer.resolve();
     }, function (err) {
-      abode.message({'type': 'failed', 'message': 'Failed to remove trigger'});
+      defer.reject(err.data);
     });
+
+    return defer.promise;
   };
 
-  $scope.save = function () {
-    $scope.saving = true;
+  model.prototype.$remove_trigger = function (trigger) {
+    var self = this,
+      defer = $q.defer(),
+      trigger_id = trigger._id || trigger;
+      url = abode.url('/api/notifications/' + this._id + '/triggers/' + trigger_id).value();
 
-    $scope.notification.$update().then(function () {
-      $scope.saving = false;
-      abode.message({'type': 'success', 'message': 'Notification Updated'});
+    $http.delete(url).then(function (results) {
+      defer.resolve();
     }, function (err) {
-      $scope.saving = false;
-      abode.message({'type': 'failed', 'message': 'Failed to Update Notification', 'details': err});
-      $scope.errors = err;
+      defer.reject(err.data);
     });
 
+    return defer.promise;
   };
 
-  $scope.delete = function () {
+  model.prototype.$add_action = function (action) {
+    var self = this,
+      defer = $q.defer(),
+      url = abode.url('/api/notifications/' + this._id + '/actions').value();
 
-    $scope.deleting = true;
-
-    $scope.notification.$delete().then(function () {
-      $scope.deleting = false;
-      abode.message({'type': 'success', 'message': 'Notification Deleted'});
-
-      $state.go('^.list');
+    $http.post(url, action).then(function (result) {
+      defer.resolve(result.data);
     }, function (err) {
-      $scope.deleting = false;
-      abode.message({'type': 'failed', 'message': 'Failed to Delete Notification', 'details': err});
-      $scope.errors = err;
+      defer.reject(err.data);
     });
+
+    return defer.promise;
   };
+
+  model.prototype.$remove_action = function (action) {
+    var self = this,
+      defer = $q.defer(),
+      action_id = action._id || action;
+      url = abode.url('/api/notifications/' + this._id + '/actions/' + action_id).value();
+
+    $http.delete(url).then(function (results) {
+      defer.resolve();
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
+  return model;
 
 }]);
 
@@ -51271,9 +51495,9 @@ var rad = angular.module('rad', []);
 rad.config(function($stateProvider, $urlRouterProvider) {
 
   $stateProvider
-  .state('index.settings.rad', {
+  .state('main.settings.rad', {
     url: '/rad',
-    templateUrl: 'views/providers/rad/settings.html',
+    templateUrl: 'modules/rad/views/settings.html',
     controller: 'radSettings',
     resolve: {
       config: function (rad) {
@@ -51380,9 +51604,9 @@ angular.module('radiothermostat', [])
 .config(function($stateProvider, $urlRouterProvider) {
 
   $stateProvider
-  .state('index.settings.radiothermostat', {
+  .state('main.settings.radiothermostat', {
     url: '/radiothermostat',
-    templateUrl: 'views/providers/radiothermostat/settings.html',
+    templateUrl: 'modules/radiothermostat/views/settings.html',
     controller: 'radiothermostatSettings',
     resolve: {
       config: function (radiothermostat) {
@@ -51453,21 +51677,21 @@ rooms.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.rooms', {
     url: '/rooms',
-    templateUrl: 'views/rooms/rooms.html',
+    templateUrl: 'modules/rooms/views/rooms.html',
   })
   .state('main.rooms.list', {
     url: '/list',
-    templateUrl: 'views/rooms/rooms.list.html',
+    templateUrl: 'modules/rooms/views/rooms.list.html',
     controller: 'roomsList'
   })
   .state('main.rooms.add', {
     url: '/add',
-    templateUrl: 'views/rooms/rooms.add.html',
+    templateUrl: 'modules/rooms/views/rooms.add.html',
     controller: 'roomsAdd'
   })
   .state('main.rooms.edit', {
     url: '/:name',
-    templateUrl: 'views/rooms/rooms.edit.html',
+    templateUrl: 'modules/rooms/views/rooms.edit.html',
     controller: 'roomsEdit',
     resolve: {
       'room': function ($stateParams, $state, Rooms) {
@@ -51478,6 +51702,511 @@ rooms.config(function($stateProvider, $urlRouterProvider) {
     }
   });
 });
+
+
+
+var rooms = angular.module('abode.rooms');
+
+rooms.controller('room', function () {
+
+});
+
+
+
+var rooms = angular.module('abode.rooms');
+
+rooms.controller('roomsAdd', function ($scope, $state, abode, Rooms) {
+  $scope.room = new Rooms();
+  $scope.alerts = [];
+
+  $scope.back = function () {
+    $state.go('main.rooms');
+  };
+
+  $scope.closeAlert = function(index) {
+    $scope.alerts.splice(index, 1);
+  };
+
+  $scope.add = function () {
+    $scope.room.$save().then(function () {
+      abode.message({'type': 'success', 'message': 'Room Added'});
+      $scope.room = new Rooms();
+    }, function (err) {
+      abode.message({'type': 'failed', 'message': 'Failed to add Room', 'details': err});
+      $scope.errors = err;
+    });
+  };
+});
+
+
+
+var rooms = angular.module('abode.rooms');
+
+rooms.controller('roomsEdit', function ($scope, $state, $uibModal, abode, rooms, room, RoomDevices, confirm) {
+  $scope.room = room;
+  $scope.alerts = [];
+  $scope.devices = [];
+  $scope.scenes = [];
+  $scope.loading = false;
+  $scope.section = 'general';
+
+  if (!room) {
+    $state.go('main.rooms.list');
+  }
+
+  var getDevices = function () {
+    $scope.loading = true;
+    room.$devices().$promise.then(function (devices) {
+      $scope.devices = devices;
+      $scope.loading = false;
+    }, function (error) {
+      $scope.loading = false;
+    });
+  };
+
+  var getScenes = function () {
+    $scope.loading = true;
+    room.$scenes().$promise.then(function (scenes) {
+      $scope.scenes = scenes;
+      $scope.loading = false;
+    }, function (error) {
+      $scope.loading = false;
+    });
+  };
+
+  getDevices();
+
+  $scope.back = function () {
+    $state.go('main.rooms');
+  };
+
+  $scope.closeAlert = function(index) {
+    $scope.alerts.splice(index, 1);
+  };
+
+  $scope.save = function () {
+    $scope.room.$update().then(function () {
+      abode.message({'type': 'success', 'message': 'Room Saved'});
+    }, function (err) {
+      abode.message({'type': 'failed', 'message': 'Failed to save Room', 'details': err});
+      $scope.errors = err;
+    });
+  };
+
+  $scope.remove = function () {
+    confirm('Are you sure you want to remove this Room?').then(function () {
+      $scope.room.$remove().then(function () {
+        abode.message({'type': 'success', 'message': 'Room Removed'});
+        $state.go('main.rooms');
+      }, function (err) {
+        abode.message({'type': 'failed', 'message': 'Failed to remove Room', 'details': err});
+        $scope.errors = err;
+      });
+    });
+  };
+
+  $scope.removeDevice = function (id) {
+
+    confirm('Are you sure?').then(function () {
+      $scope.room.$removeDevice(id).then(function () {
+        getDevices();
+        abode.message({'type': 'success', 'message': 'Device removed from Room'});
+      }, function (err) {
+        abode.message({'type': 'failed', 'message': 'Failed to remove Device from Room', 'details': err});
+      });
+    });
+
+  };
+
+  $scope.addDevice = function () {
+    var assign = $uibModal.open({
+      animation: true,
+      templateUrl: 'views/rooms/assign.html',
+      size: 'sm',
+      resolve: {
+        assigned: function () {
+          return $scope.devices.map(function (obj) {return obj.name; });
+        }
+      },
+      controller: function ($scope, $uibModalInstance, devices, assigned) {
+        $scope.loading = true;
+        $scope.devices = [];
+        $scope.assigned = assigned;
+
+        $scope.cancel = function () {
+          $uibModalInstance.dismiss();
+        };
+
+        $scope.select = function (device) {
+          $uibModalInstance.close(device);
+        };
+
+        $scope.load = function () {
+          devices.load().then(function (devices) {
+            $scope.devices = devices;
+            $scope.loading = false;
+            $scope.error = false;
+          }, function () {
+            $scope.loading = false;
+            $scope.error = true;
+          });
+        };
+
+        $scope.load();
+
+      }
+    });
+
+    assign.result.then(function (device) {
+
+      $scope.room.$addDevice(device).then(function () {
+        getDevices();
+        abode.message({'type': 'success', 'message': 'Device added to Room'});
+      }, function (err) {
+        abode.message({'type': 'failed', 'message': 'Failed to add Device to Room', 'details': err});
+      });
+
+    });
+  };
+
+  $scope.removeScene = function (id) {
+
+    confirm('Are you sure?').then(function () {
+      $scope.room.$removeScene(id).then(function () {
+        getScenes();
+        abode.message({'type': 'success', 'message': 'Scene removed from Room'});
+      }, function (err) {
+        abode.message({'type': 'failed', 'message': 'Failed to remove Scene from Room', 'details': err});
+      });
+    });
+
+  };
+
+  $scope.addScene = function () {
+    var assign = $uibModal.open({
+      animation: true,
+      templateUrl: 'views/rooms/assign.scene.html',
+      size: 'sm',
+      resolve: {
+        assigned: function () {
+          return $scope.scenes.map(function (obj) {return obj.name; });
+        }
+      },
+      controller: function ($scope, $uibModalInstance, Scenes, assigned) {
+        $scope.loading = true;
+        $scope.scenes = [];
+        $scope.assigned = assigned;
+
+        $scope.cancel = function () {
+          $uibModalInstance.dismiss();
+        };
+
+        $scope.select = function (device) {
+          $uibModalInstance.close(device);
+        };
+
+        $scope.load = function () {
+          Scenes.query().$promise.then(function (scenes) {
+            $scope.scenes = scenes;
+            $scope.loading = false;
+            $scope.error = false;
+          }, function () {
+            $scope.loading = false;
+            $scope.error = true;
+          });
+        };
+
+        $scope.load();
+
+      }
+    });
+
+    assign.result.then(function (scene) {
+
+      $scope.room.$addScene(scene).then(function () {
+        getScenes();
+        abode.message({'type': 'success', 'message': 'Scene added to Room'});
+      }, function (err) {
+        abode.message({'type': 'failed', 'message': 'Failed to add Scene to Room', 'details': err});
+      });
+
+    });
+  };
+
+});
+
+
+
+var rooms = angular.module('abode.rooms');
+
+rooms.controller('roomsList', function ($scope, $state, Rooms) {
+  $scope.rooms = [];
+  $scope.loading = true;
+
+  $scope.view = function (room) {
+    room.$open();
+  };
+
+  $scope.edit = function (room) {
+    $state.go('main.rooms.edit', {'name': room.name});
+  };
+
+  $scope.load = function () {
+    Rooms.query().$promise.then(function (results) {
+      $scope.rooms = results;
+      $scope.loading = false;
+      $scope.error = false;
+    }, function () {
+      $scope.loading = false;
+      $scope.error = true;
+    });
+  };
+
+
+
+  $scope.load();
+});
+
+
+
+var rooms = angular.module('abode.rooms');
+
+rooms.directive('roomCameras', function () {
+
+  return {
+    restrict: 'E',
+    transclude: true,
+    replace: true,
+    scope: {
+      'devices': '=',
+      'source': '=',
+    },
+    templateUrl: 'modules/rooms/views/rooms.cameras.html',
+    controller: function ($scope, abode, devices) {
+      var source_uri = ($scope.source === undefined) ? '/api' : '/api/sources/' + $scope.source;
+      var random = new Date();
+
+      $scope.devices = $scope.devices || [];
+      $scope.cameras = [];
+      $scope.index = 0;
+
+
+      var parseDevices = function () {
+        var cameras = [];
+        $scope.devices.forEach(function (device) {
+          if (device.config.image_url) {
+            var camera = {
+              '_id': device._id,
+              'name': device.name,
+              'image': device.$image_url(),
+            };
+
+            if (device.config.video_url) {
+              camera.video = device.$video_url();
+            }
+
+            cameras.push(camera);
+          }
+        });
+
+        $scope.cameras = cameras;
+      };
+
+      $scope.next = function () {
+        if ($scope.index >= $scope.cameras.length - 1) {
+          $scope.index = 0;
+        } else {
+          $scope.index += 1;
+        }
+      };
+
+      $scope.previous = function () {
+        if ($scope.index === 0) {
+          $scope.index = $scope.cameras.length - 1;
+        } else {
+          $scope.index -= 1;
+        }
+      };
+
+      $scope.reload = function (index) {
+        random = new Date();
+        var device = $scope.devices.filter(function (d) { return d._id === $scope.cameras[$scope.index]._id; });
+
+        if (device[0]) {
+          $scope.cameras[$scope.index].image = device[0].$image_url();
+        }
+      };
+
+
+      $scope.play = function () {
+        var camera = $scope.cameras[$scope.index];
+        var device = $scope.devices.filter(function (dev) { return dev._id === camera._id; });
+
+        devices.openCamera(device[0], $scope.source);
+      };
+
+      $scope.$watch('devices', function () {
+        if ($scope.cameras.length !== 0 ) { return; }
+        parseDevices();
+      });
+
+    }
+  };
+});
+
+
+
+var rooms = angular.module('abode.rooms');
+
+rooms.directive('roomIcon', function () {
+
+  return {
+    restrict: 'E',
+    transclude: true,
+    scope: {
+      'left': '@',
+      'right': '@',
+      'top': '@',
+      'bottom': '@',
+      'width': '@',
+      'height': '@',
+      'align': '@',
+      'size': '@',
+      'room': '=?',
+      'name': '@',
+      'id': '@',
+      'icon': '@',
+      'tempType': '@',
+      'interval': '@',
+      'source': '@',
+    },
+    templateUrl: 'modules/rooms/views/room.icon.html',
+    controller: function ($scope, $interval, $timeout, $rootScope, abode, rooms, Rooms) {
+
+      $scope.loading = false;
+      $scope.error = false;
+      $scope.styles =  {};
+
+      var success_splay = 1000 * 60 * Math.floor((Math.random() * 5) + 5);
+      var error_splay = 1000 * Math.floor((Math.random() * 5) + 1);
+
+      //If we get an EVENTS_RESET event, schedule a refresh
+      var feed_detector = abode.scope.$on('EVENTS_RESET', function (event, msg) {
+        if ($scope.loader) {
+          $timeout.cancel($scope.loader);
+        }
+
+        $scope.loader = $timeout($scope.refresh, error_splay);
+      });
+
+      //If we get an EVENTS_RESET event, schedule a refresh
+      var room_events = abode.scope.$on('UPDATED', function (event, msg) {
+        if (msg.type === 'room' && $scope.room && msg.object._id === $scope.room._id) {
+          if ($scope.loader) {
+            $timeout.cancel($scope.loader);
+          }
+
+          if (!$scope.icon && msg.object.icon) {
+            $scope.icon = msg.object.icon;
+            $scope.show_icon = true;
+          }
+
+          angular.merge($scope.room, msg.object);
+          $scope.loader = $timeout($scope.refresh, success_splay);
+        }
+      });
+
+      //Build our styles
+      if ($scope.left !== undefined || $scope.right !== undefined || $scope.top !== undefined || $scope.bottom !== undefined) {
+        $scope.styles.position = 'absolute';
+      }
+      if ($scope.left) { $scope.styles.left = $scope.left + 'em'; }
+      if ($scope.right) { $scope.styles.right = $scope.right + 'em'; }
+      if ($scope.top) { $scope.styles.top = $scope.top + 'em'; }
+      if ($scope.bottom) { $scope.styles.bottom = $scope.bottom + 'em'; }
+
+      if ($scope.width) { $scope.styles.width = $scope.width + 'em'; }
+      if ($scope.height) { $scope.styles.height = $scope.height + 'em'; }
+      if ($scope.align) { $scope.styles['text-align'] = $scope.align; }
+      if ($scope.size) { $scope.styles['font-size'] = $scope.size + 'em'; }
+
+      if ($scope.icon) { $scope.show_icon = true; }
+
+      //Room view function
+      $scope.view = function () {
+        rooms.view($scope.room, $scope.devices);
+      };
+
+      //Loader function
+      $scope.load = function () {
+        if ($scope.loading) {
+          return;
+        }
+
+        $scope.loading = true;
+        $scope.error = false;
+
+        Rooms.get({'id': $scope.id || $scope.name || $scope.room._id || $scope.room}).$promise.then(function (obj) {
+          $scope.loading = false;
+          $scope.error = false;
+          $scope.room = obj;
+
+          if (!$scope.icon && obj.icon) {
+            $scope.icon = obj.icon;
+            $scope.show_icon = true;
+          }
+
+          $scope.loader = $timeout($scope.refresh, success_splay);
+        }, function (err) {
+          $scope.loading = false;
+          $scope.error = true;
+        });
+      };
+
+      //Loader function
+      $scope.refresh = function () {
+        if ($scope.loading) {
+          return;
+        }
+
+        $scope.loading = true;
+        $scope.error = false;
+
+        $scope.room.$refresh().then(function () {
+          $scope.loading = false;
+          $scope.error = false;
+
+          $scope.loader = $timeout($scope.refresh, success_splay);
+        }, function () {
+          $scope.loading = false;
+          $scope.error = true;
+
+          $scope.loader = $timeout($scope.refresh, error_splay);
+        });
+      };
+
+      $scope.loader = $timeout($scope.load, 100);
+
+      $scope.$on('$destroy', function () {
+        //Kill our even listeners
+        room_events();
+        feed_detector();
+
+        // Kill our loader timeout if active
+        if ($scope.loader) {
+          $timeout.cancel($scope.loader);
+        }
+      });
+
+    },
+    replace: true,
+  };
+
+});
+
+
+
+var rooms = angular.module('abode.rooms');
 
 rooms.factory('Rooms', ['$resource', '$q', '$http', 'abode', 'rooms', 'RoomDevices', 'RoomScenes', function ($resource, $q, $http, abode, rooms, RoomDevices, RoomScenes) {
 
@@ -51607,6 +52336,10 @@ rooms.factory('Rooms', ['$resource', '$q', '$http', 'abode', 'rooms', 'RoomDevic
 
   return Rooms;
 }]);
+
+
+
+var rooms = angular.module('abode.rooms');
 
 rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $timeout, abode, RoomScenes, RoomDevices, devices) {
   var rooms = {};
@@ -51762,7 +52495,7 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
 
     return $uibModal.open({
       animation: false,
-      templateUrl: 'views/rooms/rooms.view.html',
+      templateUrl: 'modules/rooms/views/rooms.view.html',
       size: 'lg',
       controller: function ($scope, $uibModalInstance, $interval, $timeout, $state, rooms, room, devices, scenes) {
         var intervals = [];
@@ -52068,483 +52801,6 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
   };
 });
 
-rooms.controller('roomsList', function ($scope, $state, Rooms) {
-  $scope.rooms = [];
-  $scope.loading = true;
-
-  $scope.view = function (room) {
-    room.$open();
-  };
-
-  $scope.edit = function (room) {
-    $state.go('main.rooms.edit', {'name': room.name});
-  };
-
-  $scope.load = function () {
-    Rooms.query().$promise.then(function (results) {
-      $scope.rooms = results;
-      $scope.loading = false;
-      $scope.error = false;
-    }, function () {
-      $scope.loading = false;
-      $scope.error = true;
-    });
-  };
-
-
-
-  $scope.load();
-});
-
-rooms.controller('roomsAdd', function ($scope, $state, abode, Rooms) {
-  $scope.room = new Rooms();
-  $scope.alerts = [];
-
-  $scope.back = function () {
-    $state.go('main.rooms');
-  };
-
-  $scope.closeAlert = function(index) {
-    $scope.alerts.splice(index, 1);
-  };
-
-  $scope.add = function () {
-    $scope.room.$save().then(function () {
-      abode.message({'type': 'success', 'message': 'Room Added'});
-      $scope.room = new Rooms();
-    }, function (err) {
-      abode.message({'type': 'failed', 'message': 'Failed to add Room', 'details': err});
-      $scope.errors = err;
-    });
-  };
-});
-
-rooms.controller('roomsEdit', function ($scope, $state, $uibModal, abode, rooms, room, RoomDevices, confirm) {
-  $scope.room = room;
-  $scope.alerts = [];
-  $scope.devices = [];
-  $scope.scenes = [];
-  $scope.loading = false;
-  $scope.section = 'general';
-
-  if (!room) {
-    $state.go('main.rooms.list');
-  }
-
-  var getDevices = function () {
-    $scope.loading = true;
-    room.$devices().$promise.then(function (devices) {
-      $scope.devices = devices;
-      $scope.loading = false;
-    }, function (error) {
-      $scope.loading = false;
-    });
-  };
-
-  var getScenes = function () {
-    $scope.loading = true;
-    room.$scenes().$promise.then(function (scenes) {
-      $scope.scenes = scenes;
-      $scope.loading = false;
-    }, function (error) {
-      $scope.loading = false;
-    });
-  };
-
-  getDevices();
-
-  $scope.back = function () {
-    $state.go('main.rooms');
-  };
-
-  $scope.closeAlert = function(index) {
-    $scope.alerts.splice(index, 1);
-  };
-
-  $scope.save = function () {
-    $scope.room.$update().then(function () {
-      abode.message({'type': 'success', 'message': 'Room Saved'});
-    }, function (err) {
-      abode.message({'type': 'failed', 'message': 'Failed to save Room', 'details': err});
-      $scope.errors = err;
-    });
-  };
-
-  $scope.remove = function () {
-    confirm('Are you sure you want to remove this Room?').then(function () {
-      $scope.room.$remove().then(function () {
-        abode.message({'type': 'success', 'message': 'Room Removed'});
-        $state.go('main.rooms');
-      }, function (err) {
-        abode.message({'type': 'failed', 'message': 'Failed to remove Room', 'details': err});
-        $scope.errors = err;
-      });
-    });
-  };
-
-  $scope.removeDevice = function (id) {
-
-    confirm('Are you sure?').then(function () {
-      $scope.room.$removeDevice(id).then(function () {
-        getDevices();
-        abode.message({'type': 'success', 'message': 'Device removed from Room'});
-      }, function (err) {
-        abode.message({'type': 'failed', 'message': 'Failed to remove Device from Room', 'details': err});
-      });
-    });
-
-  };
-
-  $scope.addDevice = function () {
-    var assign = $uibModal.open({
-      animation: true,
-      templateUrl: 'views/rooms/assign.html',
-      size: 'sm',
-      resolve: {
-        assigned: function () {
-          return $scope.devices.map(function (obj) {return obj.name; });
-        }
-      },
-      controller: function ($scope, $uibModalInstance, devices, assigned) {
-        $scope.loading = true;
-        $scope.devices = [];
-        $scope.assigned = assigned;
-
-        $scope.cancel = function () {
-          $uibModalInstance.dismiss();
-        };
-
-        $scope.select = function (device) {
-          $uibModalInstance.close(device);
-        };
-
-        $scope.load = function () {
-          devices.load().then(function (devices) {
-            $scope.devices = devices;
-            $scope.loading = false;
-            $scope.error = false;
-          }, function () {
-            $scope.loading = false;
-            $scope.error = true;
-          });
-        };
-
-        $scope.load();
-
-      }
-    });
-
-    assign.result.then(function (device) {
-
-      $scope.room.$addDevice(device).then(function () {
-        getDevices();
-        abode.message({'type': 'success', 'message': 'Device added to Room'});
-      }, function (err) {
-        abode.message({'type': 'failed', 'message': 'Failed to add Device to Room', 'details': err});
-      });
-
-    });
-  };
-
-  $scope.removeScene = function (id) {
-
-    confirm('Are you sure?').then(function () {
-      $scope.room.$removeScene(id).then(function () {
-        getScenes();
-        abode.message({'type': 'success', 'message': 'Scene removed from Room'});
-      }, function (err) {
-        abode.message({'type': 'failed', 'message': 'Failed to remove Scene from Room', 'details': err});
-      });
-    });
-
-  };
-
-  $scope.addScene = function () {
-    var assign = $uibModal.open({
-      animation: true,
-      templateUrl: 'views/rooms/assign.scene.html',
-      size: 'sm',
-      resolve: {
-        assigned: function () {
-          return $scope.scenes.map(function (obj) {return obj.name; });
-        }
-      },
-      controller: function ($scope, $uibModalInstance, Scenes, assigned) {
-        $scope.loading = true;
-        $scope.scenes = [];
-        $scope.assigned = assigned;
-
-        $scope.cancel = function () {
-          $uibModalInstance.dismiss();
-        };
-
-        $scope.select = function (device) {
-          $uibModalInstance.close(device);
-        };
-
-        $scope.load = function () {
-          Scenes.query().$promise.then(function (scenes) {
-            $scope.scenes = scenes;
-            $scope.loading = false;
-            $scope.error = false;
-          }, function () {
-            $scope.loading = false;
-            $scope.error = true;
-          });
-        };
-
-        $scope.load();
-
-      }
-    });
-
-    assign.result.then(function (scene) {
-
-      $scope.room.$addScene(scene).then(function () {
-        getScenes();
-        abode.message({'type': 'success', 'message': 'Scene added to Room'});
-      }, function (err) {
-        abode.message({'type': 'failed', 'message': 'Failed to add Scene to Room', 'details': err});
-      });
-
-    });
-  };
-
-});
-
-rooms.controller('room', function () {
-
-});
-
-rooms.directive('roomCameras', function () {
-
-  return {
-    restrict: 'E',
-    transclude: true,
-    replace: true,
-    scope: {
-      'devices': '=',
-      'source': '=',
-    },
-    templateUrl: 'views/rooms/rooms.cameras.html',
-    controller: function ($scope, abode, devices) {
-      var source_uri = ($scope.source === undefined) ? '/api' : '/api/sources/' + $scope.source;
-      var random = new Date();
-
-      $scope.devices = $scope.devices || [];
-      $scope.cameras = [];
-      $scope.index = 0;
-
-
-      var parseDevices = function () {
-        var cameras = [];
-        $scope.devices.forEach(function (device) {
-          if (device.config.image_url) {
-            var camera = {
-              '_id': device._id,
-              'name': device.name,
-              'image': device.$image_url(),
-            };
-
-            if (device.config.video_url) {
-              camera.video = device.$video_url();
-            }
-
-            cameras.push(camera);
-          }
-        });
-
-        $scope.cameras = cameras;
-      };
-
-      $scope.next = function () {
-        if ($scope.index >= $scope.cameras.length - 1) {
-          $scope.index = 0;
-        } else {
-          $scope.index += 1;
-        }
-      };
-
-      $scope.previous = function () {
-        if ($scope.index === 0) {
-          $scope.index = $scope.cameras.length - 1;
-        } else {
-          $scope.index -= 1;
-        }
-      };
-
-      $scope.reload = function (index) {
-        random = new Date();
-        var device = $scope.devices.filter(function (d) { return d._id === $scope.cameras[$scope.index]._id; });
-
-        if (device[0]) {
-          $scope.cameras[$scope.index].image = device[0].$image_url();
-        }
-      };
-
-
-      $scope.play = function () {
-        var camera = $scope.cameras[$scope.index];
-        var device = $scope.devices.filter(function (dev) { return dev._id === camera._id; });
-
-        devices.openCamera(device[0], $scope.source);
-      };
-
-      $scope.$watch('devices', function () {
-        if ($scope.cameras.length !== 0 ) { return; }
-        parseDevices();
-      });
-
-    }
-  };
-});
-
-rooms.directive('roomIcon', function () {
-
-  return {
-    restrict: 'E',
-    transclude: true,
-    scope: {
-      'left': '@',
-      'right': '@',
-      'top': '@',
-      'bottom': '@',
-      'width': '@',
-      'height': '@',
-      'align': '@',
-      'size': '@',
-      'room': '=?',
-      'name': '@',
-      'id': '@',
-      'icon': '@',
-      'tempType': '@',
-      'interval': '@',
-      'source': '@',
-    },
-    templateUrl: 'views/rooms/room.icon.html',
-    controller: function ($scope, $interval, $timeout, $rootScope, abode, rooms, Rooms) {
-
-      $scope.loading = false;
-      $scope.error = false;
-      $scope.styles =  {};
-
-      var success_splay = 1000 * 60 * Math.floor((Math.random() * 5) + 5);
-      var error_splay = 1000 * Math.floor((Math.random() * 5) + 1);
-
-      //If we get an EVENTS_RESET event, schedule a refresh
-      var feed_detector = abode.scope.$on('EVENTS_RESET', function (event, msg) {
-        if ($scope.loader) {
-          $timeout.cancel($scope.loader);
-        }
-
-        $scope.loader = $timeout($scope.refresh, error_splay);
-      });
-
-      //If we get an EVENTS_RESET event, schedule a refresh
-      var room_events = abode.scope.$on('UPDATED', function (event, msg) {
-        if (msg.type === 'room' && $scope.room && msg.object._id === $scope.room._id) {
-          if ($scope.loader) {
-            $timeout.cancel($scope.loader);
-          }
-
-          if (!$scope.icon && msg.object.icon) {
-            $scope.icon = msg.object.icon;
-            $scope.show_icon = true;
-          }
-
-          angular.merge($scope.room, msg.object);
-          $scope.loader = $timeout($scope.refresh, success_splay);
-        }
-      });
-
-      //Build our styles
-      if ($scope.left !== undefined || $scope.right !== undefined || $scope.top !== undefined || $scope.bottom !== undefined) {
-        $scope.styles.position = 'absolute';
-      }
-      if ($scope.left) { $scope.styles.left = $scope.left + 'em'; }
-      if ($scope.right) { $scope.styles.right = $scope.right + 'em'; }
-      if ($scope.top) { $scope.styles.top = $scope.top + 'em'; }
-      if ($scope.bottom) { $scope.styles.bottom = $scope.bottom + 'em'; }
-
-      if ($scope.width) { $scope.styles.width = $scope.width + 'em'; }
-      if ($scope.height) { $scope.styles.height = $scope.height + 'em'; }
-      if ($scope.align) { $scope.styles['text-align'] = $scope.align; }
-      if ($scope.size) { $scope.styles['font-size'] = $scope.size + 'em'; }
-
-      if ($scope.icon) { $scope.show_icon = true; }
-
-      //Room view function
-      $scope.view = function () {
-        rooms.view($scope.room, $scope.devices);
-      };
-
-      //Loader function
-      $scope.load = function () {
-        if ($scope.loading) {
-          return;
-        }
-
-        $scope.loading = true;
-        $scope.error = false;
-
-        Rooms.get({'id': $scope.id || $scope.name || $scope.room._id || $scope.room}).$promise.then(function (obj) {
-          $scope.loading = false;
-          $scope.error = false;
-          $scope.room = obj;
-
-          if (!$scope.icon && obj.icon) {
-            $scope.icon = obj.icon;
-            $scope.show_icon = true;
-          }
-
-          $scope.loader = $timeout($scope.refresh, success_splay);
-        }, function (err) {
-          $scope.loading = false;
-          $scope.error = true;
-        });
-      };
-
-      //Loader function
-      $scope.refresh = function () {
-        if ($scope.loading) {
-          return;
-        }
-
-        $scope.loading = true;
-        $scope.error = false;
-
-        $scope.room.$refresh().then(function () {
-          $scope.loading = false;
-          $scope.error = false;
-
-          $scope.loader = $timeout($scope.refresh, success_splay);
-        }, function () {
-          $scope.loading = false;
-          $scope.error = true;
-
-          $scope.loader = $timeout($scope.refresh, error_splay);
-        });
-      };
-
-      $scope.loader = $timeout($scope.load, 100);
-
-      $scope.$on('$destroy', function () {
-        //Kill our even listeners
-        room_events();
-        feed_detector();
-
-        // Kill our loader timeout if active
-        if ($scope.loader) {
-          $timeout.cancel($scope.loader);
-        }
-      });
-
-    },
-    replace: true,
-  };
-
-});
-
 
 var scenes = angular.module('abode.scenes', ['ui.router','ngResource']);
 
@@ -52555,21 +52811,21 @@ scenes.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.scenes', {
     url: '/scenes',
-    templateUrl: 'views/scenes/scenes.html',
+    templateUrl: 'modules/scenes/views/scenes.html',
   })
   .state('main.scenes.list', {
     url: '/list',
-    templateUrl: 'views/scenes/scenes.list.html',
+    templateUrl: 'modules/scenes/views/scenes.list.html',
     controller: 'scenesList'
   })
   .state('main.scenes.add', {
     url: '/add',
-    templateUrl: 'views/scenes/scenes.add.html',
+    templateUrl: 'modules/scenes/views/scenes.add.html',
     controller: 'scenesAdd'
   })
   .state('main.scenes.edit', {
     url: '/:name',
-    templateUrl: 'views/scenes/scenes.edit.html',
+    templateUrl: 'modules/scenes/views/scenes.edit.html',
     controller: 'scenesEdit',
     resolve: {
       'scene': function ($stateParams, $state, $q, Scenes) {
@@ -52581,414 +52837,24 @@ scenes.config(function($stateProvider, $urlRouterProvider) {
   });
 });
 
-scenes.factory('Scenes', ['$resource', '$http', '$q', 'abode', 'scenes', function($resource, $http, $q, abode, scenes) {
 
-  var model = $resource(abode.url('/api/scenes/:id'),{
-    'id': '@_id'
-  },{
-    'update': {'method': 'PUT'},
-  });
 
-  angular.merge(model.prototype, scenes.methods);
 
-  return model;
 
-}]);
 
-scenes.factory('SceneRooms', ['$resource', 'abode', function ($resource, abode) {
 
-  var model = $resource(abode.url('/api/scenes/:scene/rooms/:id'), {id: '@_id'}, {
-    'query': {
-      isArray: true,
-    }
-  });
 
-  angular.merge(model.prototype, scenes.methods);
 
-  return model;
 
-}]);
+var scenes = angular.module('abode.scenes');
 
-scenes.factory('RoomScenes', ['$resource', 'abode', 'scenes', function ($resource, abode, scenes) {
+scenes.controller('scene', function () {
 
-  var model = $resource(abode.url('/api/rooms/:room/scenes/:id'), {id: '@_id'}, {
-    'query': {
-      isArray: true,
-      transformResponse: [
-        function (data, headers, status) {
-          if (status !== 200) {
-            return data;
-          }
-          data = angular.fromJson(data);
-
-          data.forEach(function (dev) {
-            if (dev._on === true) {
-              dev.age = new Date() - new Date(dev.last_on);
-            } else {
-              dev.age = new Date() - new Date(dev.last_off);
-            }
-
-            if (!isNaN(dev.age)) {
-              dev.age = dev.age / 1000;
-            } else {
-              dev.age = 0;
-            }
-          });
-
-          return data;
-        }
-      ]
-    }
-  });
-
-  angular.merge(model.prototype, scenes.methods);
-
-  return model;
-
-}]);
-
-scenes.service('scenes', function ($http, $q, $uibModal, $resource, abode, SceneRooms) {
-  var model = $resource(abode.url('/api/scenes/:id/:action'), {id: '@_id'}, {
-    'update': { method: 'PUT' },
-    'on': { method: 'POST', params: {'action': 'on'}},
-    'off': { method: 'POST', params: {'action': 'off'}}
-  });
-
-  var methods = {};
-
-  methods.$rooms = function () {
-    var self = this;
-    return SceneRooms.query({'scene': self.name}).$promise;
-
-  };
-
-  methods.$refresh = function () {
-    var self = this,
-      defer = $q.defer(),
-      url = abode.url('/api/scenes/' + this._id).value();
-
-    $http.get(url).then(function (response) {
-      for (var key in response.data) {
-        if (response.data.hasOwnProperty(key)) {
-          self[key] = response.data[key];
-        }
-      }
-      defer.resolve(self);
-    }, function (err) {
-      defer.reject(err.data);
-    });
-
-    return defer.promise;
-  };
-
-  methods.$toggle = function () {
-    var self = this,
-      action = 'off';
-
-    if (self._state === 'stopped') {
-      return self.$on();
-    } else {
-      return self.$off();
-    }
-
-  };
-
-  methods.$on = function () {
-    var self = this,
-      defer = $q.defer(),
-      url = abode.url('/api/scenes/' + this._id + '/on').value();
-
-    $http.post(url).then(function (response) {
-      self._on = true;
-      self._state = 'pending';
-      defer.resolve(response.data);
-    }, function (err) {
-      defer.reject(err.data);
-    });
-
-    return defer.promise;
-  };
-
-  methods.$off = function () {
-    var self = this,
-      defer = $q.defer(),
-      url = abode.url('/api/scenes/' + this._id + '/off').value();
-
-    $http.post(url).then(function (response) {
-      self._on = false;
-      defer.resolve(response.data);
-    }, function (err) {
-      defer.reject(err.data);
-    });
-
-    return defer.promise;
-  };
-
-  methods.$open = function () {
-
-  };
-
-  methods.$addRoom = function (room) {
-    var self = this,
-      defer = $q.defer();
-
-    $http.post(abode.url('/api/scenes/' + self.name + '/rooms').value(), {'name': room}).then(function () {
-      defer.resolve();
-    }, function () {
-      defer.reject();
-    });
-
-    return defer.promise;
-  };
-
-  methods.$removeRoom = function (room) {
-    var self = this,
-      defer = $q.defer();
-
-    $http.delete(abode.url('/api/scenes/' + self.name + '/rooms/' + room).value()).then(function () {
-      defer.resolve();
-    }, function () {
-      defer.reject();
-    });
-
-    return defer.promise;
-  };
-
-  methods.$view = function () {
-    return viewScene(this);
-  };
-
-  var loadScenes = function (source) {
-    var defer = $q.defer();
-
-    model.query({'source': source}).$promise.then(function (results) {
-      defer.resolve(results);
-    }, function (err) {
-      defer.reject(err);
-    });
-
-    return defer.promise;
-  };
-
-  var addScene = function (config) {
-    var defer = $q.defer();
-
-    $http.post('/api/scenes', config).then(function (response) {
-      defer.resolve(response.data);
-    }, function (err) {
-      defer.reject(err);
-    });
-
-    return defer.promise;
-  };
-
-  var getScene = function (scene, source) {
-    var defer = $q.defer();
-    var source_uri = (source === undefined) ? '/api' : '/api/sources/' + source;
-
-    $http({ url: source_uri + '/scenes/' + scene }).then(function (response) {
-
-      response.data.$on = function () {
-        return $http.post(source_uri + '/scenes/' + scene + '/on');
-      };
-      response.data.$off = function () {
-        return $http.post(source_uri + '/scenes/' + scene + '/off');
-      };
-      response.data.$open = function () {
-        return viewScene(scene, source);
-      };
-      defer.resolve(response.data);
-    }, function (err) {
-      defer.reject(err);
-    });
-
-    return defer.promise;
-  };
-
-  var getSceneRooms = function (scene) {
-    var defer = $q.defer();
-
-    $http({ url: '/api/scenes/' + scene + '/rooms'}).then(function (response) {
-
-      defer.resolve(response.data);
-
-    }, function (err) {
-      defer.reject(err);
-    });
-
-    return defer.promise;
-  };
-
-  var viewScene = function (scene, source) {
-
-    return $uibModal.open({
-      animation: true,
-      templateUrl: 'views/scenes/scenes.view.html',
-      size: 'sm',
-      controller: function ($scope, $uibModalInstance, $interval, $timeout, $state, scene) {
-        var intervals = [];
-        var source_uri = (source === undefined) ? '/api' : '/api/sources/' + source;
-
-        $scope.name = scene.name;
-        $scope.scene = scene;
-        $scope.processing = false;
-        $scope.errors = false;
-
-        $scope.ok = function () {
-          $uibModalInstance.close();
-        };
-
-        $scope.edit = function () {
-          $uibModalInstance.close({'recurse': true});
-          $state.go('main.scenes.edit', {'name': scene.name});
-        };
-
-        $scope.toggle_onoff = function () {
-
-          $scope.scene.$toggle().then(function() {
-            $scope.processing = false;
-            $scope.errors = false;
-            $scope.scene._state = 'pending';
-
-          }, function () {
-            $scope.processing = false;
-            $scope.errors = true;
-          });
-
-        };
-
-        $scope.reload = function () {
-          if ($scope.processing) {
-            return;
-          }
-
-          $scope.processing = true;
-          $scope.errors = false;
-
-          $scope.scene.$refresh().then(function(response) {
-            $scope.processing = false;
-            $scope.errors = false;
-
-          }, function () {
-            $scope.processing = false;
-            $scope.errors = true;
-          });
-
-        };
-
-        $scope.reload();
-
-        intervals.push($interval($scope.reload, 5000));
-
-        $scope.$on('$destroy', function () {
-          intervals.forEach($interval.cancel);
-        });
-      },
-      resolve: {
-        scene: function (Scenes) {
-          if (typeof scene === 'object') {
-            return Scenes.get({'id': scene._id}).$promise;
-          } else {
-            return Scenes.get({'id': scene}).$promise;
-          }
-        },
-        source: function () {
-          return source;
-        },
-      }
-    });
-
-  };
-
-  var addSceneRoom = function (scene, room) {
-    var defer = $q.defer();
-
-    $http.post('/api/scenes/' + scene + '/rooms', {'name': room}).then(function () {
-      defer.resolve();
-    }, function () {
-      defer.reject();
-    });
-
-    return defer.promise;
-  };
-
-  var removeSceneRoom = function (scene, room) {
-    var defer = $q.defer();
-
-    $http.delete('/api/scenes/' + scene + '/rooms/' + room).then(function () {
-      defer.resolve();
-    }, function () {
-      defer.reject();
-    });
-
-    return defer.promise;
-  };
-
-  var saveScene = function (scene) {
-    var defer = $q.defer();
-
-    $http.put('/api/scenes/' + scene._id, scene).then(function () {
-      defer.resolve();
-    }, function () {
-      defer.reject();
-    });
-
-    return defer.promise;
-  };
-
-  var removeScene = function (scene) {
-    var defer = $q.defer();
-
-    $http.delete('/api/scenes/' + scene).then(function () {
-      defer.resolve();
-    }, function () {
-      defer.reject();
-    });
-
-    return defer.promise;
-  };
-
-  return {
-    'load': loadScenes,
-    'add': addScene,
-    'view': viewScene,
-    'get': getScene,
-    'save': saveScene,
-    'remove': removeScene,
-    'getRooms': getSceneRooms,
-    'addRoom': addSceneRoom,
-    'removeRoom': removeSceneRoom,
-    'methods': methods
-  };
 });
 
-scenes.controller('scenesList', function ($scope, $state, scenes) {
-  $scope.scenes = [];
-  $scope.loading = true;
-
-  $scope.view = function (scene) {
-    scenes.view(scene.name);
-  };
-
-  $scope.edit = function (scene) {
-    $state.go('main.scenes.edit', {'name': scene.name});
-  };
-
-  $scope.load = function () {
-    scenes.load().then(function (scenes) {
-      $scope.scenes = scenes;
-      $scope.loading = false;
-      $scope.error = false;
-    }, function () {
-      $scope.loading = false;
-      $scope.error = true;
-    });
-  };
 
 
-
-  $scope.load();
-});
+var scenes = angular.module('abode.scenes');
 
 scenes.controller('scenesAdd', function ($scope, $state, abode, Scenes) {
   $scope.scene = new Scenes();
@@ -53012,6 +52878,10 @@ scenes.controller('scenesAdd', function ($scope, $state, abode, Scenes) {
     });
   };
 });
+
+
+
+var scenes = angular.module('abode.scenes');
 
 scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devices, abode, scenes, rooms, confirm) {
   $scope.scene = scene;
@@ -53796,8 +53666,433 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
 
 });
 
-scenes.controller('scene', function () {
 
+
+var scenes = angular.module('abode.scenes');
+
+scenes.controller('scenesList', function ($scope, $state, scenes) {
+  $scope.scenes = [];
+  $scope.loading = true;
+
+  $scope.view = function (scene) {
+    scenes.view(scene.name);
+  };
+
+  $scope.edit = function (scene) {
+    $state.go('main.scenes.edit', {'name': scene.name});
+  };
+
+  $scope.load = function () {
+    scenes.load().then(function (scenes) {
+      $scope.scenes = scenes;
+      $scope.loading = false;
+      $scope.error = false;
+    }, function () {
+      $scope.loading = false;
+      $scope.error = true;
+    });
+  };
+
+
+
+  $scope.load();
+});
+
+
+
+var scenes = angular.module('abode.scenes');
+
+scenes.factory('RoomScenes', ['$resource', 'abode', 'scenes', function ($resource, abode, scenes) {
+
+  var model = $resource(abode.url('/api/rooms/:room/scenes/:id'), {id: '@_id'}, {
+    'query': {
+      isArray: true,
+      transformResponse: [
+        function (data, headers, status) {
+          if (status !== 200) {
+            return data;
+          }
+          data = angular.fromJson(data);
+
+          data.forEach(function (dev) {
+            if (dev._on === true) {
+              dev.age = new Date() - new Date(dev.last_on);
+            } else {
+              dev.age = new Date() - new Date(dev.last_off);
+            }
+
+            if (!isNaN(dev.age)) {
+              dev.age = dev.age / 1000;
+            } else {
+              dev.age = 0;
+            }
+          });
+
+          return data;
+        }
+      ]
+    }
+  });
+
+  angular.merge(model.prototype, scenes.methods);
+
+  return model;
+
+}]);
+
+
+
+var scenes = angular.module('abode.scenes');
+
+scenes.factory('SceneRooms', ['$resource', 'abode', function ($resource, abode) {
+
+  var model = $resource(abode.url('/api/scenes/:scene/rooms/:id'), {id: '@_id'}, {
+    'query': {
+      isArray: true,
+    }
+  });
+
+  angular.merge(model.prototype, scenes.methods);
+
+  return model;
+
+}]);
+
+
+
+var scenes = angular.module('abode.scenes');
+
+scenes.factory('Scenes', ['$resource', '$http', '$q', 'abode', 'scenes', function($resource, $http, $q, abode, scenes) {
+
+  var model = $resource(abode.url('/api/scenes/:id'),{
+    'id': '@_id'
+  },{
+    'update': {'method': 'PUT'},
+  });
+
+  angular.merge(model.prototype, scenes.methods);
+
+  return model;
+
+}]);
+
+
+
+var scenes = angular.module('abode.scenes');
+
+scenes.service('scenes', function ($http, $q, $uibModal, $resource, abode, SceneRooms) {
+  var model = $resource(abode.url('/api/scenes/:id/:action'), {id: '@_id'}, {
+    'update': { method: 'PUT' },
+    'on': { method: 'POST', params: {'action': 'on'}},
+    'off': { method: 'POST', params: {'action': 'off'}}
+  });
+
+  var methods = {};
+
+  methods.$rooms = function () {
+    var self = this;
+    return SceneRooms.query({'scene': self.name}).$promise;
+
+  };
+
+  methods.$refresh = function () {
+    var self = this,
+      defer = $q.defer(),
+      url = abode.url('/api/scenes/' + this._id).value();
+
+    $http.get(url).then(function (response) {
+      for (var key in response.data) {
+        if (response.data.hasOwnProperty(key)) {
+          self[key] = response.data[key];
+        }
+      }
+      defer.resolve(self);
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
+  methods.$toggle = function () {
+    var self = this,
+      action = 'off';
+
+    if (self._state === 'stopped') {
+      return self.$on();
+    } else {
+      return self.$off();
+    }
+
+  };
+
+  methods.$on = function () {
+    var self = this,
+      defer = $q.defer(),
+      url = abode.url('/api/scenes/' + this._id + '/on').value();
+
+    $http.post(url).then(function (response) {
+      self._on = true;
+      self._state = 'pending';
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
+  methods.$off = function () {
+    var self = this,
+      defer = $q.defer(),
+      url = abode.url('/api/scenes/' + this._id + '/off').value();
+
+    $http.post(url).then(function (response) {
+      self._on = false;
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
+  methods.$open = function () {
+
+  };
+
+  methods.$addRoom = function (room) {
+    var self = this,
+      defer = $q.defer();
+
+    $http.post(abode.url('/api/scenes/' + self.name + '/rooms').value(), {'name': room}).then(function () {
+      defer.resolve();
+    }, function () {
+      defer.reject();
+    });
+
+    return defer.promise;
+  };
+
+  methods.$removeRoom = function (room) {
+    var self = this,
+      defer = $q.defer();
+
+    $http.delete(abode.url('/api/scenes/' + self.name + '/rooms/' + room).value()).then(function () {
+      defer.resolve();
+    }, function () {
+      defer.reject();
+    });
+
+    return defer.promise;
+  };
+
+  methods.$view = function () {
+    return viewScene(this);
+  };
+
+  var loadScenes = function (source) {
+    var defer = $q.defer();
+
+    model.query({'source': source}).$promise.then(function (results) {
+      defer.resolve(results);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var addScene = function (config) {
+    var defer = $q.defer();
+
+    $http.post('/api/scenes', config).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var getScene = function (scene, source) {
+    var defer = $q.defer();
+    var source_uri = (source === undefined) ? '/api' : '/api/sources/' + source;
+
+    $http({ url: source_uri + '/scenes/' + scene }).then(function (response) {
+
+      response.data.$on = function () {
+        return $http.post(source_uri + '/scenes/' + scene + '/on');
+      };
+      response.data.$off = function () {
+        return $http.post(source_uri + '/scenes/' + scene + '/off');
+      };
+      response.data.$open = function () {
+        return viewScene(scene, source);
+      };
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var getSceneRooms = function (scene) {
+    var defer = $q.defer();
+
+    $http({ url: '/api/scenes/' + scene + '/rooms'}).then(function (response) {
+
+      defer.resolve(response.data);
+
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var viewScene = function (scene, source) {
+
+    return $uibModal.open({
+      animation: true,
+      templateUrl: 'modules/scenes/views/scenes.view.html',
+      size: 'sm',
+      controller: function ($scope, $uibModalInstance, $interval, $timeout, $state, scene) {
+        var intervals = [];
+        var source_uri = (source === undefined) ? '/api' : '/api/sources/' + source;
+
+        $scope.name = scene.name;
+        $scope.scene = scene;
+        $scope.processing = false;
+        $scope.errors = false;
+
+        $scope.ok = function () {
+          $uibModalInstance.close();
+        };
+
+        $scope.edit = function () {
+          $uibModalInstance.close({'recurse': true});
+          $state.go('main.scenes.edit', {'name': scene.name});
+        };
+
+        $scope.toggle_onoff = function () {
+
+          $scope.scene.$toggle().then(function() {
+            $scope.processing = false;
+            $scope.errors = false;
+            $scope.scene._state = 'pending';
+
+          }, function () {
+            $scope.processing = false;
+            $scope.errors = true;
+          });
+
+        };
+
+        $scope.reload = function () {
+          if ($scope.processing) {
+            return;
+          }
+
+          $scope.processing = true;
+          $scope.errors = false;
+
+          $scope.scene.$refresh().then(function(response) {
+            $scope.processing = false;
+            $scope.errors = false;
+
+          }, function () {
+            $scope.processing = false;
+            $scope.errors = true;
+          });
+
+        };
+
+        $scope.reload();
+
+        intervals.push($interval($scope.reload, 5000));
+
+        $scope.$on('$destroy', function () {
+          intervals.forEach($interval.cancel);
+        });
+      },
+      resolve: {
+        scene: function (Scenes) {
+          if (typeof scene === 'object') {
+            return Scenes.get({'id': scene._id}).$promise;
+          } else {
+            return Scenes.get({'id': scene}).$promise;
+          }
+        },
+        source: function () {
+          return source;
+        },
+      }
+    });
+
+  };
+
+  var addSceneRoom = function (scene, room) {
+    var defer = $q.defer();
+
+    $http.post('/api/scenes/' + scene + '/rooms', {'name': room}).then(function () {
+      defer.resolve();
+    }, function () {
+      defer.reject();
+    });
+
+    return defer.promise;
+  };
+
+  var removeSceneRoom = function (scene, room) {
+    var defer = $q.defer();
+
+    $http.delete('/api/scenes/' + scene + '/rooms/' + room).then(function () {
+      defer.resolve();
+    }, function () {
+      defer.reject();
+    });
+
+    return defer.promise;
+  };
+
+  var saveScene = function (scene) {
+    var defer = $q.defer();
+
+    $http.put('/api/scenes/' + scene._id, scene).then(function () {
+      defer.resolve();
+    }, function () {
+      defer.reject();
+    });
+
+    return defer.promise;
+  };
+
+  var removeScene = function (scene) {
+    var defer = $q.defer();
+
+    $http.delete('/api/scenes/' + scene).then(function () {
+      defer.resolve();
+    }, function () {
+      defer.reject();
+    });
+
+    return defer.promise;
+  };
+
+  return {
+    'load': loadScenes,
+    'add': addScene,
+    'view': viewScene,
+    'get': getScene,
+    'save': saveScene,
+    'remove': removeScene,
+    'getRooms': getSceneRooms,
+    'addRoom': addSceneRoom,
+    'removeRoom': removeSceneRoom,
+    'methods': methods
+  };
 });
 
 
@@ -53814,7 +54109,7 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.settings', {
     url: '/settings',
-    templateUrl: 'views/settings/settings.html',
+    templateUrl: 'modules/settings/views/settings.html',
     controller: 'settings',
     resolve: {
       config: function (settings) {
@@ -53824,7 +54119,7 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.list', {
     url: '/list',
-    templateUrl: 'views/settings/settings.list.html',
+    templateUrl: 'modules/settings/views/settings.list.html',
     controller: function ($scope) {
       $scope.settings = [
         {'name': 'General', 'route': 'main.settings.general'},
@@ -53843,7 +54138,7 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.general', {
     url: '/general',
-    templateUrl: 'views/settings/settings.general.html',
+    templateUrl: 'modules/settings/views/settings.general.html',
     controller: 'settings',
     resolve: {
       config: function (settings) {
@@ -53853,7 +54148,7 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.client', {
     url: '/client',
-    templateUrl: 'views/settings/settings.client.html',
+    templateUrl: 'modules/settings/views/settings.client.html',
     controller: 'clientEdit',
     resolve: {
       interfaces: ['Interfaces', function (Interfaces) {
@@ -53867,21 +54162,21 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.users', {
     url: '/users',
-    templateUrl: 'views/settings/settings.users.html',
+    templateUrl: 'modules/settings/views/settings.users.html',
   })
   .state('main.settings.users.list', {
     url: '/list',
-    templateUrl: 'views/settings/settings.users.list.html',
+    templateUrl: 'modules/settings/views/settings.users.list.html',
     controller: 'usersList',
   })
   .state('main.settings.users.add', {
     url: '/add',
-    templateUrl: 'views/settings/settings.users.add.html',
+    templateUrl: 'modules/settings/views/settings.users.add.html',
     controller: 'usersAdd',
   })
   .state('main.settings.users.edit', {
     url: '/:id',
-    templateUrl: 'views/settings/settings.users.edit.html',
+    templateUrl: 'modules/settings/views/settings.users.edit.html',
     controller: 'usersEdit',
     resolve: {
       'user': ['$q', '$stateParams', 'Users', function ($q, $stateParams, Users) {
@@ -53900,21 +54195,21 @@ settings.config(function($stateProvider, $urlRouterProvider) {
 
   .state('main.settings.pins', {
     url: '/pins',
-    templateUrl: 'views/settings/settings.pins.html',
+    templateUrl: 'modules/settings/views/settings.pins.html',
   })
   .state('main.settings.pins.list', {
     url: '/list',
-    templateUrl: 'views/settings/settings.pins.list.html',
+    templateUrl: 'modules/settings/views/settings.pins.list.html',
     controller: 'pinsList',
   })
   .state('main.settings.pins.add', {
     url: '/add',
-    templateUrl: 'views/settings/settings.pins.add.html',
+    templateUrl: 'modules/settings/views/settings.pins.add.html',
     controller: 'pinsAdd',
   })
   .state('main.settings.pins.edit', {
     url: '/:id',
-    templateUrl: 'views/settings/settings.pins.edit.html',
+    templateUrl: 'modules/settings/views/settings.pins.edit.html',
     controller: 'pinsEdit',
     resolve: {
       'pin': ['$q', '$stateParams', 'Pins', function ($q, $stateParams, Pins) {
@@ -53932,21 +54227,21 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.interfaces', {
     url: '/interfaces',
-    templateUrl: 'views/settings/settings.interfaces.html',
+    templateUrl: 'modules/settings/views/settings.interfaces.html',
   })
   .state('main.settings.interfaces.list', {
     url: '/list',
-    templateUrl: 'views/settings/settings.interfaces.list.html',
+    templateUrl: 'modules/settings/views/settings.interfaces.list.html',
     controller: 'interfacesList',
   })
   .state('main.settings.interfaces.add', {
     url: '/add',
-    templateUrl: 'views/settings/settings.interfaces.add.html',
+    templateUrl: 'modules/settings/views/settings.interfaces.add.html',
     controller: 'interfacesAdd',
   })
   .state('main.settings.interfaces.edit', {
     url: '/:id',
-    templateUrl: 'views/settings/settings.interfaces.edit.html',
+    templateUrl: 'modules/settings/views/settings.interfaces.edit.html',
     controller: 'interfacesEdit',
     resolve: {
       iface: ['$q', '$stateParams', 'Interfaces', function ($q, $stateParams, Interfaces) {
@@ -53964,11 +54259,11 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.sources', {
     url: '/sources',
-    templateUrl: 'views/settings/settings.sources.html',
+    templateUrl: 'modules/settings/views/settings.sources.html',
   })
   .state('main.settings.sources.list', {
     url: '/list',
-    templateUrl: 'views/settings/settings.sources.list.html',
+    templateUrl: 'modules/settings/views/settings.sources.list.html',
     controller: 'sourceSettings',
     resolve: {
       sources: function (settings) {
@@ -53978,7 +54273,7 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.sources.add', {
     url: '/add',
-    templateUrl: 'views/settings/settings.sources.add.html',
+    templateUrl: 'modules/settings/views/settings.sources.add.html',
     controller: 'addSourceSettings',
     resolve: {
       sources: function (settings) {
@@ -53988,7 +54283,7 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.sources.edit', {
     url: '/:name',
-    templateUrl: 'views/settings/settings.sources.edit.html',
+    templateUrl: 'modules/settings/views/settings.sources.edit.html',
     controller: 'editSourceSettings',
     resolve: {
       'source': function ($stateParams, $state, settings) {
@@ -54000,283 +54295,68 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.sensors', {
     url: '/sensors',
-    templateUrl: 'views/settings/settings.sensors.html',
+    templateUrl: 'modules/settings/views/settings.sensors.html',
   })
   .state('main.settings.providers', {
     url: '/providers',
-    templateUrl: 'views/settings/settings.providers.html',
+    templateUrl: 'modules/settings/views/settings.providers.html',
   })
   .state('main.settings.display', {
     url: '/display',
-    templateUrl: 'views/settings/settings.display.html',
+    templateUrl: 'modules/settings/views/settings.display.html',
   })
   .state('main.settings.networking', {
     url: '/networking',
-    templateUrl: 'views/settings/settings.networking.html',
+    templateUrl: 'modules/settings/views/settings.networking.html',
   })
   .state('main.settings.advanced', {
     url: '/advanced',
-    templateUrl: 'views/settings/settings.advanced.html',
+    templateUrl: 'modules/settings/views/settings.advanced.html',
   });
 });
 
-settings.service('Users', ['$q', '$http', '$resource', 'abode', function ($q, $http, $resource, abode) {
 
-  var UserModel = $resource(abode.url('/api/auth/users/:id'), {id: '@_id'}, {
-    'update': { method: 'PUT' }
-  });
 
-  var TokenModel = $resource(abode.url('/api/auth/users/:userid/tokens/:id'), {id: '@_id', 'userid': '@userid'}, {
-    'update': { method: 'PUT' }
-  });
 
-  UserModel.prototype.$tokens = function () {
-    var self = this,
-      defer = $q.defer();
 
-    TokenModel.query({'userid': self._id}).$promise.then(function (results) {
 
-      results = results.map(function (item) {
-        item.userid = self._id;
-        return item;
-      });
 
-      defer.resolve(results);
-    }, function (err) {
-      defer.reject(err.data || err);
-    });
 
-    return defer.promise;
-  };
 
-  var list_users = function (options) {
-    return UserModel.query(options).$promise;
-  };
 
-  var create_user = function (options) {
-    return new UserModel(options);
-  };
 
-  var get_user = function (options) {
-    return UserModel.get(options).$promise;
-  };
 
-  return {
-    'query': list_users,
-    'create': create_user,
-    'get': get_user
-  };
-}]);
 
-settings.controller('usersList', ['$scope', 'Users', function ($scope, Users) {
 
-  $scope.loading = true;
-  $scope.users = [];
 
-  Users.query().then(function (results) {
-    $scope.loading = false;
-    $scope.users = results;
-  });
 
-}]);
 
-settings.controller('usersAdd', ['$scope', '$state', 'abode', 'Users', function ($scope, $state, abode, Users) {
-  $scope.user = Users.create();
-  $scope.field_errors = {};
-  $scope.working = false;
+
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.controller('addSourceSettings', function ($scope, $state, abode, settings) {
+  $scope.source = {};
+  var notifier = abode.message;
+
 
   $scope.add = function () {
-    $scope.working = true;
-    $scope.user.$save().then(function () {
-      $scope.user = new Users.create();
-      $scope.working = true;
-      abode.message({'type': 'success', 'message': 'User added successfully'});
-      $state.go('^');
+    settings.add_source($scope.source).then(function () {
+      abode.message({'type': 'success', 'message': 'Source Added'});
+      $scope.source = {};
     }, function (err) {
-      $scope.working = false;
-      $scope.field_errors = err.data.fields;
-      console.log(err);
-      abode.message({'type': 'failed', 'message': err.data.message || err.data || 'Failed to add User'});
+        abode.message({'type': 'failed', 'message': 'Failed to add Source', 'details': err});
+      $scope.errors = err;
     });
-  };
-
-}]);
-
-settings.controller('usersEdit', ['$scope', '$state', 'abode', 'confirm', 'user', function ($scope, $state, abode, confirm, user) {
-  $scope.user = user;
-  $scope.tokens = [];
-  $scope.auth = abode.config.auth;
-
-  $scope.loading = false;
-  $scope.working = false;
-
-  $scope.load = function () {
-    $scope.loading = true;
-
-    $scope.user.$tokens().then(function (tokens) {
-      $scope.loading = false;
-      $scope.tokens = tokens;
-    }, function () {
-      $scope.loading = false;
-    });
-  };
-
-  $scope.save = function () {
-    $scope.working = true;
-    if ($scope.user.password === '') {
-      $scope.user.password = undefined;
-    }
-    $scope.user.$update().then(function () {
-      $scope.working = false;
-      $scope.user.password = undefined;
-      $scope.user.newpassword2 = undefined;
-
-      abode.message({'type': 'success', 'message': 'User saved successfully'});
-    }, function (err) {
-      $scope.working = false;
-      $scope.field_errors = err.data.fields;
-
-      abode.message({'type': 'failed', 'message': err.data.message || err.data || 'Failed to save User'});
-    });
-  };
-
-  $scope.delete = function () {
-    $scope.working = true;
-
-    confirm('Are you sure?', {'title': 'Delete User', 'icon': 'icon-trash'}).then(function () {
-      $scope.user.$delete().then(function () {
-        $scope.working = false;
-        abode.message({'type': 'success', 'message': 'User Deleted'});
-        $state.go('^');
-      }, function (err) {
-        abode.message({'type': 'failed', 'message': err.data.message || 'Failed to delete User', 'details': err});
-        $scope.errors = err;
-        $scope.working = false;
-      });
-    });
-
-  };
-
-  $scope.delete_token = function (token) {
-
-    confirm('Are you sure?', {'title': 'Delete Token', 'icon': 'icon-trash'}).then(function () {
-      token.$delete().then(function () {
-        $scope.working = false;
-        abode.message({'type': 'success', 'message': 'Token Deleted'});
-
-        $scope.load();
-      }, function (err) {
-        abode.message({'type': 'failed', 'message': 'Failed to delete Token', 'details': err});
-        $scope.errors = err;
-        $scope.working = false;
-      });
-    });
-  };
-
-
-  $scope.load();
-
-}]);
-
-settings.directive('matches', function() {
-
-  return {
-    require: 'ngModel',
-    scope: {
-      matches: '='
-    },
-    link: function(scope, elm, attrs, ctrl) {
-      ctrl.$validators.matches = function(modelValue, viewValue) {
-        if (scope.matches == modelValue) {
-          // consider empty models to be valid
-          return true;
-        }
-
-        return false;
-      };
-
-      scope.$watch( 'matches', function() {
-          ctrl.$validate();
-      } );
-
-    }
   };
 
 });
 
-settings.factory('Pins', ['$resource', '$q', '$http', 'abode', function($resource, $q, $http, abode) {
 
-  var model = $resource(abode.url('/api/auth/pins/:id'), {id: '@_id'}, {
-    'update': { method: 'PUT' }
-  });
 
-  return model;
-}]);
-
-settings.controller('pinsList', ['$scope', 'Pins', function ($scope, Pins) {
-  $scope.loading = true;
-  $scope.pins = [];
-
-  Pins.query().$promise.then(function (results) {
-    $scope.loading = false;
-    $scope.pins = results;
-  });
-
-}]);
-
-settings.controller('pinsAdd', ['$scope', '$state', 'abode', 'triggers', 'Pins', function ($scope, $state, abode, triggers, Pins) {
-  $scope.pin = new Pins();
-
-  $scope.addAction = triggers.addAction;
-  $scope.editAction = triggers.editAction;
-  $scope.removeAction = triggers.removeAction;
-
-  $scope.add = function () {
-    $scope.pin.$save().then(function () {
-      $scope.pin = new Pins();
-      abode.message({'type': 'success', 'message': 'Pin added successfully'});
-      $state.go('^');
-    }, function (err) {
-      abode.message({'type': 'failed', 'message': err.data.message || err.data || 'Failed to add Pin'});
-    });
-  };
-
-}]);
-
-settings.controller('pinsEdit', ['$scope', '$state', 'abode', 'triggers', 'confirm', 'pin', function ($scope, $state, abode, triggers, confirm, pin) {
-  $scope.pin = pin;
-
-  $scope.addAction = triggers.addAction;
-  $scope.editAction = triggers.editAction;
-  $scope.removeAction = triggers.removeAction;
-
-  $scope.save = function () {
-    if ($scope.pin.pin === '') {
-      $scope.pin.pin = undefined;
-    }
-    $scope.pin.$update().then(function () {
-      $scope.pin.pin = undefined;
-      abode.message({'type': 'success', 'message': 'Pin saved successfully'});
-    }, function (err) {
-      abode.message({'type': 'failed', 'message': err.data.message || err.data || 'Failed to add Pin'});
-    });
-  };
-
-  $scope.delete = function () {
-
-    confirm('Are you sure?', {'title': 'Delete PIN', 'icon': 'icon-trash'}).then(function () {
-      $scope.pin.$delete().then(function () {
-        abode.message({'type': 'success', 'message': 'Pin Deleted'});
-        $state.go('^');
-      }, function (err) {
-        abode.message({'type': 'failed', 'message': 'Failed to delete Pin', 'details': err});
-        $scope.errors = err;
-      });
-    });
-
-  };
-
-}]);
+var settings = angular.module('abode.settings');
 
 settings.controller('clientEdit', function ($scope, abode, interfaces, device) {
   $scope.dht_sensors = ['', 'DHT11', 'DHT22', 'AM2302'];
@@ -54363,6 +54443,483 @@ settings.controller('clientEdit', function ($scope, abode, interfaces, device) {
     });
   };
 });
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.controller('editSourceSettings', function ($scope, $state, abode, settings, source, confirm) {
+  $scope.source = source;
+  var notifier = abode.message;
+
+  $scope.save = function () {
+    settings.save_source($scope.source).then(function () {
+      abode.message({'type': 'success', 'message': 'Source Saved'});
+    }, function (err) {
+        abode.message({'type': 'failed', 'message': 'Failed to save Source', 'details': err});
+      $scope.errors = err;
+    });
+  };
+
+  $scope.remove = function () {
+    confirm('Are you sure you want to remove this Source?').then(function () {
+      settings.remove_source($scope.source).then(function () {
+        abode.message({'type': 'success', 'message': 'Source Removed'});
+        $state.go('main.settings.sources.list');
+      }, function (err) {
+        abode.message({'type': 'failed', 'message': 'Failed to remove Source', 'details': err});
+        $scope.errors = err;
+      });
+    });
+  };
+
+});
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.controller('interfacesAdd', ['$scope', '$state', 'abode', 'Interfaces', function ($scope, $state, abode, Interfaces) {
+  $scope.iface = new Interfaces();
+
+  $scope.save = function () {
+    $scope.iface.$save().then(function (record) {
+      abode.message({'type': 'success', 'message': 'Interface Created'});
+      $state.go('^', record);
+
+    }, function (err) {
+      abode.message({'type': 'failed', 'message': 'Failed to Create Interface', 'details': err});
+      $scope.errors = err;
+    });
+  };
+
+}]);
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.controller('interfacesEdit', ['$scope', '$state', '$templateCache', 'abode', 'iface', function ($scope, $state, $templateCache, abode, iface) {
+  $scope.iface = iface;
+
+  $scope.save = function () {
+    $scope.iface.$update().then(function () {
+      $templateCache.put(abode.url('/api/interfaces/' + $scope.iface.name + '/template').value(), $scope.iface.template);
+      $templateCache.put(abode.url('/api/interfaces/' + $scope.iface._id + '/template').value(), $scope.iface.template);
+      abode.message({'type': 'success', 'message': 'Interface Saved'});
+    }, function (err) {
+      abode.message({'type': 'failed', 'message': 'Failed to save Interface', 'details': err});
+      $scope.errors = err;
+    });
+  };
+
+  $scope.remove = function () {
+    $scope.iface.$delete().then(function () {
+      abode.message({'type': 'success', 'message': 'Interface Deleted'});
+      $state.go('^');
+    }, function (err) {
+      abode.message({'type': 'failed', 'message': 'Failed to save Interface', 'details': err});
+      $scope.errors = err;
+    });
+  };
+}]);
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.controller('interfacesList', ['$scope', 'Interfaces', function ($scope, Interfaces) {
+  $scope.interfaces = Interfaces.query();
+}]);
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.controller('pinsAdd', ['$scope', '$state', 'abode', 'triggers', 'Pins', function ($scope, $state, abode, triggers, Pins) {
+  $scope.pin = new Pins();
+
+  $scope.addAction = triggers.addAction;
+  $scope.editAction = triggers.editAction;
+  $scope.removeAction = triggers.removeAction;
+
+  $scope.add = function () {
+    $scope.pin.$save().then(function () {
+      $scope.pin = new Pins();
+      abode.message({'type': 'success', 'message': 'Pin added successfully'});
+      $state.go('^');
+    }, function (err) {
+      abode.message({'type': 'failed', 'message': err.data.message || err.data || 'Failed to add Pin'});
+    });
+  };
+
+}]);
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.controller('pinsEdit', ['$scope', '$state', 'abode', 'triggers', 'confirm', 'pin', function ($scope, $state, abode, triggers, confirm, pin) {
+  $scope.pin = pin;
+
+  $scope.addAction = triggers.addAction;
+  $scope.editAction = triggers.editAction;
+  $scope.removeAction = triggers.removeAction;
+
+  $scope.save = function () {
+    if ($scope.pin.pin === '') {
+      $scope.pin.pin = undefined;
+    }
+    $scope.pin.$update().then(function () {
+      $scope.pin.pin = undefined;
+      abode.message({'type': 'success', 'message': 'Pin saved successfully'});
+    }, function (err) {
+      abode.message({'type': 'failed', 'message': err.data.message || err.data || 'Failed to add Pin'});
+    });
+  };
+
+  $scope.delete = function () {
+
+    confirm('Are you sure?', {'title': 'Delete PIN', 'icon': 'icon-trash'}).then(function () {
+      $scope.pin.$delete().then(function () {
+        abode.message({'type': 'success', 'message': 'Pin Deleted'});
+        $state.go('^');
+      }, function (err) {
+        abode.message({'type': 'failed', 'message': 'Failed to delete Pin', 'details': err});
+        $scope.errors = err;
+      });
+    });
+
+  };
+
+}]);
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.controller('pinsList', ['$scope', 'Pins', function ($scope, Pins) {
+  $scope.loading = true;
+  $scope.pins = [];
+
+  Pins.query().$promise.then(function (results) {
+    $scope.loading = false;
+    $scope.pins = results;
+  });
+
+}]);
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.controller('settings', function ($scope, $state, abode, settings, config) {
+  var notifier = abode.message;
+
+  abode.get_events();
+  $scope.config = config;
+  $scope.state = $state;
+  $scope.reload = function () {
+    document.location.reload();
+  };
+
+  $scope.sensors = [
+    {'name': 'Temperature/Humidity', 'route': 'main.settings.general'},
+    {'name': 'Light', 'route': 'main.settings.home'},
+    {'name': 'Motion', 'route': 'main.settings.sources'},
+  ];
+
+  $scope.providers = [
+    {'name': 'IFTTT', 'route': 'main.settings.ifttt'},
+    {'name': 'Insteon PLM', 'route': 'main.settings.insteon'},
+    {'name': 'Insteon Hub', 'route': 'main.settings.insteonhub'},
+    {'name': 'Lutron Caseta', 'route': 'main.settings.lutroncaseta'},
+    {'name': 'MQTT', 'route': 'main.settings.mqtt'},
+    {'name': 'Rad', 'route': 'main.settings.rad'},
+    {'name': 'RadioThermostat', 'route': 'main.settings.radiothermostat'},
+    {'name': 'Video', 'route': 'main.settings.video'},
+    {'name': 'Wunderground', 'route': 'main.settings.wunderground'},
+    {'name': 'Z-Wave', 'route': 'main.settings.zwave'},
+    {'name': 'Auto-Shades', 'route': 'main.settings.autoshades'},
+  ];
+
+  $scope.sources = [
+    {'name': 'Muir', 'route': 'index.settings.insteon'},
+  ];
+
+  $scope.providerSettings = function (p) {
+    $state.go(p);
+  };
+
+  $scope.save = function () {
+
+    settings.save_config(undefined, $scope.config).then(function () {
+
+      $scope.write_config();
+
+    }, function (err) {
+      abode.message({
+        'type': 'failed',
+        'message': 'Settings Failed to Save',
+        'details': err
+      });
+    });
+
+  };
+
+  $scope.write_config = function () {
+    settings.write_config().then(function () {
+
+      abode.message({
+        'type': 'success',
+        'message': 'Config Saved'
+      });
+
+    }, function (err) {
+
+      abode.message({
+        'type': 'failed',
+        'message': 'Failed to Save Config',
+        'details': err
+      });
+
+    });
+  };
+});
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.controller('sourceSettings', function ($scope, $state, abode, settings, sources) {
+  $scope.sources = sources;
+
+  $scope.view = function (source) {
+    $state.go('main.settings.sources.edit', {'name': source.name});
+  };
+
+});
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.controller('usersAdd', ['$scope', '$state', 'abode', 'Users', function ($scope, $state, abode, Users) {
+  $scope.user = Users.create();
+  $scope.field_errors = {};
+  $scope.working = false;
+
+  $scope.add = function () {
+    $scope.working = true;
+    $scope.user.$save().then(function () {
+      $scope.user = new Users.create();
+      $scope.working = true;
+      abode.message({'type': 'success', 'message': 'User added successfully'});
+      $state.go('^');
+    }, function (err) {
+      $scope.working = false;
+      $scope.field_errors = err.data.fields;
+      console.log(err);
+      abode.message({'type': 'failed', 'message': err.data.message || err.data || 'Failed to add User'});
+    });
+  };
+
+}]);
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.controller('usersEdit', ['$scope', '$state', 'abode', 'confirm', 'user', function ($scope, $state, abode, confirm, user) {
+  $scope.user = user;
+  $scope.tokens = [];
+  $scope.auth = abode.config.auth;
+
+  $scope.loading = false;
+  $scope.working = false;
+
+  $scope.load = function () {
+    $scope.loading = true;
+
+    $scope.user.$tokens().then(function (tokens) {
+      $scope.loading = false;
+      $scope.tokens = tokens;
+    }, function () {
+      $scope.loading = false;
+    });
+  };
+
+  $scope.save = function () {
+    $scope.working = true;
+    if ($scope.user.password === '') {
+      $scope.user.password = undefined;
+    }
+    $scope.user.$update().then(function () {
+      $scope.working = false;
+      $scope.user.password = undefined;
+      $scope.user.newpassword2 = undefined;
+
+      abode.message({'type': 'success', 'message': 'User saved successfully'});
+    }, function (err) {
+      $scope.working = false;
+      $scope.field_errors = err.data.fields;
+
+      abode.message({'type': 'failed', 'message': err.data.message || err.data || 'Failed to save User'});
+    });
+  };
+
+  $scope.delete = function () {
+    $scope.working = true;
+
+    confirm('Are you sure?', {'title': 'Delete User', 'icon': 'icon-trash'}).then(function () {
+      $scope.user.$delete().then(function () {
+        $scope.working = false;
+        abode.message({'type': 'success', 'message': 'User Deleted'});
+        $state.go('^');
+      }, function (err) {
+        abode.message({'type': 'failed', 'message': err.data.message || 'Failed to delete User', 'details': err});
+        $scope.errors = err;
+        $scope.working = false;
+      });
+    });
+
+  };
+
+  $scope.delete_token = function (token) {
+
+    confirm('Are you sure?', {'title': 'Delete Token', 'icon': 'icon-trash'}).then(function () {
+      token.$delete().then(function () {
+        $scope.working = false;
+        abode.message({'type': 'success', 'message': 'Token Deleted'});
+
+        $scope.load();
+      }, function (err) {
+        abode.message({'type': 'failed', 'message': 'Failed to delete Token', 'details': err});
+        $scope.errors = err;
+        $scope.working = false;
+      });
+    });
+  };
+
+
+  $scope.load();
+
+}]);
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.controller('usersList', ['$scope', 'Users', function ($scope, Users) {
+
+  $scope.loading = true;
+  $scope.users = [];
+
+  Users.query().then(function (results) {
+    $scope.loading = false;
+    $scope.users = results;
+  });
+
+}]);
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.directive('matches', function() {
+
+  return {
+    require: 'ngModel',
+    scope: {
+      matches: '='
+    },
+    link: function(scope, elm, attrs, ctrl) {
+      ctrl.$validators.matches = function(modelValue, viewValue) {
+        if (scope.matches == modelValue) {
+          // consider empty models to be valid
+          return true;
+        }
+
+        return false;
+      };
+
+      scope.$watch( 'matches', function() {
+          ctrl.$validate();
+      } );
+
+    }
+  };
+
+});
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.factory('Pins', ['$resource', '$q', '$http', 'abode', function($resource, $q, $http, abode) {
+
+  var model = $resource(abode.url('/api/auth/pins/:id'), {id: '@_id'}, {
+    'update': { method: 'PUT' }
+  });
+
+  return model;
+}]);
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.service('Users', ['$q', '$http', '$resource', 'abode', function ($q, $http, $resource, abode) {
+
+  var UserModel = $resource(abode.url('/api/auth/users/:id'), {id: '@_id'}, {
+    'update': { method: 'PUT' }
+  });
+
+  var TokenModel = $resource(abode.url('/api/auth/users/:userid/tokens/:id'), {id: '@_id', 'userid': '@userid'}, {
+    'update': { method: 'PUT' }
+  });
+
+  UserModel.prototype.$tokens = function () {
+    var self = this,
+      defer = $q.defer();
+
+    TokenModel.query({'userid': self._id}).$promise.then(function (results) {
+
+      results = results.map(function (item) {
+        item.userid = self._id;
+        return item;
+      });
+
+      defer.resolve(results);
+    }, function (err) {
+      defer.reject(err.data || err);
+    });
+
+    return defer.promise;
+  };
+
+  var list_users = function (options) {
+    return UserModel.query(options).$promise;
+  };
+
+  var create_user = function (options) {
+    return new UserModel(options);
+  };
+
+  var get_user = function (options) {
+    return UserModel.get(options).$promise;
+  };
+
+  return {
+    'query': list_users,
+    'create': create_user,
+    'get': get_user
+  };
+}]);
+
+
+
+var settings = angular.module('abode.settings');
 
 settings.service('settings', function ($q, $http, $templateCache, abode) {
 
@@ -54511,182 +55068,358 @@ settings.service('settings', function ($q, $http, $templateCache, abode) {
 
 });
 
-settings.controller('sourceSettings', function ($scope, $state, abode, settings, sources) {
-  $scope.sources = sources;
 
-  $scope.view = function (source) {
-    $state.go('main.settings.sources.edit', {'name': source.name});
-  };
-
-});
-
-settings.controller('addSourceSettings', function ($scope, $state, abode, settings) {
-  $scope.source = {};
-  var notifier = abode.message;
-
-
-  $scope.add = function () {
-    settings.add_source($scope.source).then(function () {
-      abode.message({'type': 'success', 'message': 'Source Added'});
-      $scope.source = {};
-    }, function (err) {
-        abode.message({'type': 'failed', 'message': 'Failed to add Source', 'details': err});
-      $scope.errors = err;
-    });
-  };
-
-})
-.controller('editSourceSettings', function ($scope, $state, abode, settings, source, confirm) {
-  $scope.source = source;
-  var notifier = abode.message;
-
-  $scope.save = function () {
-    settings.save_source($scope.source).then(function () {
-      abode.message({'type': 'success', 'message': 'Source Saved'});
-    }, function (err) {
-        abode.message({'type': 'failed', 'message': 'Failed to save Source', 'details': err});
-      $scope.errors = err;
-    });
-  };
-
-  $scope.remove = function () {
-    confirm('Are you sure you want to remove this Source?').then(function () {
-      settings.remove_source($scope.source).then(function () {
-        abode.message({'type': 'success', 'message': 'Source Removed'});
-        $state.go('main.settings.sources.list');
-      }, function (err) {
-        abode.message({'type': 'failed', 'message': 'Failed to remove Source', 'details': err});
-        $scope.errors = err;
-      });
-    });
-  };
-
-});
-
-settings.controller('interfacesList', ['$scope', 'Interfaces', function ($scope, Interfaces) {
-  $scope.interfaces = Interfaces.query();
-}]);
-
-settings.controller('interfacesAdd', ['$scope', '$state', 'abode', 'Interfaces', function ($scope, $state, abode, Interfaces) {
-  $scope.iface = new Interfaces();
-
-  $scope.save = function () {
-    $scope.iface.$save().then(function (record) {
-      abode.message({'type': 'success', 'message': 'Interface Created'});
-      $state.go('^', record);
-
-    }, function (err) {
-      abode.message({'type': 'failed', 'message': 'Failed to Create Interface', 'details': err});
-      $scope.errors = err;
-    });
-  };
-
-}]);
-
-settings.controller('interfacesEdit', ['$scope', '$state', '$templateCache', 'abode', 'iface', function ($scope, $state, $templateCache, abode, iface) {
-  $scope.iface = iface;
-
-  $scope.save = function () {
-    $scope.iface.$update().then(function () {
-      $templateCache.put(abode.url('/api/interfaces/' + $scope.iface.name + '/template').value(), $scope.iface.template);
-      $templateCache.put(abode.url('/api/interfaces/' + $scope.iface._id + '/template').value(), $scope.iface.template);
-      abode.message({'type': 'success', 'message': 'Interface Saved'});
-    }, function (err) {
-      abode.message({'type': 'failed', 'message': 'Failed to save Interface', 'details': err});
-      $scope.errors = err;
-    });
-  };
-
-  $scope.remove = function () {
-    $scope.iface.$delete().then(function () {
-      abode.message({'type': 'success', 'message': 'Interface Deleted'});
-      $state.go('^');
-    }, function (err) {
-      abode.message({'type': 'failed', 'message': 'Failed to save Interface', 'details': err});
-      $scope.errors = err;
-    });
-  };
-}]);
-
-settings.controller('settings', function ($scope, $state, abode, settings, config) {
-  var notifier = abode.message;
-
-  abode.get_events();
-  $scope.config = config;
-  $scope.state = $state;
-  $scope.reload = function () {
-    document.location.reload();
-  };
-
-  $scope.sensors = [
-    {'name': 'Temperature/Humidity', 'route': 'main.settings.general'},
-    {'name': 'Light', 'route': 'main.settings.home'},
-    {'name': 'Motion', 'route': 'main.settings.sources'},
-  ];
-
-  $scope.providers = [
-    {'name': 'IFTTT', 'route': 'main.settings.ifttt'},
-    {'name': 'Insteon PLM', 'route': 'main.settings.insteon'},
-    {'name': 'Insteon Hub', 'route': 'main.settings.insteonhub'},
-    {'name': 'Lutron Caseta', 'route': 'main.settings.lutroncaseta'},
-    {'name': 'MQTT', 'route': 'main.settings.mqtt'},
-    {'name': 'Rad', 'route': 'main.settings.rad'},
-    {'name': 'RadioThermostat', 'route': 'main.settings.radiothermostat'},
-    {'name': 'Video', 'route': 'main.settings.video'},
-    {'name': 'Wunderground', 'route': 'main.settings.wunderground'},
-    {'name': 'Z-Wave', 'route': 'main.settings.zwave'},
-    {'name': 'Auto-Shades', 'route': 'main.settings.autoshades'},
-  ];
-
-  $scope.sources = [
-    {'name': 'Muir', 'route': 'index.settings.insteon'},
-  ];
-
-  $scope.providerSettings = function (p) {
-    $state.go(p);
-  };
-
-  $scope.save = function () {
-
-    settings.save_config(undefined, $scope.config).then(function () {
-
-      $scope.write_config();
-
-    }, function (err) {
-      abode.message({
-        'type': 'failed',
-        'message': 'Settings Failed to Save',
-        'details': err
-      });
-    });
-
-  };
-
-  $scope.write_config = function () {
-    settings.write_config().then(function () {
-
-      abode.message({
-        'type': 'success',
-        'message': 'Config Saved'
-      });
-
-    }, function (err) {
-
-      abode.message({
-        'type': 'failed',
-        'message': 'Failed to Save Config',
-        'details': err
-      });
-
-    });
-  };
-});
 
 
 angular.module('abode').run(['$templateCache', function($templateCache) {
   'use strict';
 
-  $templateCache.put('views/alarmclocks/add.html',
+  $templateCache.put('views/index.html',
+    "<div ui-view></div>"
+  );
+
+
+  $templateCache.put('modules/abode/views/confirm.html',
+    "<div class=\"modal-header\">\n" +
+    "	<h3 ng-show=\"options.title\"><i class=\"{{options.icon}}\" ng-show=\"options.icon\"></i> {{options.title}}</h3>\n" +
+    "	<h4>{{msg}}</h4>\n" +
+    "\n" +
+    "	<div class=\"row\">\n" +
+    "		<div class=\"col-xs-7 col-xs-offset-5\">\n" +
+    "			<div class=\"btn-group btn-group-justified\">\n" +
+    "				<div class=\"btn-group\" role=\"group\">\n" +
+    "			    	<button class=\"btn btn-primary btn-sm\" type=\"button\" ng-click=\"no()\">No</button>\n" +
+    "				</div>\n" +
+    "				<div class=\"btn-group\" role=\"group\">\n" +
+    "			    	<button class=\"btn btn-success btn-sm\" type=\"button\" ng-click=\"yes()\">Yes</button>\n" +
+    "				</div>\n" +
+    "		    </div>\n" +
+    "	    </div>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/abode/views/display_popover.html',
+    "<div style=\"width: 240px;\">\n" +
+    "  <div class=\"container-fluid\">\n" +
+    "    <div class=\"row\" ng-show=\"display.max_brightness\" ng-show=\"device\">\n" +
+    "      <div class=\"col-xs-12\">\n" +
+    "      	<h4>Brightness</h4>\n" +
+    "      	<rzslider rz-slider-model=\"slider.level\" rz-slider-options=\"slider.options\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "      	<div>&nbsp;</div>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "    <div class=\"row\">\n" +
+    "      <div class=\"col-xs-12\"\">\n" +
+    "        <div class=\"row\">\n" +
+    "          <div class=\"col-xs-4\">Status</div>\n" +
+    "          <div class=\"col-xs-1\" style=\"font-size: .8em;\"><i class=\"icon-server\"></i></div>\n" +
+    "          <div class=\"col-xs-3 text-right\" style=\"font-size: .8em;\"><i class=\"icon-clouddownload\"></i></div>\n" +
+    "          <div class=\"col-xs-3 text-right\" style=\"font-size: .8em;\"><i class=\"icon-clouderror\"></i></div>\n" +
+    "        </div>\n" +
+    "        <div class=\"row\">\n" +
+    "          <div class=\"col-xs-offset-4 col-xs-1\" style=\"font-size: .8em;\">\n" +
+    "            <i class=\"icon-ok text-success\" ng-show=\"root.status.connected\"></i>\n" +
+    "            <i class=\"icon-erroralt text-danger\" ng-show=\"!root.status.connected\"></i>\n" +
+    "          </div>\n" +
+    "          <div class=\"col-xs-3 text-right\" style=\"font-size: .8em;\">{{root.status.messages | number:0}}</div>\n" +
+    "          <div class=\"col-xs-3 text-right\" style=\"font-size: .8em;\">{{root.status.errors | number:0}}</div>\n" +
+    "        </div>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "    <div class=\"row\" ng-show=\"device\">\n" +
+    "    	<div class=\"col-xs-12 text-center\">\n" +
+    "        <div class=\"btn-group btn-group-justified\">\n" +
+    "          <div class=\"btn-group\">\n" +
+    "            <button class=\"btn btn-default btn-sm\" ng-click=\"lock()\"><i class=\"icon-lock\"></i></button>\n" +
+    "          </div>\n" +
+    "          <div class=\"btn-group\" ng-show=\"root.status.connected\">\n" +
+    "            <button class=\"btn btn-default btn-sm\"  ui-sref=\"main.settings.client\"><i class=\"icon-settingsfour-gearsalt\"></i></button>\n" +
+    "          </div>\n" +
+    "          <div class=\"btn-group\">\n" +
+    "            <button class=\"btn btn-default btn-sm\" ng-click=\"network()\"><i class=\"icon-network\"></i></button>\n" +
+    "          </div>\n" +
+    "          <div class=\"btn-group\">\n" +
+    "            <button class=\"btn btn-default btn-sm\" ng-click=\"power()\"><i class=\"icon-off\"></i></button>\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('modules/abode/views/display_status.html',
+    "<div uib-popover-template=\"'views/main/display_popover.html'\" popover-trigger=\"'outsideClick click'\" popover-placement=\"bottom-right\" popover-is-open=\"popover\">\n" +
+    "  <i ng-show=\"loading\" class=\"text-muted pointer icon-circleselection spin\"></i>\n" +
+    "  <i ng-hide=\"loading || device == false\" class=\"pointer\" ng-class=\"{'text-danger': !network.connected, 'text-success': network.connected, 'icon-lan': !network.essid, 'icon-lan': !network.essid, 'icon-networksignal': network.essid, 'text-warning': network.connected && !root.status.connected}\"></i>\n" +
+    "  <i ng-hide=\"loading || device == true\" class=\"pointer\" ng-class=\"{'icon-plug': !root.status.connected, 'icon-networksignal': root.status.connected, 'text-success': root.status.connected, 'text-danger': !root.status.connected}\"></i>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/abode/views/event_status.html',
+    "<div style=\"text-align: left;\">\n" +
+    "	<div ng-show=\"root.status.connected\">Status: Connected</div>\n" +
+    "	<div ng-show=\"!root.status.connected\">Status: Disconnected</div>\n" +
+    "	<div>Events: {{root.status.messages | number:0}}</div>\n" +
+    "	<div>Errors: {{root.status.errors | number:0}}</div>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('modules/abode/views/icons.html',
+    "<div class=\"icon-selector bg-muted\">\n" +
+    "<ul>\n" +
+    "	<li ng-repeat=\"icon in icons | orderBy: 'name'\" ng-class=\"{'icon-selected': icon.class == value}\" ng-click=\"selectIcon(icon)\"><i class=\"{{icon.class}}\"></i></li>\n" +
+    "<ul>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('modules/abode/views/index.html',
+    "<div class=\"view\" ui-view>\n" +
+    "\n" +
+    "</div>\n" +
+    "<div class=\"anav-shade\" ng-click=\"anav_open = false; notifications.hidden = true\" ng-show=\"anav_open || !notifications.hidden\"></div>\n" +
+    "\n" +
+    "<div class=\"anav-drawer\" ng-class=\"{'anav-visible': anav_open}\">\n" +
+    "	<div class=\"anav-opener\">\n" +
+    "\n" +
+    "	</div>\n" +
+    "	<div class=\"anav-top\">\n" +
+    "\n" +
+    "	    <div class=\"row\">\n" +
+    "	      <div class=\"col-xs-4\"><img src=\"./images/home.png\" style=\"height: 5em;\"></div>\n" +
+    "	      <div class=\"col-xs-8\" style=\"text-align: right\">\n" +
+    "\n" +
+    "	<div class=\"btn-group\" uib-dropdown is-open=\"status.isopen\">\n" +
+    "	  <button id=\"single-button\" type=\"button\" class=\"btn btn-default\" uib-dropdown-toggle ng-disabled=\"disabled\">\n" +
+    "	    <i class=\"icon-monitor\"></i> Interface <span class=\"caret\"></span>\n" +
+    "	  </button>\n" +
+    "	  <ul uib-dropdown-menu role=\"menu\" aria-labelledby=\"single-button\">\n" +
+    "	    <li role=\"menuitem\" ng-repeat=\"interface in interfaces | orderBy: '+name'\" ui-sref=\"main.home({interface: interface.name})\" ><a href=\"#\"ng-click=\"anav_open=false\"><i class=\"{{interface.icon}}\"></i> {{interface.name}}</a></li>\n" +
+    "	  </ul>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	      </div>\n" +
+    "	    </div>\n" +
+    "\n" +
+    "	</div>\n" +
+    "	<div class=\"anav-mid\">\n" +
+    "	  <ul>\n" +
+    "	    <li ui-sref=\"main.home\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-home\"></i> Home</li>\n" +
+    "	    <li ui-sref=\"main.rooms\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-modal-window\"></i> Rooms</li>\n" +
+    "	    <li ui-sref=\"main.devices\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-oil\"></i> Devices</li>\n" +
+    "	    <li ui-sref=\"main.scenes\" ng-click=\"anav_open=false\"><i class=\"icon-picture\"></i> Scenes</li>\n" +
+    "      <li ui-sref=\"main.notifications\" ng-click=\"anav_open=false\"><i class=\"icon-flag\"></i> Notifications</li>\n" +
+    "	    <li ui-sref=\"main.triggers\" ng-click=\"anav_open=false\"><i class=\"icon-bomb\"></i> Triggers</li>\n" +
+    "\n" +
+    "	  </ul>\n" +
+    "	</div>\n" +
+    "	<div class=\"anav-bottom\">\n" +
+    "	  <ul>\n" +
+    "	    <li ui-sref=\"main.settings\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-cog\"></i> Settings</li>\n" +
+    "	    <li class=\"text-right\" ng-click=\"logout()\"><i class=\"glyphicon glyphicon-log-out\"></i> Logout</li>\n" +
+    "	  </ul>\n" +
+    "	</div>\n" +
+    "</div>\n" +
+    "\n" +
+    "<div style=\"position: absolute; z-index: 1000; font-size: 3em;\">\n" +
+    "</div>\n" +
+    "<div class=\"status-bar\" ng-class=\"{night: time.is.night && client.night_mode}\">\n" +
+    "	<div class=\"anav-opener  text-muted pull-left\"  ng-click=\"anav_open = true\"><i class=\"icon-menu\"></i></div>\n" +
+    "	<div ng-show=\"client.show_date\">{{date | date:'EEE, MMM d'}}</div>\n" +
+    "	<weather-status></weather-status>\n" +
+    "	<device-status device=\"device\"></device-status>\n" +
+    "	<notifications-status></notifications-status>\n" +
+    "</div>\n" +
+    "<notifications></notifications>\n"
+  );
+
+
+  $templateCache.put('modules/abode/views/locked.html',
+    "<div class=\"modal-body text-center\">\n" +
+    "<pin-entry pin-model=\"pin\" randomize=\"true\" show-submit=\"true\" submit=\"unlock(pin)\" checking=\"checking\" error=\"error\" success=\"success\"></pin-entry>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('modules/abode/views/message.html',
+    "<div class=\"messages\" ng-class=\"{'messages-active': messages.length > 0}\">\n" +
+    "  <div class=\"messages-message\" ng-repeat=\"message in messages\">\n" +
+    "    <i class=\"\" ng-class=\"{'text-success': message.type == 'success', 'text-info': message.type == 'info', 'text-danger': message.type == 'failed', 'icon-ok-sign': message.type == 'success', 'icon-info-sign': message.type == 'info', 'icon-warning-sign': message.type == 'failed'}\"></i> {{message.message}}\n" +
+    "  </div>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('modules/abode/views/network.html',
+    "<div class=\"modal-body\">\n" +
+    "  <h3>\n" +
+    "    <i class=\"icon-network\"></i>&nbsp;&nbsp;Network\n" +
+    "  </h3>\n" +
+    "\n" +
+    "  <div class=\"row\">\n" +
+    "    <div class=\"col-xs-12 col-sm-5 col-md-4\">\n" +
+    "      <div class=\"well\" style=\"font-size: .9em;\">\n" +
+    "        <div>Connection: <i class=\"icon-circleselection spin\" ng-show=\"checking\"></i><i class=\"icon-ok text-success\" ng-show=\"status.connected && !checking\"></i><i class=\"icon-erroralt text-danger\" ng-show=\"!status.connected && !checking\"></i></div>\n" +
+    "        <div ng-show=\"status.connected\">\n" +
+    "          <div>Interface: {{status.interface}}</div>\n" +
+    "          <div>IP: {{status.ip}}</div>\n" +
+    "          <div>Gateway: {{status.gateway}}</div>\n" +
+    "          <div ng-show=\"status.essid\">SSID: {{status.essid}}</div>\n" +
+    "        </div>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "    <div class=\"col-xs-12  col-sm-7 col-md-8\">\n" +
+    "      <div class=\"list-group\">\n" +
+    "        <button type=\"button\" class=\"list-group-item list-group-item-danger\" ng-show=\"networks.length == 0 && !scanning\" ng-click=\"scan()\"><i class=\"icon-exclamation-sign text-danger\"></i> Unable to detect any networks to connect to. Click to Scan</button>\n" +
+    "\n" +
+    "        <button type=\"button\" class=\"list-group-item\" ng-repeat=\"ssid in networks\" ng-click=\"connect_wifi(ssid)\">\n" +
+    "          <i ng-show=\"ssid.encryption\" class=\"icon-lock\" ng-class=\"{'text-warning': !ssid.connected, 'text-success': ssid.connected}\"></i> \n" +
+    "          <i ng-show=\"!ssid.encryption\" class=\"icon-wifi\" ng-class=\"{'text-danger': !ssid.connected, 'text-success': ssid.connected}\"></i> \n" +
+    "          {{ssid.essid}} <span class=\"pull-right\">{{ssid.signal}}</span><br> <div class=\"text-muted\" style=\"font-size: .7em;\">{{ssid.macaddress}}</div>\n" +
+    "        </button>\n" +
+    "\n" +
+    "        <button type=\"button\" class=\"list-group-item\" disabled ng-show=\"scanning\"><i class=\"icon-circleselection spin \"></i> Searching of wireless networks...</button>\n" +
+    "\n" +
+    "        <button type=\"button\" class=\"list-group-item\" ng-show=\"!scanning && networks.length > 0\" ng-click=\"scan()\"><i class=\"icon-ok-sign text-success\"></i> Found {{networks.length}} Networks[s]<div><small>Click to scan again.</small></div></button>\n" +
+    "\n" +
+    "      </div>\n" +
+    "      <p class=\"text-center\"><strong>- Manual Connection -</strong></p>\n" +
+    "      <form name=\"manualSSIDFrm\">\n" +
+    "        <div class=\"form-group\">\n" +
+    "          <div class=\"input-group\">\n" +
+    "          <input type=\"text\" class=\"form-control\" id=\"ssid\" placeholder=\"SSID\" required=\"\" ng-model=\"manual_wifi.essid\">\n" +
+    "          <span class=\"input-group-btn\">\n" +
+    "            <button type=\"submit\" class=\"pull-right btn btn-default\" ng-click=\"connect_wifi(manual_wifi)\" ng-disabled=\"!manual_wifi.essid\">\n" +
+    "              <i class=\"icon-connected\"></i> Connect\n" +
+    "            </button>\n" +
+    "          </span>\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "      </form>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"row\">\n" +
+    "    <div class=\"col-xs-12 text-right\">\n" +
+    "      <button class=\"btn btn-link btn-sm btn-warning\" ng-click=\"close()\">Close</button>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('modules/abode/views/pin_entry.html',
+    "<div  style=\"display: inline-block; width: 12em; padding: 0em;\">\n" +
+    "	<div style=\"width: 100%; border-radius: .25em;  border: 1px solid #aaa; background-color: #333; padding: .25em; height: 2em; margin: 0em;\" ng-class=\"{'text-danger': error, 'text-muted': !error && !success, 'text-success': success}\">\n" +
+    "	<i ng-repeat=\"k in pinModel track by $index\" style=\"margin: .25em;\" class=\"icon-circlerecord \"></i>\n" +
+    "	</div>\n" +
+    "	<div>\n" +
+    "	<div>&nbsp;</div>\n" +
+    "	<div style=\"text-align: left\">\n" +
+    "		<button ng-repeat=\"k in [0, 1, 2] track by $index\" class=\"pin-entry-key\" ng-class=\"{'pin-entry-key-disabled': checking || error}\" ng-click=\"entry(numbers[k])\" ng-disabled=\"checking || error\">{{numbers[k]}}</button>\n" +
+    "	</div>\n" +
+    "	<div style=\"text-align: left\">\n" +
+    "		<button ng-repeat=\"k in [3, 4, 5] track by $index\" class=\"pin-entry-key\" ng-class=\"{'pin-entry-key-disabled': checking || error}\" ng-click=\"entry(numbers[k])\" ng-disabled=\"checking || error\">{{numbers[k]}}</button>\n" +
+    "	</div>\n" +
+    "	<div style=\"text-align: left\">\n" +
+    "		<button ng-repeat=\"k in [6, 7, 8] track by $index\" class=\"pin-entry-key\" ng-class=\"{'pin-entry-key-disabled': checking || error}\" ng-click=\"entry(numbers[k])\" ng-disabled=\"checking || error\">{{numbers[k]}}</button>\n" +
+    "	</div>\n" +
+    "	<div style=\"text-align: left\">\n" +
+    "		<button class=\"pin-entry-key\" ng-class=\"{'pin-entry-key-disabled': checking || error}\" ng-click=\"entry('back')\"><i class=\"icon-chevron-left\" ng-disabled=\"checking || error\"></i></button><button class=\"pin-entry-key\" ng-class=\"{'pin-entry-key-disabled': checking || error}\" ng-click=\"entry(numbers[9])\" ng-disabled=\"checking || error\">{{numbers[9]}}</button><button class=\"pin-entry-key\" ng-class=\"{'pin-entry-key-danger': error, 'pin-entry-key-disabled': checking || pinModel.length == 0, 'pin-entry-key-submit': !checking && !success && !error && pinModel.length > 0}\" ng-show=\"showSubmit\" ng-click=\"submit()\" ng-disabled=\"checking || error\">\n" +
+    "			<i class=\"icon-unlock\" ng-hide=\"checking\"></i>\n" +
+    "			<i class=\"icon-circleselection spin\" ng-show=\"checking\"></i>\n" +
+    "		</button>\n" +
+    "	</div>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('modules/abode/views/power.html',
+    "<div class=\"modal-body\">\n" +
+    "  <h3><i class=\"icon-off\"></i>&nbsp;&nbsp;Power</h3>\n" +
+    "  <h6 ng-show=\"action=='restart' && count_down > 0 && !error\">Restarting in {{count_down}} seconds.<br/><button class=\"btn btn-sm btn-link\" ng-click=\"count_down=1\">Restart Now</button></h6>\n" +
+    "  <h6 ng-show=\"action=='restart' && count_down == 0 && !error\">Restarting...</h6>\n" +
+    "  <h6 ng-show=\"action=='shutdown' && count_down > 0 && !error\">Shutting down in {{count_down}} seconds.<br/><button class=\"btn btn-sm btn-link\" ng-click=\"count_down=1\">Shut down Now</button></h6>\n" +
+    "  <h6 ng-show=\"action=='shutdown' && count_down == 0 && !error\">Shutting Down...</h6>\n" +
+    "  <h6 ng-show=\"error\"><i class=\"text-danger icon-erroralt\"></i> {{error}}</h6>\n" +
+    "  <div>&nbsp;</div>\n" +
+    "  <div class=\"btn-group btn-group-justified\">\n" +
+    "    <div class=\"btn-group\" role=\"group\">\n" +
+    "      <button class=\"btn btn-default btn-sm\" type=\"button\" ng-click=\"cancel()\" ng-disabled=\"action!='' && count_down == 0 && !error\">Cancel</button>\n" +
+    "    </div>\n" +
+    "    <div class=\"btn-group\" role=\"group\">\n" +
+    "      <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"restart()\" ng-disabled=\"action!=''\">Restart</button>\n" +
+    "    </div>\n" +
+    "    <div class=\"btn-group\" role=\"group\">\n" +
+    "      <button class=\"btn btn-danger btn-sm\" type=\"button\" ng-click=\"shutdown()\" ng-disabled=\"action!=''\">Shutdown</button>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/abode/views/server_gone.html',
+    "<div class=\"modal-header\">\n" +
+    "    <h4 class=\"modal-title\">Server Error</h4>\n" +
+    "</div>\n" +
+    "<div class=\"modal-body\">\n" +
+    "  <div class=\"container-fluid\">\n" +
+    "    The server seems to have gone away.  You can either retry and select another server.\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "\n" +
+    "</div>\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"retry()\"><i class=\"icon-refresh\"></i> Retry</button>\n" +
+    "    <button class=\"btn btn-primary btn-sm\" type=\"button\" ng-click=\"select()\"><i class=\"icon-server\"></i> Select Another</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/abode/views/slider.html',
+    "<div class=\"slider\">\n" +
+    "	<div class=\"slider-track\"></div>\n" +
+    "	<div ng-mousedown=\"start($event)\" ng-mouseup=\"end()\" class=\"slider-handle\" ng-style=\"sliderPosition\"></div>{{level}}\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('modules/abode/views/tags.add.html',
+    "\n" +
+    "<div class=\"modal-body\">\n" +
+    "	<h3><i class=\"icon-addtags\"></i> Add Tag</h3>\n" +
+    "	<div class=\"input-group\" ng-class=\"{'has-error': error}\">\n" +
+    "		<div class=\"input-group-addon\"><i class=\"icon-tag\"></i></div>\n" +
+    "		<input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Tag\" ng-model=\"tag.name\" autocomplete='off'>\n" +
+    "	</div>\n" +
+    "	<span id=\"helpBlock\" class=\"help-block text-danger\" ng-show=\"error\">{{error}}</span>\n" +
+    "	<div>&nbsp;</div>\n" +
+    "	<div class=\"text-right\">\n" +
+    "	    <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"cancel()\">Cancel</button>\n" +
+    "	    <button class=\"btn btn-primary btn-sm\" type=\"button\" ng-click=\"add()\"><i class=\"icon-circleadd\"></i> Add</button>\n" +
+    "	</div>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('modules/abode/views/tags.html',
+    "<div class=\"tag-list\">\n" +
+    "	<div class=\"tag-list-add\">\n" +
+    "		<button class=\"btn btn-link btn-sm\" ng-click=\"addTag()\"><i class=\"icon-addtags\"></i></button>\n" +
+    "	</div>\n" +
+    "	<div class=\"tag-list-tags\">\n" +
+    "		<div class=\"tag-list-tag\" ng-repeat=\"tag in tagModel\">{{tag}} <i class=\"icon-remove-circle text-default pointer\" ng-click=\"removeTag($index)\"></i></div>\n" +
+    "	</div>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('modules/alarmclock/views/add.html',
     "<div class=\"modal-body\">\n" +
     "  <div class=\"form-group\">\n" +
     "    <label for=\"name\">Name</label>\n" +
@@ -54739,7 +55472,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/alarmclocks/edit.html',
+  $templateCache.put('modules/alarmclock/views/edit.html',
     "<div class=\"modal-body\">\n" +
     "  <div class=\"form-group\">\n" +
     "    <label for=\"name\">Name</label>\n" +
@@ -54793,7 +55526,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/alarmclocks/list.html',
+  $templateCache.put('modules/alarmclock/views/list.html',
     "<div style=\"text-align: center\">\n" +
     "  <div class=\"alarm-link\" ng-repeat=\"alarm in alarms\" ng-click=\"open(alarm)\" ng-class=\"{'alarm-enabled': alarm.enabled}\">\n" +
     "    <div class=\"alarm-time\">{{alarm.time | time}}</div>\n" +
@@ -54814,28 +55547,330 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/confirm.html',
-    "<div class=\"modal-header\">\n" +
-    "	<h3 ng-show=\"options.title\"><i class=\"{{options.icon}}\" ng-show=\"options.icon\"></i> {{options.title}}</h3>\n" +
-    "	<h4>{{msg}}</h4>\n" +
+  $templateCache.put('modules/autoshades/views/add.device.html',
+    "<div class=\"modal-header\"><h3>Assign Device</h3></div>\n" +
     "\n" +
-    "	<div class=\"row\">\n" +
-    "		<div class=\"col-xs-7 col-xs-offset-5\">\n" +
-    "			<div class=\"btn-group btn-group-justified\">\n" +
-    "				<div class=\"btn-group\" role=\"group\">\n" +
-    "			    	<button class=\"btn btn-primary btn-sm\" type=\"button\" ng-click=\"no()\">No</button>\n" +
-    "				</div>\n" +
-    "				<div class=\"btn-group\" role=\"group\">\n" +
-    "			    	<button class=\"btn btn-success btn-sm\" type=\"button\" ng-click=\"yes()\">Yes</button>\n" +
-    "				</div>\n" +
-    "		    </div>\n" +
-    "	    </div>\n" +
+    "<div class=\"modal-body\">\n" +
+    "  <p>\n" +
+    "    <div class=\"input-group\" ng-hide=\"loading\">\n" +
+    "      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"search\" autocomplete='off'>\n" +
+    "      <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
     "    </div>\n" +
+    "  </p>\n" +
+    "\n" +
+    "  <div ng-show=\"loading\"><i class=\"icon-refresh spin\"></i> Loading Shades</div>\n" +
+    "  <div class=\"form-group\" ng-hide=\"loading\">\n" +
+    "    <ul class=\"list-group\">\n" +
+    "      <li style=\"cursor: pointer;\" class=\"list-group-item\" ng-repeat=\"device in devices | filter: search | orderBy: '+name'\" ng-click=\"select(device)\" ng-show=\"assigned.indexOf(device.name) == -1\">{{device.name}}</li>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "\n" +
+    "\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"cancel()\">Cancel</button>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/devices/assign.html',
+  $templateCache.put('modules/autoshades/views/add.html',
+    "<div ng-controller=\"autoshadesAdd\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Level at Sunrise <toggle value=\"device.config.sunrise\" class=\"pull-right\"></toggle></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <rzslider rz-slider-model=\"device.config.sunrise_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.sunrise}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Follow the Sun <toggle value=\"device.config.track\" class=\"pull-right\"></toggle></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Mode</label>\n" +
+    "        <select class=\"form-control\" ng-model=\"device.config.mode\" ng-options=\"item for item in modes\" ng-disabled=\"!device.config.track\"></select>\n" +
+    "      </div>\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Min Azimuth</label>\n" +
+    "        <rzslider rz-slider-model=\"device.config.min_azimuth\" rz-slider-options=\"{floor: 0, ceil: 360, hideLimitLabels: true, disabled: !device.config.track}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "      </div>\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Max Azimuth</label>\n" +
+    "        <rzslider rz-slider-model=\"device.config.max_azimuth\" rz-slider-options=\"{floor: 0, ceil: 360, hideLimitLabels: true, disabled: !device.config.track}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Cloudy Level</div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Device</label>\n" +
+    "        <select-device value=\"device.config.weather\" capabilities=\"['weather']\"></select-device>\n" +
+    "      </div>\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <rzslider rz-slider-model=\"device.config.cloudy_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.weather}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Level at Sunset <toggle value=\"device.config.sunset\" class=\"pull-right\"></toggle></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <rzslider rz-slider-model=\"device.config.sunset_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.sunset}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">\n" +
+    "      Shades \n" +
+    "      <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"addDevice()\"><i class=\"icon-circleadd\"></i> Add</button>\n" +
+    "    </div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <ul class=\"list-group bg-muted select-list\" style=\"height: 20em;\">\n" +
+    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"device in device.config.devices\" ng-class=\"{'list-group-item-success': device === selected}\">\n" +
+    "          {{device.name}}\n" +
+    "          <button class=\"pull-right btn btn-danger btn-xs\" ng-click=\"deleteDevice(device.$index)\"><i class=\"icon-trash\"></i></button>\n" +
+    "          <rzslider rz-slider-model=\"device.min_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "          <div><small>Wait until level: {{device.wait_level}}%</small></div>\n" +
+    "          <rzslider rz-slider-model=\"device.wait_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "          <div><small>Min Level: {{device.min_level}}%</small></div>\n" +
+    "        </li>\n" +
+    "      </ul>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/autoshades/views/edit.html',
+    "<div ng-controller=\"autoshadesEdit\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Level at Sunrise <toggle value=\"device.config.sunrise\" class=\"pull-right\"></toggle></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <rzslider rz-slider-model=\"device.config.sunrise_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.sunrise}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Follow the Sun <toggle value=\"device.config.track\" class=\"pull-right\"></toggle></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Mode</label>\n" +
+    "        <select class=\"form-control\" ng-model=\"device.config.mode\" ng-options=\"item for item in modes\" ng-disabled=\"!device.config.track\"></select>\n" +
+    "      </div>\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Min Azimuth</label>\n" +
+    "        <rzslider rz-slider-model=\"device.config.min_azimuth\" rz-slider-options=\"{floor: 0, ceil: 360, hideLimitLabels: true, disabled: !device.config.track}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "      </div>\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Max Azimuth</label>\n" +
+    "        <rzslider rz-slider-model=\"device.config.max_azimuth\" rz-slider-options=\"{floor: 0, ceil: 360, hideLimitLabels: true, disabled: !device.config.track}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Cloudy Level</div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"name\">Device</label>\n" +
+    "        <select-device value=\"device.config.weather\" capabilities=\"['weather']\"></select-device>\n" +
+    "      </div>\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <rzslider rz-slider-model=\"device.config.cloudy_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.weather}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">Level at Sunset <toggle value=\"device.config.sunset\" class=\"pull-right\"></toggle></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <rzslider rz-slider-model=\"device.config.sunset_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.sunset}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">\n" +
+    "      Shades \n" +
+    "      <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"addDevice()\"><i class=\"icon-circleadd\"></i> Add</button>\n" +
+    "    </div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "      <ul class=\"list-group bg-muted select-list\" style=\"height: 20em;\">\n" +
+    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"device in device.config.devices\" ng-class=\"{'list-group-item-success': device === selected}\">\n" +
+    "          {{device.name}}\n" +
+    "          <button class=\"pull-right btn btn-danger btn-xs\" ng-click=\"deleteDevice(device.$index)\"><i class=\"icon-trash\"></i></button>\n" +
+    "          <rzslider rz-slider-model=\"device.wait_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "          <div><small>Wait until level: {{device.wait_level}}%</small></div>\n" +
+    "          <rzslider rz-slider-model=\"device.min_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "          <div><small>Min Level: {{device.min_level}}%</small></div>\n" +
+    "        </li>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/autoshades/views/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Auto-Shades\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Process Interval (min)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Process Interval\" required=\"\" ng-model=\"config.interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"debug\">Debug Logging: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('modules/browser/views/edit.html',
+    "<div ng-controller=\"radEdit\">\n" +
+    "	<div class=\"form-group\">\n" +
+    "	  <label for=\"name\">Name</label>\n" +
+    "	  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\">\n" +
+    "		<label for=\"enabled\">Default Interface: </label>\n" +
+    "		<select class=\"form-control\" ng-model=\"device.config.interface\" ng-options=\"iface._id as iface.name for iface in interfaces | orderBy:'name'\"></select>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\">\n" +
+    "		<label for=\"enabled\">Show events in Browser: </label>\n" +
+    "		<toggle value=\"device.config.show_events\" class=\"pull-right\"></toggle>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\">\n" +
+    "		<label for=\"enabled\">Dim Display: </label>\n" +
+    "		<toggle value=\"device.config.dim_display\" class=\"pull-right\"></toggle>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\" ng-show=\"device.config.dim_display\">\n" +
+    "		<label for=\"enabled\">Dim After: </label>\n" +
+    "		<input class=\"form-control\" type=\"number\" placeholder=\"Seconds\" ng-model=\"device.config.dim_after\">\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\">\n" +
+    "		<label for=\"enabled\">Night Mode (changes text to red at night): </label>\n" +
+    "		<toggle value=\"device.config.night_mode\" class=\"pull-right\"></toggle>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\">\n" +
+    "		<label for=\"enabled\">Show Date: </label>\n" +
+    "		<toggle value=\"device.config.show_date\" class=\"pull-right\"></toggle>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\">\n" +
+    "		<label for=\"enabled\">Show Weather: </label>\n" +
+    "		<toggle value=\"device.config.show_weather\" class=\"pull-right\"></toggle>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div class=\"form-group\">\n" +
+    "	  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "	  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "	</div>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('modules/camera/views/add.html',
+    "<div ng-controller=\"cameraAdd\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Username</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"username\" placeholder=\"Username\" ng-model=\"device.config.username\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Password</label>\n" +
+    "    <input type=\"password\" class=\"form-control\" id=\"password\" placeholder=\"Password\" ng-model=\"device.config.password\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Video URL</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"video_url\" placeholder=\"Video URL\" ng-model=\"device.config.video_url\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Image URL</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"image_url\" placeholder=\"Image URL\" ng-model=\"device.config.image_url\">\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/camera/views/edit.html',
+    "<div ng-controller=\"cameraEdit\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Username</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"username\" placeholder=\"Username\" ng-model=\"device.config.username\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Password</label>\n" +
+    "    <input type=\"password\" class=\"form-control\" id=\"password\" placeholder=\"Password\" ng-model=\"device.config.password\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Video URL</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"video_url\" placeholder=\"Video URL\" ng-model=\"device.config.video_url\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Image URL</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"image_url\" placeholder=\"Image URL\" ng-model=\"device.config.image_url\">\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "    <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/camera/views/settings.html',
+    ""
+  );
+
+
+  $templateCache.put('modules/devices/views/assign.html',
     "<div class=\"modal-header\"><h3>Assign Room</h3></div>\n" +
     "\n" +
     "<div class=\"modal-body\">\n" +
@@ -54861,7 +55896,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/capabilities/battery_sensor.html',
+  $templateCache.put('modules/devices/views/capabilities/battery_sensor.html',
     "\n" +
     "<h4 style=\" white-space: nowrap\">{{device._battery | number:0}}%\n" +
     "	<i class=\"icon-batteryaltthird text-danger\" ng-show=\"device._battery <= 50\"></i>\n" +
@@ -54871,7 +55906,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/capabilities/camera.html',
+  $templateCache.put('modules/devices/views/capabilities/camera.html',
     "<div style=\"text-align: center;\">\n" +
     "  <img src=\"/api/sources/{{source}}/devices/{{device.name}}/image\" style=\"width: 100%; cursor: pointer\" ng-click=\"openVideo(device)\" ng-if=\"source\">\n" +
     "  <img src=\"/api/devices/{{device.name}}/image\" style=\"width: 100%; cursor: pointer\" ng-click=\"openVideo(device)\" ng-if=\"!source\">\n" +
@@ -54879,7 +55914,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/capabilities/conditioner.html',
+  $templateCache.put('modules/devices/views/capabilities/conditioner.html',
     "<div class=\"container-fluid\">\n" +
     "  <div class=\"col-xs-5\" style=\"padding-top: 0em; font-size: .7em;\">\n" +
     "    <div class=\"img-circle\" ng-click=\"set_mode('HEAT')\" ng-class=\"{'bg-muted': device._mode == 'HEAT', 'bg-danger': (device._mode == 'HEAT' && device._on)}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"icon-fire\"></i></div>\n" +
@@ -54896,7 +55931,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/capabilities/display.html',
+  $templateCache.put('modules/devices/views/capabilities/display.html',
     "<div class=\"row\">\n" +
     "  <p><b>Backlight</b></p>\n" +
     "  <div class=\"col-xs-5 text-left\" style=\"padding-top: 0em;\">\n" +
@@ -54928,7 +55963,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/capabilities/fan.html',
+  $templateCache.put('modules/devices/views/capabilities/fan.html',
     "<div style=\"text-align: center;\">\n" +
     "  <div style=\"border: .1em solid white; border-radius: .4em; height: 18em; width: 10em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; cursor: pointer; padding-top: 5em; transition: 2s;\" ng-class=\"{'bg-success':  device._on}\" ng-click=\"toggle_onoff()\">\n" +
     "    <div style=\"text-align: center;\">\n" +
@@ -54939,13 +55974,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/capabilities/humidity_sensor.html',
+  $templateCache.put('modules/devices/views/capabilities/humidity_sensor.html',
     "\n" +
     "<h4 style=\" white-space: nowrap\">{{device._humidity}} <i class=\"wi wi-humidity wi-fw\"></i></h4>\n"
   );
 
 
-  $templateCache.put('views/devices/capabilities/light.html',
+  $templateCache.put('modules/devices/views/capabilities/light.html',
     "<div class=\"container-fluid\">\n" +
     "  <div class=\"col-xs-5 text-left\" style=\"padding-top: 0em;\">\n" +
     "    <div style=\"border: .1em solid white; border-radius: .4em; height: 10em; width: 4em; text-align: center; vertical-align: middle; position: relative; cursor: pointer; padding-top: 3em; transition: 2s;\" ng-class=\"{'bg-success':  device._on || device._level > 0}\" ng-click=\"toggle_onoff()\">\n" +
@@ -54970,13 +56005,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/capabilities/light_sensor.html',
+  $templateCache.put('modules/devices/views/capabilities/light_sensor.html',
     "\n" +
     "<h4 style=\" white-space: nowrap\">{{device._lumens | number:1}} <i class=\"wi wi-day-sunny wi-fw\"></i></h4>\n"
   );
 
 
-  $templateCache.put('views/devices/capabilities/lock.html',
+  $templateCache.put('modules/devices/views/capabilities/lock.html',
     "<div style=\"text-align: center;\">\n" +
     "  <div style=\"border: .1em solid white; border-radius: .4em; height: 12em; width: 8em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; padding-top: 1em; transition: 2s;\" >\n" +
     "    <div style=\"text-align: center;\">\n" +
@@ -54988,14 +56023,14 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/capabilities/motion_sensor.html',
+  $templateCache.put('modules/devices/views/capabilities/motion_sensor.html',
     "<div style=\"text-align: center;\">\n" +
     "  <button class=\"btn btn-sm\" ng-click=\"toggle_motion()\" ng-class=\"{'btn-danger':  device._motion, 'btn-primary': !device._motion}\">&nbsp;<i class=\"fi-motion\"></i>&nbsp;</button>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/devices/capabilities/onoff.html',
+  $templateCache.put('modules/devices/views/capabilities/onoff.html',
     "<div style=\"text-align: center;\" ng-hide=\"has_capability('dimmer') || has_capability('scene')\">\n" +
     "  <div style=\"border: .1em solid white; border-radius: .4em; height: 6em; width: 14em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; cursor: pointer; padding-top: 1em; transition: 2s;\" ng-class=\"{'bg-success':  !device._on, 'bg-danger':  device._on}\" ng-click=\"toggle_onoff()\">\n" +
     "    <div style=\"text-align: center;\">\n" +
@@ -55007,7 +56042,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/capabilities/openclose.html',
+  $templateCache.put('modules/devices/views/capabilities/openclose.html',
     "<div style=\"text-align: center;\">\n" +
     "  <div style=\"border: .1em solid white; border-radius: .4em; height: 4em; width: 10em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; cursor: pointer;  transition: 2s;\" ng-class=\"{'bg-success':  !device._on, 'bg-danger':  device._on}\" ng-click=\"toggle_onoff()\">\n" +
     "    <div style=\"text-align: center;\">\n" +
@@ -55019,7 +56054,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/capabilities/scene.html',
+  $templateCache.put('modules/devices/views/capabilities/scene.html',
     "<div style=\"text-align: center;\" ng-hide=\"has_capability('dimmer')\">\n" +
     "  <div style=\"border: .1em solid white; border-radius: .4em; height: 10em; width: 14em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; cursor: pointer; transition: 2s;\">\n" +
     "    <div style=\"text-align: center;\">\n" +
@@ -55032,7 +56067,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/capabilities/shade.html',
+  $templateCache.put('modules/devices/views/capabilities/shade.html',
     "<div class=\"container-fluid\">\n" +
     "  <div class=\"col-xs-5 text-left\" style=\"padding-top: 0em;\">\n" +
     "    <div style=\"border: .1em solid white; border-radius: .4em; height: 10em; width: 4em; text-align: center; vertical-align: middle; position: relative; cursor: pointer; padding-top: 3em; transition: 2s;\" ng-click=\"toggle_onoff()\">\n" +
@@ -55055,13 +56090,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/capabilities/temperature_sensor.html',
+  $templateCache.put('modules/devices/views/capabilities/temperature_sensor.html',
     "\n" +
     "<h4 style=\" white-space: nowrap\">{{device._temperature}} <i class=\"wi wi-thermometer wi-fw\"></i></h4>\n"
   );
 
 
-  $templateCache.put('views/devices/devices.add.html',
+  $templateCache.put('modules/devices/views/devices.add.html',
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
@@ -55152,14 +56187,14 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/devices.camera.html',
+  $templateCache.put('modules/devices/views/devices.camera.html',
     "<div>\n" +
     "  <img src=\"{{camera_url}}\" style=\"width: 100%\" ng-click=\"ok()\">\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/devices/devices.edit.html',
+  $templateCache.put('modules/devices/views/devices.edit.html',
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
@@ -55272,13 +56307,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/devices.html',
+  $templateCache.put('modules/devices/views/devices.html',
     "<div class=\"bg-muted\" style=\"position: absolute; top: 0px; bottom: 0px; right: 0px; left: 0px; overflow: auto;\" ui-view>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/devices/devices.list.html',
+  $templateCache.put('modules/devices/views/devices.list.html',
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 7em;\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
@@ -55325,7 +56360,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/devices.select.html',
+  $templateCache.put('modules/devices/views/devices.select.html',
     "\n" +
     "<button class=\"btn form-control\" ng-click=\"openAssign()\" ng-class=\"{'btn-default': device, 'btn-primary': !device, 'btn-danger': error}\" ng-disabled=\"loading\">\n" +
     "  <div ng-show=\"!device && !loading && !error\">Select Device</div>\n" +
@@ -55336,7 +56371,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/devices.select.modal.html',
+  $templateCache.put('modules/devices/views/devices.select.modal.html',
     "<div class=\"modal-header\"><h3>Assign Device</h3></div>\n" +
     "\n" +
     "<div class=\"modal-body\">\n" +
@@ -55363,7 +56398,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/devices/devices.view.html',
+  $templateCache.put('modules/devices/views/devices.view.html',
     "<div class=\"modal-header\">\n" +
     "    <h4 class=\"modal-title\">{{name}}\n" +
     "\n" +
@@ -55396,7 +56431,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/home/controller.html',
+  $templateCache.put('modules/home/views/controller.html',
     "<div class=\"controller\" ng-mousedown=\"start()\" ng-mouseup=\"stop()\">\n" +
     "  <div class=\"controller-icon\" ng-class=\"{'controller-pending': pending || obj._state == 'pending', 'controller-success': success, 'controller-failed': failed, 'controller-success': (obj._on || obj._lights_on || obj._fans_on) && (action == 'toggle' || action == 'on' || action == 'off') && obj._state != 'pending', 'controller-cool': obj._mode == 'COOL', 'controller-heat': obj._mode == 'HEAT', 'spin': (obj._on || obj._fans_on) && spin}\">\n" +
     "    <span ng-show=\"icon && !obj._temperature\"><i class=\"{{icon}}\"></i></span>\n" +
@@ -55409,7 +56444,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/home/events.html',
+  $templateCache.put('modules/home/views/events.html',
     "<div class=\"events\">\n" +
     "<ul class=\"list-group\">\n" +
     "<li class=\"list-group-item\" ng-repeat=\"event in events\">\n" +
@@ -55433,350 +56468,731 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/home/index.html',
+  $templateCache.put('modules/home/views/index.html',
     "<div>Home <button ng-click=\"logout()\">Logout</button></div>"
   );
 
 
-  $templateCache.put('views/home/interfaceLink.html',
+  $templateCache.put('modules/home/views/interfaceLink.html',
     "<div class=\"interface-link\" ui-sref=\"main.home({interface: interface.name})\" ui-sref-active=\"interface-link-active\">\n" +
     "  <div class=\"interface-icon\"><i class=\"{{interface.icon}}\"></i></div>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/home/interfaceList.html',
+  $templateCache.put('modules/home/views/interfaceList.html',
     "<div class=\"interface-list\">\n" +
     "  <interface-link ng-repeat=\"interface in interfaces\" interface=\"interface\"></interface-link>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/index.html',
-    "<div ui-view></div>"
+  $templateCache.put('modules/ifttt/views/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Providers / IFTTT\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Debug: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
   );
 
 
-  $templateCache.put('views/main/display_popover.html',
-    "<div style=\"width: 240px;\">\n" +
-    "  <div class=\"container-fluid\">\n" +
-    "    <div class=\"row\" ng-show=\"display.max_brightness\" ng-show=\"device\">\n" +
-    "      <div class=\"col-xs-12\">\n" +
-    "      	<h4>Brightness</h4>\n" +
-    "      	<rzslider rz-slider-model=\"slider.level\" rz-slider-options=\"slider.options\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "      	<div>&nbsp;</div>\n" +
-    "      </div>\n" +
-    "    </div>\n" +
-    "    <div class=\"row\">\n" +
-    "      <div class=\"col-xs-12\"\">\n" +
-    "        <div class=\"row\">\n" +
-    "          <div class=\"col-xs-4\">Status</div>\n" +
-    "          <div class=\"col-xs-1\" style=\"font-size: .8em;\"><i class=\"icon-server\"></i></div>\n" +
-    "          <div class=\"col-xs-3 text-right\" style=\"font-size: .8em;\"><i class=\"icon-clouddownload\"></i></div>\n" +
-    "          <div class=\"col-xs-3 text-right\" style=\"font-size: .8em;\"><i class=\"icon-clouderror\"></i></div>\n" +
-    "        </div>\n" +
-    "        <div class=\"row\">\n" +
-    "          <div class=\"col-xs-offset-4 col-xs-1\" style=\"font-size: .8em;\">\n" +
-    "            <i class=\"icon-ok text-success\" ng-show=\"root.status.connected\"></i>\n" +
-    "            <i class=\"icon-erroralt text-danger\" ng-show=\"!root.status.connected\"></i>\n" +
-    "          </div>\n" +
-    "          <div class=\"col-xs-3 text-right\" style=\"font-size: .8em;\">{{root.status.messages | number:0}}</div>\n" +
-    "          <div class=\"col-xs-3 text-right\" style=\"font-size: .8em;\">{{root.status.errors | number:0}}</div>\n" +
-    "        </div>\n" +
-    "      </div>\n" +
-    "    </div>\n" +
-    "    <div class=\"row\" ng-show=\"device\">\n" +
-    "    	<div class=\"col-xs-12 text-center\">\n" +
-    "        <div class=\"btn-group btn-group-justified\">\n" +
-    "          <div class=\"btn-group\">\n" +
-    "            <button class=\"btn btn-default btn-sm\" ng-click=\"lock()\"><i class=\"icon-lock\"></i></button>\n" +
-    "          </div>\n" +
-    "          <div class=\"btn-group\" ng-show=\"root.status.connected\">\n" +
-    "            <button class=\"btn btn-default btn-sm\"  ui-sref=\"main.settings.client\"><i class=\"icon-settingsfour-gearsalt\"></i></button>\n" +
-    "          </div>\n" +
-    "          <div class=\"btn-group\">\n" +
-    "            <button class=\"btn btn-default btn-sm\" ng-click=\"network()\"><i class=\"icon-network\"></i></button>\n" +
-    "          </div>\n" +
-    "          <div class=\"btn-group\">\n" +
-    "            <button class=\"btn btn-default btn-sm\" ng-click=\"power()\"><i class=\"icon-off\"></i></button>\n" +
-    "          </div>\n" +
-    "        </div>\n" +
+  $templateCache.put('modules/insteon/views/add.html',
+    "<div ng-controller=\"insteonAdd\">\n" +
+    "  <div class=\"form-group\" ng-hide=\"type\">\n" +
+    "    <h3>Step 1: Device Type</h3>\n" +
+    "    <ul class=\"insteon-types\">\n" +
+    "      <li ng-repeat=\"t in device_types\" ng-click=\"changeType(t)\" ng-class=\"{'bg-success': type.name == t.name}\">{{t.name}}</li>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
+    "  {{type}}\n" +
+    "  <div class=\"form-group\" ng-show=\"type.controller !== undefined && !device.config.address\">\n" +
+    "    <div>\n" +
+    "      <h3>Step 2: Link your Device</h3>\n" +
+    "      <div>&nbsp;</div>\n" +
+    "      <div>Link Status: {{link_status | capitalize}} {{error.message}}</div>\n" +
+    "      <div>&nbsp;</div>\n" +
+    "      <div>\n" +
+    "      <button ng-click=\"start_linking()\" class=\"btn btn-primary\" ng-disabled=\"link_status=='linking'\">Start Linking</button>\n" +
+    "      <button ng-click=\"cancel_linking()\" class=\"btn btn-warning\" ng-disabled=\"link_status=='idle'\">Cancel Linking</button>\n" +
     "      </div>\n" +
     "    </div>\n" +
     "  </div>\n" +
-    "</div>"
-  );
-
-
-  $templateCache.put('views/main/display_status.html',
-    "<div uib-popover-template=\"'views/main/display_popover.html'\" popover-trigger=\"'outsideClick click'\" popover-placement=\"bottom-right\" popover-is-open=\"popover\">\n" +
-    "  <i ng-show=\"loading\" class=\"text-muted pointer icon-circleselection spin\"></i>\n" +
-    "  <i ng-hide=\"loading || device == false\" class=\"pointer\" ng-class=\"{'text-danger': !network.connected, 'text-success': network.connected, 'icon-lan': !network.essid, 'icon-lan': !network.essid, 'icon-networksignal': network.essid, 'text-warning': network.connected && !root.status.connected}\"></i>\n" +
-    "  <i ng-hide=\"loading || device == true\" class=\"pointer\" ng-class=\"{'icon-plug': !root.status.connected, 'icon-networksignal': root.status.connected, 'text-success': root.status.connected, 'text-danger': !root.status.connected}\"></i>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/main/event_status.html',
-    "<div style=\"text-align: left;\">\n" +
-    "	<div ng-show=\"root.status.connected\">Status: Connected</div>\n" +
-    "	<div ng-show=\"!root.status.connected\">Status: Disconnected</div>\n" +
-    "	<div>Events: {{root.status.messages | number:0}}</div>\n" +
-    "	<div>Errors: {{root.status.errors | number:0}}</div>\n" +
-    "</div>"
-  );
-
-
-  $templateCache.put('views/main/icons.html',
-    "<div class=\"icon-selector bg-muted\">\n" +
-    "<ul>\n" +
-    "	<li ng-repeat=\"icon in icons | orderBy: 'name'\" ng-class=\"{'icon-selected': icon.class == value}\" ng-click=\"selectIcon(icon)\"><i class=\"{{icon.class}}\"></i></li>\n" +
-    "<ul>\n" +
-    "</div>"
-  );
-
-
-  $templateCache.put('views/main/index.html',
-    "<div class=\"view\" ui-view>\n" +
-    "\n" +
-    "</div>\n" +
-    "<div class=\"anav-shade\" ng-click=\"anav_open = false; notifications.hidden = true\" ng-show=\"anav_open || !notifications.hidden\"></div>\n" +
-    "\n" +
-    "<div class=\"anav-drawer\" ng-class=\"{'anav-visible': anav_open}\">\n" +
-    "	<div class=\"anav-opener\">\n" +
-    "\n" +
-    "	</div>\n" +
-    "	<div class=\"anav-top\">\n" +
-    "\n" +
-    "	    <div class=\"row\">\n" +
-    "	      <div class=\"col-xs-4\"><img src=\"./images/home.png\" style=\"height: 5em;\"></div>\n" +
-    "	      <div class=\"col-xs-8\" style=\"text-align: right\">\n" +
-    "\n" +
-    "	<div class=\"btn-group\" uib-dropdown is-open=\"status.isopen\">\n" +
-    "	  <button id=\"single-button\" type=\"button\" class=\"btn btn-default\" uib-dropdown-toggle ng-disabled=\"disabled\">\n" +
-    "	    <i class=\"icon-monitor\"></i> Interface <span class=\"caret\"></span>\n" +
-    "	  </button>\n" +
-    "	  <ul uib-dropdown-menu role=\"menu\" aria-labelledby=\"single-button\">\n" +
-    "	    <li role=\"menuitem\" ng-repeat=\"interface in interfaces | orderBy: '+name'\" ui-sref=\"main.home({interface: interface.name})\" ><a href=\"#\"ng-click=\"anav_open=false\"><i class=\"{{interface.icon}}\"></i> {{interface.name}}</a></li>\n" +
-    "	  </ul>\n" +
-    "	</div>\n" +
-    "\n" +
-    "	      </div>\n" +
-    "	    </div>\n" +
-    "\n" +
-    "	</div>\n" +
-    "	<div class=\"anav-mid\">\n" +
-    "	  <ul>\n" +
-    "	    <li ui-sref=\"main.home\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-home\"></i> Home</li>\n" +
-    "	    <li ui-sref=\"main.rooms\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-modal-window\"></i> Rooms</li>\n" +
-    "	    <li ui-sref=\"main.devices\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-oil\"></i> Devices</li>\n" +
-    "	    <li ui-sref=\"main.scenes\" ng-click=\"anav_open=false\"><i class=\"icon-picture\"></i> Scenes</li>\n" +
-    "      <li ui-sref=\"main.notifications\" ng-click=\"anav_open=false\"><i class=\"icon-flag\"></i> Notifications</li>\n" +
-    "	    <li ui-sref=\"main.triggers\" ng-click=\"anav_open=false\"><i class=\"icon-bomb\"></i> Triggers</li>\n" +
-    "\n" +
-    "	  </ul>\n" +
-    "	</div>\n" +
-    "	<div class=\"anav-bottom\">\n" +
-    "	  <ul>\n" +
-    "	    <li ui-sref=\"main.settings\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-cog\"></i> Settings</li>\n" +
-    "	    <li class=\"text-right\" ng-click=\"logout()\"><i class=\"glyphicon glyphicon-log-out\"></i> Logout</li>\n" +
-    "	  </ul>\n" +
-    "	</div>\n" +
-    "</div>\n" +
-    "\n" +
-    "<div style=\"position: absolute; z-index: 1000; font-size: 3em;\">\n" +
-    "</div>\n" +
-    "<div class=\"status-bar\" ng-class=\"{night: time.is.night && client.night_mode}\">\n" +
-    "	<div class=\"anav-opener  text-muted pull-left\"  ng-click=\"anav_open = true\"><i class=\"icon-menu\"></i></div>\n" +
-    "	<div ng-show=\"client.show_date\">{{date | date:'EEE, MMM d'}}</div>\n" +
-    "	<weather-status></weather-status>\n" +
-    "	<device-status device=\"device\"></device-status>\n" +
-    "	<notifications-status></notifications-status>\n" +
-    "</div>\n" +
-    "<notifications></notifications>\n"
-  );
-
-
-  $templateCache.put('views/main/locked.html',
-    "<div class=\"modal-body text-center\">\n" +
-    "<pin-entry pin-model=\"pin\" randomize=\"true\" show-submit=\"true\" submit=\"unlock(pin)\" checking=\"checking\" error=\"error\" success=\"success\"></pin-entry>\n" +
-    "</div>"
-  );
-
-
-  $templateCache.put('views/main/network.html',
-    "<div class=\"modal-body\">\n" +
-    "  <h3>\n" +
-    "    <i class=\"icon-network\"></i>&nbsp;&nbsp;Network\n" +
-    "  </h3>\n" +
-    "\n" +
-    "  <div class=\"row\">\n" +
-    "    <div class=\"col-xs-12 col-sm-5 col-md-4\">\n" +
-    "      <div class=\"well\" style=\"font-size: .9em;\">\n" +
-    "        <div>Connection: <i class=\"icon-circleselection spin\" ng-show=\"checking\"></i><i class=\"icon-ok text-success\" ng-show=\"status.connected && !checking\"></i><i class=\"icon-erroralt text-danger\" ng-show=\"!status.connected && !checking\"></i></div>\n" +
-    "        <div ng-show=\"status.connected\">\n" +
-    "          <div>Interface: {{status.interface}}</div>\n" +
-    "          <div>IP: {{status.ip}}</div>\n" +
-    "          <div>Gateway: {{status.gateway}}</div>\n" +
-    "          <div ng-show=\"status.essid\">SSID: {{status.essid}}</div>\n" +
-    "        </div>\n" +
-    "      </div>\n" +
-    "    </div>\n" +
-    "    <div class=\"col-xs-12  col-sm-7 col-md-8\">\n" +
-    "      <div class=\"list-group\">\n" +
-    "        <button type=\"button\" class=\"list-group-item list-group-item-danger\" ng-show=\"networks.length == 0 && !scanning\" ng-click=\"scan()\"><i class=\"icon-exclamation-sign text-danger\"></i> Unable to detect any networks to connect to. Click to Scan</button>\n" +
-    "\n" +
-    "        <button type=\"button\" class=\"list-group-item\" ng-repeat=\"ssid in networks\" ng-click=\"connect_wifi(ssid)\">\n" +
-    "          <i ng-show=\"ssid.encryption\" class=\"icon-lock\" ng-class=\"{'text-warning': !ssid.connected, 'text-success': ssid.connected}\"></i> \n" +
-    "          <i ng-show=\"!ssid.encryption\" class=\"icon-wifi\" ng-class=\"{'text-danger': !ssid.connected, 'text-success': ssid.connected}\"></i> \n" +
-    "          {{ssid.essid}} <span class=\"pull-right\">{{ssid.signal}}</span><br> <div class=\"text-muted\" style=\"font-size: .7em;\">{{ssid.macaddress}}</div>\n" +
-    "        </button>\n" +
-    "\n" +
-    "        <button type=\"button\" class=\"list-group-item\" disabled ng-show=\"scanning\"><i class=\"icon-circleselection spin \"></i> Searching of wireless networks...</button>\n" +
-    "\n" +
-    "        <button type=\"button\" class=\"list-group-item\" ng-show=\"!scanning && networks.length > 0\" ng-click=\"scan()\"><i class=\"icon-ok-sign text-success\"></i> Found {{networks.length}} Networks[s]<div><small>Click to scan again.</small></div></button>\n" +
-    "\n" +
-    "      </div>\n" +
-    "      <p class=\"text-center\"><strong>- Manual Connection -</strong></p>\n" +
-    "      <form name=\"manualSSIDFrm\">\n" +
-    "        <div class=\"form-group\">\n" +
-    "          <div class=\"input-group\">\n" +
-    "          <input type=\"text\" class=\"form-control\" id=\"ssid\" placeholder=\"SSID\" required=\"\" ng-model=\"manual_wifi.essid\">\n" +
-    "          <span class=\"input-group-btn\">\n" +
-    "            <button type=\"submit\" class=\"pull-right btn btn-default\" ng-click=\"connect_wifi(manual_wifi)\" ng-disabled=\"!manual_wifi.essid\">\n" +
-    "              <i class=\"icon-connected\"></i> Connect\n" +
-    "            </button>\n" +
-    "          </span>\n" +
-    "          </div>\n" +
-    "        </div>\n" +
-    "      </form>\n" +
-    "    </div>\n" +
+    "  <div class=\"form-group\" ng-show=\"type.controller !== undefined && device.config.address\">\n" +
+    "    <h3>Step 3: Name Your Device</h3>\n" +
+    "    <label for=\"name\">Name ({{device.config.address}})</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
     "  </div>\n" +
-    "  <div class=\"row\">\n" +
-    "    <div class=\"col-xs-12 text-right\">\n" +
-    "      <button class=\"btn btn-link btn-sm btn-warning\" ng-click=\"close()\">Close</button>\n" +
+    "  <div ng-show=\"type && type.controller === undefined\">\n" +
+    "    <h3>Step 2: Build Scene</h3>\n" +
+    "    <div>&nbsp;</div>\n" +
+    "\n" +
+    "    <div class=\"form-group\">\n" +
+    "      <label for=\"name\">Name</label>\n" +
+    "      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
     "    </div>\n" +
-    "  </div>\n" +
-    "</div>"
-  );
-
-
-  $templateCache.put('views/main/pin_entry.html',
-    "<div  style=\"display: inline-block; width: 12em; padding: 0em;\">\n" +
-    "	<div style=\"width: 100%; border-radius: .25em;  border: 1px solid #aaa; background-color: #333; padding: .25em; height: 2em; margin: 0em;\" ng-class=\"{'text-danger': error, 'text-muted': !error && !success, 'text-success': success}\">\n" +
-    "	<i ng-repeat=\"k in pinModel track by $index\" style=\"margin: .25em;\" class=\"icon-circlerecord \"></i>\n" +
-    "	</div>\n" +
-    "	<div>\n" +
-    "	<div>&nbsp;</div>\n" +
-    "	<div style=\"text-align: left\">\n" +
-    "		<button ng-repeat=\"k in [0, 1, 2] track by $index\" class=\"pin-entry-key\" ng-class=\"{'pin-entry-key-disabled': checking || error}\" ng-click=\"entry(numbers[k])\" ng-disabled=\"checking || error\">{{numbers[k]}}</button>\n" +
-    "	</div>\n" +
-    "	<div style=\"text-align: left\">\n" +
-    "		<button ng-repeat=\"k in [3, 4, 5] track by $index\" class=\"pin-entry-key\" ng-class=\"{'pin-entry-key-disabled': checking || error}\" ng-click=\"entry(numbers[k])\" ng-disabled=\"checking || error\">{{numbers[k]}}</button>\n" +
-    "	</div>\n" +
-    "	<div style=\"text-align: left\">\n" +
-    "		<button ng-repeat=\"k in [6, 7, 8] track by $index\" class=\"pin-entry-key\" ng-class=\"{'pin-entry-key-disabled': checking || error}\" ng-click=\"entry(numbers[k])\" ng-disabled=\"checking || error\">{{numbers[k]}}</button>\n" +
-    "	</div>\n" +
-    "	<div style=\"text-align: left\">\n" +
-    "		<button class=\"pin-entry-key\" ng-class=\"{'pin-entry-key-disabled': checking || error}\" ng-click=\"entry('back')\"><i class=\"icon-chevron-left\" ng-disabled=\"checking || error\"></i></button><button class=\"pin-entry-key\" ng-class=\"{'pin-entry-key-disabled': checking || error}\" ng-click=\"entry(numbers[9])\" ng-disabled=\"checking || error\">{{numbers[9]}}</button><button class=\"pin-entry-key\" ng-class=\"{'pin-entry-key-danger': error, 'pin-entry-key-disabled': checking || pinModel.length == 0, 'pin-entry-key-submit': !checking && !success && !error && pinModel.length > 0}\" ng-show=\"showSubmit\" ng-click=\"submit()\" ng-disabled=\"checking || error\">\n" +
-    "			<i class=\"icon-unlock\" ng-hide=\"checking\"></i>\n" +
-    "			<i class=\"icon-circleselection spin\" ng-show=\"checking\"></i>\n" +
-    "		</button>\n" +
-    "	</div>\n" +
-    "</div>"
-  );
-
-
-  $templateCache.put('views/main/power.html',
-    "<div class=\"modal-body\">\n" +
-    "  <h3><i class=\"icon-off\"></i>&nbsp;&nbsp;Power</h3>\n" +
-    "  <h6 ng-show=\"action=='restart' && count_down > 0 && !error\">Restarting in {{count_down}} seconds.<br/><button class=\"btn btn-sm btn-link\" ng-click=\"count_down=1\">Restart Now</button></h6>\n" +
-    "  <h6 ng-show=\"action=='restart' && count_down == 0 && !error\">Restarting...</h6>\n" +
-    "  <h6 ng-show=\"action=='shutdown' && count_down > 0 && !error\">Shutting down in {{count_down}} seconds.<br/><button class=\"btn btn-sm btn-link\" ng-click=\"count_down=1\">Shut down Now</button></h6>\n" +
-    "  <h6 ng-show=\"action=='shutdown' && count_down == 0 && !error\">Shutting Down...</h6>\n" +
-    "  <h6 ng-show=\"error\"><i class=\"text-danger icon-erroralt\"></i> {{error}}</h6>\n" +
-    "  <div>&nbsp;</div>\n" +
-    "  <div class=\"btn-group btn-group-justified\">\n" +
-    "    <div class=\"btn-group\" role=\"group\">\n" +
-    "      <button class=\"btn btn-default btn-sm\" type=\"button\" ng-click=\"cancel()\" ng-disabled=\"action!='' && count_down == 0 && !error\">Cancel</button>\n" +
-    "    </div>\n" +
-    "    <div class=\"btn-group\" role=\"group\">\n" +
-    "      <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"restart()\" ng-disabled=\"action!=''\">Restart</button>\n" +
-    "    </div>\n" +
-    "    <div class=\"btn-group\" role=\"group\">\n" +
-    "      <button class=\"btn btn-danger btn-sm\" type=\"button\" ng-click=\"shutdown()\" ng-disabled=\"action!=''\">Shutdown</button>\n" +
+    "\n" +
+    "    <div class=\"form-group\">\n" +
+    "      <label for=\"name\">Scene Number</label>\n" +
+    "      <input type=\"text\" class=\"form-control\" id=\"scene\" placeholder=\"Scene\" required=\"\" ng-model=\"device.config.address\">\n" +
     "    </div>\n" +
     "  </div>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/main/server_gone.html',
-    "<div class=\"modal-header\">\n" +
-    "    <h4 class=\"modal-title\">Server Error</h4>\n" +
-    "</div>\n" +
+  $templateCache.put('modules/insteon/views/confirm_delete.html',
+    "\n" +
     "<div class=\"modal-body\">\n" +
-    "  <div class=\"container-fluid\">\n" +
-    "    The server seems to have gone away.  You can either retry and select another server.\n" +
-    "  </div>\n" +
+    "    <h3 class=\"text-center\"><i class=\"icon-warning-sign text-warning\"></i> Delete this link?</h3>\n" +
+    "    <p>\n" +
+    "        <small>If this is a battery operated device, hold the set button until linking mode has been entered.</small>\n" +
+    "    </p>\n" +
+    "    <div uib-alert class=\"alert-danger\" ng-show=\"error\">{{error.message}}</div>\n" +
     "</div>\n" +
     "\n" +
-    "</div>\n" +
+    "\n" +
     "<div class=\"modal-footer\">\n" +
-    "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"retry()\"><i class=\"icon-refresh\"></i> Retry</button>\n" +
-    "    <button class=\"btn btn-primary btn-sm\" type=\"button\" ng-click=\"select()\"><i class=\"icon-server\"></i> Select Another</button>\n" +
+    "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"cancel()\" ng-disabled=\"loading\">Cancel</button>\n" +
+    "    <button class=\"btn btn-sm\" type=\"button\" ng-click=\"confirm()\" ng-disabled=\"loading\" ng-class=\"{'btn-primary': loading, 'btn-danger': !loading}\">\n" +
+    "        <span ng-hide=\"loading\"><i class=\"icon-trash\"></i> Yes</span>\n" +
+    "        <span ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Deleting</span></button>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/main/slider.html',
-    "<div class=\"slider\">\n" +
-    "	<div class=\"slider-track\"></div>\n" +
-    "	<div ng-mousedown=\"start($event)\" ng-mouseup=\"end()\" class=\"slider-handle\" ng-style=\"sliderPosition\"></div>{{level}}\n" +
-    "</div>"
+  $templateCache.put('modules/insteon/views/edit.html',
+    "\n" +
+    "<div ng-controller=\"insteonEdit\">\n" +
+    "	<div class=\"form-group\">\n" +
+    "	  <label for=\"name\">Name</label>\n" +
+    "	  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div ng-hide=\"has_capability('scene')\">\n" +
+    "		<div class=\"form-group\">\n" +
+    "		  <label for=\"address\">Device Number</label>\n" +
+    "		  <input type=\"text\" class=\"form-control\" id=\"address\" placeholder=\"Address\" required=\"\" ng-model=\"device.config.address\" readonly>\n" +
+    "		</div>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div ng-hide=\"has_capability('scene')\">\n" +
+    "		<div class=\"form-group\">\n" +
+    "			<div class=\"row\">\n" +
+    "				<div class=\"col-xs-4\">Device Cat</div>\n" +
+    "				<div class=\"col-xs-4\">Sub Cat</div>\n" +
+    "				<div class=\"col-xs-4\">Firmware</div>\n" +
+    "			</div>\n" +
+    "			<div class=\"row\">\n" +
+    "				<div class=\"col-xs-4\">{{device.config.device_cat | toHex}}</div>\n" +
+    "				<div class=\"col-xs-4\">{{device.config.device_subcat | toHex}}</div>\n" +
+    "				<div class=\"col-xs-4\">{{device.config.firmware | toHex}}</div>\n" +
+    "			</div>\n" +
+    "		</div>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div ng-show=\"has_capability('scene')\">\n" +
+    "		<div class=\"form-group\">\n" +
+    "		  <label for=\"name\">Scene Number</label>\n" +
+    "		  <input type=\"text\" class=\"form-control\" id=\"scene\" placeholder=\"Scene\" required=\"\" ng-model=\"device.config.address\">\n" +
+    "		</div>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<div ng-hide=\"has_capability('scene')\">\n" +
+    "		<div class=\"form-group\">\n" +
+    "			<button class=\"btn btn-sm btn-primary\" ng-click=\"beep()\"><i class=\"icon-volume-down\"></i> Beep</button>\n" +
+    "\n" +
+    "			<div class=\"btn-group\" uib-dropdown>\n" +
+    "			  <button id=\"split-button\" type=\"button\" class=\"btn btn-sm btn-primary\"  ng-click=\"enterlinking()\">Linking</button>\n" +
+    "			  <button type=\"button\" class=\"btn btn-sm btn-primary\" uib-dropdown-toggle>\n" +
+    "				<span class=\"caret\"></span>\n" +
+    "			  </button>\n" +
+    "			  <ul class=\"dropdown-menu\" uib-dropdown-menu role=\"menu\" aria-labelledby=\"split-button\">\n" +
+    "				<li role=\"menuitem\" ng-repeat=\"n in [].constructor(8) track by $index\"><a style=\"cursor: pointer\" ng-click=\"enterlinking($index + 1)\">Scene {{$index + 1}}</a></li>\n" +
+    "			  </ul>\n" +
+    "			</div>\n" +
+    "\n" +
+    "			<div class=\"btn-group\" uib-dropdown>\n" +
+    "			  <button id=\"split-button\" type=\"button\" class=\"btn btn-sm btn-primary\"  ng-click=\"enterunlinking()\">Un-Linking</button>\n" +
+    "			  <button type=\"button\" class=\"btn btn-sm btn-primary\" uib-dropdown-toggle>\n" +
+    "				<span class=\"caret\"></span>\n" +
+    "			  </button>\n" +
+    "			  <ul class=\"dropdown-menu\" uib-dropdown-menu role=\"menu\" aria-labelledby=\"split-button\">\n" +
+    "				<li role=\"menuitem\" ng-repeat=\"n in [].constructor(8) track by $index\"><a style=\"cursor: pointer\" ng-click=\"enterunlinking($index + 1)\">Scene {{$index + 1}}</a></li>\n" +
+    "			  </ul>\n" +
+    "			</div>\n" +
+    "\n" +
+    "			<button class=\"btn btn-sm btn-primary\" ng-click=\"exitlinking()\"><i class=\"icon-circlestopempty\"></i> Stop Linking</button>\n" +
+    "		</div>\n" +
+    "	</div>\n" +
+    "\n" +
+    "\n" +
+    "	<div>\n" +
+    "		<div class=\"form-group\">\n" +
+    "		  <label for=\"name\">Links</label>\n" +
+    "	      <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"add_link()\">\n" +
+    "	      	<i class=\"icon-circleadd\"></i> Add</button>\n" +
+    "	      <button class=\"pull-right btn btn-xs\" ng-class=\"{'btn-info': !loading && !error, 'btn-primary': loading, 'btn-danger': error}\" ng-click=\"reload_database()\" ng-disabled=\"loading\">\n" +
+    "	      	<i class=\"icon-refresh\" ng-show=\"!loading && !error\"></i>\n" +
+    "	      	<i class=\"icon-circleselection spin\" ng-show=\"loading\"></i>\n" +
+    "	      	<i class=\"icon-erroralt\" ng-show=\"error\"></i>\n" +
+    "	      	Reload</button>\n" +
+    "		  <ul class=\"list-group bg-muted select-list\" style=\"height: 20em;\">\n" +
+    "		    <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"record in device.config.database | orderBy: 'name'\" ng-click=\"edit_link(record)\" ng-show=\"record.used\">\n" +
+    "		      <button class=\"btn btn-xs btn-danger pull-right\" ng-click=\"delete_link(record)\" stop-event>\n" +
+    "		      	<i class=\"icon-trash\"></i>\n" +
+    "		      </button>\n" +
+    "		      <div>\n" +
+    "		      	<i class=\"icon-uploadalt\" ng-show=\"record.controller\"></i>\n" +
+    "		      	<i class=\"icon-download-alt\" ng-show=\"!record.controller\"></i>\n" +
+    "				  {{record.name || record.address}}<span ng-show=\"record.name\"> ({{record.address}})</span>\n" +
+    "		      </div>\n" +
+    "		      <div><small>\n" +
+    "			      <span ng-show=\"!record.controller\">\n" +
+    "					  When scene {{record.group}}, use on level of {{record.on_level / 255 * 100 | number: 0}}% in {{record.ramp_rate | insteonRate}}<span ng-show=\"record.button > 1\"> and button {{record.button}}</span>\n" +
+    "			      </span>\n" +
+    "			      <span ng-show=\"record.controller\">\n" +
+    "					  Send scene {{record.group}} <span ng-show=\"record.button > 1\">with button {{record.button}}</span>\n" +
+    "			      </span>\n" +
+    "		      </small></div>\n" +
+    "		    </li>\n" +
+    "		   </ul>\n" +
+    "		</div>\n" +
+    "	</div>\n" +
+    "</div>\n" +
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n"
   );
 
 
-  $templateCache.put('views/main/tags.add.html',
+  $templateCache.put('modules/insteon/views/link.html',
+    "<div class=\"modal-header\"><h3>{{action}} Link</h3></div>\n" +
     "\n" +
     "<div class=\"modal-body\">\n" +
-    "	<h3><i class=\"icon-addtags\"></i> Add Tag</h3>\n" +
-    "	<div class=\"input-group\" ng-class=\"{'has-error': error}\">\n" +
-    "		<div class=\"input-group-addon\"><i class=\"icon-tag\"></i></div>\n" +
-    "		<input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Tag\" ng-model=\"tag.name\" autocomplete='off'>\n" +
-    "	</div>\n" +
-    "	<span id=\"helpBlock\" class=\"help-block text-danger\" ng-show=\"error\">{{error}}</span>\n" +
-    "	<div>&nbsp;</div>\n" +
-    "	<div class=\"text-right\">\n" +
-    "	    <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"cancel()\">Cancel</button>\n" +
-    "	    <button class=\"btn btn-primary btn-sm\" type=\"button\" ng-click=\"add()\"><i class=\"icon-circleadd\"></i> Add</button>\n" +
-    "	</div>\n" +
-    "</div>"
+    "    <div class=\"form-group\">\n" +
+    "        <select class=\"form-control\" ng-model=\"record.controller\" ng-options=\"controller.value as controller.text for controller in controller_options\">\n" +
+    "        </select>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <label for=\"on_level\">Device</label>\n" +
+    "        <select class=\"form-control\" ng-model=\"record.address\" ng-options=\"device.config.address as device.name for device in devices\"></select>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\" ng-show=\"!record.controller\">\n" +
+    "        <label for=\"address\">\n" +
+    "            <span ng-show=\"!record.controller\">When this Scene is received:</span>\n" +
+    "            <span ng-show=\"record.controller\">Send this Scene</span>\n" +
+    "        </label>\n" +
+    "        <rzslider rz-slider-model=\"record.group\" rz-slider-options=\"{floor: 1, ceil: 255, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <label for=\"address\">\n" +
+    "            <span ng-show=\"!record.controller\">Set this button</span>\n" +
+    "            <span ng-show=\"record.controller\">Button</span>\n" +
+    "        </label>\n" +
+    "        <rzslider rz-slider-model=\"record.button\" rz-slider-options=\"{floor: 0, ceil: 255, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "\n" +
+    "        </select>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\" ng-show=\"!record.controller\">\n" +
+    "        <label for=\"on_level\">On Level</label>\n" +
+    "        <rzslider rz-slider-model=\"record.on_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\" ng-show=\"!record.controller\">\n" +
+    "        <label for=\"address\">Ramp Rate</label>\n" +
+    "        <select size=\"1\" class=\"form-control\" ng-model=\"record.ramp_rate\" ng-options=\"rate.value as rate.text for rate in rates | orderBy:'value':true\">\n" +
+    "        </select>\n" +
+    "    </div>\n" +
+    "    <div uib-alert class=\"alert-danger\" ng-show=\"error\">{{error.message}}</div>\n" +
+    "</div>\n" +
+    "\n" +
+    "\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"cancel()\" ng-disabled=\"loading\">Cancel</button>\n" +
+    "    <button class=\"btn btn-sm\" type=\"button\" ng-click=\"save()\" ng-disabled=\"loading\" ng-class=\"{'btn-primary': loading, 'btn-success': !loading}\">\n" +
+    "        <span ng-hide=\"loading\"><i class=\"icon-save-floppy\"></i> Save</span>\n" +
+    "        <span ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Saving</span></button>\n" +
+    "</div>\n"
   );
 
 
-  $templateCache.put('views/main/tags.html',
-    "<div class=\"tag-list\">\n" +
-    "	<div class=\"tag-list-add\">\n" +
-    "		<button class=\"btn btn-link btn-sm\" ng-click=\"addTag()\"><i class=\"icon-addtags\"></i></button>\n" +
-    "	</div>\n" +
-    "	<div class=\"tag-list-tags\">\n" +
-    "		<div class=\"tag-list-tag\" ng-repeat=\"tag in tagModel\">{{tag}} <i class=\"icon-remove-circle text-default pointer\" ng-click=\"removeTag($index)\"></i></div>\n" +
-    "	</div>\n" +
-    "</div>"
+  $templateCache.put('modules/insteon/views/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Insteon\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "<!--\n" +
+    "\n" +
+    "enabled = false\n" +
+    "debug = false\n" +
+    "modem_debug = false\n" +
+    "serial_device = /dev/ttyUSB1\n" +
+    "\n" +
+    "delay = 300\n" +
+    "retries = 3\n" +
+    "\n" +
+    "-->\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Serial Device: </label>\n" +
+    "\n" +
+    "\n" +
+    "              <ul class=\"list-group bg-muted select-list\">\n" +
+    "                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"d in devices\" ng-click=\"config.serial_device = d\" ng-class=\"{'list-group-item-success': config.serial_device == d}\">\n" +
+    "                  {{d}}\n" +
+    "                </li>\n" +
+    "              </ul>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"serial_baudrate\">Serial Baudrate</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"serial_baudrate\" placeholder=\"Serial Baudrate\" required=\"\" ng-model=\"config.serial_baudrate\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"serial_databits\">Serial Databits</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"serial_databits\" placeholder=\"Serial Databits\" required=\"\" ng-model=\"config.serial_databits\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"serial_stopbits\">Serial Stopbits</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"serial_stopbits\" placeholder=\"Serial Stopbits\" required=\"\" ng-model=\"config.serial_stopbits\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"serial_parity\">Serial Parity</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"serial_parity\" placeholder=\"Serial Parity\" required=\"\" ng-model=\"config.serial_parity\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"serial_flowcontrol\">Serial Flowcontrol</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"serial_flowcontrol\" placeholder=\"Serial Flowcontrol\" required=\"\" ng-model=\"config.serial_flowcontrol\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"timeout\">Timeout (ms)</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"timeout\" placeholder=\"Timeout (ms)\" required=\"\" ng-model=\"config.timeout\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"queue_timeout\">Queue Timeout (ms)</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"queue_timeout\" placeholder=\"Queue Timeout (ms)\" required=\"\" ng-model=\"config.queue_timeout\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"delay\">Delay (ms)</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"delay\" placeholder=\"Delay (ms)\" required=\"\" ng-model=\"config.delay\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"retries\">Retries</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"retries\" placeholder=\"Retries\" required=\"\" ng-model=\"config.retries\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Debug: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Modem Debug: </label>\n" +
+    "              <toggle value=\"config.modem_debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
   );
 
 
-  $templateCache.put('views/message.html',
-    "<div class=\"messages\" ng-class=\"{'messages-active': messages.length > 0}\">\n" +
-    "  <div class=\"messages-message\" ng-repeat=\"message in messages\">\n" +
-    "    <i class=\"\" ng-class=\"{'text-success': message.type == 'success', 'text-info': message.type == 'info', 'text-danger': message.type == 'failed', 'icon-ok-sign': message.type == 'success', 'icon-info-sign': message.type == 'info', 'icon-warning-sign': message.type == 'failed'}\"></i> {{message.message}}\n" +
+  $templateCache.put('modules/insteonhub/views/add.html',
+    "<div ng-controller=\"insteonhubAdd\">\n" +
+    "  <div class=\"form-group\" ng-hide=\"type\">\n" +
+    "    <h3>Step 1: Device Type</h3>\n" +
+    "    <ul class=\"insteon-types\">\n" +
+    "      <li ng-repeat=\"t in device_types\" ng-click=\"changeType(t)\" ng-class=\"{'bg-success': type.name == t.name}\">{{t.name}}</li>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\" ng-show=\"type.type == 'devices' && !device.config.DeviceID\">\n" +
+    "      <button class=\"btn btn-primary btn-sm pull-right\" ng-hide=\"errors || processing\" ng-click=\"reload()\"><i class=\"icon-refresh\"></i></button>\n" +
+    "      <button class=\"btn btn-danger btn-sm pull-right\" ng-show=\"errors\" ng-click=\"reload()\"><i class=\"icon-erroralt\"></i></button>\n" +
+    "      <button class=\"btn btn-default btn-sm pull-right\" ng-show=\"processing\"><i class=\"icon-loadingalt spin\"></i></button>\n" +
+    "    <h3>Step 2: Select your Device</h3>\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div>\n" +
+    "      <ul class=\"list-group bg-muted select-list\">\n" +
+    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"d in devices\" ng-click=\"selectDevice(d)\">\n" +
+    "          {{d.DeviceName}}\n" +
+    "        </li>\n" +
+    "      </ul>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\" ng-show=\"type.type == 'scenes' && !device.config.SceneID\">\n" +
+    "      <button class=\"btn btn-primary btn-sm pull-right\" ng-hide=\"errors || processing\" ng-click=\"reload()\"><i class=\"icon-refresh\"></i></button>\n" +
+    "      <button class=\"btn btn-danger btn-sm pull-right\" ng-show=\"errors\" ng-click=\"reload()\"><i class=\"icon-erroralt\"></i></button>\n" +
+    "      <button class=\"btn btn-default btn-sm pull-right\" ng-show=\"processing\"><i class=\"icon-loadingalt spin\"></i></button>\n" +
+    "    <h3>Step 2: Select your Scene</h3>\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div>\n" +
+    "      <ul class=\"list-group bg-muted select-list\">\n" +
+    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"s in devices\" ng-click=\"selectScene(s)\">\n" +
+    "          {{s.SceneName}}\n" +
+    "        </li>\n" +
+    "      </ul>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\" ng-show=\"type.type == 'rooms' && !device.config.RoomID\">\n" +
+    "      <button class=\"btn btn-primary btn-sm pull-right\" ng-hide=\"errors || processing\" ng-click=\"reload()\"><i class=\"icon-refresh\"></i></button>\n" +
+    "      <button class=\"btn btn-danger btn-sm pull-right\" ng-show=\"errors\" ng-click=\"reload()\"><i class=\"icon-erroralt\"></i></button>\n" +
+    "      <button class=\"btn btn-default btn-sm pull-right\" ng-show=\"processing\"><i class=\"icon-loadingalt spin\"></i></button>\n" +
+    "    <h3>Step 2: Select your Room</h3>\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div>\n" +
+    "      <ul class=\"list-group bg-muted select-list\">\n" +
+    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"r in devices\" ng-click=\"selectRoom(r)\">\n" +
+    "          {{r.RoomName}}\n" +
+    "        </li>\n" +
+    "      </ul>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\" ng-show=\"device.config.DeviceID || device.config.SceneID || device.config.RoomID\">\n" +
+    "    <h3>Step 3: Confirm Your Device and Type</h3>\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/insteonhub/views/edit.html',
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <label for=\"name\">Name</label>\n" +
+    "  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "</div>\n" +
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/insteonhub/views/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Insteon Hub\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"api_key\">API Key</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"api_key\" placeholder=\"API Key\" required=\"\" ng-model=\"config.api_key\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"api_secret\">Client Secret</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"api_secret\" placeholder=\"Client Secret\" required=\"\" ng-model=\"config.api_secret\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"user\">User</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"user\" placeholder=\"Insteon User\" required=\"\" ng-model=\"config.user\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"password\">Password</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"password\" placeholder=\"Insteon Password\" required=\"\" ng-model=\"config.password\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Debug: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('modules/lutroncaseta/views/add.html',
+    "<div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Integration ID</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"integration_id\" placeholder=\"Integration ID\" required=\"\" ng-model=\"device.config.integration_id\">\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/lutroncaseta/views/edit.html',
+    "<div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Integration ID</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"integration_id\" placeholder=\"Integration ID\" required=\"\" ng-model=\"device.config.integration_id\">\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/lutroncaseta/views/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Lutron Caseta\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"key\">Bridge Host</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"key\" placeholder=\"Bridge Host\" required=\"\" ng-model=\"config.bridge_host\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"server\">Bridge Port</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"server\" placeholder=\"Bridge Port\" required=\"\" ng-model=\"config.bridge_port\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Username</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"interval\" placeholder=\"Username\" required=\"\" ng-model=\"config.username\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Password</label>\n" +
+    "              <input type=\"password\" class=\"form-control\" id=\"interval\" placeholder=\"Password\" required=\"\" ng-model=\"config.password\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Reconnect Timeout (seconds)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Reconnect Timeout\" required=\"\" ng-model=\"config.reconnect_timeout\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Message Timeout (seconds)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Message Timeout\" required=\"\" ng-model=\"config.message_time\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Queue Interval (ms)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Queue Interval\" required=\"\" ng-model=\"config.queue_interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Poll Interval (ms)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Poll Interval\" required=\"\" ng-model=\"config.poll_interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"debug\">Debug Logging: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('modules/mqtt/views/add.html',
+    "<div ng-controller=\"mqttAdd\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Topic</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"topic\" placeholder=\"Topic\" required=\"\" ng-model=\"device.config.topic\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Parser</label>\n" +
+    "    <select size=\"1\" ng-model=\"device.config.parser\"></select>\n" +
+    "    <select class=\"form-control\" size=\"1\" ng-model=\"device.config.parser\" ng-options=\"parser.value as parser.name for parser in parsers\"></select>\n" +
     "  </div>\n" +
     "</div>"
   );
 
 
-  $templateCache.put('views/notifications/action.builder.html',
+  $templateCache.put('modules/mqtt/views/edit.html',
+    "<div ng-controller=\"mqttEdit\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Topic</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"topic\" placeholder=\"Topic\" required=\"\" ng-model=\"device.config.topic\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Parser</label>\n" +
+    "    <select class=\"form-control\" size=\"1\" ng-model=\"device.config.parser\" ng-options=\"parser.value as parser.name for parser in parsers\"></select>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('modules/mqtt/views/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / MQTT\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"key\">Server</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"key\" placeholder=\"Server\" required=\"\" ng-model=\"config.server\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Save Wait (ms)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Reconnect Timeout\" required=\"\" ng-model=\"config.save_wait\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">min_save_age (ms)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Message Timeout\" required=\"\" ng-model=\"config.min_save_age\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('modules/notifications/views/action.builder.html',
     "<div class=\"modal-header\">\n" +
     "    <h4 class=\"modal-title\">Action Builder</h4>\n" +
     "</div>\n" +
@@ -55891,7 +57307,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/notifications/index.html',
+  $templateCache.put('modules/notifications/views/index.html',
     "<div class=\"notifications\" ng-class=\"{'notifications-open': !notifications.hidden}\">\n" +
     "	<div class=\"notifications-title\">\n" +
     "	  <small><i class=\"icon-flag\"></i></small> Notifications\n" +
@@ -55915,7 +57331,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/notifications/notifications.add.html',
+  $templateCache.put('modules/notifications/views/notifications.add.html',
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "  <div class=\"row\">\n" +
     "    <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
@@ -55993,7 +57409,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/notifications/notifications.edit.html',
+  $templateCache.put('modules/notifications/views/notifications.edit.html',
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "  <div class=\"row\">\n" +
     "    <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
@@ -56091,13 +57507,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/notifications/notifications.html',
+  $templateCache.put('modules/notifications/views/notifications.html',
     "<div class=\"bg-muted\" style=\"position: absolute; top: 0px; bottom: 0px; right: 0px; left: 0px; overflow: auto;\" ui-view>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/notifications/notifications.list.html',
+  $templateCache.put('modules/notifications/views/notifications.list.html',
     "\n" +
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 7em;\">\n" +
     "    <div class=\"row\">\n" +
@@ -56130,7 +57546,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/notifications/status.html',
+  $templateCache.put('modules/notifications/views/status.html',
     "<div class=\"notification-status\" ng-click=\"showNotifications()\" ng-class=\"{'text-muted': notifications.notifications.length == 0}\">\n" +
     "	<i class=\"icon-flag\"></i>\n" +
     "	<span class=\"notification-status-badge bg-danger\" ng-show=\"notifications.notifications.length > 0\">{{notifications.notifications.length}}</span>\n" +
@@ -56138,7 +57554,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/notifications/triggers.picker.html',
+  $templateCache.put('modules/notifications/views/triggers.picker.html',
     "<div class=\"modal-header\">\n" +
     "    <h4 class=\"modal-title\">Select a Trigger</h4>\n" +
     "</div>\n" +
@@ -56154,1035 +57570,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/providers/autoshades/add.device.html',
-    "<div class=\"modal-header\"><h3>Assign Device</h3></div>\n" +
-    "\n" +
-    "<div class=\"modal-body\">\n" +
-    "  <p>\n" +
-    "    <div class=\"input-group\" ng-hide=\"loading\">\n" +
-    "      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"search\" autocomplete='off'>\n" +
-    "      <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
-    "    </div>\n" +
-    "  </p>\n" +
-    "\n" +
-    "  <div ng-show=\"loading\"><i class=\"icon-refresh spin\"></i> Loading Shades</div>\n" +
-    "  <div class=\"form-group\" ng-hide=\"loading\">\n" +
-    "    <ul class=\"list-group\">\n" +
-    "      <li style=\"cursor: pointer;\" class=\"list-group-item\" ng-repeat=\"device in devices | filter: search | orderBy: '+name'\" ng-click=\"select(device)\" ng-show=\"assigned.indexOf(device.name) == -1\">{{device.name}}</li>\n" +
-    "    </ul>\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "\n" +
-    "\n" +
-    "<div class=\"modal-footer\">\n" +
-    "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"cancel()\">Cancel</button>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/autoshades/add.html',
-    "<div ng-controller=\"autoshadesAdd\">\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Name</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "  </div>\n" +
-    "  <div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-heading\">Level at Sunrise <toggle value=\"device.config.sunrise\" class=\"pull-right\"></toggle></div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "      <rzslider rz-slider-model=\"device.config.sunrise_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.sunrise}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "  <div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-heading\">Follow the Sun <toggle value=\"device.config.track\" class=\"pull-right\"></toggle></div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "      <div class=\"form-group\">\n" +
-    "        <label for=\"name\">Mode</label>\n" +
-    "        <select class=\"form-control\" ng-model=\"device.config.mode\" ng-options=\"item for item in modes\" ng-disabled=\"!device.config.track\"></select>\n" +
-    "      </div>\n" +
-    "      <div class=\"form-group\">\n" +
-    "        <label for=\"name\">Min Azimuth</label>\n" +
-    "        <rzslider rz-slider-model=\"device.config.min_azimuth\" rz-slider-options=\"{floor: 0, ceil: 360, hideLimitLabels: true, disabled: !device.config.track}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "      </div>\n" +
-    "      <div class=\"form-group\">\n" +
-    "        <label for=\"name\">Max Azimuth</label>\n" +
-    "        <rzslider rz-slider-model=\"device.config.max_azimuth\" rz-slider-options=\"{floor: 0, ceil: 360, hideLimitLabels: true, disabled: !device.config.track}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "      </div>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "  <div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-heading\">Cloudy Level</div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "      <div class=\"form-group\">\n" +
-    "        <label for=\"name\">Device</label>\n" +
-    "        <select-device value=\"device.config.weather\" capabilities=\"['weather']\"></select-device>\n" +
-    "      </div>\n" +
-    "      <div class=\"form-group\">\n" +
-    "        <rzslider rz-slider-model=\"device.config.cloudy_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.weather}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "      </div>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "  <div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-heading\">Level at Sunset <toggle value=\"device.config.sunset\" class=\"pull-right\"></toggle></div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "      <rzslider rz-slider-model=\"device.config.sunset_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.sunset}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "  <div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-heading\">\n" +
-    "      Shades \n" +
-    "      <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"addDevice()\"><i class=\"icon-circleadd\"></i> Add</button>\n" +
-    "    </div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "      <ul class=\"list-group bg-muted select-list\" style=\"height: 20em;\">\n" +
-    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"device in device.config.devices\" ng-class=\"{'list-group-item-success': device === selected}\">\n" +
-    "          {{device.name}}\n" +
-    "          <button class=\"pull-right btn btn-danger btn-xs\" ng-click=\"deleteDevice(device.$index)\"><i class=\"icon-trash\"></i></button>\n" +
-    "          <rzslider rz-slider-model=\"device.min_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "          <div><small>Wait until level: {{device.wait_level}}%</small></div>\n" +
-    "          <rzslider rz-slider-model=\"device.wait_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "          <div><small>Min Level: {{device.min_level}}%</small></div>\n" +
-    "        </li>\n" +
-    "      </ul>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/autoshades/edit.html',
-    "<div ng-controller=\"autoshadesEdit\">\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Name</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "  </div>\n" +
-    "  <div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-heading\">Level at Sunrise <toggle value=\"device.config.sunrise\" class=\"pull-right\"></toggle></div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "      <rzslider rz-slider-model=\"device.config.sunrise_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.sunrise}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "  <div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-heading\">Follow the Sun <toggle value=\"device.config.track\" class=\"pull-right\"></toggle></div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "      <div class=\"form-group\">\n" +
-    "        <label for=\"name\">Mode</label>\n" +
-    "        <select class=\"form-control\" ng-model=\"device.config.mode\" ng-options=\"item for item in modes\" ng-disabled=\"!device.config.track\"></select>\n" +
-    "      </div>\n" +
-    "      <div class=\"form-group\">\n" +
-    "        <label for=\"name\">Min Azimuth</label>\n" +
-    "        <rzslider rz-slider-model=\"device.config.min_azimuth\" rz-slider-options=\"{floor: 0, ceil: 360, hideLimitLabels: true, disabled: !device.config.track}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "      </div>\n" +
-    "      <div class=\"form-group\">\n" +
-    "        <label for=\"name\">Max Azimuth</label>\n" +
-    "        <rzslider rz-slider-model=\"device.config.max_azimuth\" rz-slider-options=\"{floor: 0, ceil: 360, hideLimitLabels: true, disabled: !device.config.track}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "      </div>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "  <div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-heading\">Cloudy Level</div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "      <div class=\"form-group\">\n" +
-    "        <label for=\"name\">Device</label>\n" +
-    "        <select-device value=\"device.config.weather\" capabilities=\"['weather']\"></select-device>\n" +
-    "      </div>\n" +
-    "      <div class=\"form-group\">\n" +
-    "        <rzslider rz-slider-model=\"device.config.cloudy_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.weather}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "      </div>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "  <div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-heading\">Level at Sunset <toggle value=\"device.config.sunset\" class=\"pull-right\"></toggle></div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "      <rzslider rz-slider-model=\"device.config.sunset_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, disabled: !device.config.sunset}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "  <div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-heading\">\n" +
-    "      Shades \n" +
-    "      <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"addDevice()\"><i class=\"icon-circleadd\"></i> Add</button>\n" +
-    "    </div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "      <ul class=\"list-group bg-muted select-list\" style=\"height: 20em;\">\n" +
-    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"device in device.config.devices\" ng-class=\"{'list-group-item-success': device === selected}\">\n" +
-    "          {{device.name}}\n" +
-    "          <button class=\"pull-right btn btn-danger btn-xs\" ng-click=\"deleteDevice(device.$index)\"><i class=\"icon-trash\"></i></button>\n" +
-    "          <rzslider rz-slider-model=\"device.wait_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "          <div><small>Wait until level: {{device.wait_level}}%</small></div>\n" +
-    "          <rzslider rz-slider-model=\"device.min_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "          <div><small>Min Level: {{device.min_level}}%</small></div>\n" +
-    "        </li>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "\n" +
-    "<div class=\"form-group\">\n" +
-    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/autoshades/settings.html',
-    "\n" +
-    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
-    "    <h2>Settings / Auto-Shades\n" +
-    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
-    "\n" +
-    "        <div class=\"panel panel-default\">\n" +
-    "          <div class=\"panel-body\">\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"interval\">Process Interval (min)</label>\n" +
-    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Process Interval\" required=\"\" ng-model=\"config.interval\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"debug\">Debug Logging: </label>\n" +
-    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "            </div>\n" +
-    "\n" +
-    "          </div>\n" +
-    "        </div>\n" +
-    "\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "\n"
-  );
-
-
-  $templateCache.put('views/providers/browser/edit.html',
-    "<div ng-controller=\"radEdit\">\n" +
-    "	<div class=\"form-group\">\n" +
-    "	  <label for=\"name\">Name</label>\n" +
-    "	  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "	</div>\n" +
-    "\n" +
-    "	<div class=\"form-group\">\n" +
-    "		<label for=\"enabled\">Default Interface: </label>\n" +
-    "		<select class=\"form-control\" ng-model=\"device.config.interface\" ng-options=\"iface._id as iface.name for iface in interfaces | orderBy:'name'\"></select>\n" +
-    "	</div>\n" +
-    "\n" +
-    "	<div class=\"form-group\">\n" +
-    "		<label for=\"enabled\">Show events in Browser: </label>\n" +
-    "		<toggle value=\"device.config.show_events\" class=\"pull-right\"></toggle>\n" +
-    "	</div>\n" +
-    "\n" +
-    "	<div class=\"form-group\">\n" +
-    "		<label for=\"enabled\">Dim Display: </label>\n" +
-    "		<toggle value=\"device.config.dim_display\" class=\"pull-right\"></toggle>\n" +
-    "	</div>\n" +
-    "\n" +
-    "	<div class=\"form-group\" ng-show=\"device.config.dim_display\">\n" +
-    "		<label for=\"enabled\">Dim After: </label>\n" +
-    "		<input class=\"form-control\" type=\"number\" placeholder=\"Seconds\" ng-model=\"device.config.dim_after\">\n" +
-    "	</div>\n" +
-    "\n" +
-    "	<div class=\"form-group\">\n" +
-    "		<label for=\"enabled\">Night Mode (changes text to red at night): </label>\n" +
-    "		<toggle value=\"device.config.night_mode\" class=\"pull-right\"></toggle>\n" +
-    "	</div>\n" +
-    "\n" +
-    "	<div class=\"form-group\">\n" +
-    "		<label for=\"enabled\">Show Date: </label>\n" +
-    "		<toggle value=\"device.config.show_date\" class=\"pull-right\"></toggle>\n" +
-    "	</div>\n" +
-    "\n" +
-    "	<div class=\"form-group\">\n" +
-    "		<label for=\"enabled\">Show Weather: </label>\n" +
-    "		<toggle value=\"device.config.show_weather\" class=\"pull-right\"></toggle>\n" +
-    "	</div>\n" +
-    "\n" +
-    "	<div class=\"form-group\">\n" +
-    "	  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "	  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
-    "	</div>\n" +
-    "</div>"
-  );
-
-
-  $templateCache.put('views/providers/camera/add.html',
-    "<div ng-controller=\"cameraAdd\">\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Name</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Username</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"username\" placeholder=\"Username\" ng-model=\"device.config.username\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Password</label>\n" +
-    "    <input type=\"password\" class=\"form-control\" id=\"password\" placeholder=\"Password\" ng-model=\"device.config.password\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Video URL</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"video_url\" placeholder=\"Video URL\" ng-model=\"device.config.video_url\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Image URL</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"image_url\" placeholder=\"Image URL\" ng-model=\"device.config.image_url\">\n" +
-    "  </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/camera/edit.html',
-    "<div ng-controller=\"cameraEdit\">\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Name</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Username</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"username\" placeholder=\"Username\" ng-model=\"device.config.username\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Password</label>\n" +
-    "    <input type=\"password\" class=\"form-control\" id=\"password\" placeholder=\"Password\" ng-model=\"device.config.password\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Video URL</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"video_url\" placeholder=\"Video URL\" ng-model=\"device.config.video_url\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Image URL</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"image_url\" placeholder=\"Image URL\" ng-model=\"device.config.image_url\">\n" +
-    "  </div>\n" +
-    "\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "    <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
-    "  </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/camera/settings.html',
-    ""
-  );
-
-
-  $templateCache.put('views/providers/ifttt/settings.html',
-    "\n" +
-    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
-    "    <h2>Settings / Providers / IFTTT\n" +
-    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
-    "\n" +
-    "        <div class=\"panel panel-default\">\n" +
-    "          <div class=\"panel-body\">\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Debug: </label>\n" +
-    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "            </div>\n" +
-    "\n" +
-    "          </div>\n" +
-    "        </div>\n" +
-    "\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "\n"
-  );
-
-
-  $templateCache.put('views/providers/insteon/add.html',
-    "<div ng-controller=\"insteonAdd\">\n" +
-    "  <div class=\"form-group\" ng-hide=\"type\">\n" +
-    "    <h3>Step 1: Device Type</h3>\n" +
-    "    <ul class=\"insteon-types\">\n" +
-    "      <li ng-repeat=\"t in device_types\" ng-click=\"changeType(t)\" ng-class=\"{'bg-success': type.name == t.name}\">{{t.name}}</li>\n" +
-    "    </ul>\n" +
-    "  </div>\n" +
-    "  {{type}}\n" +
-    "  <div class=\"form-group\" ng-show=\"type.controller !== undefined && !device.config.address\">\n" +
-    "    <div>\n" +
-    "      <h3>Step 2: Link your Device</h3>\n" +
-    "      <div>&nbsp;</div>\n" +
-    "      <div>Link Status: {{link_status | capitalize}} {{error.message}}</div>\n" +
-    "      <div>&nbsp;</div>\n" +
-    "      <div>\n" +
-    "      <button ng-click=\"start_linking()\" class=\"btn btn-primary\" ng-disabled=\"link_status=='linking'\">Start Linking</button>\n" +
-    "      <button ng-click=\"cancel_linking()\" class=\"btn btn-warning\" ng-disabled=\"link_status=='idle'\">Cancel Linking</button>\n" +
-    "      </div>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\" ng-show=\"type.controller !== undefined && device.config.address\">\n" +
-    "    <h3>Step 3: Name Your Device</h3>\n" +
-    "    <label for=\"name\">Name ({{device.config.address}})</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "  </div>\n" +
-    "  <div ng-show=\"type && type.controller === undefined\">\n" +
-    "    <h3>Step 2: Build Scene</h3>\n" +
-    "    <div>&nbsp;</div>\n" +
-    "\n" +
-    "    <div class=\"form-group\">\n" +
-    "      <label for=\"name\">Name</label>\n" +
-    "      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <div class=\"form-group\">\n" +
-    "      <label for=\"name\">Scene Number</label>\n" +
-    "      <input type=\"text\" class=\"form-control\" id=\"scene\" placeholder=\"Scene\" required=\"\" ng-model=\"device.config.address\">\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/insteon/confirm_delete.html',
-    "\n" +
-    "<div class=\"modal-body\">\n" +
-    "    <h3 class=\"text-center\"><i class=\"icon-warning-sign text-warning\"></i> Delete this link?</h3>\n" +
-    "    <p>\n" +
-    "        <small>If this is a battery operated device, hold the set button until linking mode has been entered.</small>\n" +
-    "    </p>\n" +
-    "    <div uib-alert class=\"alert-danger\" ng-show=\"error\">{{error.message}}</div>\n" +
-    "</div>\n" +
-    "\n" +
-    "\n" +
-    "<div class=\"modal-footer\">\n" +
-    "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"cancel()\" ng-disabled=\"loading\">Cancel</button>\n" +
-    "    <button class=\"btn btn-sm\" type=\"button\" ng-click=\"confirm()\" ng-disabled=\"loading\" ng-class=\"{'btn-primary': loading, 'btn-danger': !loading}\">\n" +
-    "        <span ng-hide=\"loading\"><i class=\"icon-trash\"></i> Yes</span>\n" +
-    "        <span ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Deleting</span></button>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/insteon/edit.html',
-    "\n" +
-    "<div ng-controller=\"insteonEdit\">\n" +
-    "	<div class=\"form-group\">\n" +
-    "	  <label for=\"name\">Name</label>\n" +
-    "	  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "	</div>\n" +
-    "\n" +
-    "	<div ng-hide=\"has_capability('scene')\">\n" +
-    "		<div class=\"form-group\">\n" +
-    "		  <label for=\"address\">Device Number</label>\n" +
-    "		  <input type=\"text\" class=\"form-control\" id=\"address\" placeholder=\"Address\" required=\"\" ng-model=\"device.config.address\" readonly>\n" +
-    "		</div>\n" +
-    "	</div>\n" +
-    "\n" +
-    "	<div ng-hide=\"has_capability('scene')\">\n" +
-    "		<div class=\"form-group\">\n" +
-    "			<div class=\"row\">\n" +
-    "				<div class=\"col-xs-4\">Device Cat</div>\n" +
-    "				<div class=\"col-xs-4\">Sub Cat</div>\n" +
-    "				<div class=\"col-xs-4\">Firmware</div>\n" +
-    "			</div>\n" +
-    "			<div class=\"row\">\n" +
-    "				<div class=\"col-xs-4\">{{device.config.device_cat | toHex}}</div>\n" +
-    "				<div class=\"col-xs-4\">{{device.config.device_subcat | toHex}}</div>\n" +
-    "				<div class=\"col-xs-4\">{{device.config.firmware | toHex}}</div>\n" +
-    "			</div>\n" +
-    "		</div>\n" +
-    "	</div>\n" +
-    "\n" +
-    "	<div ng-show=\"has_capability('scene')\">\n" +
-    "		<div class=\"form-group\">\n" +
-    "		  <label for=\"name\">Scene Number</label>\n" +
-    "		  <input type=\"text\" class=\"form-control\" id=\"scene\" placeholder=\"Scene\" required=\"\" ng-model=\"device.config.address\">\n" +
-    "		</div>\n" +
-    "	</div>\n" +
-    "\n" +
-    "	<div ng-hide=\"has_capability('scene')\">\n" +
-    "		<div class=\"form-group\">\n" +
-    "			<button class=\"btn btn-sm btn-primary\" ng-click=\"beep()\"><i class=\"icon-volume-down\"></i> Beep</button>\n" +
-    "\n" +
-    "			<div class=\"btn-group\" uib-dropdown>\n" +
-    "			  <button id=\"split-button\" type=\"button\" class=\"btn btn-sm btn-primary\"  ng-click=\"enterlinking()\">Linking</button>\n" +
-    "			  <button type=\"button\" class=\"btn btn-sm btn-primary\" uib-dropdown-toggle>\n" +
-    "				<span class=\"caret\"></span>\n" +
-    "			  </button>\n" +
-    "			  <ul class=\"dropdown-menu\" uib-dropdown-menu role=\"menu\" aria-labelledby=\"split-button\">\n" +
-    "				<li role=\"menuitem\" ng-repeat=\"n in [].constructor(8) track by $index\"><a style=\"cursor: pointer\" ng-click=\"enterlinking($index + 1)\">Scene {{$index + 1}}</a></li>\n" +
-    "			  </ul>\n" +
-    "			</div>\n" +
-    "\n" +
-    "			<div class=\"btn-group\" uib-dropdown>\n" +
-    "			  <button id=\"split-button\" type=\"button\" class=\"btn btn-sm btn-primary\"  ng-click=\"enterunlinking()\">Un-Linking</button>\n" +
-    "			  <button type=\"button\" class=\"btn btn-sm btn-primary\" uib-dropdown-toggle>\n" +
-    "				<span class=\"caret\"></span>\n" +
-    "			  </button>\n" +
-    "			  <ul class=\"dropdown-menu\" uib-dropdown-menu role=\"menu\" aria-labelledby=\"split-button\">\n" +
-    "				<li role=\"menuitem\" ng-repeat=\"n in [].constructor(8) track by $index\"><a style=\"cursor: pointer\" ng-click=\"enterunlinking($index + 1)\">Scene {{$index + 1}}</a></li>\n" +
-    "			  </ul>\n" +
-    "			</div>\n" +
-    "\n" +
-    "			<button class=\"btn btn-sm btn-primary\" ng-click=\"exitlinking()\"><i class=\"icon-circlestopempty\"></i> Stop Linking</button>\n" +
-    "		</div>\n" +
-    "	</div>\n" +
-    "\n" +
-    "\n" +
-    "	<div>\n" +
-    "		<div class=\"form-group\">\n" +
-    "		  <label for=\"name\">Links</label>\n" +
-    "	      <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"add_link()\">\n" +
-    "	      	<i class=\"icon-circleadd\"></i> Add</button>\n" +
-    "	      <button class=\"pull-right btn btn-xs\" ng-class=\"{'btn-info': !loading && !error, 'btn-primary': loading, 'btn-danger': error}\" ng-click=\"reload_database()\" ng-disabled=\"loading\">\n" +
-    "	      	<i class=\"icon-refresh\" ng-show=\"!loading && !error\"></i>\n" +
-    "	      	<i class=\"icon-circleselection spin\" ng-show=\"loading\"></i>\n" +
-    "	      	<i class=\"icon-erroralt\" ng-show=\"error\"></i>\n" +
-    "	      	Reload</button>\n" +
-    "		  <ul class=\"list-group bg-muted select-list\" style=\"height: 20em;\">\n" +
-    "		    <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"record in device.config.database | orderBy: 'name'\" ng-click=\"edit_link(record)\" ng-show=\"record.used\">\n" +
-    "		      <button class=\"btn btn-xs btn-danger pull-right\" ng-click=\"delete_link(record)\" stop-event>\n" +
-    "		      	<i class=\"icon-trash\"></i>\n" +
-    "		      </button>\n" +
-    "		      <div>\n" +
-    "		      	<i class=\"icon-uploadalt\" ng-show=\"record.controller\"></i>\n" +
-    "		      	<i class=\"icon-download-alt\" ng-show=\"!record.controller\"></i>\n" +
-    "				  {{record.name || record.address}}<span ng-show=\"record.name\"> ({{record.address}})</span>\n" +
-    "		      </div>\n" +
-    "		      <div><small>\n" +
-    "			      <span ng-show=\"!record.controller\">\n" +
-    "					  When scene {{record.group}}, use on level of {{record.on_level / 255 * 100 | number: 0}}% in {{record.ramp_rate | insteonRate}}<span ng-show=\"record.button > 1\"> and button {{record.button}}</span>\n" +
-    "			      </span>\n" +
-    "			      <span ng-show=\"record.controller\">\n" +
-    "					  Send scene {{record.group}} <span ng-show=\"record.button > 1\">with button {{record.button}}</span>\n" +
-    "			      </span>\n" +
-    "		      </small></div>\n" +
-    "		    </li>\n" +
-    "		   </ul>\n" +
-    "		</div>\n" +
-    "	</div>\n" +
-    "</div>\n" +
-    "\n" +
-    "<div class=\"form-group\">\n" +
-    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/insteon/link.html',
-    "<div class=\"modal-header\"><h3>{{action}} Link</h3></div>\n" +
-    "\n" +
-    "<div class=\"modal-body\">\n" +
-    "    <div class=\"form-group\">\n" +
-    "        <select class=\"form-control\" ng-model=\"record.controller\" ng-options=\"controller.value as controller.text for controller in controller_options\">\n" +
-    "        </select>\n" +
-    "    </div>\n" +
-    "    <div class=\"form-group\">\n" +
-    "        <label for=\"on_level\">Device</label>\n" +
-    "        <select class=\"form-control\" ng-model=\"record.address\" ng-options=\"device.config.address as device.name for device in devices\"></select>\n" +
-    "    </div>\n" +
-    "    <div class=\"form-group\" ng-show=\"!record.controller\">\n" +
-    "        <label for=\"address\">\n" +
-    "            <span ng-show=\"!record.controller\">When this Scene is received:</span>\n" +
-    "            <span ng-show=\"record.controller\">Send this Scene</span>\n" +
-    "        </label>\n" +
-    "        <rzslider rz-slider-model=\"record.group\" rz-slider-options=\"{floor: 1, ceil: 255, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "    </div>\n" +
-    "    <div class=\"form-group\">\n" +
-    "        <label for=\"address\">\n" +
-    "            <span ng-show=\"!record.controller\">Set this button</span>\n" +
-    "            <span ng-show=\"record.controller\">Button</span>\n" +
-    "        </label>\n" +
-    "        <rzslider rz-slider-model=\"record.button\" rz-slider-options=\"{floor: 0, ceil: 255, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "\n" +
-    "        </select>\n" +
-    "    </div>\n" +
-    "    <div class=\"form-group\" ng-show=\"!record.controller\">\n" +
-    "        <label for=\"on_level\">On Level</label>\n" +
-    "        <rzslider rz-slider-model=\"record.on_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
-    "    </div>\n" +
-    "    <div class=\"form-group\" ng-show=\"!record.controller\">\n" +
-    "        <label for=\"address\">Ramp Rate</label>\n" +
-    "        <select size=\"1\" class=\"form-control\" ng-model=\"record.ramp_rate\" ng-options=\"rate.value as rate.text for rate in rates | orderBy:'value':true\">\n" +
-    "        </select>\n" +
-    "    </div>\n" +
-    "    <div uib-alert class=\"alert-danger\" ng-show=\"error\">{{error.message}}</div>\n" +
-    "</div>\n" +
-    "\n" +
-    "\n" +
-    "<div class=\"modal-footer\">\n" +
-    "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"cancel()\" ng-disabled=\"loading\">Cancel</button>\n" +
-    "    <button class=\"btn btn-sm\" type=\"button\" ng-click=\"save()\" ng-disabled=\"loading\" ng-class=\"{'btn-primary': loading, 'btn-success': !loading}\">\n" +
-    "        <span ng-hide=\"loading\"><i class=\"icon-save-floppy\"></i> Save</span>\n" +
-    "        <span ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Saving</span></button>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/insteon/settings.html',
-    "\n" +
-    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
-    "    <h2>Settings / Insteon\n" +
-    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
-    "<!--\n" +
-    "\n" +
-    "enabled = false\n" +
-    "debug = false\n" +
-    "modem_debug = false\n" +
-    "serial_device = /dev/ttyUSB1\n" +
-    "\n" +
-    "delay = 300\n" +
-    "retries = 3\n" +
-    "\n" +
-    "-->\n" +
-    "        <div class=\"panel panel-default\">\n" +
-    "          <div class=\"panel-body\">\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
-    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
-    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
-    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
-    "              </button>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Serial Device: </label>\n" +
-    "\n" +
-    "\n" +
-    "              <ul class=\"list-group bg-muted select-list\">\n" +
-    "                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"d in devices\" ng-click=\"config.serial_device = d\" ng-class=\"{'list-group-item-success': config.serial_device == d}\">\n" +
-    "                  {{d}}\n" +
-    "                </li>\n" +
-    "              </ul>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"serial_baudrate\">Serial Baudrate</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"serial_baudrate\" placeholder=\"Serial Baudrate\" required=\"\" ng-model=\"config.serial_baudrate\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"serial_databits\">Serial Databits</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"serial_databits\" placeholder=\"Serial Databits\" required=\"\" ng-model=\"config.serial_databits\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"serial_stopbits\">Serial Stopbits</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"serial_stopbits\" placeholder=\"Serial Stopbits\" required=\"\" ng-model=\"config.serial_stopbits\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"serial_parity\">Serial Parity</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"serial_parity\" placeholder=\"Serial Parity\" required=\"\" ng-model=\"config.serial_parity\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"serial_flowcontrol\">Serial Flowcontrol</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"serial_flowcontrol\" placeholder=\"Serial Flowcontrol\" required=\"\" ng-model=\"config.serial_flowcontrol\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"timeout\">Timeout (ms)</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"timeout\" placeholder=\"Timeout (ms)\" required=\"\" ng-model=\"config.timeout\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"queue_timeout\">Queue Timeout (ms)</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"queue_timeout\" placeholder=\"Queue Timeout (ms)\" required=\"\" ng-model=\"config.queue_timeout\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"delay\">Delay (ms)</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"delay\" placeholder=\"Delay (ms)\" required=\"\" ng-model=\"config.delay\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"retries\">Retries</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"retries\" placeholder=\"Retries\" required=\"\" ng-model=\"config.retries\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Debug: </label>\n" +
-    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Modem Debug: </label>\n" +
-    "              <toggle value=\"config.modem_debug\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "            </div>\n" +
-    "\n" +
-    "          </div>\n" +
-    "        </div>\n" +
-    "\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "\n"
-  );
-
-
-  $templateCache.put('views/providers/insteonhub/add.html',
-    "<div ng-controller=\"insteonhubAdd\">\n" +
-    "  <div class=\"form-group\" ng-hide=\"type\">\n" +
-    "    <h3>Step 1: Device Type</h3>\n" +
-    "    <ul class=\"insteon-types\">\n" +
-    "      <li ng-repeat=\"t in device_types\" ng-click=\"changeType(t)\" ng-class=\"{'bg-success': type.name == t.name}\">{{t.name}}</li>\n" +
-    "    </ul>\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\" ng-show=\"type.type == 'devices' && !device.config.DeviceID\">\n" +
-    "      <button class=\"btn btn-primary btn-sm pull-right\" ng-hide=\"errors || processing\" ng-click=\"reload()\"><i class=\"icon-refresh\"></i></button>\n" +
-    "      <button class=\"btn btn-danger btn-sm pull-right\" ng-show=\"errors\" ng-click=\"reload()\"><i class=\"icon-erroralt\"></i></button>\n" +
-    "      <button class=\"btn btn-default btn-sm pull-right\" ng-show=\"processing\"><i class=\"icon-loadingalt spin\"></i></button>\n" +
-    "    <h3>Step 2: Select your Device</h3>\n" +
-    "    <div>&nbsp;</div>\n" +
-    "    <div>\n" +
-    "      <ul class=\"list-group bg-muted select-list\">\n" +
-    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"d in devices\" ng-click=\"selectDevice(d)\">\n" +
-    "          {{d.DeviceName}}\n" +
-    "        </li>\n" +
-    "      </ul>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\" ng-show=\"type.type == 'scenes' && !device.config.SceneID\">\n" +
-    "      <button class=\"btn btn-primary btn-sm pull-right\" ng-hide=\"errors || processing\" ng-click=\"reload()\"><i class=\"icon-refresh\"></i></button>\n" +
-    "      <button class=\"btn btn-danger btn-sm pull-right\" ng-show=\"errors\" ng-click=\"reload()\"><i class=\"icon-erroralt\"></i></button>\n" +
-    "      <button class=\"btn btn-default btn-sm pull-right\" ng-show=\"processing\"><i class=\"icon-loadingalt spin\"></i></button>\n" +
-    "    <h3>Step 2: Select your Scene</h3>\n" +
-    "    <div>&nbsp;</div>\n" +
-    "    <div>\n" +
-    "      <ul class=\"list-group bg-muted select-list\">\n" +
-    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"s in devices\" ng-click=\"selectScene(s)\">\n" +
-    "          {{s.SceneName}}\n" +
-    "        </li>\n" +
-    "      </ul>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\" ng-show=\"type.type == 'rooms' && !device.config.RoomID\">\n" +
-    "      <button class=\"btn btn-primary btn-sm pull-right\" ng-hide=\"errors || processing\" ng-click=\"reload()\"><i class=\"icon-refresh\"></i></button>\n" +
-    "      <button class=\"btn btn-danger btn-sm pull-right\" ng-show=\"errors\" ng-click=\"reload()\"><i class=\"icon-erroralt\"></i></button>\n" +
-    "      <button class=\"btn btn-default btn-sm pull-right\" ng-show=\"processing\"><i class=\"icon-loadingalt spin\"></i></button>\n" +
-    "    <h3>Step 2: Select your Room</h3>\n" +
-    "    <div>&nbsp;</div>\n" +
-    "    <div>\n" +
-    "      <ul class=\"list-group bg-muted select-list\">\n" +
-    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"r in devices\" ng-click=\"selectRoom(r)\">\n" +
-    "          {{r.RoomName}}\n" +
-    "        </li>\n" +
-    "      </ul>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\" ng-show=\"device.config.DeviceID || device.config.SceneID || device.config.RoomID\">\n" +
-    "    <h3>Step 3: Confirm Your Device and Type</h3>\n" +
-    "    <label for=\"name\">Name</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "  </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/insteonhub/edit.html',
-    "\n" +
-    "<div class=\"form-group\">\n" +
-    "  <label for=\"name\">Name</label>\n" +
-    "  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "</div>\n" +
-    "\n" +
-    "<div class=\"form-group\">\n" +
-    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/insteonhub/settings.html',
-    "\n" +
-    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
-    "    <h2>Settings / Insteon Hub\n" +
-    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
-    "        <div class=\"panel panel-default\">\n" +
-    "          <div class=\"panel-body\">\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"api_key\">API Key</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"api_key\" placeholder=\"API Key\" required=\"\" ng-model=\"config.api_key\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"api_secret\">Client Secret</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"api_secret\" placeholder=\"Client Secret\" required=\"\" ng-model=\"config.api_secret\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"user\">User</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"user\" placeholder=\"Insteon User\" required=\"\" ng-model=\"config.user\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"password\">Password</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"password\" placeholder=\"Insteon Password\" required=\"\" ng-model=\"config.password\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Debug: </label>\n" +
-    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "            </div>\n" +
-    "\n" +
-    "          </div>\n" +
-    "        </div>\n" +
-    "\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "\n"
-  );
-
-
-  $templateCache.put('views/providers/lutroncaseta/add.html',
-    "<div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Name</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Integration ID</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"integration_id\" placeholder=\"Integration ID\" required=\"\" ng-model=\"device.config.integration_id\">\n" +
-    "  </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/lutroncaseta/edit.html',
-    "<div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Name</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Integration ID</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"integration_id\" placeholder=\"Integration ID\" required=\"\" ng-model=\"device.config.integration_id\">\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "<div class=\"form-group\">\n" +
-    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/lutroncaseta/settings.html',
-    "\n" +
-    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
-    "    <h2>Settings / Lutron Caseta\n" +
-    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
-    "\n" +
-    "        <div class=\"panel panel-default\">\n" +
-    "          <div class=\"panel-body\">\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"key\">Bridge Host</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"key\" placeholder=\"Bridge Host\" required=\"\" ng-model=\"config.bridge_host\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"server\">Bridge Port</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"server\" placeholder=\"Bridge Port\" required=\"\" ng-model=\"config.bridge_port\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"interval\">Username</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"interval\" placeholder=\"Username\" required=\"\" ng-model=\"config.username\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"interval\">Password</label>\n" +
-    "              <input type=\"password\" class=\"form-control\" id=\"interval\" placeholder=\"Password\" required=\"\" ng-model=\"config.password\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"interval\">Reconnect Timeout (seconds)</label>\n" +
-    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Reconnect Timeout\" required=\"\" ng-model=\"config.reconnect_timeout\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"interval\">Message Timeout (seconds)</label>\n" +
-    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Message Timeout\" required=\"\" ng-model=\"config.message_time\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"interval\">Queue Interval (ms)</label>\n" +
-    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Queue Interval\" required=\"\" ng-model=\"config.queue_interval\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"interval\">Poll Interval (ms)</label>\n" +
-    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Poll Interval\" required=\"\" ng-model=\"config.poll_interval\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"debug\">Debug Logging: </label>\n" +
-    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "            </div>\n" +
-    "\n" +
-    "          </div>\n" +
-    "        </div>\n" +
-    "\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "\n"
-  );
-
-
-  $templateCache.put('views/providers/mqtt/add.html',
-    "<div ng-controller=\"mqttAdd\">\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Name</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Topic</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"topic\" placeholder=\"Topic\" required=\"\" ng-model=\"device.config.topic\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Parser</label>\n" +
-    "    <select size=\"1\" ng-model=\"device.config.parser\"></select>\n" +
-    "    <select class=\"form-control\" size=\"1\" ng-model=\"device.config.parser\" ng-options=\"parser.value as parser.name for parser in parsers\"></select>\n" +
-    "  </div>\n" +
-    "</div>"
-  );
-
-
-  $templateCache.put('views/providers/mqtt/edit.html',
-    "<div ng-controller=\"mqttEdit\">\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Name</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Topic</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"topic\" placeholder=\"Topic\" required=\"\" ng-model=\"device.config.topic\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Parser</label>\n" +
-    "    <select class=\"form-control\" size=\"1\" ng-model=\"device.config.parser\" ng-options=\"parser.value as parser.name for parser in parsers\"></select>\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "<div class=\"form-group\">\n" +
-    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
-    "</div>\n" +
-    "\n"
-  );
-
-
-  $templateCache.put('views/providers/mqtt/settings.html',
-    "\n" +
-    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
-    "    <h2>Settings / MQTT\n" +
-    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
-    "\n" +
-    "        <div class=\"panel panel-default\">\n" +
-    "          <div class=\"panel-body\">\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"key\">Server</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"key\" placeholder=\"Server\" required=\"\" ng-model=\"config.server\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"interval\">Save Wait (ms)</label>\n" +
-    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Reconnect Timeout\" required=\"\" ng-model=\"config.save_wait\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"interval\">min_save_age (ms)</label>\n" +
-    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Message Timeout\" required=\"\" ng-model=\"config.min_save_age\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "            </div>\n" +
-    "\n" +
-    "          </div>\n" +
-    "        </div>\n" +
-    "\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "\n"
-  );
-
-
-  $templateCache.put('views/providers/rad/add.html',
+  $templateCache.put('modules/rad/views/add.html',
     "<div ng-controller=\"radAdd\">\n" +
     "	<div ng-show=\"!connecting\">\n" +
     "    <p ><strong>Connect to an Abode Device</strong></p>\n" +
@@ -57216,7 +57604,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/providers/rad/edit.html',
+  $templateCache.put('modules/rad/views/edit.html',
     "<div ng-controller=\"radEdit\">\n" +
     "  <div class=\"form-group\">\n" +
     "    <label for=\"name\">Name</label>\n" +
@@ -57305,7 +57693,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/providers/rad/edit_bishop_Feb-06-121234-2016_Conflict.html',
+  $templateCache.put('modules/rad/views/edit_bishop_Feb-06-121234-2016_Conflict.html',
     "\n" +
     "<div class=\"form-group\">\n" +
     "  <label for=\"name\">Name</label>\n" +
@@ -57319,7 +57707,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/providers/rad/settings.html',
+  $templateCache.put('modules/rad/views/settings.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
@@ -57363,7 +57751,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/providers/radiothermostat/edit.html',
+  $templateCache.put('modules/radiothermostat/views/edit.html',
     "\n" +
     "<div class=\"form-group\">\n" +
     "  <label for=\"name\">Name</label>\n" +
@@ -57380,7 +57768,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/providers/radiothermostat/settings.html',
+  $templateCache.put('modules/radiothermostat/views/settings.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
@@ -57405,275 +57793,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/providers/video/settings.html',
-    "\n" +
-    "\n" +
-    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
-    "    <h2>Settings / Providers / Video\n" +
-    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
-    "\n" +
-    "        <div class=\"panel panel-default\">\n" +
-    "          <div class=\"panel-body\">\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"player\">Player</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"Player\" placeholder=\"Player\" required=\"\" ng-model=\"config.player\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"options\">Options</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"options\" placeholder=\"Options\" required=\"\" ng-model=\"config.options\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Debug: </label>\n" +
-    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "            </div>\n" +
-    "\n" +
-    "          </div>\n" +
-    "        </div>\n" +
-    "\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "\n"
-  );
-
-
-  $templateCache.put('views/providers/wunderground/add.html',
-    "<div ng-controller=\"wundergroundAdd\">\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Name</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Location</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"location\" placeholder=\"Location\" required=\"\" ng-model=\"device.config.location\">\n" +
-    "  </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/wunderground/edit.html',
-    "\n" +
-    "<div class=\"form-group\">\n" +
-    "  <label for=\"name\">Name</label>\n" +
-    "  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "</div>\n" +
-    "<div class=\"form-group\">\n" +
-    "  <label for=\"name\">Location</label>\n" +
-    "  <input type=\"text\" class=\"form-control\" id=\"location\" placeholder=\"Location\" required=\"\" ng-model=\"device.config.location\">\n" +
-    "</div>\n" +
-    "<div class=\"form-group\">\n" +
-    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/wunderground/settings.html',
-    "\n" +
-    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
-    "    <h2>Settings / Wunderground\n" +
-    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
-    "\n" +
-    "        <div class=\"panel panel-default\">\n" +
-    "          <div class=\"panel-body\">\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"key\">API Key</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"key\" placeholder=\"API Key\" required=\"\" ng-model=\"config.key\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"server\">Server</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"server\" placeholder=\"Server\" required=\"\" ng-model=\"config.server\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"interval\">Interval (minutes)</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"interval\" placeholder=\"Interval\" required=\"\" ng-model=\"config.interval\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"temp_units\">Temp Units</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"temp_units\" placeholder=\"Temperature Units\" required=\"\" ng-model=\"config.temp_units\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"wind_units\">Wind Units</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"wind_units\" placeholder=\"Wind Units\" required=\"\" ng-model=\"config.wind_units\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"press_units\">Pressure Units</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"press_units\" placeholder=\"Pressure Units\" required=\"\" ng-model=\"config.press_units\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"dist_units\">Distance Units</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"dist_units\" placeholder=\"Distance Units\" required=\"\" ng-model=\"config.dist_units\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"rain_units\">Rain Units</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"rain_units\" placeholder=\"Rain Units\" required=\"\" ng-model=\"config.rain_units\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"debug\">Debug Logging: </label>\n" +
-    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "            </div>\n" +
-    "\n" +
-    "          </div>\n" +
-    "        </div>\n" +
-    "\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "\n"
-  );
-
-
-  $templateCache.put('views/providers/zwave/add.html',
-    "<div ng-controller=\"zwaveAdd\">\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Name</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Pending Nodes </label><button class=\"btn btn-xs btn-primary pull-right\" ng-disabled=\"loading\" ng-click=\"refresh()\"><i class=\"icon-refresh\" ng-class=\"{spin: loading}\"></i></button>\n" +
-    "\n" +
-    "    <ul class=\"list-group bg-muted select-list\">\n" +
-    "      <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"device in devices\" ng-click=\"selectNode(device)\" ng-class=\"{'list-group-item-success': device === selected}\">\n" +
-    "      	{{device.config.nodeinfo.manufacturer}} {{device.config.nodeinfo.product}} ({{device.config.nodeinfo.type}})\n" +
-    "      	<div><small>name{{device.config.nodeinfo.name}} <span ng-show=\"device.config.nodeinfo.loc\">in {{device.config.nodeinfo.loc}}</span></small></div>\n" +
-    "      </li>\n" +
-    "    </ul>\n" +
-    "  </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/zwave/edit.html',
-    "<div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Name</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\">\n" +
-    "    <label for=\"name\">Node ID</label>\n" +
-    "    <input type=\"text\" class=\"form-control\" id=\"node_id\" placeholder=\"Node ID\" required=\"\" ng-model=\"device.config.node_id\">\n" +
-    "  </div>\n" +
-    "  <div class=\"form-group\" ng-repeat=\"(key, config) in device.config.commandclasses.CONFIGURATION['1']\" ng-hide=\"config.type == 'button'\">\n" +
-    "    <label for=\"name\">{{key}} <span ng-show=\"config.units\">({{config.units}})</span></label>\n" +
-    "\n" +
-    "    <ul ng-if=\"config.type=='list' && config.units==''\" class=\"list-group bg-muted select-list\" ng-show=\"config.type=='list' && config.units==''\">\n" +
-    "      <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"item in config.values\" ng-click=\"config.value=item\" ng-class=\"{'list-group-item-success': config.value==item}\">{{item}}</li>\n" +
-    "    </ul>\n" +
-    "    <rzslider ng-if=\"config.units=='%' || config.units=='LUX'\" rz-slider-model=\"config.value\" rz-slider-options=\"{floor: 0, ceil: 100, step: 1, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\" ng-show=\"config.units=='%' || config.units=='LUX'\"></rzslider>\n" +
-    "    <input ng-if=\"config.type=='byte' && config.units==''\" type=\"text\" class=\"form-control\" placeholder=\"{{key}}\" required=\"\" ng-model=\"config.value\" ng-show=\"config.type=='byte' && config.units==''\" min=\"{{config.min}}\" max=\"{{config.max}}\">\n" +
-    "    <input ng-if=\"config.type=='int' && config.units==''\" type=\"text\" class=\"form-control\" placeholder=\"{{key}}\" required=\"\" ng-model=\"config.value\" ng-show=\"config.type=='int' && config.units==''\" min=\"{{config.min}}\" max=\"{{config.max}}\">\n" +
-    "    <input ng-if=\"config.type=='short' && config.units==''\" type=\"text\" class=\"form-control\" placeholder=\"{{key}}\" required=\"\" ng-model=\"config.value\" ng-show=\"config.type=='short' && config.units==''\" min=\"{{config.min}}\" max=\"{{config.max}}\">\n" +
-    "    <epochduration ng-if=\"config.units=='seconds'\" time=\"config.value\" ng-show=\"config.units=='seconds'\"></epochduration>\n" +
-    "    <div class=\"help text-muted\" ng-show=\"config.help\"><small>{{config.help}}</small></div>\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "<div class=\"form-group\">\n" +
-    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('views/providers/zwave/settings.html',
-    "\n" +
-    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
-    "    <h2>Settings / Z-Wave\n" +
-    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "<div class=\"row\">\n" +
-    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
-    "\n" +
-    "        <div class=\"panel panel-default\">\n" +
-    "          <div class=\"panel-body\">\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"key\">Device</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"device\" placeholder=\"Device\" required=\"\" ng-model=\"config.device\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"interval\">Message Timeout (sec)</label>\n" +
-    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Message Timeout\" required=\"\" ng-model=\"config.message_time\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"interval\">Queue Interval (ms)</label>\n" +
-    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Queue Interval\" required=\"\" ng-model=\"config.queue_interval\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"interval\">Poll Interval (sec)</label>\n" +
-    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Poll Interval\" required=\"\" ng-model=\"config.poll_interval\">\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"debug\">Debug Logging: </label>\n" +
-    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "            </div>\n" +
-    "\n" +
-    "          </div>\n" +
-    "        </div>\n" +
-    "\n" +
-    "  </div>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "\n"
-  );
-
-
-  $templateCache.put('views/rooms/assign.html',
+  $templateCache.put('modules/rooms/views/assign.html',
     "<div class=\"modal-header\"><h3>Assign Device</h3></div>\n" +
     "\n" +
     "<div class=\"modal-body\">\n" +
@@ -57698,7 +57818,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/rooms/assign.scene.html',
+  $templateCache.put('modules/rooms/views/assign.scene.html',
     "<div class=\"modal-header\"><h3>Assign Scene</h3></div>\n" +
     "\n" +
     "<div class=\"modal-body\">\n" +
@@ -57723,7 +57843,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/rooms/room.icon.html',
+  $templateCache.put('modules/rooms/views/room.icon.html',
     "<div class=\"room-icon\" ng-style=\"styles\" ng-class=\"{'room-motion': room._motion_on, 'room-light': room._lights_on, 'active': room._motion_on || room._lights_on || room._doors_open || rooms._windows_open || tempType}\" ng-click=\"view()\">\n" +
     "  <div class=\"room-icon-display\" ng-show=\"icon && room._temperature && tempType\"><i class=\"{{icon}}\"></i></div>\n" +
     "  <div class=\"room-icon-temp\" ng-show=\"tempType && room._temperature\">{{room._temperature | number:0}}</div>\n" +
@@ -57738,7 +57858,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/rooms/rooms.add.html',
+  $templateCache.put('modules/rooms/views/rooms.add.html',
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
@@ -57775,7 +57895,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/rooms/rooms.cameras.html',
+  $templateCache.put('modules/rooms/views/rooms.cameras.html',
     "<div>\n" +
     "  <div style=\"position: relative;\">\n" +
     "    <div ng-click=\"play()\" ng-show=\"cameras[index].video\" class=\"room-cameras-controls play\"><i class=\"icon-circleplayempty\"></i></div>\n" +
@@ -57788,7 +57908,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/rooms/rooms.edit.html',
+  $templateCache.put('modules/rooms/views/rooms.edit.html',
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
@@ -57875,13 +57995,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/rooms/rooms.html',
+  $templateCache.put('modules/rooms/views/rooms.html',
     "<div class=\"bg-muted\" style=\"position: absolute; top: 0px; bottom: 0px; right: 0px; left: 0px; overflow: auto;\" ui-view>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/rooms/rooms.list.html',
+  $templateCache.put('modules/rooms/views/rooms.list.html',
     "\n" +
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 7em;\">\n" +
     "    <div class=\"row\">\n" +
@@ -57914,7 +58034,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/rooms/rooms.view.html',
+  $templateCache.put('modules/rooms/views/rooms.view.html',
     "<div class=\"modal-header\">\n" +
     "    <h4 class=\"modal-title\">{{name}}\n" +
     "\n" +
@@ -57999,7 +58119,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/scenes/add.action.html',
+  $templateCache.put('modules/scenes/views/add.action.html',
     "<div class=\"modal-header\">\n" +
     "<h3 ng-hide=\"device\">Add Action</h3>\n" +
     "<h3 ng-show=\"device\">{{device.name}}</h3>\n" +
@@ -58084,7 +58204,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/scenes/assign.html',
+  $templateCache.put('modules/scenes/views/assign.html',
     "<div class=\"modal-header\"><h3>Assign Room</h3></div>\n" +
     "\n" +
     "<div class=\"modal-body\">\n" +
@@ -58110,7 +58230,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/scenes/edit.action.html',
+  $templateCache.put('modules/scenes/views/edit.action.html',
     "<div class=\"modal-header\">\n" +
     "<h3>{{device.name}}</h3>\n" +
     "</div>\n" +
@@ -58151,7 +58271,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/scenes/scene.builder.devices.html',
+  $templateCache.put('modules/scenes/views/scene.builder.devices.html',
     "<div class=\"modal-header\"><h3>Add Device</h3></div>\n" +
     "\n" +
     "<div class=\"modal-body\">\n" +
@@ -58177,7 +58297,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/scenes/scene.builder.html',
+  $templateCache.put('modules/scenes/views/scene.builder.html',
     "<div class=\"modal-body\">\n" +
     "<h3 ng-hide=\"device\">Scene Builder\n" +
     "    <button class=\"btn btn-xs btn-success pull-right\"><i class=\"icon-circleadd\"></i></button></h3>\n" +
@@ -58213,7 +58333,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/scenes/scenes.add.html',
+  $templateCache.put('modules/scenes/views/scenes.add.html',
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
@@ -58250,7 +58370,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/scenes/scenes.edit.html',
+  $templateCache.put('modules/scenes/views/scenes.edit.html',
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
@@ -58408,13 +58528,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/scenes/scenes.html',
+  $templateCache.put('modules/scenes/views/scenes.html',
     "<div class=\"bg-muted\" style=\"position: absolute; top: 0px; bottom: 0px; right: 0px; left: 0px; overflow: auto;\" ui-view>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/scenes/scenes.list.html',
+  $templateCache.put('modules/scenes/views/scenes.list.html',
     "\n" +
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 7em;\">\n" +
     "    <div class=\"row\">\n" +
@@ -58447,7 +58567,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/scenes/scenes.view.html',
+  $templateCache.put('modules/scenes/views/scenes.view.html',
     "<div class=\"modal-header\">\n" +
     "    <h4 class=\"modal-title\">{{name}}\n" +
     "\n" +
@@ -58474,7 +58594,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.advanced.html',
+  $templateCache.put('modules/settings/views/settings.advanced.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
@@ -58523,7 +58643,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.client.html',
+  $templateCache.put('modules/settings/views/settings.client.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
@@ -58639,7 +58759,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.display.html',
+  $templateCache.put('modules/settings/views/settings.display.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
@@ -58677,7 +58797,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.general.html',
+  $templateCache.put('modules/settings/views/settings.general.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
@@ -58791,13 +58911,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.html',
+  $templateCache.put('modules/settings/views/settings.html',
     "<div class=\"bg-muted\" style=\"position: absolute; top: 0px; bottom: 0px; right: 0px; left: 0px; overflow: auto;\" ui-view>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/settings/settings.interfaces.add.html',
+  $templateCache.put('modules/settings/views/settings.interfaces.add.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">=\n" +
     "  <div class=\"row\">\n" +
@@ -58839,7 +58959,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.interfaces.edit.html',
+  $templateCache.put('modules/settings/views/settings.interfaces.edit.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "  <div class=\"row\">\n" +
@@ -58882,13 +59002,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.interfaces.html',
+  $templateCache.put('modules/settings/views/settings.interfaces.html',
     "<div class=\"bg-muted\" ui-view>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/settings/settings.interfaces.list.html',
+  $templateCache.put('modules/settings/views/settings.interfaces.list.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "  <div class=\"row\">\n" +
@@ -58925,7 +59045,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.list.html',
+  $templateCache.put('modules/settings/views/settings.list.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
@@ -58947,7 +59067,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.networking.html',
+  $templateCache.put('modules/settings/views/settings.networking.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
@@ -59005,7 +59125,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.pins.add.html',
+  $templateCache.put('modules/settings/views/settings.pins.add.html',
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
@@ -59061,7 +59181,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.pins.edit.html',
+  $templateCache.put('modules/settings/views/settings.pins.edit.html',
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
@@ -59119,13 +59239,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.pins.html',
+  $templateCache.put('modules/settings/views/settings.pins.html',
     "<div class=\"bg-muted\" ui-view>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/settings/settings.pins.list.html',
+  $templateCache.put('modules/settings/views/settings.pins.list.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "  <div class=\"row\">\n" +
@@ -59164,7 +59284,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.providers.html',
+  $templateCache.put('modules/settings/views/settings.providers.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
@@ -59201,7 +59321,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.sensors.html',
+  $templateCache.put('modules/settings/views/settings.sensors.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
@@ -59238,7 +59358,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.sources.add.html',
+  $templateCache.put('modules/settings/views/settings.sources.add.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "  <div class=\"row\">\n" +
@@ -59278,7 +59398,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.sources.edit.html',
+  $templateCache.put('modules/settings/views/settings.sources.edit.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "  <div class=\"row\">\n" +
@@ -59318,13 +59438,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.sources.html',
+  $templateCache.put('modules/settings/views/settings.sources.html',
     "<div class=\"bg-muted\"  ui-view>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/settings/settings.sources.list.html',
+  $templateCache.put('modules/settings/views/settings.sources.list.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "  <div class=\"row\">\n" +
@@ -59363,7 +59483,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.users.add.html',
+  $templateCache.put('modules/settings/views/settings.users.add.html',
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
@@ -59426,7 +59546,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.users.edit.html',
+  $templateCache.put('modules/settings/views/settings.users.edit.html',
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
@@ -59519,13 +59639,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/settings/settings.users.html',
+  $templateCache.put('modules/settings/views/settings.users.html',
     "<div class=\"bg-muted\" ui-view>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/settings/settings.users.list.html',
+  $templateCache.put('modules/settings/views/settings.users.list.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "  <div class=\"row\">\n" +
@@ -59561,7 +59681,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/triggers/conditions.edit.html',
+  $templateCache.put('modules/triggers/views/conditions.edit.html',
     "<div class=\"modal-header\">\n" +
     "    <h4 class=\"modal-title\">{{title}}</h4>\n" +
     "</div>\n" +
@@ -59639,7 +59759,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/triggers/conditions.side.html',
+  $templateCache.put('modules/triggers/views/conditions.side.html',
     "<div>\n" +
     "  <div class=\"row\" style=\"font-size: 1.5em;\">\n" +
     "    <button class=\"btn btn-link\" ng-click=\"toggle()\">\n" +
@@ -59738,7 +59858,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/triggers/notifications.picker.html',
+  $templateCache.put('modules/triggers/views/notifications.picker.html',
     "<div class=\"modal-header\">\n" +
     "    <h4 class=\"modal-title\">Select a Notification</h4>\n" +
     "</div>\n" +
@@ -59754,7 +59874,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/triggers/triggers.action.html',
+  $templateCache.put('modules/triggers/views/triggers.action.html',
     "<div class=\"modal-header\">\n" +
     "    <h4 class=\"modal-title\">{{title}}</h4>\n" +
     "</div>\n" +
@@ -59882,7 +60002,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/triggers/triggers.add.html',
+  $templateCache.put('modules/triggers/views/triggers.add.html',
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
@@ -60136,7 +60256,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/triggers/triggers.checker.html',
+  $templateCache.put('modules/triggers/views/triggers.checker.html',
     "<div class=\"modal-header\">\n" +
     "    <h4 class=\"modal-title\">Trigger Checker</h4>\n" +
     "</div>\n" +
@@ -60200,7 +60320,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/triggers/triggers.conditions.html',
+  $templateCache.put('modules/triggers/views/triggers.conditions.html',
     "\n" +
     "<ul class=\"list-group bg-muted select-list\" ng-show=\"conditions.length > 0\">\n" +
     "  <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"condition in conditions\" ng-click=\"editCondition(condition)\" ng-class=\"{'or-conditions': condition.or.length, 'and-conditions': condition.and.length}\">\n" +
@@ -60212,7 +60332,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/triggers/triggers.edit.html',
+  $templateCache.put('modules/triggers/views/triggers.edit.html',
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
@@ -60473,13 +60593,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/triggers/triggers.html',
+  $templateCache.put('modules/triggers/views/triggers.html',
     "<div class=\"bg-muted\" style=\"position: absolute; top: 0px; bottom: 0px; right: 0px; left: 0px; overflow: auto;\" ui-view>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/triggers/triggers.list.html',
+  $templateCache.put('modules/triggers/views/triggers.list.html',
     "\n" +
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 7em;\">\n" +
     "    <div class=\"row\">\n" +
@@ -60522,7 +60642,57 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/weather/popover.html',
+  $templateCache.put('modules/video/views/settings.html',
+    "\n" +
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Providers / Video\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"player\">Player</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"Player\" placeholder=\"Player\" required=\"\" ng-model=\"config.player\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"options\">Options</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"options\" placeholder=\"Options\" required=\"\" ng-model=\"config.options\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Debug: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('modules/weather/views/popover.html',
     "<div style=\"width: 240px;\" class=\"container-fluid\">\n" +
     "		<div class=\"row\">\n" +
     "			<div class=\"col-xs-6\">\n" +
@@ -60607,16 +60777,16 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/weather/status.html',
+  $templateCache.put('modules/weather/views/status.html',
     "<div ng-show=\"client.show_weather\">\n" +
-    "	<span class=\"pointer\" uib-popover-template=\"'views/weather/popover.html'\" popover-trigger=\"'outsideClick'\" popover-placement=\"bottom-right\">\n" +
+    "	<span class=\"pointer\" uib-popover-template=\"'modules/weather/views/popover.html'\" popover-trigger=\"'outsideClick'\" popover-placement=\"bottom-right\">\n" +
     "		{{weather.temperature | number:0}}&deg;\n" +
     "		<i class=\"wi {{weather.icon}}\"></i></span>\n" +
     "</div>\n"
   );
 
 
-  $templateCache.put('views/welcome/configure.html',
+  $templateCache.put('modules/welcome/views/configure.html',
     "<content top=\"0\" bottom=\"0\" left=\"0\" right=\"0\" overflow=\"auto\">\n" +
     "<div class=\"row\">\n" +
     "  <div class=\"col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1\">\n" +
@@ -60651,7 +60821,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/welcome/devices.html',
+  $templateCache.put('modules/welcome/views/devices.html',
     "<content top=\"0\" bottom=\"0\" left=\"0\" right=\"0\" overflow=\"auto\">\n" +
     "<div class=\"row\">\n" +
     "  <div class=\"col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1\">\n" +
@@ -60711,7 +60881,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/welcome/index.html',
+  $templateCache.put('modules/welcome/views/index.html',
     "<content top=\"0\" bottom=\"0\" left=\"0\" right=\"0\" overflow=\"auto\">\n" +
     "<div class=\"row\">\n" +
     "  <div class=\"col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1\">\n" +
@@ -60764,7 +60934,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/welcome/interfaces.html',
+  $templateCache.put('modules/welcome/views/interfaces.html',
     "<content top=\"0\" bottom=\"0\" left=\"0\" right=\"0\" overflow=\"auto\">\n" +
     "<div class=\"row\">\n" +
     "  <div class=\"col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1\">\n" +
@@ -60818,7 +60988,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/welcome/login.html',
+  $templateCache.put('modules/welcome/views/login.html',
     "<content top=\"0\" bottom=\"0\" left=\"0\" right=\"0\" overflow=\"auto\">\n" +
     "<div class=\"row\">\n" +
     "  <div class=\"col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1\">\n" +
@@ -60869,7 +61039,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/welcome/power.html',
+  $templateCache.put('modules/welcome/views/power.html',
     "<div ng-controller=\"powerController\">\n" +
     "	<button class=\"btn btn-small btn-warning\" style=\"width: 100%\" ng-click=\"restart()\" ng-disabled=\"working\">Restart</button>\n" +
     "	<button class=\"btn btn-small btn-danger\" style=\"width: 100%\" ng-click=\"shutdown()\" ng-disabled=\"working\">Power Off</button>\n" +
@@ -60877,7 +61047,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('views/welcome/wifi.connect.html',
+  $templateCache.put('modules/welcome/views/wifi.connect.html',
     "<div class=\"modal-body\">\n" +
     "  <div ng-show=\"!connecting\">\n" +
     "    <div class=\"form-group\">\n" +
@@ -60901,6 +61071,224 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"cancel()\" ng-disabled=\"connecting\">Cancel</button>\n" +
     "    <button class=\"btn btn-primary btn-sm\" type=\"button\" ng-click=\"connect()\" ng-disabled=\"connecting\"><i class=\"icon-network\"></i> Connect</button>\n" +
     "</div>\n"
+  );
+
+
+  $templateCache.put('modules/wunderground/views/add.html',
+    "<div ng-controller=\"wundergroundAdd\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Location</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"location\" placeholder=\"Location\" required=\"\" ng-model=\"device.config.location\">\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/wunderground/views/edit.html',
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <label for=\"name\">Name</label>\n" +
+    "  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "</div>\n" +
+    "<div class=\"form-group\">\n" +
+    "  <label for=\"name\">Location</label>\n" +
+    "  <input type=\"text\" class=\"form-control\" id=\"location\" placeholder=\"Location\" required=\"\" ng-model=\"device.config.location\">\n" +
+    "</div>\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/wunderground/views/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Wunderground\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"key\">API Key</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"key\" placeholder=\"API Key\" required=\"\" ng-model=\"config.key\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"server\">Server</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"server\" placeholder=\"Server\" required=\"\" ng-model=\"config.server\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Interval (minutes)</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"interval\" placeholder=\"Interval\" required=\"\" ng-model=\"config.interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"temp_units\">Temp Units</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"temp_units\" placeholder=\"Temperature Units\" required=\"\" ng-model=\"config.temp_units\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"wind_units\">Wind Units</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"wind_units\" placeholder=\"Wind Units\" required=\"\" ng-model=\"config.wind_units\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"press_units\">Pressure Units</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"press_units\" placeholder=\"Pressure Units\" required=\"\" ng-model=\"config.press_units\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"dist_units\">Distance Units</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"dist_units\" placeholder=\"Distance Units\" required=\"\" ng-model=\"config.dist_units\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"rain_units\">Rain Units</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"rain_units\" placeholder=\"Rain Units\" required=\"\" ng-model=\"config.rain_units\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"debug\">Debug Logging: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('modules/zwave/views/add.html',
+    "<div ng-controller=\"zwaveAdd\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Pending Nodes </label><button class=\"btn btn-xs btn-primary pull-right\" ng-disabled=\"loading\" ng-click=\"refresh()\"><i class=\"icon-refresh\" ng-class=\"{spin: loading}\"></i></button>\n" +
+    "\n" +
+    "    <ul class=\"list-group bg-muted select-list\">\n" +
+    "      <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"device in devices\" ng-click=\"selectNode(device)\" ng-class=\"{'list-group-item-success': device === selected}\">\n" +
+    "      	{{device.config.nodeinfo.manufacturer}} {{device.config.nodeinfo.product}} ({{device.config.nodeinfo.type}})\n" +
+    "      	<div><small>name{{device.config.nodeinfo.name}} <span ng-show=\"device.config.nodeinfo.loc\">in {{device.config.nodeinfo.loc}}</span></small></div>\n" +
+    "      </li>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/zwave/views/edit.html',
+    "<div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Node ID</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"node_id\" placeholder=\"Node ID\" required=\"\" ng-model=\"device.config.node_id\">\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\" ng-repeat=\"(key, config) in device.config.commandclasses.CONFIGURATION['1']\" ng-hide=\"config.type == 'button'\">\n" +
+    "    <label for=\"name\">{{key}} <span ng-show=\"config.units\">({{config.units}})</span></label>\n" +
+    "\n" +
+    "    <ul ng-if=\"config.type=='list' && config.units==''\" class=\"list-group bg-muted select-list\" ng-show=\"config.type=='list' && config.units==''\">\n" +
+    "      <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"item in config.values\" ng-click=\"config.value=item\" ng-class=\"{'list-group-item-success': config.value==item}\">{{item}}</li>\n" +
+    "    </ul>\n" +
+    "    <rzslider ng-if=\"config.units=='%' || config.units=='LUX'\" rz-slider-model=\"config.value\" rz-slider-options=\"{floor: 0, ceil: 100, step: 1, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\" ng-show=\"config.units=='%' || config.units=='LUX'\"></rzslider>\n" +
+    "    <input ng-if=\"config.type=='byte' && config.units==''\" type=\"text\" class=\"form-control\" placeholder=\"{{key}}\" required=\"\" ng-model=\"config.value\" ng-show=\"config.type=='byte' && config.units==''\" min=\"{{config.min}}\" max=\"{{config.max}}\">\n" +
+    "    <input ng-if=\"config.type=='int' && config.units==''\" type=\"text\" class=\"form-control\" placeholder=\"{{key}}\" required=\"\" ng-model=\"config.value\" ng-show=\"config.type=='int' && config.units==''\" min=\"{{config.min}}\" max=\"{{config.max}}\">\n" +
+    "    <input ng-if=\"config.type=='short' && config.units==''\" type=\"text\" class=\"form-control\" placeholder=\"{{key}}\" required=\"\" ng-model=\"config.value\" ng-show=\"config.type=='short' && config.units==''\" min=\"{{config.min}}\" max=\"{{config.max}}\">\n" +
+    "    <epochduration ng-if=\"config.units=='seconds'\" time=\"config.value\" ng-show=\"config.units=='seconds'\"></epochduration>\n" +
+    "    <div class=\"help text-muted\" ng-show=\"config.help\"><small>{{config.help}}</small></div>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/zwave/views/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Z-Wave\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"key\">Device</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"device\" placeholder=\"Device\" required=\"\" ng-model=\"config.device\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Message Timeout (sec)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Message Timeout\" required=\"\" ng-model=\"config.message_time\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Queue Interval (ms)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Queue Interval\" required=\"\" ng-model=\"config.queue_interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Poll Interval (sec)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Poll Interval\" required=\"\" ng-model=\"config.poll_interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"debug\">Debug Logging: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
   );
 
 
@@ -60942,16 +61330,16 @@ triggers.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.triggers', {
     url: '/triggers',
-    templateUrl: 'views/triggers/triggers.html',
+    templateUrl: 'modules/triggers/views/triggers.html',
   })
   .state('main.triggers.list', {
     url: '/list',
-    templateUrl: 'views/triggers/triggers.list.html',
+    templateUrl: 'modules/triggers/views/triggers.list.html',
     controller: 'triggersList'
   })
   .state('main.triggers.add', {
     url: '/add',
-    templateUrl: 'views/triggers/triggers.add.html',
+    templateUrl: 'modules/triggers/views/triggers.add.html',
     controller: 'triggersEdit',
     resolve: {
       'trigger': function (Triggers) {
@@ -60968,7 +61356,7 @@ triggers.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.triggers.edit', {
     url: '/:name',
-    templateUrl: 'views/triggers/triggers.edit.html',
+    templateUrl: 'modules/triggers/views/triggers.edit.html',
     controller: 'triggersEdit',
     resolve: {
       'trigger': function ($stateParams, $state, Triggers) {
@@ -60984,6 +61372,520 @@ triggers.config(function($stateProvider, $urlRouterProvider) {
     }
   });
 });
+
+
+
+var triggers = angular.module('abode.triggers');
+
+triggers.controller('room', function () {
+
+});
+
+
+
+var triggers = angular.module('abode.triggers');
+
+triggers.controller('triggersEdit', function ($scope, $state, $uibModal, abode, triggers, trigger, Devices, Rooms, Scenes, confirm, types) {
+  $scope.trigger = trigger;
+  $scope.alerts = [];
+  $scope.state = $state;
+  $scope.trigger_types = types;
+  $scope.devices = [];
+  $scope.scenes = [];
+  $scope.conditions = false;
+  $scope.delay = ($scope.trigger.delay && $scope.trigger.delay.time > 0) ? true : false;
+  $scope.duration = ($scope.trigger.duration && $scope.trigger.duration.time > 0) ? true : false;
+  $scope.devices_loading = true;
+  $scope.section = 'general';
+  $scope.notifications = [];
+
+  $scope.addAction = triggers.addAction;
+  $scope.editAction = triggers.editAction;
+  $scope.removeAction = triggers.removeAction;
+
+  $scope.match_types = [
+    {name: 'None', value: '', icon: 'glyphicon glyphicon-ban-circle'},
+    {name: 'Device', value: 'device', icon: 'glyphicon glyphicon-oil'},
+    {name: 'Room', value: 'room', icon: 'glyphicon glyphicon-modal-window'},
+    {name: 'Scene', value: 'scene', icon: 'icon-picture'},
+    {name: 'Time', value: 'time', icon: 'icon-clockalt-timealt'},
+    {name: 'Date', value: 'date', icon: 'icon-calendar'},
+    {name: 'String', value: 'string', icon: 'icon-quote'},
+    {name: 'Number', value: 'number', icon: 'icon-infinityalt'}
+  ];
+
+  $scope.load_notifications = function () {
+    $scope.loading = true;
+    $scope.trigger.$notifications().then(function (results) {
+      $scope.loading = false;
+      $scope.notifications = results;
+
+    }, function () {
+      $scope.loading = false;
+    });
+  };
+
+  $scope.load_notifications();
+
+  $scope.check = function () {
+    var checker = $uibModal.open({
+      animation: false,
+      size: 'lg',
+      templateUrl: 'modules/triggers/views/triggers.checker.html',
+      controller: ['$scope', '$uibModalInstance', '$timeout', 'trigger', function ($scope, $uibModalInstance, $timeout, trigger) {
+        $scope.loading = true;
+	      $scope.results = {};
+
+        $scope.check = function () {
+          $scope.loading = true;
+          trigger.$check().then(function (results) {
+            $scope.loading = false;
+            $scope.results = results;
+          }, function (results) {
+            $scope.loading = false;
+            $scope.results = results;
+          });
+        };
+
+        $scope.close = function () {
+          $uibModalInstance.dismiss();
+        };
+
+        $timeout($scope.check, 1000);
+      }],
+      resolve: {
+        trigger: function () {
+          return $scope.trigger;
+        }
+      }
+    });
+  };
+
+  $scope.add_notification = function () {
+    var picker = $uibModal.open({
+      animation: false,
+      templateUrl: 'modules/triggers/views/notifications.picker.html',
+      size: 'sm',
+      controller: ['$scope', '$uibModalInstance', 'Notifications', 'trigger', function ($scope, $uibModalInstance, Notifications, trigger) {
+        $scope.loading = true;
+        $scope.notifications = [];
+        $scope.trigger = trigger;
+
+        $scope.close = function () {
+          $uibModalInstance.dismiss();
+        };
+
+        $scope.select = function(notification) {
+          if (!$scope.trigger._id) {
+            $uibModalInstance.close(notification);
+          } else {
+            $scope.trigger.$add_notification(notification).then(function () {
+              $uibModalInstance.close(notification);
+            }, function () {
+              abode.message({'type': 'failed', 'message': 'Failed to add notification'});
+            });
+          }
+        };
+
+        Notifications.query().$promise.then(function (results) {
+          $scope.notifications = results;
+          $scope.loading = false;
+        });
+      }],
+      resolve: {
+        trigger: function () {
+          return $scope.trigger;
+        }
+      }
+    });
+
+    picker.result.then(function (notification) {
+      $scope.trigger.notifications.push(notification._id);
+      $scope.notifications.push(notification);
+    });
+  };
+
+  $scope.remove_notification = function (notification) {
+    if (!$scope.trigger._id) {
+
+      $scope.trigger.notifications.splice($scope.trigger.notifications.indexOf(notification._id), 1);
+      $scope.notifications = $scope.notifications.filter(function (item) {
+        return (item._id !== notification._id);
+      });
+
+    } else {
+
+      $scope.trigger.$remove_notification(notification).then(function () {
+        $scope.trigger.notifications.splice($scope.trigger.notifications.indexOf(notification._id), 1);
+        $scope.load_notifications();
+        abode.message({'type': 'success', 'message': 'Notification Removed'});
+      }, function (err) {
+        abode.message({'type': 'failed', 'message': 'Failed to remove notification'});
+      });
+
+    }
+  };
+
+  var getDevices = function () {
+    $scope.devices_loading = true;
+    Devices.query().$promise.then(function (devices) {
+      $scope.devices = devices;
+      $scope.devices_loading = false;
+    }, function () {
+      $scope.devices = [];
+      $scope.devices_loading = false;
+    });
+  };
+
+  var getRooms = function () {
+    $scope.rooms_loading = true;
+    Rooms.query().$promise.then(function (rooms) {
+      $scope.rooms = rooms;
+      $scope.rooms_loading = false;
+    }, function () {
+      $scope.rooms = [];
+      $scope.rooms_loading = false;
+    });
+  };
+
+  var getScenes = function () {
+    $scope.scenes_loading = true;
+    Scenes.query().$promise.then(function (scenes) {
+      $scope.scenes = scenes;
+      $scope.scenes_loading = false;
+    }, function () {
+      $scope.scenes = [];
+      $scope.scenes_loading = false;
+    });
+  };
+
+  getDevices();
+  getRooms();
+  getScenes();
+
+  $scope.$watch('delay', function (type) {
+    if (!type) {
+      $scope.trigger.delay = {};
+    }
+  });
+
+  $scope.$watch('duration', function (type) {
+    if (!type) {
+      $scope.trigger.duration = {'actions': [], 'triggers': []};
+    }
+  });
+
+  $scope.$watch('trigger.match_type', function (type) {
+    if (type === 'device' && $scope.devices.length === 0) {
+      getDevices();
+    }
+    if (type === 'rooms' && $scope.devices.length === 0) {
+      getRooms();
+    }
+  });
+
+  $scope.changeType = function (type) {
+    $scope.trigger.match_type = type;
+    $scope.trigger.match = '';
+  };
+
+  $scope.changeDevice = function (device) {
+    trigger.match = device.name;
+  };
+
+  $scope.changeRoom = function (room) {
+    trigger.match = room.name;
+  };
+
+  $scope.changeScene = function (scene) {
+    trigger.match = scene.name;
+  };
+
+  $scope.closeAlert = function(index) {
+    $scope.alerts.splice(index, 1);
+  };
+
+  $scope.save = function () {
+    $scope.trigger.$update().then(function () {
+      abode.message({'type': 'success', 'message': 'Trigger Saved'});
+    }, function (err) {
+      abode.message({'type': 'failed', 'message': 'Failed to save Trigger', 'details': err});
+      $scope.errors = err;
+    });
+  };
+
+  $scope.add = function () {
+    $scope.trigger.$save().then(function () {
+      abode.message({'type': 'success', 'message': 'Trigger Added'});
+      $state.go('^.list');
+    }, function (err) {
+      abode.message({'type': 'failed', 'message': 'Failed to add Trigger', 'details': err});
+      $scope.errors = err;
+    });
+  };
+
+  $scope.remove = function () {
+    confirm('Are you sure you want to remove this Trigger?').then(function () {
+      $scope.trigger.$remove().then(function () {
+        $state.go('index.triggers');
+      }, function (err) {
+        $scope.alerts = [{'type': 'danger', 'msg': 'Failed to remove Trigger'}];
+        $scope.errors = err;
+      });
+    });
+  };
+});
+
+
+
+var triggers = angular.module('abode.triggers');
+
+triggers.controller('triggersList', function ($scope, $state, Triggers, confirm) {
+  $scope.triggers = [];
+  $scope.loading = true;
+
+  $scope.edit = function (trigger) {
+    $state.go('main.triggers.edit', {name: trigger.name});
+  };
+
+  $scope.load = function () {
+    Triggers.query().$promise.then(function (triggers) {
+      $scope.triggers = triggers;
+      $scope.loading = false;
+      $scope.error = false;
+    }, function () {
+      $scope.loading = false;
+      $scope.error = true;
+    });
+  };
+
+  $scope.remove = function (trigger) {
+    confirm('Are you sure you want to remove this Trigger?').then(function () {
+      trigger.$remove().then(function () {
+        $scope.load();
+      }, function (err) {
+        $scope.alerts = [{'type': 'danger', 'msg': 'Failed to remove Trigger'}];
+        $scope.errors = err;
+      });
+    });
+  };
+
+
+  $scope.load();
+});
+
+
+
+var triggers = angular.module('abode.triggers');
+
+triggers.directive('conditionSide', function ($uibModal, devices, rooms, scenes) {
+  return {
+    restrict: 'E',
+    transclude: true,
+    scope: {
+      'side': '@',
+      'value': '=',
+      'devices': '=',
+      'rooms': '=',
+      'scenes': '=',
+    },
+    controller: function ($scope) {
+      $scope.expanded = true;
+      $scope.capabilities = [];
+      $scope.type = $scope.value[$scope.side + '_type'];
+      $scope.obj = $scope.value[$scope.side + '_object'];
+      $scope.key = $scope.value[$scope.side + '_key'];
+      $scope.watched = {};
+
+      if ($scope.type === 'devices') {
+        devices.get($scope.obj).then(function (result) {
+          $scope.capabilities = result.capabilities;
+        });
+      } else if ($scope.type !== 'devices' && $scope.type !== 'scenes' && $scope.type !== 'rooms') {
+        $scope.watched.key = $scope.key;
+      }
+
+      $scope.condition_types = [
+        {name: 'Device', value: 'devices', icon: 'glyphicon glyphicon-oil'},
+        {name: 'Room', value: 'rooms', icon: 'glyphicon glyphicon-modal-window', capabilities: ['room']},
+        {name: 'Scene', value: 'scenes', icon: 'icon-picture', capabilities: ['onoff']},
+        {name: 'Video', value: 'video', icon: 'icon-playvideo', capabilities: ['video']},
+        {name: 'Display', value: 'display', icon: 'icon-monitor', capabilities: ['display']},
+        {name: 'Time', value: 'timeofday', icon: 'icon-clockalt-timealt'},
+        {name: 'Date/Time', value: 'time', icon: 'icon-calendar', capabilities: ['time']},
+        {name: 'Time is...', value: 'time.is', icon: 'icon-calendarthree', capabilities: ['time.is']},
+        {name: 'Boolean', value: 'boolean', icon: 'icon-moonfirstquarter'},
+        {name: 'Number', value: 'number', icon: 'icon-counter'},
+        {name: 'String', value: 'string', icon: 'icon-textcursor'},
+        {name: 'Age', value: 'age', icon: 'icon-stopwatch'},
+      ];
+
+      $scope.condition_keys = [
+        {name: 'Is On', value: 'is_on', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
+        {name: 'Is Off', value: 'is_off', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
+        {name: 'On Time', value: 'on_time', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
+        {name: 'Off Time', value: 'off_time', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
+        {name: 'Has Motion', value: '_motion', arguments: [], capabilities: ['motion_sensor']},
+        {name: 'Motion On Age', value: 'motion_on_age', arguments: [], capabilities: ['room', 'motion_sensor']},
+        {name: 'Motion Off Age', value: 'motion_off_age', arguments: [], capabilities: ['room', 'motion_sensor']},
+        {name: 'Lights On', value: 'lights_on', arguments: [], capabilities: ['room']},
+        {name: 'Lights Off', value: 'lights_off', arguments: [], capabilities: ['room']},
+        {name: 'Light On Age', value: 'light_on_age', arguments: [], capabilities: ['room']},
+        {name: 'Light Off Age', value: 'light_off_age', arguments: [], capabilities: ['room']},
+        {name: 'Windows Open', value: 'windows_open', arguments: [], capabilities: ['room']},
+        {name: 'Windows Closed', value: 'windows_closed', arguments: [], capabilities: ['room']},
+        {name: 'Windows Open Age', value: 'windows_open_age', arguments: [], capabilities: ['room']},
+        {name: 'Windows Closed Age', value: 'windows_closed_age', arguments: [], capabilities: ['room']},
+        {name: 'Doors Open', value: 'doors_open', arguments: [], capabilities: ['room']},
+        {name: 'Doors Closed', value: 'doors_closed', arguments: [], capabilities: ['room']},
+        {name: 'Doors Open Age', value: 'doors_open_age', arguments: [], capabilities: ['room']},
+        {name: 'Doors Closed Age', value: 'doors_closed_age', arguments: [], capabilities: ['room']},
+        {name: 'Heat On', value: 'mode_heat', arguments: [], capabilities: ['room']},
+        {name: 'Cool On', value: 'mode_cool', arguments: [], capabilities: ['room']},
+        {name: 'Open', value: '_on', arguments: [], capabilities: ['door', 'window']},
+        {name: 'Level', value: '_level', arguments: ['level'], capabilities: ['dimmer']},
+        {name: 'Mode', value: '_mode', arguments: ['mode'], capabilities: ['conditioner']},
+        {name: 'Set Point', value: '_set_point', arguments: ['temperature'], capabilities: ['conditioner']},
+        {name: 'Temperature', value: '_temperature', arguments: ['temperature'], capabilities: ['temperature_sensor']},
+        {name: 'Humidity', value: '_humidity', arguments: ['temperature'], capabilities: ['humidity_sensor']},
+        {name: 'Rain (last hour)', value: '_weather.rain_1hr', arguments: [], capabilities: ['weather']},
+        {name: 'Rain (total)', value: '_weather.rain_total', arguments: [], capabilities: ['weather']},
+        {name: 'Wind', value: '_weather.wind', arguments: [], capabilities: ['weather']},
+        {name: 'Gusts', value: '_weather.gusts', arguments: [], capabilities: ['weather']},
+        {name: 'Lumacity', value: '_lumens', arguments: ['temperature'], capabilities: ['light_sensor']},
+        {name: 'Current Time', value: 'time', arguments: [], capabilities: ['time']},
+        {name: 'Day of Week', value: 'day', arguments: [], capabilities: ['time']},
+        {name: 'Time of Sunset', value: 'sunset', arguments: [], capabilities: ['time']},
+        {name: 'Time of Sunrise', value: 'sunrise', arguments: [], capabilities: ['time']},
+        {name: 'Time of Noon', value: 'solar_noon', arguments: [], capabilities: ['time']},
+        {name: 'Sun Altitude', value: 'sun_altitude', arguments: [], capabilities: ['time']},
+        {name: 'Sun Azimuth', value: 'sun_azimuth', arguments: [], capabilities: ['time']},
+        {name: 'Moon Altitude', value: 'moon_altitude', arguments: [], capabilities: ['time']},
+        {name: 'Moon Azimuth', value: 'moon_azimuth', arguments: [], capabilities: ['time']},
+        {name: 'Moon Phase', value: 'moon_phase', arguments: [], capabilities: ['time']},
+        {name: 'Sunday', value: 'sunday', arguments: [], capabilities: ['time.is']},
+        {name: 'Monday', value: 'monday', arguments: [], capabilities: ['time.is']},
+        {name: 'Tuesday', value: 'tuesday', arguments: [], capabilities: ['time.is']},
+        {name: 'Wednesday', value: 'wednesday', arguments: [], capabilities: ['time.is']},
+        {name: 'Thursday', value: 'thursday', arguments: [], capabilities: ['time.is']},
+        {name: 'Friday', value: 'friday', arguments: [], capabilities: ['time.is']},
+        {name: 'Saturday', value: 'saturday', arguments: [], capabilities: ['time.is']},
+        {name: 'Day', value: 'day', arguments: [], capabilities: ['time.is']},
+        {name: 'Night', value: 'night', arguments: [], capabilities: ['time.is']},
+        {name: 'Today High', value: '_forecast.0.temp_high', arguments: [], capabilities: ['weather']},
+        {name: 'Today Low', value: '_forecast.0.temp_low', arguments: [], capabilities: ['weather']},
+        {name: 'Today Rain', value: '_forecast.0.rain', arguments: [], capabilities: ['weather']},
+        {name: 'Today Snow', value: '_forecast.0.snow', arguments: [], capabilities: ['weather']},
+        {name: 'Tomorrow High', value: '_forecast.1.temp_high', arguments: [], capabilities: ['weather']},
+        {name: 'Tomorrow Low', value: '_forecast.1.temp_low', arguments: [], capabilities: ['weather']},
+        {name: 'Tomorrow Rain', value: '_forecast.1.rain', arguments: [], capabilities: ['weather']},
+        {name: 'Tomorrow Snow', value: '_forecast.1.snow', arguments: [], capabilities: ['weather']},
+        {name: 'Day After High', value: '_forecast.2.temp_high', arguments: [], capabilities: ['weather']},
+        {name: 'Day After Low', value: '_forecast.2.temp_low', arguments: [], capabilities: ['weather']},
+        {name: 'Day After Rain', value: '_forecast.2.rain', arguments: [], capabilities: ['weather']},
+        {name: 'Day After Snow', value: '_forecast.2.snow', arguments: [], capabilities: ['weather']},
+      ];
+
+
+      if ($scope.type !== 'devices') {
+        $scope.condition_types.forEach(function (t) {
+          if (t.value === $scope.type) {
+            $scope.capabilities = t.capabilities;
+          }
+        });
+      }
+
+      $scope.$watch('watched', function (value) {
+        if ($scope.obj) {
+          return;
+        }
+        if ($scope.value[$scope.side + '_key'] !== value.key) {
+          $scope.value[$scope.side + '_key'] = value.key;
+        }
+      }, true);
+
+      $scope.toggle = function () {
+        $scope.expanded = ($scope.expanded) ? false : true;
+      };
+
+      $scope.changeType = function (t) {
+        $scope.capabilities = t.capabilities || [];
+        $scope.value[$scope.side + '_type'] = t.value;
+        $scope.value[$scope.side + '_object'] = undefined;
+        $scope.value[$scope.side + '_key'] = undefined;
+        $scope.watched.key = undefined;
+
+        $scope.type = $scope.value[$scope.side + '_type'];
+        $scope.obj = $scope.value[$scope.side + '_object'];
+        $scope.key = $scope.value[$scope.side + '_key'];
+      };
+      $scope.changeItem = function (i) {
+        if (i.capabilities) {
+          $scope.capabilities = i.capabilities;
+        }
+        $scope.value[$scope.side + '_object'] = i.name;
+        $scope.value[$scope.side + '_key'] = undefined;
+        $scope.watched.key = undefined;
+
+        $scope.obj = $scope.value[$scope.side + '_object'];
+        $scope.key = $scope.value[$scope.side + '_key'];
+      };
+      $scope.changeKey = function (k) {
+        $scope.value[$scope.side + '_key'] = k.value;
+        $scope.watched.key = undefined;
+
+        $scope.key = $scope.value[$scope.side + '_key'];
+      };
+
+      $scope.hasCapability = function (c) {
+        var has = false;
+
+        $scope.capabilities.forEach(function (capability) {
+          if (c.indexOf(capability) !== -1) {
+            has = true;
+          }
+        });
+
+        return has;
+      };
+    },
+    templateUrl: 'modules/triggers/views/conditions.side.html',
+    replace: true,
+  };
+});
+
+
+
+var triggers = angular.module('abode.triggers');
+
+triggers.directive('conditions', function ($uibModal) {
+  return {
+    restrict: 'E',
+    transclude: true,
+    scope: {
+      'value': '=',
+      'type': '@',
+      'name': '='
+    },
+    controller: function ($scope, triggers) {
+      $scope.name = $scope;
+      $scope.conditions = $scope.value;
+
+      $scope.addCondition = triggers.addCondition;
+      $scope.editCondition = triggers.editCondition;
+
+      $scope.removeCondition = function (index) {
+        $scope.value.splice(index, 1);
+      };
+    },
+    templateUrl: 'modules/triggers/views/triggers.conditions.html',
+    replace: true,
+  };
+});
+
+
+
+var triggers = angular.module('abode.triggers');
 
 triggers.factory('Triggers', ['$resource', '$http', '$q', '$uibModal', 'abode', function ($resource, $http, $q, $uibModal, abode) {
 
@@ -61053,6 +61955,76 @@ triggers.factory('Triggers', ['$resource', '$http', '$q', '$uibModal', 'abode', 
 
 }]);
 
+
+
+var triggers = angular.module('abode.triggers');
+
+triggers.filter('conditionReadable', function ($filter) {
+    return function (condition) {
+      var left, right, cond;
+
+      var formatSide = function (side) {
+        var text,
+          type = condition[side + '_type'],
+          obj = condition[side + '_object'],
+          key = condition[side + '_key'];
+
+
+        if (['devices', 'scenes', 'rooms'].indexOf(type) != -1) {
+          type = type.substr(0, type.length - 1);
+          text = 'the ' + type + ' key ' + obj + '.' + key;
+        } else if (type === 'boolean') {
+          text = key;
+        } else if (['string','number'].indexOf(type) !== -1) {
+          text = 'the ' + type + ' "' + key + '"';
+        } else if (type === 'timeofday') {
+          text = 'the time ' + $filter('time')(key);
+        } else if (type === 'time' && key === 'time') {
+          text = 'the current time';
+        } else if (type === 'age') {
+          text = 'age of ' + $filter('ageHumanReadable')(key);
+        } else {
+          text = 'the ' + type + '.' + key;
+        }
+
+        return text;
+      };
+
+      if ((condition.and && condition.and.length > 0) || (condition.or && condition.or.length > 0)) {
+        return condition.name;
+      }
+
+      left = formatSide('left');
+      right = formatSide('right');
+
+      switch (condition.condition) {
+        case 'eq':
+          cond = 'equal to';
+          break;
+        case 'ne':
+          cond = 'not equal to';
+          break;
+        case 'lt':
+          cond = 'less then';
+          break;
+        case 'le':
+          cond = 'less then or equal to';
+          break;
+        case 'gt':
+          cond = 'greater then';
+          break;
+        case 'ge':
+          cond = 'greater then or equal to';
+          break;
+      }
+
+      return 'If ' + left + ' is ' + cond + ' ' + right;
+    };
+});
+
+
+
+var triggers = angular.module('abode.triggers');
 
 triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, confirm, Devices, Rooms, Scenes) {
   var model = $resource(abode.url('/api/triggers/:id/:action'), {id: '@_id'}, {
@@ -61143,7 +62115,7 @@ triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, c
 
     return $uibModal.open({
       animation: true,
-      templateUrl: 'views/triggers/triggers.action.html',
+      templateUrl: 'modules/triggers/views/triggers.action.html',
       size: 'lg',
       controller: function ($scope, $uibModalInstance, action, devices, rooms, scenes, title) {
         $scope.action = action;
@@ -61371,7 +62343,7 @@ triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, c
 
     return $uibModal.open({
       animation: true,
-      templateUrl: 'views/triggers/conditions.edit.html',
+      templateUrl: 'modules/triggers/views/conditions.edit.html',
       size: 'lg',
       controller: function ($scope, $uibModalInstance, devices, rooms, scenes, title, condition) {
         $scope.title = title;
@@ -61494,567 +62466,14 @@ triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, c
   };
 });
 
-triggers.directive('conditions', function ($uibModal) {
-  return {
-    restrict: 'E',
-    transclude: true,
-    scope: {
-      'value': '=',
-      'type': '@',
-      'name': '='
-    },
-    controller: function ($scope, triggers) {
-      $scope.name = $scope;
-      $scope.conditions = $scope.value;
-
-      $scope.addCondition = triggers.addCondition;
-      $scope.editCondition = triggers.editCondition;
-
-      $scope.removeCondition = function (index) {
-        $scope.value.splice(index, 1);
-      };
-    },
-    templateUrl: '/views/triggers/triggers.conditions.html',
-    replace: true,
-  };
-});
-
-triggers.directive('conditionSide', function ($uibModal, devices, rooms, scenes) {
-  return {
-    restrict: 'E',
-    transclude: true,
-    scope: {
-      'side': '@',
-      'value': '=',
-      'devices': '=',
-      'rooms': '=',
-      'scenes': '=',
-    },
-    controller: function ($scope) {
-      $scope.expanded = true;
-      $scope.capabilities = [];
-      $scope.type = $scope.value[$scope.side + '_type'];
-      $scope.obj = $scope.value[$scope.side + '_object'];
-      $scope.key = $scope.value[$scope.side + '_key'];
-      $scope.watched = {};
-
-      if ($scope.type === 'devices') {
-        devices.get($scope.obj).then(function (result) {
-          $scope.capabilities = result.capabilities;
-        });
-      } else if ($scope.type !== 'devices' && $scope.type !== 'scenes' && $scope.type !== 'rooms') {
-        $scope.watched.key = $scope.key;
-      }
-
-      $scope.condition_types = [
-        {name: 'Device', value: 'devices', icon: 'glyphicon glyphicon-oil'},
-        {name: 'Room', value: 'rooms', icon: 'glyphicon glyphicon-modal-window', capabilities: ['room']},
-        {name: 'Scene', value: 'scenes', icon: 'icon-picture', capabilities: ['onoff']},
-        {name: 'Video', value: 'video', icon: 'icon-playvideo', capabilities: ['video']},
-        {name: 'Display', value: 'display', icon: 'icon-monitor', capabilities: ['display']},
-        {name: 'Time', value: 'timeofday', icon: 'icon-clockalt-timealt'},
-        {name: 'Date/Time', value: 'time', icon: 'icon-calendar', capabilities: ['time']},
-        {name: 'Time is...', value: 'time.is', icon: 'icon-calendarthree', capabilities: ['time.is']},
-        {name: 'Boolean', value: 'boolean', icon: 'icon-moonfirstquarter'},
-        {name: 'Number', value: 'number', icon: 'icon-counter'},
-        {name: 'String', value: 'string', icon: 'icon-textcursor'},
-        {name: 'Age', value: 'age', icon: 'icon-stopwatch'},
-      ];
-
-      $scope.condition_keys = [
-        {name: 'Is On', value: 'is_on', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
-        {name: 'Is Off', value: 'is_off', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
-        {name: 'On Time', value: 'on_time', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
-        {name: 'Off Time', value: 'off_time', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
-        {name: 'Has Motion', value: '_motion', arguments: [], capabilities: ['motion_sensor']},
-        {name: 'Motion On Age', value: 'motion_on_age', arguments: [], capabilities: ['room', 'motion_sensor']},
-        {name: 'Motion Off Age', value: 'motion_off_age', arguments: [], capabilities: ['room', 'motion_sensor']},
-        {name: 'Lights On', value: 'lights_on', arguments: [], capabilities: ['room']},
-        {name: 'Lights Off', value: 'lights_off', arguments: [], capabilities: ['room']},
-        {name: 'Light On Age', value: 'light_on_age', arguments: [], capabilities: ['room']},
-        {name: 'Light Off Age', value: 'light_off_age', arguments: [], capabilities: ['room']},
-        {name: 'Windows Open', value: 'windows_open', arguments: [], capabilities: ['room']},
-        {name: 'Windows Closed', value: 'windows_closed', arguments: [], capabilities: ['room']},
-        {name: 'Windows Open Age', value: 'windows_open_age', arguments: [], capabilities: ['room']},
-        {name: 'Windows Closed Age', value: 'windows_closed_age', arguments: [], capabilities: ['room']},
-        {name: 'Doors Open', value: 'doors_open', arguments: [], capabilities: ['room']},
-        {name: 'Doors Closed', value: 'doors_closed', arguments: [], capabilities: ['room']},
-        {name: 'Doors Open Age', value: 'doors_open_age', arguments: [], capabilities: ['room']},
-        {name: 'Doors Closed Age', value: 'doors_closed_age', arguments: [], capabilities: ['room']},
-        {name: 'Heat On', value: 'mode_heat', arguments: [], capabilities: ['room']},
-        {name: 'Cool On', value: 'mode_cool', arguments: [], capabilities: ['room']},
-        {name: 'Open', value: '_on', arguments: [], capabilities: ['door', 'window']},
-        {name: 'Level', value: '_level', arguments: ['level'], capabilities: ['dimmer']},
-        {name: 'Mode', value: '_mode', arguments: ['mode'], capabilities: ['conditioner']},
-        {name: 'Set Point', value: '_set_point', arguments: ['temperature'], capabilities: ['conditioner']},
-        {name: 'Temperature', value: '_temperature', arguments: ['temperature'], capabilities: ['temperature_sensor']},
-        {name: 'Humidity', value: '_humidity', arguments: ['temperature'], capabilities: ['humidity_sensor']},
-        {name: 'Rain (last hour)', value: '_weather.rain_1hr', arguments: [], capabilities: ['weather']},
-        {name: 'Rain (total)', value: '_weather.rain_total', arguments: [], capabilities: ['weather']},
-        {name: 'Wind', value: '_weather.wind', arguments: [], capabilities: ['weather']},
-        {name: 'Gusts', value: '_weather.gusts', arguments: [], capabilities: ['weather']},
-        {name: 'Lumacity', value: '_lumens', arguments: ['temperature'], capabilities: ['light_sensor']},
-        {name: 'Current Time', value: 'time', arguments: [], capabilities: ['time']},
-        {name: 'Day of Week', value: 'day', arguments: [], capabilities: ['time']},
-        {name: 'Time of Sunset', value: 'sunset', arguments: [], capabilities: ['time']},
-        {name: 'Time of Sunrise', value: 'sunrise', arguments: [], capabilities: ['time']},
-        {name: 'Time of Noon', value: 'solar_noon', arguments: [], capabilities: ['time']},
-        {name: 'Sun Altitude', value: 'sun_altitude', arguments: [], capabilities: ['time']},
-        {name: 'Sun Azimuth', value: 'sun_azimuth', arguments: [], capabilities: ['time']},
-        {name: 'Moon Altitude', value: 'moon_altitude', arguments: [], capabilities: ['time']},
-        {name: 'Moon Azimuth', value: 'moon_azimuth', arguments: [], capabilities: ['time']},
-        {name: 'Moon Phase', value: 'moon_phase', arguments: [], capabilities: ['time']},
-        {name: 'Sunday', value: 'sunday', arguments: [], capabilities: ['time.is']},
-        {name: 'Monday', value: 'monday', arguments: [], capabilities: ['time.is']},
-        {name: 'Tuesday', value: 'tuesday', arguments: [], capabilities: ['time.is']},
-        {name: 'Wednesday', value: 'wednesday', arguments: [], capabilities: ['time.is']},
-        {name: 'Thursday', value: 'thursday', arguments: [], capabilities: ['time.is']},
-        {name: 'Friday', value: 'friday', arguments: [], capabilities: ['time.is']},
-        {name: 'Saturday', value: 'saturday', arguments: [], capabilities: ['time.is']},
-        {name: 'Day', value: 'day', arguments: [], capabilities: ['time.is']},
-        {name: 'Night', value: 'night', arguments: [], capabilities: ['time.is']},
-        {name: 'Today High', value: '_forecast.0.temp_high', arguments: [], capabilities: ['weather']},
-        {name: 'Today Low', value: '_forecast.0.temp_low', arguments: [], capabilities: ['weather']},
-        {name: 'Today Rain', value: '_forecast.0.rain', arguments: [], capabilities: ['weather']},
-        {name: 'Today Snow', value: '_forecast.0.snow', arguments: [], capabilities: ['weather']},
-        {name: 'Tomorrow High', value: '_forecast.1.temp_high', arguments: [], capabilities: ['weather']},
-        {name: 'Tomorrow Low', value: '_forecast.1.temp_low', arguments: [], capabilities: ['weather']},
-        {name: 'Tomorrow Rain', value: '_forecast.1.rain', arguments: [], capabilities: ['weather']},
-        {name: 'Tomorrow Snow', value: '_forecast.1.snow', arguments: [], capabilities: ['weather']},
-        {name: 'Day After High', value: '_forecast.2.temp_high', arguments: [], capabilities: ['weather']},
-        {name: 'Day After Low', value: '_forecast.2.temp_low', arguments: [], capabilities: ['weather']},
-        {name: 'Day After Rain', value: '_forecast.2.rain', arguments: [], capabilities: ['weather']},
-        {name: 'Day After Snow', value: '_forecast.2.snow', arguments: [], capabilities: ['weather']},
-      ];
-
-
-      if ($scope.type !== 'devices') {
-        $scope.condition_types.forEach(function (t) {
-          if (t.value === $scope.type) {
-            $scope.capabilities = t.capabilities;
-          }
-        });
-      }
-
-      $scope.$watch('watched', function (value) {
-        if ($scope.obj) {
-          return;
-        }
-        if ($scope.value[$scope.side + '_key'] !== value.key) {
-          $scope.value[$scope.side + '_key'] = value.key;
-        }
-      }, true);
-
-      $scope.toggle = function () {
-        $scope.expanded = ($scope.expanded) ? false : true;
-      };
-
-      $scope.changeType = function (t) {
-        $scope.capabilities = t.capabilities || [];
-        $scope.value[$scope.side + '_type'] = t.value;
-        $scope.value[$scope.side + '_object'] = undefined;
-        $scope.value[$scope.side + '_key'] = undefined;
-        $scope.watched.key = undefined;
-
-        $scope.type = $scope.value[$scope.side + '_type'];
-        $scope.obj = $scope.value[$scope.side + '_object'];
-        $scope.key = $scope.value[$scope.side + '_key'];
-      };
-      $scope.changeItem = function (i) {
-        if (i.capabilities) {
-          $scope.capabilities = i.capabilities;
-        }
-        $scope.value[$scope.side + '_object'] = i.name;
-        $scope.value[$scope.side + '_key'] = undefined;
-        $scope.watched.key = undefined;
-
-        $scope.obj = $scope.value[$scope.side + '_object'];
-        $scope.key = $scope.value[$scope.side + '_key'];
-      };
-      $scope.changeKey = function (k) {
-        $scope.value[$scope.side + '_key'] = k.value;
-        $scope.watched.key = undefined;
-
-        $scope.key = $scope.value[$scope.side + '_key'];
-      };
-
-      $scope.hasCapability = function (c) {
-        var has = false;
-
-        $scope.capabilities.forEach(function (capability) {
-          if (c.indexOf(capability) !== -1) {
-            has = true;
-          }
-        });
-
-        return has;
-      };
-    },
-    templateUrl: '/views/triggers/conditions.side.html',
-    replace: true,
-  };
-});
-
-triggers.controller('triggersList', function ($scope, $state, Triggers, confirm) {
-  $scope.triggers = [];
-  $scope.loading = true;
-
-  $scope.edit = function (trigger) {
-    $state.go('main.triggers.edit', {name: trigger.name});
-  };
-
-  $scope.load = function () {
-    Triggers.query().$promise.then(function (triggers) {
-      $scope.triggers = triggers;
-      $scope.loading = false;
-      $scope.error = false;
-    }, function () {
-      $scope.loading = false;
-      $scope.error = true;
-    });
-  };
-
-  $scope.remove = function (trigger) {
-    confirm('Are you sure you want to remove this Trigger?').then(function () {
-      trigger.$remove().then(function () {
-        $scope.load();
-      }, function (err) {
-        $scope.alerts = [{'type': 'danger', 'msg': 'Failed to remove Trigger'}];
-        $scope.errors = err;
-      });
-    });
-  };
-
-
-  $scope.load();
-});
-
-triggers.controller('triggersEdit', function ($scope, $state, $uibModal, abode, triggers, trigger, Devices, Rooms, Scenes, confirm, types) {
-  $scope.trigger = trigger;
-  $scope.alerts = [];
-  $scope.state = $state;
-  $scope.trigger_types = types;
-  $scope.devices = [];
-  $scope.scenes = [];
-  $scope.conditions = false;
-  $scope.delay = ($scope.trigger.delay && $scope.trigger.delay.time > 0) ? true : false;
-  $scope.duration = ($scope.trigger.duration && $scope.trigger.duration.time > 0) ? true : false;
-  $scope.devices_loading = true;
-  $scope.section = 'general';
-  $scope.notifications = [];
-
-  $scope.addAction = triggers.addAction;
-  $scope.editAction = triggers.editAction;
-  $scope.removeAction = triggers.removeAction;
-
-  $scope.match_types = [
-    {name: 'None', value: '', icon: 'glyphicon glyphicon-ban-circle'},
-    {name: 'Device', value: 'device', icon: 'glyphicon glyphicon-oil'},
-    {name: 'Room', value: 'room', icon: 'glyphicon glyphicon-modal-window'},
-    {name: 'Scene', value: 'scene', icon: 'icon-picture'},
-    {name: 'Time', value: 'time', icon: 'icon-clockalt-timealt'},
-    {name: 'Date', value: 'date', icon: 'icon-calendar'},
-    {name: 'String', value: 'string', icon: 'icon-quote'},
-    {name: 'Number', value: 'number', icon: 'icon-infinityalt'}
-  ];
-
-  $scope.load_notifications = function () {
-    $scope.loading = true;
-    $scope.trigger.$notifications().then(function (results) {
-      $scope.loading = false;
-      $scope.notifications = results;
-
-    }, function () {
-      $scope.loading = false;
-    });
-  };
-
-  $scope.load_notifications();
-
-  $scope.check = function () {
-    var checker = $uibModal.open({
-      animation: false,
-      size: 'lg',
-      templateUrl: 'views/triggers/triggers.checker.html',
-      controller: ['$scope', '$uibModalInstance', '$timeout', 'trigger', function ($scope, $uibModalInstance, $timeout, trigger) {
-        $scope.loading = true;
-	      $scope.results = {};
-
-        $scope.check = function () {
-          $scope.loading = true;
-          trigger.$check().then(function (results) {
-            $scope.loading = false;
-            $scope.results = results;
-          }, function (results) {
-            $scope.loading = false;
-            $scope.results = results;
-          });
-        };
-
-        $scope.close = function () {
-          $uibModalInstance.dismiss();
-        };
-
-        $timeout($scope.check, 1000);
-      }],
-      resolve: {
-        trigger: function () {
-          return $scope.trigger;
-        }
-      }
-    });
-  };
-
-  $scope.add_notification = function () {
-    var picker = $uibModal.open({
-      animation: false,
-      templateUrl: 'views/triggers/notifications.picker.html',
-      size: 'sm',
-      controller: ['$scope', '$uibModalInstance', 'Notifications', 'trigger', function ($scope, $uibModalInstance, Notifications, trigger) {
-        $scope.loading = true;
-        $scope.notifications = [];
-        $scope.trigger = trigger;
-
-        $scope.close = function () {
-          $uibModalInstance.dismiss();
-        };
-
-        $scope.select = function(notification) {
-          if (!$scope.trigger._id) {
-            $uibModalInstance.close(notification);
-          } else {
-            $scope.trigger.$add_notification(notification).then(function () {
-              $uibModalInstance.close(notification);
-            }, function () {
-              abode.message({'type': 'failed', 'message': 'Failed to add notification'});
-            });
-          }
-        };
-
-        Notifications.query().$promise.then(function (results) {
-          $scope.notifications = results;
-          $scope.loading = false;
-        });
-      }],
-      resolve: {
-        trigger: function () {
-          return $scope.trigger;
-        }
-      }
-    });
-
-    picker.result.then(function (notification) {
-      $scope.trigger.notifications.push(notification._id);
-      $scope.notifications.push(notification);
-    });
-  };
-
-  $scope.remove_notification = function (notification) {
-    if (!$scope.trigger._id) {
-
-      $scope.trigger.notifications.splice($scope.trigger.notifications.indexOf(notification._id), 1);
-      $scope.notifications = $scope.notifications.filter(function (item) {
-        return (item._id !== notification._id);
-      });
-
-    } else {
-
-      $scope.trigger.$remove_notification(notification).then(function () {
-        $scope.trigger.notifications.splice($scope.trigger.notifications.indexOf(notification._id), 1);
-        $scope.load_notifications();
-        abode.message({'type': 'success', 'message': 'Notification Removed'});
-      }, function (err) {
-        abode.message({'type': 'failed', 'message': 'Failed to remove notification'});
-      });
-
-    }
-  };
-
-  var getDevices = function () {
-    $scope.devices_loading = true;
-    Devices.query().$promise.then(function (devices) {
-      $scope.devices = devices;
-      $scope.devices_loading = false;
-    }, function () {
-      $scope.devices = [];
-      $scope.devices_loading = false;
-    });
-  };
-
-  var getRooms = function () {
-    $scope.rooms_loading = true;
-    Rooms.query().$promise.then(function (rooms) {
-      $scope.rooms = rooms;
-      $scope.rooms_loading = false;
-    }, function () {
-      $scope.rooms = [];
-      $scope.rooms_loading = false;
-    });
-  };
-
-  var getScenes = function () {
-    $scope.scenes_loading = true;
-    Scenes.query().$promise.then(function (scenes) {
-      $scope.scenes = scenes;
-      $scope.scenes_loading = false;
-    }, function () {
-      $scope.scenes = [];
-      $scope.scenes_loading = false;
-    });
-  };
-
-  getDevices();
-  getRooms();
-  getScenes();
-
-  $scope.$watch('delay', function (type) {
-    if (!type) {
-      $scope.trigger.delay = {};
-    }
-  });
-
-  $scope.$watch('duration', function (type) {
-    if (!type) {
-      $scope.trigger.duration = {'actions': [], 'triggers': []};
-    }
-  });
-
-  $scope.$watch('trigger.match_type', function (type) {
-    if (type === 'device' && $scope.devices.length === 0) {
-      getDevices();
-    }
-    if (type === 'rooms' && $scope.devices.length === 0) {
-      getRooms();
-    }
-  });
-
-  $scope.changeType = function (type) {
-    $scope.trigger.match_type = type;
-    $scope.trigger.match = '';
-  };
-
-  $scope.changeDevice = function (device) {
-    trigger.match = device.name;
-  };
-
-  $scope.changeRoom = function (room) {
-    trigger.match = room.name;
-  };
-
-  $scope.changeScene = function (scene) {
-    trigger.match = scene.name;
-  };
-
-  $scope.closeAlert = function(index) {
-    $scope.alerts.splice(index, 1);
-  };
-
-  $scope.save = function () {
-    $scope.trigger.$update().then(function () {
-      abode.message({'type': 'success', 'message': 'Trigger Saved'});
-    }, function (err) {
-      abode.message({'type': 'failed', 'message': 'Failed to save Trigger', 'details': err});
-      $scope.errors = err;
-    });
-  };
-
-  $scope.add = function () {
-    $scope.trigger.$save().then(function () {
-      abode.message({'type': 'success', 'message': 'Trigger Added'});
-      $state.go('^.list');
-    }, function (err) {
-      abode.message({'type': 'failed', 'message': 'Failed to add Trigger', 'details': err});
-      $scope.errors = err;
-    });
-  };
-
-  $scope.remove = function () {
-    confirm('Are you sure you want to remove this Trigger?').then(function () {
-      $scope.trigger.$remove().then(function () {
-        $state.go('index.triggers');
-      }, function (err) {
-        $scope.alerts = [{'type': 'danger', 'msg': 'Failed to remove Trigger'}];
-        $scope.errors = err;
-      });
-    });
-  };
-});
-
-triggers.controller('room', function () {
-
-});
-
-triggers.filter('conditionReadable', function ($filter) {
-    return function (condition) {
-      var left, right, cond;
-
-      var formatSide = function (side) {
-        var text,
-          type = condition[side + '_type'],
-          obj = condition[side + '_object'],
-          key = condition[side + '_key'];
-
-
-        if (['devices', 'scenes', 'rooms'].indexOf(type) != -1) {
-          type = type.substr(0, type.length - 1);
-          text = 'the ' + type + ' key ' + obj + '.' + key;
-        } else if (type === 'boolean') {
-          text = key;
-        } else if (['string','number'].indexOf(type) !== -1) {
-          text = 'the ' + type + ' "' + key + '"';
-        } else if (type === 'timeofday') {
-          text = 'the time ' + $filter('time')(key);
-        } else if (type === 'time' && key === 'time') {
-          text = 'the current time';
-        } else if (type === 'age') {
-          text = 'age of ' + $filter('ageHumanReadable')(key);
-        } else {
-          text = 'the ' + type + '.' + key;
-        }
-
-        return text;
-      };
-
-      if ((condition.and && condition.and.length > 0) || (condition.or && condition.or.length > 0)) {
-        return condition.name;
-      }
-
-      left = formatSide('left');
-      right = formatSide('right');
-
-      switch (condition.condition) {
-        case 'eq':
-          cond = 'equal to';
-          break;
-        case 'ne':
-          cond = 'not equal to';
-          break;
-        case 'lt':
-          cond = 'less then';
-          break;
-        case 'le':
-          cond = 'less then or equal to';
-          break;
-        case 'gt':
-          cond = 'greater then';
-          break;
-        case 'ge':
-          cond = 'greater then or equal to';
-          break;
-      }
-
-      return 'If ' + left + ' is ' + cond + ' ' + right;
-    };
-});
-
 
 angular.module('video', [])
 .config(function($stateProvider, $urlRouterProvider) {
 
   $stateProvider
-  .state('index.settings.video', {
+  .state('main.settings.video', {
     url: '/video',
-    templateUrl: 'views/providers/video/settings.html',
+    templateUrl: 'modules/video/views/settings.html',
     controller: 'videoSettings',
     resolve: {
       config: function (video) {
@@ -62220,7 +62639,7 @@ weather.directive('weather', function () {
 
       $scope.time = $scope.$parent.time;
       $scope.client = $scope.$parent.client;
-      
+
       $scope.interval = $scope.interval || 5;
       $scope.parsed = '?';
       $scope.weather = {
@@ -62378,7 +62797,7 @@ weather.directive('weatherStatus', function () {
     scope: {
     },
     replace: true,
-    templateUrl: 'views/weather/status.html',
+    templateUrl: 'modules/weather/views/status.html',
     controller: ['$scope', '$interval', '$timeout', 'abode', 'Devices', function ($scope, $interval, $timeout, abode, Devices) {
       var icons = {
          'day-chanceflurries': 'wi-day-snow',
@@ -62426,7 +62845,7 @@ weather.directive('weatherStatus', function () {
       $scope.time = $scope.$parent.time;
       $scope.client = $scope.$parent.client;
       $scope.name = $scope.client.weather_device || 'Weather';
-      $scope.weatherClass = 'wi-na'; 
+      $scope.weatherClass = 'wi-na';
       $scope.show_forecast = 'daily';
       $scope.loading = false;
       $scope.error = false;
@@ -62585,7 +63004,7 @@ welcome.config(['$stateProvider', '$urlRouterProvider', function($state, $urlRou
   $state
     .state('welcome', {
       url: '/Welcome',
-      templateUrl: "views/welcome/index.html",
+      templateUrl: "modules/welcome/views/index.html",
       controller: 'welcomeController',
       resolve: {
         'connection': ['$q', '$http', function ($q, $http) {
@@ -62603,17 +63022,17 @@ welcome.config(['$stateProvider', '$urlRouterProvider', function($state, $urlRou
     })
     .state('welcome_configure', {
       url: '/Welcome/Configure',
-      templateUrl: "views/welcome/configure.html",
+      templateUrl: "modules/welcome/views/configure.html",
       controller: 'welcomeConfigureController',
     })
     .state('welcome_login', {
       url: '/Welcome/Login',
-      templateUrl: "views/welcome/login.html",
+      templateUrl: "modules/welcome/views/login.html",
       controller: 'welcomeLoginController',
     })
     .state('welcome_devices', {
       url: '/Welcome/Devices',
-      templateUrl: "views/welcome/devices.html",
+      templateUrl: "modules/welcome/views/devices.html",
       controller: 'welcomeDevicesController',
       resolve: {
         'rad': ['$q', '$http', '$location', function ($q, $http, $location) {
@@ -62643,13 +63062,17 @@ welcome.config(['$stateProvider', '$urlRouterProvider', function($state, $urlRou
     })
     .state('welcome_interfaces', {
       url: '/Welcome/Interface',
-      templateUrl: "views/welcome/interfaces.html",
+      templateUrl: "modules/welcome/views/interfaces.html",
       controller: 'welcomeInterfacesController',
     });
 
 }]);
 
-welcome.controller('powerController', ['$scope','$http', 'abode', function ($scope, $http, abode) {
+
+
+var welcome = angular.module('abode.welcome');
+
+welcome.controller('powerController', ['$scope', '$http', 'abode', function ($scope, $http, abode) {
   $scope.working = false;
 
   $scope.restart = function () {
@@ -62672,6 +63095,18 @@ welcome.controller('powerController', ['$scope','$http', 'abode', function ($sco
     });
   };
 }]);
+
+
+
+var welcome = angular.module('abode.welcome');
+
+welcome.controller('welcomeConfigureController', ['$scope', '$state', function ($scope, $state) {
+
+}]);
+
+
+
+var welcome = angular.module('abode.welcome');
 
 welcome.controller('welcomeController', ['$scope', '$timeout', '$interval', '$http', '$q', '$state', '$uibModal', '$location', 'abode', 'network', 'Auth', 'Interfaces', 'connection', function ($scope, $timeout, $interval, $http, $q, $state, $uibModal, $location, abode, network, Auth, Interfaces, connection) {
 
@@ -62856,7 +63291,7 @@ welcome.controller('welcomeController', ['$scope', '$timeout', '$interval', '$ht
     });
 
   };
-  
+
   if (connection.connected === false) {
     network.open().closed.then($scope.load);
   } else {
@@ -62865,57 +63300,9 @@ welcome.controller('welcomeController', ['$scope', '$timeout', '$interval', '$ht
 
 }]);
 
-welcome.controller('welcomeConfigureController', ['$scope', '$state', function ($scope, $state) {
 
-}]);
 
-welcome.controller('welcomeLoginController', ['$scope', '$timeout', '$http', '$q', '$state', 'abode', 'Auth', function ($scope, $timeout, $http, $q, $state, abode, Auth) {
-
-  abode.load();
-  $scope.config = abode.config;
-  $scope.loading = false;
-  $scope.failed = false;
-  $scope.login = {};
-  $scope.state = $state;
-  $scope.auth = new Auth();
-  $scope.checking_login = true;
-
-  $scope.reset_server = function () {
-    abode.save({});
-    $state.go('welcome');
-  };
-
-  $scope.do_login = function (supress) {
-    loading = true;
-    $scope.auth.$login().then(function (response) {
-      loading = false;
-      $scope.checking_login = false;
-
-      if (response.token) {
-        $scope.config.auth = $scope.auth;
-        abode.save($scope.config);
-        $state.go('welcome_devices');
-      } else {
-        $scope.checking_login = false;
-        if (!supress) {
-          abode.message({'message': 'Failed to Get Token', 'type': 'failed'});
-        }
-      }
-
-    }, function (error) {
-      loading = false;
-      $scope.checking_login = false;
-
-      var msg = (error.data && error.data.message) ? error.data.message : error.data;
-      if (!supress) {
-        abode.message({'message': msg || 'Unknown error occured', 'type': 'failed'});
-      }
-    });
-  };
-
-  $scope.do_login(true);
-
-}]);
+var welcome = angular.module('abode.welcome');
 
 welcome.controller('welcomeDevicesController', ['$scope', '$timeout', '$http', '$q', '$state', 'abode', 'AuthDevices', 'Auth', 'rad', function ($scope, $timeout, $http, $q, $state, abode, AuthDevices, Auth, rad) {
 
@@ -63035,6 +63422,10 @@ welcome.controller('welcomeDevicesController', ['$scope', '$timeout', '$http', '
 
 }]);
 
+
+
+var welcome = angular.module('abode.welcome');
+
 welcome.controller('welcomeInterfacesController', ['$scope', '$timeout', '$http', '$q', '$state', 'abode', 'Interfaces', 'AuthDevice', function ($scope, $timeout, $http, $q, $state, abode, Interfaces, AuthDevice) {
 
   abode.load();
@@ -63117,13 +63508,65 @@ welcome.controller('welcomeInterfacesController', ['$scope', '$timeout', '$http'
 }]);
 
 
+
+var welcome = angular.module('abode.welcome');
+
+welcome.controller('welcomeLoginController', ['$scope', '$timeout', '$http', '$q', '$state', 'abode', 'Auth', function ($scope, $timeout, $http, $q, $state, abode, Auth) {
+
+  abode.load();
+  $scope.config = abode.config;
+  $scope.loading = false;
+  $scope.failed = false;
+  $scope.login = {};
+  $scope.state = $state;
+  $scope.auth = new Auth();
+  $scope.checking_login = true;
+
+  $scope.reset_server = function () {
+    abode.save({});
+    $state.go('welcome');
+  };
+
+  $scope.do_login = function (supress) {
+    loading = true;
+    $scope.auth.$login().then(function (response) {
+      loading = false;
+      $scope.checking_login = false;
+
+      if (response.token) {
+        $scope.config.auth = $scope.auth;
+        abode.save($scope.config);
+        $state.go('welcome_devices');
+      } else {
+        $scope.checking_login = false;
+        if (!supress) {
+          abode.message({'message': 'Failed to Get Token', 'type': 'failed'});
+        }
+      }
+
+    }, function (error) {
+      loading = false;
+      $scope.checking_login = false;
+
+      var msg = (error.data && error.data.message) ? error.data.message : error.data;
+      if (!supress) {
+        abode.message({'message': msg || 'Unknown error occured', 'type': 'failed'});
+      }
+    });
+  };
+
+  $scope.do_login(true);
+
+}]);
+
+
 angular.module('wunderground', [])
 .config(function($stateProvider, $urlRouterProvider) {
 
   $stateProvider
   .state('main.settings.wunderground', {
     url: '/wunderground',
-    templateUrl: 'views/providers/wunderground/settings.html',
+    templateUrl: 'modules/wunderground/views/settings.html',
     controller: 'wundergroundSettings',
     resolve: {
       config: function (wunderground) {
@@ -63193,7 +63636,7 @@ zwave.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
   .state('main.settings.zwave', {
     url: '/zwave',
-    templateUrl: 'views/providers/zwave/settings.html',
+    templateUrl: 'modules/zwave/views/settings.html',
     controller: 'zwaveSettings',
     resolve: {
       config: function (zwave) {
