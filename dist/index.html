@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en" ng-app="abode">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Abode</title>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="stylesheet" type="text/css" href="lib/styles.css" />
+    <script src="lib/scripts.js" type="text/javascript"></script>
+  </head>
+  <body ng-controller="rootController">
+
+    <div ui-view></div>
+    <messages></messages>
+    <div class="idle-shade" ng-class="{'idle-shade-active': is_idle}"></div>
+
+  </body>
+</html>
