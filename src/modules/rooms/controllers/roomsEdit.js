@@ -80,7 +80,7 @@ rooms.controller('roomsEdit', function ($scope, $state, $uibModal, abode, rooms,
   $scope.addDevice = function () {
     var assign = $uibModal.open({
       animation: true,
-      templateUrl: 'views/rooms/assign.html',
+      templateUrl: 'modules/rooms/views/assign.html',
       size: 'sm',
       resolve: {
         assigned: function () {
@@ -144,7 +144,7 @@ rooms.controller('roomsEdit', function ($scope, $state, $uibModal, abode, rooms,
   $scope.addScene = function () {
     var assign = $uibModal.open({
       animation: true,
-      templateUrl: 'views/rooms/assign.scene.html',
+      templateUrl: 'modules/rooms/views/assign.scene.html',
       size: 'sm',
       resolve: {
         assigned: function () {

@@ -79,7 +79,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('modules/abode/views/display_status.html',
-    "<div uib-popover-template=\"'views/main/display_popover.html'\" popover-trigger=\"'outsideClick click'\" popover-placement=\"bottom-right\" popover-is-open=\"popover\">\n" +
+    "<div uib-popover-template=\"'modules/abode/views/display_popover.html'\" popover-trigger=\"'outsideClick click'\" popover-placement=\"bottom-right\" popover-is-open=\"popover\">\n" +
     "  <i ng-show=\"loading\" class=\"text-muted pointer icon-circleselection spin\"></i>\n" +
     "  <i ng-hide=\"loading || device == false\" class=\"pointer\" ng-class=\"{'text-danger': !network.connected, 'text-success': network.connected, 'icon-lan': !network.essid, 'icon-lan': !network.essid, 'icon-networksignal': network.essid, 'text-warning': network.connected && !root.status.connected}\"></i>\n" +
     "  <i ng-hide=\"loading || device == true\" class=\"pointer\" ng-class=\"{'icon-plug': !root.status.connected, 'icon-networksignal': root.status.connected, 'text-success': root.status.connected, 'text-danger': !root.status.connected}\"></i>\n" +
