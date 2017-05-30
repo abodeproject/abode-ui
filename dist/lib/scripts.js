@@ -49973,6 +49973,18 @@ angular.module('insteon', [])
     return defer.promise;
   };
 
+  var idrequest = function (addr) {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/insteon/devices/' + addr + '/id_request').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function(err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   var enterunlinking = function (addr, group) {
     var defer = $q.defer();
 
@@ -50105,7 +50117,8 @@ angular.module('insteon', [])
     rates: rates,
     get_devices: get_devices,
     update_database_record: update_database_record,
-    add_database_record: add_database_record
+    add_database_record: add_database_record,
+    idrequest: idrequest
   };
 
 })
@@ -50220,7 +50233,7 @@ angular.module('insteon', [])
   };
 
 })
-.controller('insteonEdit', function ($scope, $http, $uibModal, abode, insteon) {
+.controller('insteonEdit', function ($scope, $http, $uibModal, $timeout, abode, insteon) {
   $scope.device = $scope.$parent.device;
   $scope.loading = false;
   $scope.error = false;
@@ -50252,6 +50265,34 @@ angular.module('insteon', [])
 
   $scope.exitlinking = function () {
     insteon.exitlinking($scope.device.config.address);
+  };
+
+  $scope.idrequest = function () {
+    $scope.id_success = false;
+    $scope.id_error = false;
+    $scope.id_loading = true;
+
+    insteon.idrequest($scope.device.config.address).then(function (result) {
+      $scope.device.config.device_cat = result.devcat;
+      $scope.device.config.device_subcat = result.subcat;
+      $scope.device.config.firmware = result.firmware;
+
+      $scope.id_error = false;
+      $scope.id_loading = false;
+      $scope.id_success = true;
+
+      $timeout(function () {
+        $scope.id_success = false;
+      }, 5000);
+    }, function () {
+      $scope.id_error = true;
+      $scope.id_loading = false;
+      $scope.id_success = false;
+
+      $timeout(function () {
+        $scope.id_error = false;
+      }, 5000);
+    });
   };
 
   $scope.add_link = function () {
@@ -56652,6 +56693,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "			</div>\n" +
     "\n" +
     "			<button class=\"btn btn-sm btn-primary\" ng-click=\"exitlinking()\"><i class=\"icon-circlestopempty\"></i> Stop Linking</button>\n" +
+    "			<button class=\"btn btn-sm btn-primary\" ng-class=\"{'btn-danger': id_error, 'btn-success': id_success}\" ng-disabled=\"id_loading || id_success || id_error\" ng-click=\"idrequest()\">\n" +
+    "				<i class=\"icon-circleselection spin\" ng-show=\"id_loading\"></i>\n" +
+    "				<i class=\"icon-circleselect\" ng-show=\"id_success\"></i>\n" +
+    "				<i class=\"icon-erroralt\" ng-show=\"id_error\"></i>\n" +
+    "\n" +
+    "				<i class=\"icon-tagalt-pricealt\" ng-hide=\"id_loading || id_success || id_error\"></i> ID Request\n" +
+    "			</button>\n" +
     "		</div>\n" +
     "	</div>\n" +
     "\n" +

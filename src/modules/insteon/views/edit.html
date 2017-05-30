@@ -59,6 +59,13 @@
 			</div>
 
 			<button class="btn btn-sm btn-primary" ng-click="exitlinking()"><i class="icon-circlestopempty"></i> Stop Linking</button>
+			<button class="btn btn-sm btn-primary" ng-class="{'btn-danger': id_error, 'btn-success': id_success}" ng-disabled="id_loading || id_success || id_error" ng-click="idrequest()">
+				<i class="icon-circleselection spin" ng-show="id_loading"></i>
+				<i class="icon-circleselect" ng-show="id_success"></i>
+				<i class="icon-erroralt" ng-show="id_error"></i>
+
+				<i class="icon-tagalt-pricealt" ng-hide="id_loading || id_success || id_error"></i> ID Request
+			</button>
 		</div>
 	</div>
 

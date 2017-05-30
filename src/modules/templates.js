@@ -1579,6 +1579,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "			</div>\n" +
     "\n" +
     "			<button class=\"btn btn-sm btn-primary\" ng-click=\"exitlinking()\"><i class=\"icon-circlestopempty\"></i> Stop Linking</button>\n" +
+    "			<button class=\"btn btn-sm btn-primary\" ng-class=\"{'btn-danger': id_error, 'btn-success': id_success}\" ng-disabled=\"id_loading || id_success || id_error\" ng-click=\"idrequest()\">\n" +
+    "				<i class=\"icon-circleselection spin\" ng-show=\"id_loading\"></i>\n" +
+    "				<i class=\"icon-circleselect\" ng-show=\"id_success\"></i>\n" +
+    "				<i class=\"icon-erroralt\" ng-show=\"id_error\"></i>\n" +
+    "\n" +
+    "				<i class=\"icon-tagalt-pricealt\" ng-hide=\"id_loading || id_success || id_error\"></i> ID Request\n" +
+    "			</button>\n" +
     "		</div>\n" +
     "	</div>\n" +
     "\n" +
