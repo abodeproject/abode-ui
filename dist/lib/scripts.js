@@ -48332,13 +48332,13 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
 
   methods.$image_url = function () {
     var random = new Date();
-    return (this.config.image_url) ? abode.url('/api/devices/' + this._id + '/image?' + random.getTime()).value() : undefined;
+    return (this.config.image_url) ? abode.url('/api/devices/' + this._id + '/image?' + random.getTime() + '&client_token=' + abode.config.auth.token.client_token + '&auth_token=' + abode.config.auth.token.auth_token).value() : undefined;
 
   };
 
   methods.$video_url = function () {
     var random = new Date();
-    return (this.config.video_url) ? abode.url('/api/devices/' + this._id + '/video?live=true').value() : undefined;
+    return (this.config.video_url) ? abode.url('/api/devices/' + this._id + '/video?live=true&client_token=' + abode.config.auth.token.client_token + '&auth_token=' + abode.config.auth.token.auth_token).value() : undefined;
 
   };
 
@@ -48485,9 +48485,9 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
         };
 
         if (device.config.video_url) {
-          $scope.camera_url = abode.url(source_uri + '/devices/' + device._id + '/video').value();
+          $scope.camera_url = abode.url(source_uri + '/devices/' + device._id + '/video?client_token=' + abode.config.auth.token.client_token + '&auth_token=' + abode.config.auth.token.auth_token).value();
         } else {
-          $scope.camera_url = abode.url(source_uri + '/devices/' + device._id + '/image').value();
+          $scope.camera_url = abode.url(source_uri + '/devices/' + device._id + '/image?client_token=' + abode.config.auth.token.client_token + '&auth_token=' + abode.config.auth.token.auth_token).value();
         }
       }
     });
@@ -48508,6 +48508,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
         var success_splay = 1000 * 60 * Math.floor((Math.random() * 5) + 5);
         var error_splay = 1000 * Math.floor((Math.random() * 5) + 1);
 
+        $scope.image_url = device.$image_url();
         $scope.device = device;
         $scope.processing = false;
         $scope.errors = false;
@@ -55949,8 +55950,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('modules/devices/views/capabilities/camera.html',
     "<div style=\"text-align: center;\">\n" +
-    "  <img src=\"/api/sources/{{source}}/devices/{{device.name}}/image\" style=\"width: 100%; cursor: pointer\" ng-click=\"openVideo(device)\" ng-if=\"source\">\n" +
-    "  <img src=\"/api/devices/{{device.name}}/image\" style=\"width: 100%; cursor: pointer\" ng-click=\"openVideo(device)\" ng-if=\"!source\">\n" +
+    "  <img src=\"{{image_url}}\" style=\"width: 100%; cursor: pointer\" ng-click=\"openVideo(device)\">\n" +
     "</div>\n"
   );
 

@@ -835,8 +835,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('modules/devices/views/capabilities/camera.html',
     "<div style=\"text-align: center;\">\n" +
-    "  <img src=\"/api/sources/{{source}}/devices/{{device.name}}/image\" style=\"width: 100%; cursor: pointer\" ng-click=\"openVideo(device)\" ng-if=\"source\">\n" +
-    "  <img src=\"/api/devices/{{device.name}}/image\" style=\"width: 100%; cursor: pointer\" ng-click=\"openVideo(device)\" ng-if=\"!source\">\n" +
+    "  <img src=\"{{image_url}}\" style=\"width: 100%; cursor: pointer\" ng-click=\"openVideo(device)\">\n" +
     "</div>\n"
   );
 
