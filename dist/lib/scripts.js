@@ -58113,7 +58113,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "        <h5 class=\"list-group-item-heading\"><i class=\"icon-picture\"></i> {{scene.name}}</h5>\n" +
     "        <p style=\"font-size: .8em;\" class=\"list-group-item-text \">{{scene.age | ageHumanReadable}}</p>\n" +
     "      </li>\n" +
-    "      <li class=\"list-group-item\" style=\"cursor: pointer\" ng-repeat=\"device in devices | orderBy: ['-_on', '+age', '+name']\" ng-class=\"{'list-group-item-success': device_state(device, '_on', true, ['light', 'display', 'fan']), 'list-group-item-danger': device_state(device, '_motion', true, ['motion_sensor']) || device_state(device, '_on', true, ['door', 'window']) || device._mode == 'HEAT', 'list-group-item-info': device._mode == 'COOL'}\" ng-click=\"open(device)\" ng-show=\"check_filter(device)\">\n" +
+    "      <li class=\"list-group-item\" style=\"cursor: pointer\" ng-repeat=\"device in devices | orderBy: ['-_motion', '-_on', '+age', '+name']\" ng-class=\"{'list-group-item-success': device_state(device, '_on', true, ['light', 'display', 'fan']), 'list-group-item-danger': device_state(device, '_motion', true, ['motion_sensor']) || device_state(device, '_on', true, ['door', 'window']) || device._mode == 'HEAT', 'list-group-item-info': device._mode == 'COOL'}\" ng-click=\"open(device)\" ng-show=\"check_filter(device)\">\n" +
     "        <h4 class=\"list-group-item-heading\">\n" +
     "          <i class=\"icon-videocamerathree\" ng-show=\"has_capability(device, 'camera')\"></i>\n" +
     "          <i class=\"icon-fan\" ng-show=\"has_capability(device, 'fan')\"></i>\n" +
