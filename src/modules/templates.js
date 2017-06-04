@@ -1704,86 +1704,136 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "-->\n" +
     "        <div class=\"panel panel-default\">\n" +
     "          <div class=\"panel-body\">\n" +
+    "            <uib-tabset active=\"active\">\n" +
+    "              <uib-tab index=\"0\" heading=\"Settings\">\n" +
+    "                <div class=\"panel-body\">\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
-    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
-    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
-    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
-    "              </button>\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"enabled\">Enabled: </label>\n" +
+    "                    <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                      <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                      <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                      <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "                    </button>\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Serial Device: </label>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"enabled\">Serial Device: </label>\n" +
     "\n" +
     "\n" +
-    "              <ul class=\"list-group bg-muted select-list\">\n" +
-    "                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"d in devices\" ng-click=\"config.serial_device = d\" ng-class=\"{'list-group-item-success': config.serial_device == d}\">\n" +
-    "                  {{d}}\n" +
-    "                </li>\n" +
-    "              </ul>\n" +
-    "            </div>\n" +
+    "                    <ul class=\"list-group bg-muted select-list\">\n" +
+    "                      <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"d in devices\" ng-click=\"config.serial_device = d\" ng-class=\"{'list-group-item-success': config.serial_device == d}\">\n" +
+    "                        {{d}}\n" +
+    "                      </li>\n" +
+    "                    </ul>\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"serial_baudrate\">Serial Baudrate</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"serial_baudrate\" placeholder=\"Serial Baudrate\" required=\"\" ng-model=\"config.serial_baudrate\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"serial_baudrate\">Serial Baudrate</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"serial_baudrate\" placeholder=\"Serial Baudrate\" required=\"\" ng-model=\"config.serial_baudrate\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"serial_databits\">Serial Databits</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"serial_databits\" placeholder=\"Serial Databits\" required=\"\" ng-model=\"config.serial_databits\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"serial_databits\">Serial Databits</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"serial_databits\" placeholder=\"Serial Databits\" required=\"\" ng-model=\"config.serial_databits\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"serial_stopbits\">Serial Stopbits</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"serial_stopbits\" placeholder=\"Serial Stopbits\" required=\"\" ng-model=\"config.serial_stopbits\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"serial_stopbits\">Serial Stopbits</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"serial_stopbits\" placeholder=\"Serial Stopbits\" required=\"\" ng-model=\"config.serial_stopbits\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"serial_parity\">Serial Parity</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"serial_parity\" placeholder=\"Serial Parity\" required=\"\" ng-model=\"config.serial_parity\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"serial_parity\">Serial Parity</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"serial_parity\" placeholder=\"Serial Parity\" required=\"\" ng-model=\"config.serial_parity\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"serial_flowcontrol\">Serial Flowcontrol</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"serial_flowcontrol\" placeholder=\"Serial Flowcontrol\" required=\"\" ng-model=\"config.serial_flowcontrol\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"serial_flowcontrol\">Serial Flowcontrol</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"serial_flowcontrol\" placeholder=\"Serial Flowcontrol\" required=\"\" ng-model=\"config.serial_flowcontrol\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"timeout\">Timeout (ms)</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"timeout\" placeholder=\"Timeout (ms)\" required=\"\" ng-model=\"config.timeout\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"timeout\">Timeout (ms)</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"timeout\" placeholder=\"Timeout (ms)\" required=\"\" ng-model=\"config.timeout\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"queue_timeout\">Queue Timeout (ms)</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"queue_timeout\" placeholder=\"Queue Timeout (ms)\" required=\"\" ng-model=\"config.queue_timeout\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"queue_timeout\">Queue Timeout (ms)</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"queue_timeout\" placeholder=\"Queue Timeout (ms)\" required=\"\" ng-model=\"config.queue_timeout\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"delay\">Delay (ms)</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"delay\" placeholder=\"Delay (ms)\" required=\"\" ng-model=\"config.delay\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"delay\">Delay (ms)</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"delay\" placeholder=\"Delay (ms)\" required=\"\" ng-model=\"config.delay\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"retries\">Retries</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"retries\" placeholder=\"Retries\" required=\"\" ng-model=\"config.retries\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"retries\">Retries</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"retries\" placeholder=\"Retries\" required=\"\" ng-model=\"config.retries\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Debug: </label>\n" +
-    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"enabled\">Debug: </label>\n" +
+    "                    <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Modem Debug: </label>\n" +
-    "              <toggle value=\"config.modem_debug\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"enabled\">Modem Debug: </label>\n" +
+    "                    <toggle value=\"config.modem_debug\" class=\"pull-right\"></toggle>\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "                  </div>\n" +
     "\n" +
+    "                </div>\n" +
+    "              </uib-tab>\n" +
+    "              <uib-tab index=\"1\" heading=\"Database\">\n" +
+    "                <div class=\"panel\"><div class=\"panel-body\">\n" +
+    "                  <p>\n" +
+    "                    <button class=\"btn btn-primary btn-sm pull-right\" ng-click=\"load_modem_database()\" ng-disabled=\"db_loading || db_error\" ng-class=\"{'btn-danger': db_error}\">\n" +
+    "                      <i class=\"icon-database\" ng-hide=\"db_loading || db_error\"></i>\n" +
+    "                      <i class=\"icon-erroralt\" ng-show=\"db_error\"></i>\n" +
+    "                      <i class=\"icon-circleselection spin\" ng-show=\"db_loading\"></i>\n" +
+    "                      Load Database\n" +
+    "                    </button>\n" +
+    "                    <button class=\"btn btn-sm btn-primary pull-right\" ng-click=\"start_linking(true)\" ng-hide=\"link_waiting\" ng-disabled=\"link_waiting || link_error\" ng-class=\"{'btn-danger': link_error}\">\n" +
+    "                      <i class=\"icon-uploadalt\" ng-hide=\"link_waiting || link_error\"></i>\n" +
+    "                      <i class=\"icon-circleselection spin\" ng-show=\"link_waiting\"></i>\n" +
+    "                      <i class=\"icon-erroralt\" ng-show=\"link_error\"></i>\n" +
+    "                        Link as Controller\n" +
+    "                    </button>\n" +
+    "                    <button class=\"btn btn-sm btn-primary pull-right\" ng-click=\"start_linking(false)\" ng-hide=\"link_waiting\"  ng-disabled=\"link_waiting || link_error\" ng-class=\"{'btn-danger': link_error}\">\n" +
+    "                      <i class=\"icon-download-alt\" ng-hide=\"link_waiting || link_error\"></i>\n" +
+    "                      <i class=\"icon-circleselection spin\" ng-show=\"link_waiting\"></i>\n" +
+    "                      <i class=\"icon-erroralt\" ng-show=\"link_error\"></i>\n" +
+    "                      Link as Responder</button>\n" +
+    "                    <button class=\"btn btn-sm btn-muted pull-right\" ng-click=\"cancel_linking()\" ng-show=\"link_waiting\" ng-disabled=\"!link_waiting\" ng-class=\"{'btn-warning': link_waiting}\">\n" +
+    "                      <i class=\"icon-circleselection spin\"></i>\n" +
+    "                      Cancel Linking</button>\n" +
+    "                    Count: {{database.length}}\n" +
+    "                  </p>\n" +
+    "                  <p>\n" +
+    "                    <ul class=\"list-group\">\n" +
+    "                      <li class=\"list-group-item\" ng-repeat=\"record in database\">\n" +
+    "                        <i class=\"icon-uploadalt\" ng-show=\"record.controller\"></i>\n" +
+    "                        <i class=\"icon-download-alt\" ng-show=\"!record.controller\"></i>\n" +
+    "                        {{record.name || record.address}}<span ng-show=\"record.name\"> ({{record.address}})</span>\n" +
+    "                        <div><small>\n" +
+    "                            <span ng-show=\"!record.controller\">\n" +
+    "                                When scene {{record.group}}, use on level of {{record.on_level / 255 * 100 | number: 0}}% in {{record.ramp_rate | insteonRate}}<span ng-show=\"record.button > 1\"> and button {{record.button}}</span>\n" +
+    "                            </span>\n" +
+    "                            <span ng-show=\"record.controller\">\n" +
+    "                                Send scene {{record.group}} <span ng-show=\"record.button > 1\">with button {{record.button}}</span>\n" +
+    "                            </span>\n" +
+    "                        </small></div>\n" +
+    "                      </li>\n" +
+    "                    </ul>\n" +
+    "                  </p>\n" +
+    "                </div></div>\n" +
+    "              </uib-tab>\n" +
+    "            </uib-tabset>\n" +
     "          </div>\n" +
     "        </div>\n" +
     "\n" +

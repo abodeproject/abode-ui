@@ -49899,342 +49899,111 @@ angular.module('insteon', [])
     }
   });
 })
-.service('insteon', function ($http, $q, abode, settings) {
 
-  var get_config = function () {
 
-    return settings.get_config('insteon');
 
+var insteon = angular.module('insteon');
+
+insteon.controller('insteonAdd', function ($scope, $http, $timeout, abode) {
+  $scope.device = $scope.$parent.device;
+  $scope.link_status = 'idle';
+  $scope.device_types = [
+    {
+      'name': 'Dimmable Light',
+      'capabilities': ['light', 'dimmer'],
+      'controller': true,
+      'active': true,
+    },
+    {
+      'name': 'On/Off Switch',
+      'capabilities': ['light', 'onoff'],
+      'controller': true,
+      'active': true,
+    },
+    {
+      'name': 'Door Sensor',
+      'capabilities': ['door', 'onoff'],
+      'controller': false,
+      'active': false,
+    },
+    {
+      'name': 'Window Sensor',
+      'capabilities': ['window', 'onoff'],
+      'controller': false,
+      'active': false,
+    },
+    {
+      'name': 'Motion Sensor',
+      'capabilities': ['motion_sensor'],
+      'controller': false,
+      'active': false,
+    },
+    {
+      'name': 'Scene',
+      'capabilities': ['onoff', 'scene'],
+      'active': true,
+    }
+  ];
+
+  $scope.changeType = function (t) {
+    $scope.type = t;
+    $scope.device.capabilities = t.capabilities;
+    $scope.device.active = t.active;
   };
 
-  var save_config = function (config) {
-
-    return settings.save_config('insteon', config);
-
+  $scope.get_last = function () {
+    $http.get(abode.url('/api/insteon/linking/last').value()).then(function (response) {
+      $scope.device.config = response.data;
+      $scope.link_status = 'idle';
+    }, function (err) {
+      $scope.error = err;
+    });
   };
-
-  var status = function () {
-    var defer = $q.defer();
-
+  $scope.check_linking = function () {
     $http.get(abode.url('/api/insteon').value()).then(function (response) {
-      defer.resolve(response.data);
+      if (!response.data.linking) {
+        $scope.link_status = 'idle';
+        if (response.data.last_linked) {
+          $scope.device.config = response.data.last_linked;
+        }
+
+      } else {
+        $timeout($scope.check_linking, 2000);
+      }
     }, function (err) {
-      defer.reject(err);
+      $scope.error = err;
     });
-
-    return defer.promise;
   };
 
-  var enable = function () {
-    var defer = $q.defer();
+  $scope.start_linking = function () {
+    $scope.link_status = 'linking';
 
-    $http.post(abode.url('/api/insteon/enable').value()).then(function (response) {
-      defer.resolve(response.data);
+    $http.post(abode.url('/api/insteon/start_all_linking').value(), {'controller': $scope.type.controller}).then(function (response) {
+      $timeout($scope.check_linking, 2000);
     }, function (err) {
-      defer.reject(err);
+      $scope.error = err;
+      $scope.link_status = 'idle';
     });
 
-    return defer.promise;
   };
 
-  var disable = function () {
-    var defer = $q.defer();
+  $scope.cancel_linking = function () {
 
-    $http.post(abode.url('/api/insteon/disable').value()).then(function (response) {
-      defer.resolve(response.data);
+    $http.post(abode.url('/api/insteon/cancel_all_linking').value()).then(function (response) {
+      $scope.link_status = 'idle';
     }, function (err) {
-      defer.reject(err);
-    });
-
-    return defer.promise;
-  };
-
-  var beep = function (addr) {
-    var defer = $q.defer();
-
-    $http.post(abode.url('/api/insteon/devices/' + addr + '/beep').value()).then(function (response) {
-      defer.resolve(response.data);
-    }, function (err) {
-      defer.reject(err);
-    });
-
-    return defer.promise;
-  };
-
-  var enterlinking = function (addr, group) {
-    var defer = $q.defer();
-
-    group = group || 1;
-    $http.post(abode.url('/api/insteon/devices/' + addr + '/enter_linking_mode/' + group).value()).then(function (response) {
-      defer.resolve(response.data);
-    }, function (err) {
-      defer.reject(err);
-    });
-
-    return defer.promise;
-  };
-
-  var idrequest = function (addr) {
-    var defer = $q.defer();
-
-    $http.post(abode.url('/api/insteon/devices/' + addr + '/id_request').value()).then(function (response) {
-      defer.resolve(response.data);
-    }, function(err) {
-      defer.reject(err);
-    });
-
-    return defer.promise;
-  };
-
-  var enterunlinking = function (addr, group) {
-    var defer = $q.defer();
-
-    group = group || 1;
-    $http.post(abode.url('/api/insteon/devices/' + addr + '/enter_unlinking_mode/' + group).value()).then(function (response) {
-      defer.resolve(response.data);
-    }, function (err) {
-      defer.reject(err);
-    });
-
-    return defer.promise;
-  };
-
-  var exitlinking = function (addr) {
-    var defer = $q.defer();
-
-    $http.post(abode.url('/api/insteon/devices/' + addr + '/exit_linking_mode').value()).then(function (response) {
-      defer.resolve(response.data);
-    }, function (err) {
-      defer.reject(err);
-    });
-
-    return defer.promise;
-  };
-
-  var delete_database_record = function (address, offset) {
-    var defer = $q.defer();
-
-    $http.delete(abode.url('/api/insteon/devices/' + address + '/database/' + offset).value()).then(function (response) {
-      defer.resolve(response.data);
-    }, function (err) {
-      defer.reject(err);
-    });
-
-    return defer.promise;
-  };
-
-  var rates = [
-    {'value': 0, 'text': '9 min'},
-    {'value': 1, 'text': '8 min'},
-    {'value': 2, 'text': '7 min'},
-    {'value': 3, 'text': '6 min'},
-    {'value': 4, 'text': '5 min'},
-    {'value': 5, 'text': '4.5 min'},
-    {'value': 6, 'text': '4 min'},
-    {'value': 7, 'text': '3.5 min'},
-    {'value': 8, 'text': '3 min'},
-    {'value': 9, 'text': '2.5 min'},
-    {'value': 10, 'text': '2 min'},
-    {'value': 11, 'text': '1.5 min'},
-    {'value': 12, 'text': '1 min'},
-    {'value': 13, 'text': '47 sec'},
-    {'value': 14, 'text': '43 sec'},
-    {'value': 15, 'text': '38.5 sec'},
-    {'value': 16, 'text': '34 sec'},
-    {'value': 17, 'text': '32 sec'},
-    {'value': 18, 'text': '30 sec'},
-    {'value': 19, 'text': '28 sec'},
-    {'value': 20, 'text': '26 sec'},
-    {'value': 21, 'text': '23.5 sec'},
-    {'value': 22, 'text': '21.5 sec'},
-    {'value': 23, 'text': '19 sec'},
-    {'value': 24, 'text': '8.5 sec'},
-    {'value': 25, 'text': '6.5 sec'},
-    {'value': 26, 'text': '4.5 sec'},
-    {'value': 27, 'text': '2.0 sec'},
-    {'value': 28, 'text': '0.5 sec'},
-    {'value': 29, 'text': '0.3 sec'},
-    {'value': 30, 'text': '0.2 sec'},
-    {'value': 31, 'text': '0.1 sec'}
-  ];
-
-  var get_devices = function () {
-    var defer = $q.defer();
-
-    $http.get(abode.url('/api/insteon/devices').value()).then(function (response) {
-      defer.resolve(response.data);
-    }, function (err) {
-      defer.reject(err);
-    });
-
-    return defer.promise;
-  };
-
-  var update_database_record = function (address, offset, record) {
-    var defer = $q.defer();
-    var data = angular.copy(record);
-
-    if (data.on_level) {
-      data.on_level = parseInt(data.on_level /100 * 255, 10);
-    }
-
-    $http.put(abode.url('/api/insteon/devices/' + address + '/database/' + offset).value(), data).then(function (response) {
-      defer.resolve(response.data);
-    }, function (err) {
-      defer.reject(err.data);
-    });
-
-    return defer.promise;
-  };
-
-  var add_database_record = function (address, record) {
-    var defer = $q.defer();
-    var data = angular.copy(record);
-
-    if (data.on_level) {
-      data.on_level = parseInt(data.on_level /100 * 255, 10);
-    }
-
-    $http.post(abode.url('/api/insteon/devices/' + address + '/database').value(), data).then(function (response) {
-      defer.resolve(response.data);
-    }, function (err) {
-      defer.reject(err.data);
-    });
-
-    return defer.promise;
-  };
-
-  return {
-    get_config: get_config,
-    save: save_config,
-    status: status,
-    enable: enable,
-    disable: disable,
-    beep: beep,
-    enterlinking: enterlinking,
-    enterunlinking: enterunlinking,
-    exitlinking: exitlinking,
-    delete_database_record: delete_database_record,
-    rates: rates,
-    get_devices: get_devices,
-    update_database_record: update_database_record,
-    add_database_record: add_database_record,
-    idrequest: idrequest
-  };
-
-})
-.filter('insteonRate', function() {
-  var rates = [
-    '9 min',
-    '8 min',
-    '7 min',
-    '6 min',
-    '5 min',
-    '4.5 min',
-    '4 min',
-    '3.5 min',
-    '3 min',
-    '2.5 min',
-    '2 min',
-    '1.5 min',
-    '1 min',
-    '47 sec',
-    '43 sec',
-    '38.5 sec',
-    '34 sec',
-    '32 sec',
-    '30 sec',
-    '28 sec',
-    '26 sec',
-    '23.5 sec',
-    '21.5 sec',
-    '19 sec',
-    '8.5 sec',
-    '6.5 sec',
-    '4.5 sec',
-    '2.0 sec',
-    '0.5 sec',
-    '0.3 sec',
-    '0.2 sec',
-    '0.1 sec'
-  ];
-
-  return function(rate) {
-    return (rates[rate]) ? rates[rate] : rate;
-  };
-})
-.filter('toHex', function () {
-  return function(value) {
-    var hex = parseInt(value, 10).toString(16);
-    if (hex.length % 2 !== 0) {
-      hex = '0' + hex;
-    }
-    return '0x' + hex;
-  };
-})
-.controller('insteonSettings', function ($scope, $http, insteon, abode, status) {
-
-  $scope.enabling = false;
-  $scope.status = status;
-  $scope.config = status.config;
-  $scope.devices = [
-    '/dev/ttyUSB0',
-    '/dev/ttyUSB1',
-    '/dev/ttyUSB2',
-    '/dev/ttyUSB3',
-  ];
-
-  $scope.get_status = function () {
-    insteon.status().then(function (status) {
-      $scope.status = status;
-    });
-  };
-
-  $scope.toggle = function () {
-    $scope.enabling = true;
-
-    var success = function () {
-      $scope.enabling = false;
-      $scope.error = '';
-
-      $scope.get_status();
-    };
-
-    var failure = function (err) {
-      $scope.enabling = false;
-      $scope.error = err.data.message;
-      $scope.get_status();
-    };
-
-    if ($scope.status.enabled) {
-      insteon.disable().then(success, failure);
-    } else {
-      insteon.enable().then(success, failure);
-    }
-  };
-
-  $scope.save = function () {
-
-    insteon.save($scope.config).then(function () {
-      $scope.status = 'saved';
-
-      abode.message({
-        'type': 'success',
-        'message': 'Insteon Settings Saved'
-      });
-
-    }, function (err) {
-      abode.message({
-        'type': 'failed',
-        'message': 'Insteon Settings Failed to Saved',
-        'details': err
-      });
+      $scope.link_status = 'linking';
     });
 
   };
 
-})
-.controller('insteonEdit', function ($scope, $http, $uibModal, $timeout, abode, insteon) {
+});
+
+
+
+var insteon = angular.module('insteon');
+
+insteon.controller('insteonEdit', function ($scope, $http, $uibModal, $timeout, abode, insteon) {
   $scope.device = $scope.$parent.device;
   $scope.loading = false;
   $scope.error = false;
@@ -50471,102 +50240,465 @@ angular.module('insteon', [])
     });
   };
 
-})
-.controller('insteonAdd', function ($scope, $http, $timeout, abode) {
-  $scope.device = $scope.$parent.device;
-  $scope.link_status = 'idle';
-  $scope.device_types = [
-    {
-      'name': 'Dimmable Light',
-      'capabilities': ['light', 'dimmer'],
-      'controller': true,
-      'active': true,
-    },
-    {
-      'name': 'On/Off Switch',
-      'capabilities': ['light', 'onoff'],
-      'controller': true,
-      'active': true,
-    },
-    {
-      'name': 'Door Sensor',
-      'capabilities': ['door', 'onoff'],
-      'controller': false,
-      'active': false,
-    },
-    {
-      'name': 'Window Sensor',
-      'capabilities': ['window', 'onoff'],
-      'controller': false,
-      'active': false,
-    },
-    {
-      'name': 'Motion Sensor',
-      'capabilities': ['motion_sensor'],
-      'controller': false,
-      'active': false,
-    },
-    {
-      'name': 'Scene',
-      'capabilities': ['onoff', 'scene'],
-      'active': true,
-    }
+});
+
+
+var insteon = angular.module('insteon');
+
+insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon, abode, status) {
+
+  $scope.database = [];
+  $scope.enabling = false;
+  $scope.status = status;
+  $scope.config = status.config;
+  $scope.devices = [
+    '/dev/ttyUSB0',
+    '/dev/ttyUSB1',
+    '/dev/ttyUSB2',
+    '/dev/ttyUSB3',
   ];
 
-  $scope.changeType = function (t) {
-    $scope.type = t;
-    $scope.device.capabilities = t.capabilities;
-    $scope.device.active = t.active;
-  };
-
-  $scope.get_last = function () {
-    $http.get(abode.url('/api/insteon/linking/last').value()).then(function (response) {
-      $scope.device.config = response.data;
-      $scope.link_status = 'idle';
-    }, function (err) {
-      $scope.error = err;
+  $scope.get_status = function () {
+    insteon.status().then(function (status) {
+      $scope.status = status;
     });
   };
-  $scope.check_linking = function () {
+
+  $scope.toggle = function () {
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+      $scope.error = '';
+
+      $scope.get_status();
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+      $scope.error = err.data.message;
+      $scope.get_status();
+    };
+
+    if ($scope.status.enabled) {
+      insteon.disable().then(success, failure);
+    } else {
+      insteon.enable().then(success, failure);
+    }
+  };
+
+  $scope.save = function () {
+
+    insteon.save($scope.config).then(function () {
+      $scope.status = 'saved';
+
+      abode.message({
+        'type': 'success',
+        'message': 'Insteon Settings Saved'
+      });
+
+    }, function (err) {
+      abode.message({
+        'type': 'failed',
+        'message': 'Insteon Settings Failed to Saved',
+        'details': err
+      });
+    });
+
+  };
+
+  $scope.start_linking = function (controller, group) {
+    $scope.link_waiting = true;
+    $scope.link_error = false;
+
+    insteon.modem_start_all_linking(controller, group).then(function () {
+      $scope.link_waiting = false;
+      $scope.link_error = false;
+    }, function (err) {
+      $scope.link_waiting = false;
+      $scope.link_error = true;
+
+      $timeout(function () {
+        $scope.link_error = false;
+      }, 2000);
+
+      abode.message({
+        'type': 'failed',
+        'message': 'Failed to enter linking',
+        'details': err
+      });
+    });
+  };
+
+  $scope.cancel_linking = function (controller, group) {
+
+    insteon.modem_cancel_all_linking().then(function () {
+      $scope.link_waiting = false;
+      $scope.link_error = false;
+    }, function (err) {
+      $scope.link_waiting = false;
+      $scope.link_error = true;
+
+      $timeout(function () {
+        $scope.link_error = false;
+        $scope.link_waiting = true;
+      }, 1000);
+
+      abode.message({
+        'type': 'failed',
+        'message': 'Failed to cancel linking',
+        'details': err
+      });
+    });
+  };
+
+  $scope.load_modem_database = function () {
+    $scope.db_loading = true;
+    $scope.db_error = false;
+    insteon.modem_load_database().then(function (results) {
+      $scope.db_loading = false;
+      $scope.db_error = false;
+      $scope.database = results;
+    }, function (err) {
+      $scope.db_loading = false;
+      $scope.db_error = true;
+
+      $timeout(function () {
+        $scope.db_error = false;
+      }, 2000);
+
+      abode.message({
+        'type': 'failed',
+        'message': 'Failed to load database',
+        'details': err
+      });
+    });
+  };
+});
+
+
+var insteon = angular.module('insteon');
+
+insteon.filter('insteonRate', function() {
+  var rates = [
+    '9 min',
+    '8 min',
+    '7 min',
+    '6 min',
+    '5 min',
+    '4.5 min',
+    '4 min',
+    '3.5 min',
+    '3 min',
+    '2.5 min',
+    '2 min',
+    '1.5 min',
+    '1 min',
+    '47 sec',
+    '43 sec',
+    '38.5 sec',
+    '34 sec',
+    '32 sec',
+    '30 sec',
+    '28 sec',
+    '26 sec',
+    '23.5 sec',
+    '21.5 sec',
+    '19 sec',
+    '8.5 sec',
+    '6.5 sec',
+    '4.5 sec',
+    '2.0 sec',
+    '0.5 sec',
+    '0.3 sec',
+    '0.2 sec',
+    '0.1 sec'
+  ];
+
+  return function(rate) {
+    return (rates[rate]) ? rates[rate] : rate;
+  };
+});
+
+
+var insteon = angular.module('insteon');
+
+insteon.filter('toHex', function () {
+  return function(value) {
+    var hex = parseInt(value, 10).toString(16);
+    if (hex.length % 2 !== 0) {
+      hex = '0' + hex;
+    }
+    return '0x' + hex;
+  };
+});
+
+
+var insteon = angular.module('insteon');
+
+insteon.service('insteon', function ($http, $q, abode, settings) {
+
+  var get_config = function () {
+
+    return settings.get_config('insteon');
+
+  };
+
+  var save_config = function (config) {
+
+    return settings.save_config('insteon', config);
+
+  };
+
+  var status = function () {
+    var defer = $q.defer();
+
     $http.get(abode.url('/api/insteon').value()).then(function (response) {
-      if (!response.data.linking) {
-        $scope.link_status = 'idle';
-        if (response.data.last_linked) {
-          $scope.device.config = response.data.last_linked;
-        }
-
-      } else {
-        $timeout($scope.check_linking, 2000);
-      }
+      defer.resolve(response.data);
     }, function (err) {
-      $scope.error = err;
-    });
-  };
-
-  $scope.start_linking = function () {
-    $scope.link_status = 'linking';
-
-    $http.post(abode.url('/api/insteon/start_all_linking').value(), {'controller': $scope.type.controller}).then(function (response) {
-      $timeout($scope.check_linking, 2000);
-    }, function (err) {
-      $scope.error = err;
-      $scope.link_status = 'idle';
+      defer.reject(err);
     });
 
+    return defer.promise;
   };
 
-  $scope.cancel_linking = function () {
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/insteon/enable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/insteon/disable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var beep = function (addr) {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/insteon/devices/' + addr + '/beep').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enterlinking = function (addr, group) {
+    var defer = $q.defer();
+
+    group = group || 1;
+    $http.post(abode.url('/api/insteon/devices/' + addr + '/enter_linking_mode/' + group).value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var idrequest = function (addr) {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/insteon/devices/' + addr + '/id_request').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function(err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enterunlinking = function (addr, group) {
+    var defer = $q.defer();
+
+    group = group || 1;
+    $http.post(abode.url('/api/insteon/devices/' + addr + '/enter_unlinking_mode/' + group).value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var exitlinking = function (addr) {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/insteon/devices/' + addr + '/exit_linking_mode').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var delete_database_record = function (address, offset) {
+    var defer = $q.defer();
+
+    $http.delete(abode.url('/api/insteon/devices/' + address + '/database/' + offset).value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var rates = [
+    {'value': 0, 'text': '9 min'},
+    {'value': 1, 'text': '8 min'},
+    {'value': 2, 'text': '7 min'},
+    {'value': 3, 'text': '6 min'},
+    {'value': 4, 'text': '5 min'},
+    {'value': 5, 'text': '4.5 min'},
+    {'value': 6, 'text': '4 min'},
+    {'value': 7, 'text': '3.5 min'},
+    {'value': 8, 'text': '3 min'},
+    {'value': 9, 'text': '2.5 min'},
+    {'value': 10, 'text': '2 min'},
+    {'value': 11, 'text': '1.5 min'},
+    {'value': 12, 'text': '1 min'},
+    {'value': 13, 'text': '47 sec'},
+    {'value': 14, 'text': '43 sec'},
+    {'value': 15, 'text': '38.5 sec'},
+    {'value': 16, 'text': '34 sec'},
+    {'value': 17, 'text': '32 sec'},
+    {'value': 18, 'text': '30 sec'},
+    {'value': 19, 'text': '28 sec'},
+    {'value': 20, 'text': '26 sec'},
+    {'value': 21, 'text': '23.5 sec'},
+    {'value': 22, 'text': '21.5 sec'},
+    {'value': 23, 'text': '19 sec'},
+    {'value': 24, 'text': '8.5 sec'},
+    {'value': 25, 'text': '6.5 sec'},
+    {'value': 26, 'text': '4.5 sec'},
+    {'value': 27, 'text': '2.0 sec'},
+    {'value': 28, 'text': '0.5 sec'},
+    {'value': 29, 'text': '0.3 sec'},
+    {'value': 30, 'text': '0.2 sec'},
+    {'value': 31, 'text': '0.1 sec'}
+  ];
+
+  var get_devices = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/insteon/devices').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var update_database_record = function (address, offset, record) {
+    var defer = $q.defer();
+    var data = angular.copy(record);
+
+    if (data.on_level) {
+      data.on_level = parseInt(data.on_level /100 * 255, 10);
+    }
+
+    $http.put(abode.url('/api/insteon/devices/' + address + '/database/' + offset).value(), data).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
+  var add_database_record = function (address, record) {
+    var defer = $q.defer();
+    var data = angular.copy(record);
+
+    if (data.on_level) {
+      data.on_level = parseInt(data.on_level /100 * 255, 10);
+    }
+
+    $http.post(abode.url('/api/insteon/devices/' + address + '/database').value(), data).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
+  var load_modem_database = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/insteon/database').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
+  var modem_start_all_linking = function (controller, group) {
+    var defer = $q.defer();
+    var url = (group) ? '/api/insteon/start_all_linking/' + group : '/api/insteon/start_all_linking';
+
+    $http.post(abode.url(url).value(), {'conroller': controller}).then(function () {
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
+  var modem_cancel_all_linking = function (controller, group) {
+    var defer = $q.defer();
 
     $http.post(abode.url('/api/insteon/cancel_all_linking').value()).then(function (response) {
-      $scope.link_status = 'idle';
+      defer.resolve(response.data);
     }, function (err) {
-      $scope.link_status = 'linking';
+      defer.reject(err.data);
     });
 
+    return defer.promise;
+  };
+
+  return {
+    get_config: get_config,
+    save: save_config,
+    status: status,
+    enable: enable,
+    disable: disable,
+    beep: beep,
+    enterlinking: enterlinking,
+    enterunlinking: enterunlinking,
+    exitlinking: exitlinking,
+    delete_database_record: delete_database_record,
+    rates: rates,
+    get_devices: get_devices,
+    update_database_record: update_database_record,
+    add_database_record: add_database_record,
+    idrequest: idrequest,
+    modem_load_database: load_modem_database,
+    modem_start_all_linking: modem_start_all_linking,
+    modem_cancel_all_linking: modem_cancel_all_linking
   };
 
 });
-
 
 angular.module('insteonhub', [])
 .config(function($stateProvider, $urlRouterProvider) {
@@ -56819,86 +56951,136 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "-->\n" +
     "        <div class=\"panel panel-default\">\n" +
     "          <div class=\"panel-body\">\n" +
+    "            <uib-tabset active=\"active\">\n" +
+    "              <uib-tab index=\"0\" heading=\"Settings\">\n" +
+    "                <div class=\"panel-body\">\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
-    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
-    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
-    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
-    "              </button>\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"enabled\">Enabled: </label>\n" +
+    "                    <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                      <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                      <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                      <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "                    </button>\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Serial Device: </label>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"enabled\">Serial Device: </label>\n" +
     "\n" +
     "\n" +
-    "              <ul class=\"list-group bg-muted select-list\">\n" +
-    "                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"d in devices\" ng-click=\"config.serial_device = d\" ng-class=\"{'list-group-item-success': config.serial_device == d}\">\n" +
-    "                  {{d}}\n" +
-    "                </li>\n" +
-    "              </ul>\n" +
-    "            </div>\n" +
+    "                    <ul class=\"list-group bg-muted select-list\">\n" +
+    "                      <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"d in devices\" ng-click=\"config.serial_device = d\" ng-class=\"{'list-group-item-success': config.serial_device == d}\">\n" +
+    "                        {{d}}\n" +
+    "                      </li>\n" +
+    "                    </ul>\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"serial_baudrate\">Serial Baudrate</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"serial_baudrate\" placeholder=\"Serial Baudrate\" required=\"\" ng-model=\"config.serial_baudrate\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"serial_baudrate\">Serial Baudrate</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"serial_baudrate\" placeholder=\"Serial Baudrate\" required=\"\" ng-model=\"config.serial_baudrate\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"serial_databits\">Serial Databits</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"serial_databits\" placeholder=\"Serial Databits\" required=\"\" ng-model=\"config.serial_databits\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"serial_databits\">Serial Databits</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"serial_databits\" placeholder=\"Serial Databits\" required=\"\" ng-model=\"config.serial_databits\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"serial_stopbits\">Serial Stopbits</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"serial_stopbits\" placeholder=\"Serial Stopbits\" required=\"\" ng-model=\"config.serial_stopbits\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"serial_stopbits\">Serial Stopbits</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"serial_stopbits\" placeholder=\"Serial Stopbits\" required=\"\" ng-model=\"config.serial_stopbits\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"serial_parity\">Serial Parity</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"serial_parity\" placeholder=\"Serial Parity\" required=\"\" ng-model=\"config.serial_parity\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"serial_parity\">Serial Parity</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"serial_parity\" placeholder=\"Serial Parity\" required=\"\" ng-model=\"config.serial_parity\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"serial_flowcontrol\">Serial Flowcontrol</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"serial_flowcontrol\" placeholder=\"Serial Flowcontrol\" required=\"\" ng-model=\"config.serial_flowcontrol\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"serial_flowcontrol\">Serial Flowcontrol</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"serial_flowcontrol\" placeholder=\"Serial Flowcontrol\" required=\"\" ng-model=\"config.serial_flowcontrol\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"timeout\">Timeout (ms)</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"timeout\" placeholder=\"Timeout (ms)\" required=\"\" ng-model=\"config.timeout\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"timeout\">Timeout (ms)</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"timeout\" placeholder=\"Timeout (ms)\" required=\"\" ng-model=\"config.timeout\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"queue_timeout\">Queue Timeout (ms)</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"queue_timeout\" placeholder=\"Queue Timeout (ms)\" required=\"\" ng-model=\"config.queue_timeout\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"queue_timeout\">Queue Timeout (ms)</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"queue_timeout\" placeholder=\"Queue Timeout (ms)\" required=\"\" ng-model=\"config.queue_timeout\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"delay\">Delay (ms)</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"delay\" placeholder=\"Delay (ms)\" required=\"\" ng-model=\"config.delay\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"delay\">Delay (ms)</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"delay\" placeholder=\"Delay (ms)\" required=\"\" ng-model=\"config.delay\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"retries\">Retries</label>\n" +
-    "              <input type=\"text\" class=\"form-control\" id=\"retries\" placeholder=\"Retries\" required=\"\" ng-model=\"config.retries\">\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"retries\">Retries</label>\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"retries\" placeholder=\"Retries\" required=\"\" ng-model=\"config.retries\">\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Debug: </label>\n" +
-    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"enabled\">Debug: </label>\n" +
+    "                    <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <label for=\"enabled\">Modem Debug: </label>\n" +
-    "              <toggle value=\"config.modem_debug\" class=\"pull-right\"></toggle>\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <label for=\"enabled\">Modem Debug: </label>\n" +
+    "                    <toggle value=\"config.modem_debug\" class=\"pull-right\"></toggle>\n" +
+    "                  </div>\n" +
     "\n" +
-    "            <div class=\"form-group\">\n" +
-    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
-    "            </div>\n" +
+    "                  <div class=\"form-group\">\n" +
+    "                    <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "                  </div>\n" +
     "\n" +
+    "                </div>\n" +
+    "              </uib-tab>\n" +
+    "              <uib-tab index=\"1\" heading=\"Database\">\n" +
+    "                <div class=\"panel\"><div class=\"panel-body\">\n" +
+    "                  <p>\n" +
+    "                    <button class=\"btn btn-primary btn-sm pull-right\" ng-click=\"load_modem_database()\" ng-disabled=\"db_loading || db_error\" ng-class=\"{'btn-danger': db_error}\">\n" +
+    "                      <i class=\"icon-database\" ng-hide=\"db_loading || db_error\"></i>\n" +
+    "                      <i class=\"icon-erroralt\" ng-show=\"db_error\"></i>\n" +
+    "                      <i class=\"icon-circleselection spin\" ng-show=\"db_loading\"></i>\n" +
+    "                      Load Database\n" +
+    "                    </button>\n" +
+    "                    <button class=\"btn btn-sm btn-primary pull-right\" ng-click=\"start_linking(true)\" ng-hide=\"link_waiting\" ng-disabled=\"link_waiting || link_error\" ng-class=\"{'btn-danger': link_error}\">\n" +
+    "                      <i class=\"icon-uploadalt\" ng-hide=\"link_waiting || link_error\"></i>\n" +
+    "                      <i class=\"icon-circleselection spin\" ng-show=\"link_waiting\"></i>\n" +
+    "                      <i class=\"icon-erroralt\" ng-show=\"link_error\"></i>\n" +
+    "                        Link as Controller\n" +
+    "                    </button>\n" +
+    "                    <button class=\"btn btn-sm btn-primary pull-right\" ng-click=\"start_linking(false)\" ng-hide=\"link_waiting\"  ng-disabled=\"link_waiting || link_error\" ng-class=\"{'btn-danger': link_error}\">\n" +
+    "                      <i class=\"icon-download-alt\" ng-hide=\"link_waiting || link_error\"></i>\n" +
+    "                      <i class=\"icon-circleselection spin\" ng-show=\"link_waiting\"></i>\n" +
+    "                      <i class=\"icon-erroralt\" ng-show=\"link_error\"></i>\n" +
+    "                      Link as Responder</button>\n" +
+    "                    <button class=\"btn btn-sm btn-muted pull-right\" ng-click=\"cancel_linking()\" ng-show=\"link_waiting\" ng-disabled=\"!link_waiting\" ng-class=\"{'btn-warning': link_waiting}\">\n" +
+    "                      <i class=\"icon-circleselection spin\"></i>\n" +
+    "                      Cancel Linking</button>\n" +
+    "                    Count: {{database.length}}\n" +
+    "                  </p>\n" +
+    "                  <p>\n" +
+    "                    <ul class=\"list-group\">\n" +
+    "                      <li class=\"list-group-item\" ng-repeat=\"record in database\">\n" +
+    "                        <i class=\"icon-uploadalt\" ng-show=\"record.controller\"></i>\n" +
+    "                        <i class=\"icon-download-alt\" ng-show=\"!record.controller\"></i>\n" +
+    "                        {{record.name || record.address}}<span ng-show=\"record.name\"> ({{record.address}})</span>\n" +
+    "                        <div><small>\n" +
+    "                            <span ng-show=\"!record.controller\">\n" +
+    "                                When scene {{record.group}}, use on level of {{record.on_level / 255 * 100 | number: 0}}% in {{record.ramp_rate | insteonRate}}<span ng-show=\"record.button > 1\"> and button {{record.button}}</span>\n" +
+    "                            </span>\n" +
+    "                            <span ng-show=\"record.controller\">\n" +
+    "                                Send scene {{record.group}} <span ng-show=\"record.button > 1\">with button {{record.button}}</span>\n" +
+    "                            </span>\n" +
+    "                        </small></div>\n" +
+    "                      </li>\n" +
+    "                    </ul>\n" +
+    "                  </p>\n" +
+    "                </div></div>\n" +
+    "              </uib-tab>\n" +
+    "            </uib-tabset>\n" +
     "          </div>\n" +
     "        </div>\n" +
     "\n" +
