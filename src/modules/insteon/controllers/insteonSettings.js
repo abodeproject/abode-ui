@@ -3,7 +3,6 @@ var insteon = angular.module('insteon');
 
 insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon, abode, status) {
 
-  $scope.database = [];
   $scope.enabling = false;
   $scope.status = status;
   $scope.config = status.config;
@@ -13,6 +12,15 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
     '/dev/ttyUSB2',
     '/dev/ttyUSB3',
   ];
+
+  $scope.db_loading = true;
+
+  insteon.modem_get_database().then(function (results) {
+    $scope.database = results;
+    $scope.db_loading = false;
+  }, function () {
+    $scope.db_loading = false;
+  });
 
   $scope.get_status = function () {
     insteon.status().then(function (status) {

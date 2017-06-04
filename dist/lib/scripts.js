@@ -50247,7 +50247,6 @@ var insteon = angular.module('insteon');
 
 insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon, abode, status) {
 
-  $scope.database = [];
   $scope.enabling = false;
   $scope.status = status;
   $scope.config = status.config;
@@ -50257,6 +50256,15 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
     '/dev/ttyUSB2',
     '/dev/ttyUSB3',
   ];
+
+  $scope.db_loading = true;
+
+  insteon.modem_get_database().then(function (results) {
+    $scope.database = results;
+    $scope.db_loading = false;
+  }, function () {
+    $scope.db_loading = false;
+  });
 
   $scope.get_status = function () {
     insteon.status().then(function (status) {
@@ -50375,6 +50383,7 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
     });
   };
 });
+
 
 
 var insteon = angular.module('insteon');
@@ -50641,10 +50650,22 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
     return defer.promise;
   };
 
-  var load_modem_database = function () {
+  var modem_get_database = function () {
     var defer = $q.defer();
 
     $http.get(abode.url('/api/insteon/database').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
+  var modem_load_database = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/insteon/load_database').value()).then(function (response) {
       defer.resolve(response.data);
     }, function (err) {
       defer.reject(err.data);
@@ -50693,12 +50714,14 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
     update_database_record: update_database_record,
     add_database_record: add_database_record,
     idrequest: idrequest,
-    modem_load_database: load_modem_database,
+    modem_get_database: modem_get_database,
+    modem_load_database: modem_load_database,
     modem_start_all_linking: modem_start_all_linking,
     modem_cancel_all_linking: modem_cancel_all_linking
   };
 
 });
+
 
 angular.module('insteonhub', [])
 .config(function($stateProvider, $urlRouterProvider) {
