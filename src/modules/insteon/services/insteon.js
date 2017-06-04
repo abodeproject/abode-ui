@@ -235,6 +235,9 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
     var url = (group) ? '/api/insteon/start_all_linking/' + group : '/api/insteon/start_all_linking';
 
     $http.post(abode.url(url).value(), {'conroller': controller}).then(function () {
+      abode.scope.$on('INSTEON_LINKED', function (type, message) {
+        defer.resolve(message.object);
+      });
     }, function (err) {
       defer.reject(err.data);
     });
@@ -246,6 +249,18 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
     var defer = $q.defer();
 
     $http.post(abode.url('/api/insteon/cancel_all_linking').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
+  var get_scenes = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/insteon/scenes').value()).then(function (response) {
       defer.resolve(response.data);
     }, function (err) {
       defer.reject(err.data);
@@ -273,7 +288,8 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
     modem_get_database: modem_get_database,
     modem_load_database: modem_load_database,
     modem_start_all_linking: modem_start_all_linking,
-    modem_cancel_all_linking: modem_cancel_all_linking
+    modem_cancel_all_linking: modem_cancel_all_linking,
+    get_scenes: get_scenes
   };
 
 });

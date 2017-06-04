@@ -50257,7 +50257,17 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
     '/dev/ttyUSB3',
   ];
 
+  $scope.linking = {
+    controller: true,
+    group: 1
+  };
+
   $scope.db_loading = true;
+
+  insteon.get_scenes().then(function (results) {
+    $scope.scenes = results;
+  }, function () {
+  });
 
   insteon.modem_get_database().then(function (results) {
     $scope.database = results;
@@ -50319,9 +50329,11 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
     $scope.link_waiting = true;
     $scope.link_error = false;
 
-    insteon.modem_start_all_linking(controller, group).then(function () {
+    insteon.modem_start_all_linking(controller, group).then(function (device) {
       $scope.link_waiting = false;
       $scope.link_error = false;
+
+      $scope.linking.device = device;
     }, function (err) {
       $scope.link_waiting = false;
       $scope.link_error = true;
@@ -50380,6 +50392,47 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
         'message': 'Failed to load database',
         'details': err
       });
+    });
+  };
+
+  $scope.idrequest = function () {
+    $scope.id_success = false;
+    $scope.id_error = false;
+    $scope.id_loading = true;
+
+    insteon.idrequest($scope.linking.device.config.address).then(function (result) {
+      $scope.linking.device.config.device_cat = result.devcat;
+      $scope.linking.device.config.device_subcat = result.subcat;
+      $scope.linking.device.config.firmware = result.firmware;
+
+      $scope.id_error = false;
+      $scope.id_loading = false;
+      $scope.id_success = true;
+
+      $timeout(function () {
+        $scope.id_success = false;
+      }, 5000);
+    }, function () {
+      $scope.id_error = true;
+      $scope.id_loading = false;
+      $scope.id_success = false;
+
+      $timeout(function () {
+        $scope.id_error = false;
+      }, 5000);
+    });
+  };
+
+  $scope.reload_database = function () {
+    $scope.device_db_loading = true;
+    $scope.device_db_error = false;
+    $http.post(abode.url('/api/insteon/devices/' + $scope.linking.device.config.address + '/load_database').value()).then(function (response) {
+      $scope.device_db_loading = false;
+      $scope.device_db_error = false;
+      $scope.linking.device.config.database = response.data;
+    }, function (err) {
+      $scope.device_db_loading = false;
+      $scope.device_db_error = true;
     });
   };
 });
@@ -50679,6 +50732,9 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
     var url = (group) ? '/api/insteon/start_all_linking/' + group : '/api/insteon/start_all_linking';
 
     $http.post(abode.url(url).value(), {'conroller': controller}).then(function () {
+      abode.scope.$on('INSTEON_LINKED', function (type, message) {
+        defer.resolve(message.object);
+      });
     }, function (err) {
       defer.reject(err.data);
     });
@@ -50690,6 +50746,18 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
     var defer = $q.defer();
 
     $http.post(abode.url('/api/insteon/cancel_all_linking').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
+  var get_scenes = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/insteon/scenes').value()).then(function (response) {
       defer.resolve(response.data);
     }, function (err) {
       defer.reject(err.data);
@@ -50717,7 +50785,8 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
     modem_get_database: modem_get_database,
     modem_load_database: modem_load_database,
     modem_start_all_linking: modem_start_all_linking,
-    modem_cancel_all_linking: modem_cancel_all_linking
+    modem_cancel_all_linking: modem_cancel_all_linking,
+    get_scenes: get_scenes
   };
 
 });
@@ -57068,20 +57137,6 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                      <i class=\"icon-circleselection spin\" ng-show=\"db_loading\"></i>\n" +
     "                      Load Database\n" +
     "                    </button>\n" +
-    "                    <button class=\"btn btn-sm btn-primary pull-right\" ng-click=\"start_linking(true)\" ng-hide=\"link_waiting\" ng-disabled=\"link_waiting || link_error\" ng-class=\"{'btn-danger': link_error}\">\n" +
-    "                      <i class=\"icon-uploadalt\" ng-hide=\"link_waiting || link_error\"></i>\n" +
-    "                      <i class=\"icon-circleselection spin\" ng-show=\"link_waiting\"></i>\n" +
-    "                      <i class=\"icon-erroralt\" ng-show=\"link_error\"></i>\n" +
-    "                        Link as Controller\n" +
-    "                    </button>\n" +
-    "                    <button class=\"btn btn-sm btn-primary pull-right\" ng-click=\"start_linking(false)\" ng-hide=\"link_waiting\"  ng-disabled=\"link_waiting || link_error\" ng-class=\"{'btn-danger': link_error}\">\n" +
-    "                      <i class=\"icon-download-alt\" ng-hide=\"link_waiting || link_error\"></i>\n" +
-    "                      <i class=\"icon-circleselection spin\" ng-show=\"link_waiting\"></i>\n" +
-    "                      <i class=\"icon-erroralt\" ng-show=\"link_error\"></i>\n" +
-    "                      Link as Responder</button>\n" +
-    "                    <button class=\"btn btn-sm btn-muted pull-right\" ng-click=\"cancel_linking()\" ng-show=\"link_waiting\" ng-disabled=\"!link_waiting\" ng-class=\"{'btn-warning': link_waiting}\">\n" +
-    "                      <i class=\"icon-circleselection spin\"></i>\n" +
-    "                      Cancel Linking</button>\n" +
     "                    Count: {{database.length}}\n" +
     "                  </p>\n" +
     "                  <p>\n" +
@@ -57101,6 +57156,87 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                      </li>\n" +
     "                    </ul>\n" +
     "                  </p>\n" +
+    "                </div></div>\n" +
+    "              </uib-tab>\n" +
+    "              <uib-tab index=\"2\" heading=\"Linking\">\n" +
+    "                <div class=\"panel\"><div class=\"panel-body\">\n" +
+    "                  <div class=\"well well-lg\">\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                      <label for=\"exampleInputEmail1\">Link Type:</label>\n" +
+    "                      <label><input type=\"radio\" ng-model=\"linking.controller\" ng-value=\"true\" ng-disabled=\"link_waiting\"> Controller</label>\n" +
+    "                      <label><input type=\"radio\" ng-model=\"linking.controller\" ng-value=\"false\" ng-disabled=\"link_waiting\"> Responder</label>\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                      <label for=\"exampleInputEmail1\">Group:</label>\n" +
+    "                      <select class=\"form-control\" ng-model=\"linking.group\" ng-options=\"scene.id as scene.address for scene in scenes\" ng-disabled=\"link_waiting\"></select>\n" +
+    "                    </div>\n" +
+    "\n" +
+    "                      <button class=\"btn btn-sm btn-primary\" ng-click=\"start_linking(linking.controller, linking.group)\" ng-hide=\"link_waiting\" ng-disabled=\"link_waiting || link_error\" ng-class=\"{'btn-danger': link_error}\">\n" +
+    "                        <i class=\"icon-link\" ng-hide=\"link_waiting || link_error\"></i>\n" +
+    "                        <i class=\"icon-circleselection spin\" ng-show=\"link_waiting\"></i>\n" +
+    "                        <i class=\"icon-erroralt\" ng-show=\"link_error\"></i>\n" +
+    "                          Start Linking\n" +
+    "                      </button>\n" +
+    "                      <button class=\"btn btn-sm btn-muted\" ng-click=\"cancel_linking()\" ng-show=\"link_waiting\" ng-disabled=\"!link_waiting\" ng-class=\"{'btn-warning': link_waiting}\">\n" +
+    "                        <i class=\"icon-circleselection spin\"></i>\n" +
+    "                        Cancel</button>\n" +
+    "                   </div>\n" +
+    "                  <div class=\"well\" ng-show=\"linking.device\">\n" +
+    "                    <h3><i class=\"icon-ok-sign text-success\"></i> Device Linked</h3>\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                      <label for=\"address\">Name</label>\n" +
+    "                      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" readonly ng-model=\"linking.device.name\" readonly>\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                      <label for=\"address\">Address</label>\n" +
+    "                      <input type=\"text\" class=\"form-control\" id=\"address\" placeholder=\"Address\" readonly ng-model=\"linking.device.config.address\" readonly>\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                        <div class=\"row\">\n" +
+    "                            <div class=\"col-xs-4\">Device Cat</div>\n" +
+    "                            <div class=\"col-xs-4\">Sub Cat</div>\n" +
+    "                            <div class=\"col-xs-4\">Firmware</div>\n" +
+    "                        </div>\n" +
+    "                        <div class=\"row\">\n" +
+    "                            <div class=\"col-xs-4\">{{linking.device.config.device_cat | toHex}}</div>\n" +
+    "                            <div class=\"col-xs-4\">{{linking.device.config.device_subcat | toHex}}</div>\n" +
+    "                            <div class=\"col-xs-4\">{{linking.device.config.firmware | toHex}}</div>\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\">\n" +
+    "\n" +
+    "                      <button class=\"btn btn-sm btn-primary\" ng-class=\"{'btn-danger': id_error, 'btn-success': id_success}\" ng-disabled=\"id_loading || id_success || id_error\" ng-click=\"idrequest()\">\n" +
+    "                          <i class=\"icon-circleselection spin\" ng-show=\"id_loading\"></i>\n" +
+    "                          <i class=\"icon-circleselect\" ng-show=\"id_success\"></i>\n" +
+    "                          <i class=\"icon-erroralt\" ng-show=\"id_error\"></i>\n" +
+    "\n" +
+    "                          <i class=\"icon-tagalt-pricealt\" ng-hide=\"id_loading || id_success || id_error\"></i> ID Request\n" +
+    "                      </button>\n" +
+    "                      <button class=\"btn btn-sm btn-primary\" ng-class=\"{'btn-danger': device_db_error}\" ng-click=\"reload_database()\" ng-disabled=\"device_db_loading\">\n" +
+    "                        <i class=\"icon-database\" ng-show=\"!device_db_loading && !device_db_error\"></i>\n" +
+    "                        <i class=\"icon-circleselection spin\" ng-show=\"device_db_loading\"></i>\n" +
+    "                        <i class=\"icon-erroralt\" ng-show=\"device_db_error\"></i>\n" +
+    "                        Load Database\n" +
+    "                      </button>\n" +
+    "                    </div>\n" +
+    "                    <ul class=\"list-group bg-muted select-list\" style=\"height: 20em;\">\n" +
+    "                      <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"record in linking.device.config.database | orderBy: 'name'\" ng-show=\"record.used\">\n" +
+    "                        <div>\n" +
+    "                          <i class=\"icon-uploadalt\" ng-show=\"record.controller\"></i>\n" +
+    "                          <i class=\"icon-download-alt\" ng-show=\"!record.controller\"></i>\n" +
+    "                            {{record.name || record.address}}<span ng-show=\"record.name\"> ({{record.address}})</span>\n" +
+    "                        </div>\n" +
+    "                        <div><small>\n" +
+    "                            <span ng-show=\"!record.controller\">\n" +
+    "                                When scene {{record.group}}, use on level of {{record.on_level / 255 * 100 | number: 0}}% in {{record.ramp_rate | insteonRate}}<span ng-show=\"record.button > 1\"> and button {{record.button}}</span>\n" +
+    "                            </span>\n" +
+    "                            <span ng-show=\"record.controller\">\n" +
+    "                                Send scene {{record.group}} <span ng-show=\"record.button > 1\">with button {{record.button}}</span>\n" +
+    "                            </span>\n" +
+    "                        </small></div>\n" +
+    "                      </li>\n" +
+    "                     </ul>\n" +
+    "                  </div>\n" +
     "                </div></div>\n" +
     "              </uib-tab>\n" +
     "            </uib-tabset>\n" +

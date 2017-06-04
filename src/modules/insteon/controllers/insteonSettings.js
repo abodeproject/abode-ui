@@ -13,7 +13,17 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
     '/dev/ttyUSB3',
   ];
 
+  $scope.linking = {
+    controller: true,
+    group: 1
+  };
+
   $scope.db_loading = true;
+
+  insteon.get_scenes().then(function (results) {
+    $scope.scenes = results;
+  }, function () {
+  });
 
   insteon.modem_get_database().then(function (results) {
     $scope.database = results;
@@ -75,9 +85,11 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
     $scope.link_waiting = true;
     $scope.link_error = false;
 
-    insteon.modem_start_all_linking(controller, group).then(function () {
+    insteon.modem_start_all_linking(controller, group).then(function (device) {
       $scope.link_waiting = false;
       $scope.link_error = false;
+
+      $scope.linking.device = device;
     }, function (err) {
       $scope.link_waiting = false;
       $scope.link_error = true;
@@ -136,6 +148,47 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
         'message': 'Failed to load database',
         'details': err
       });
+    });
+  };
+
+  $scope.idrequest = function () {
+    $scope.id_success = false;
+    $scope.id_error = false;
+    $scope.id_loading = true;
+
+    insteon.idrequest($scope.linking.device.config.address).then(function (result) {
+      $scope.linking.device.config.device_cat = result.devcat;
+      $scope.linking.device.config.device_subcat = result.subcat;
+      $scope.linking.device.config.firmware = result.firmware;
+
+      $scope.id_error = false;
+      $scope.id_loading = false;
+      $scope.id_success = true;
+
+      $timeout(function () {
+        $scope.id_success = false;
+      }, 5000);
+    }, function () {
+      $scope.id_error = true;
+      $scope.id_loading = false;
+      $scope.id_success = false;
+
+      $timeout(function () {
+        $scope.id_error = false;
+      }, 5000);
+    });
+  };
+
+  $scope.reload_database = function () {
+    $scope.device_db_loading = true;
+    $scope.device_db_error = false;
+    $http.post(abode.url('/api/insteon/devices/' + $scope.linking.device.config.address + '/load_database').value()).then(function (response) {
+      $scope.device_db_loading = false;
+      $scope.device_db_error = false;
+      $scope.linking.device.config.database = response.data;
+    }, function (err) {
+      $scope.device_db_loading = false;
+      $scope.device_db_error = true;
     });
   };
 });
