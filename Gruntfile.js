@@ -2,6 +2,8 @@
 'use strict';
 
 module.exports = function(grunt) {
+  var server_port = process.env.ABODE_WEB_PORT || 8080;
+
   var scriptFiles = [
     'src/vendor/angular/angular.js',
     'src/vendor/angular-resource/angular-resource.js',
@@ -85,7 +87,12 @@ module.exports = function(grunt) {
     connect: {
       server: {
         options: {
-          base: 'src',
+          base: {
+            path: 'src',
+            options: {
+              index: 'index.debug.html'
+            }
+          },
           port: 8000,
           useAvailablePort: true,
           open: true,
@@ -106,7 +113,7 @@ module.exports = function(grunt) {
             middlewares.unshift(function (req, res, next) {
 
               if (req.url.indexOf('/api') === 0 && server_alive) {
-                proxy.web(req, res, { target: 'http://localhost:8080' });
+                proxy.web(req, res, { target: 'http://localhost:' + server_port });
                 return;
               }
 
@@ -120,7 +127,7 @@ module.exports = function(grunt) {
           {
             context: '/api',
             host: 'localhost',
-            port: 8080,
+            port: server_port,
             https: false,
             xforward: true
           }
