@@ -44755,6 +44755,7 @@ var abode = angular.module('abode', [
   'ngResource',
   'ui.router',
   'ui.bootstrap',
+  'uiGmapgoogle-maps',
   'rzModule',
   'abode.welcome',
   'abode.home',
@@ -44780,9 +44781,13 @@ var abode = angular.module('abode', [
   'autoshades',
 ]);
 
-abode.config(['$stateProvider', '$urlRouterProvider', 'abodeProvider', function($state, $urlRouter, abode) {
+abode.config(['$stateProvider', '$urlRouterProvider', 'abodeProvider', 'uiGmapGoogleMapApiProvider', function($state, $urlRouter, abode, uiGmapGoogleMapApiProvider) {
 
   abode.load();
+
+  uiGmapGoogleMapApiProvider.configure({
+    key: 'AIzaSyBiso0Yt_wOnMecNuyFCiucXsZ0LAManuM',
+  });
 
   if (abode.config && abode.config.auth && abode.config.auth.device && abode.config.auth.device.config && abode.config.auth.device.config.interface) {
     $urlRouter.otherwise('/Home/' + abode.config.auth.device.config.interface);
@@ -55019,6 +55024,38 @@ settings.controller('settings', function ($scope, $state, abode, settings, confi
     document.location.reload();
   };
 
+  var markers = ($scope.config.location) ? [{ 'id': 1, 'coords': { 'latitude': $scope.config.location.lat, 'longitude': $scope.config.location.long } }] : [];
+
+  $scope.map = {
+    center: {
+      latitude: ($scope.config.location) ? $scope.config.location.lat : 32.71277761819153,
+      longitude: ($scope.config.location) ? $scope.config.location.long : -117.16048836708069
+    },
+    zoom: ($scope.config.location) ? 17 : 8,
+    markers: markers,
+    events: {
+      click: function (map, eventName, originalEventArgs) {
+        var e = originalEventArgs[0];
+        var lat = e.latLng.lat(),lon = e.latLng.lng();
+        $scope.map.markers =[
+          {
+            id: 1,
+            coords: {
+                latitude: lat,
+                longitude: lon
+            }
+          }
+        ];
+
+        $scope.config.location = $scope.config.location || {};
+        $scope.config.location.lat = lat;
+        $scope.config.location.long = lon;
+
+        $scope.$apply();
+      }
+    }
+  };
+
   $scope.sensors = [
     {'name': 'Temperature/Humidity', 'route': 'main.settings.general'},
     {'name': 'Light', 'route': 'main.settings.home'},
@@ -59460,17 +59497,9 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "              <div class=\"form-group\">\n" +
     "                <label for=\"name\">Location</label>\n" +
-    "                <div class=\"input-group\">\n" +
-    "                  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Latitude\" required=\"\" ng-model=\"config.location.lat\">\n" +
-    "                  <span class=\"input-group-addon\">Lat </span>\n" +
-    "                </div>\n" +
-    "              </div>\n" +
-    "\n" +
-    "              <div class=\"form-group\">\n" +
-    "                <div class=\"input-group\">\n" +
-    "                  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Longitude\" required=\"\" ng-model=\"config.location.long\">\n" +
-    "                  <span class=\"input-group-addon\">Long</span>\n" +
-    "                </div>\n" +
+    "                <ui-gmap-google-map center=\"map.center\" zoom=\"map.zoom\" draggable=\"true\" events=\"map.events\">\n" +
+    "                  <ui-gmap-marker ng-repeat=\"marker in map.markers\" coords=\"marker.coords\" idKey=\"marker.id\"></ui-gmap-marker>\n" +
+    "                </ui-gmap-google-map>\n" +
     "              </div>\n" +
     "\n" +
     "              <div class=\"form-group\">\n" +

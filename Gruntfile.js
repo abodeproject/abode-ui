@@ -10,6 +10,9 @@ module.exports = function(grunt) {
     'src/vendor/angular-ui-router/release/angular-ui-router.js',
     'src/vendor/angular-bootstrap/ui-bootstrap-tpls.js',
     'src/vendor/angularjs-slider/dist/rzslider.min.js',
+    'src/vendor/lodash/dist/lodash.js',
+    'src/vendor/angular-simple-logger/dist/angular-simple-logger.js',
+    'src/vendor/angular-google-maps/dist/angular-google-maps.js',
     'src/modules/**/*.js',
     'src/scripts/**/*.js'
   ];

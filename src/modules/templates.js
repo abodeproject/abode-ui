@@ -3869,17 +3869,9 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "              <div class=\"form-group\">\n" +
     "                <label for=\"name\">Location</label>\n" +
-    "                <div class=\"input-group\">\n" +
-    "                  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Latitude\" required=\"\" ng-model=\"config.location.lat\">\n" +
-    "                  <span class=\"input-group-addon\">Lat </span>\n" +
-    "                </div>\n" +
-    "              </div>\n" +
-    "\n" +
-    "              <div class=\"form-group\">\n" +
-    "                <div class=\"input-group\">\n" +
-    "                  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Longitude\" required=\"\" ng-model=\"config.location.long\">\n" +
-    "                  <span class=\"input-group-addon\">Long</span>\n" +
-    "                </div>\n" +
+    "                <ui-gmap-google-map center=\"map.center\" zoom=\"map.zoom\" draggable=\"true\" events=\"map.events\">\n" +
+    "                  <ui-gmap-marker ng-repeat=\"marker in map.markers\" coords=\"marker.coords\" idKey=\"marker.id\"></ui-gmap-marker>\n" +
+    "                </ui-gmap-google-map>\n" +
     "              </div>\n" +
     "\n" +
     "              <div class=\"form-group\">\n" +

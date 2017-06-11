@@ -11,6 +11,38 @@ settings.controller('settings', function ($scope, $state, abode, settings, confi
     document.location.reload();
   };
 
+  var markers = ($scope.config.location) ? [{ 'id': 1, 'coords': { 'latitude': $scope.config.location.lat, 'longitude': $scope.config.location.long } }] : [];
+
+  $scope.map = {
+    center: {
+      latitude: ($scope.config.location) ? $scope.config.location.lat : 32.71277761819153,
+      longitude: ($scope.config.location) ? $scope.config.location.long : -117.16048836708069
+    },
+    zoom: ($scope.config.location) ? 17 : 8,
+    markers: markers,
+    events: {
+      click: function (map, eventName, originalEventArgs) {
+        var e = originalEventArgs[0];
+        var lat = e.latLng.lat(),lon = e.latLng.lng();
+        $scope.map.markers =[
+          {
+            id: 1,
+            coords: {
+                latitude: lat,
+                longitude: lon
+            }
+          }
+        ];
+
+        $scope.config.location = $scope.config.location || {};
+        $scope.config.location.lat = lat;
+        $scope.config.location.long = lon;
+
+        $scope.$apply();
+      }
+    }
+  };
+
   $scope.sensors = [
     {'name': 'Temperature/Humidity', 'route': 'main.settings.general'},
     {'name': 'Light', 'route': 'main.settings.home'},

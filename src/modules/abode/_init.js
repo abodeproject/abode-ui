@@ -3,6 +3,7 @@ var abode = angular.module('abode', [
   'ngResource',
   'ui.router',
   'ui.bootstrap',
+  'uiGmapgoogle-maps',
   'rzModule',
   'abode.welcome',
   'abode.home',
@@ -28,9 +29,13 @@ var abode = angular.module('abode', [
   'autoshades',
 ]);
 
-abode.config(['$stateProvider', '$urlRouterProvider', 'abodeProvider', function($state, $urlRouter, abode) {
+abode.config(['$stateProvider', '$urlRouterProvider', 'abodeProvider', 'uiGmapGoogleMapApiProvider', function($state, $urlRouter, abode, uiGmapGoogleMapApiProvider) {
 
   abode.load();
+
+  uiGmapGoogleMapApiProvider.configure({
+    key: 'AIzaSyBiso0Yt_wOnMecNuyFCiucXsZ0LAManuM',
+  });
 
   if (abode.config && abode.config.auth && abode.config.auth.device && abode.config.auth.device.config && abode.config.auth.device.config.interface) {
     $urlRouter.otherwise('/Home/' + abode.config.auth.device.config.interface);

@@ -19,17 +19,9 @@
 
               <div class="form-group">
                 <label for="name">Location</label>
-                <div class="input-group">
-                  <input type="text" class="form-control" id="name" placeholder="Latitude" required="" ng-model="config.location.lat">
-                  <span class="input-group-addon">Lat </span>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <div class="input-group">
-                  <input type="text" class="form-control" id="name" placeholder="Longitude" required="" ng-model="config.location.long">
-                  <span class="input-group-addon">Long</span>
-                </div>
+                <ui-gmap-google-map center="map.center" zoom="map.zoom" draggable="true" events="map.events">
+                  <ui-gmap-marker ng-repeat="marker in map.markers" coords="marker.coords" idKey="marker.id"></ui-gmap-marker>
+                </ui-gmap-google-map>
               </div>
 
               <div class="form-group">

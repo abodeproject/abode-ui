@@ -25,14 +25,14 @@ body {
 
 .status-bar {
   font-size: 1.5em;
-  text-align: right; 
-  background-color: rgba(0,0,0,.5); 
-  position: absolute; 
-  top: 0em; 
-  right: 0em; 
-  left: 0em; 
-  height: 2em; 
-  line-height: 2em; 
+  text-align: right;
+  background-color: rgba(0,0,0,.5);
+  position: absolute;
+  top: 0em;
+  right: 0em;
+  left: 0em;
+  height: 2em;
+  line-height: 2em;
   padding: 0em 1em;
 }
 
@@ -1053,22 +1053,22 @@ body {
 
 .pin-entry-key {
   text-align: center;
-  height: 3em; 
-  width: 3em; 
+  height: 3em;
+  width: 3em;
   border-radius: 1.5em;
-  background-color: #333; 
+  background-color: #333;
   color: #eee;
-  border: 1px solid #aaa; background-color: #333; 
+  border: 1px solid #aaa; background-color: #333;
   margin: .5em;
 }
 
 .pin-entry-key-disabled {
   color: #666;
-  background-color: #444; 
+  background-color: #444;
 }
 
 .pin-entry-key-submit {
-  background-color: #4ab9db; 
+  background-color: #4ab9db;
 }
 
 .pin-entry-key-danger {
@@ -1077,9 +1077,9 @@ body {
 
 .tag-list {
   position: relative;
-  border: 1px solid #222; 
-  border-radius: .2em; 
-  padding: 0em; 
+  border: 1px solid #222;
+  border-radius: .2em;
+  padding: 0em;
   overflow: hidden;
   width: 100%;
 }
@@ -1133,3 +1133,5 @@ body {
   height: .5em;
   background-color: black;
 }
+
+.angular-google-map-container { height: 400px; }
