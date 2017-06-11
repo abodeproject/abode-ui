@@ -10,12 +10,15 @@ zwave.config(function($stateProvider, $urlRouterProvider) {
     resolve: {
       config: function (zwave) {
         return zwave.get_config();
+      },
+      status: function (zwave) {
+        return zwave.status();
       }
     }
   });
 });
 
-zwave.service('zwave', function ($q, settings) {
+zwave.service('zwave', function ($http, $q, abode, settings) {
 
   var get_config = function () {
 
@@ -29,16 +32,91 @@ zwave.service('zwave', function ($q, settings) {
 
   };
 
+  var status = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/zwave').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/zwave/enable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/zwave/disable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
-    save: save_config
+    save: save_config,
+    status: status,
+    enable: enable,
+    disable: disable
   };
 
 });
 
-zwave.controller('zwaveSettings', function ($scope, zwave, abode, config) {
+zwave.controller('zwaveSettings', function ($scope, zwave, abode, config, status) {
   $scope.config = config;
-  $scope.status = 'idle';
+  $scope.status = status;
+
+  $scope.get_status = function () {
+    zwave.status().then(function (status) {
+      $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
+    });
+  };
+
+  $scope.toggle = function () {
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+      $scope.error = '';
+
+      $scope.get_status();
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+      $scope.error = err.data.message;
+      $scope.get_status();
+
+      abode.message({
+        'type': 'failed',
+        'message': err.data.message,
+        'details': err
+      });
+    };
+
+    if ($scope.status.enabled) {
+      zwave.disable().then(success, failure);
+    } else {
+      zwave.enable().then(success, failure);
+    }
+  };
 
   $scope.save = function () {
 

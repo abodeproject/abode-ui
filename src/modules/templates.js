@@ -658,7 +658,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <div class=\"panel-body\">\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -793,7 +797,43 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('modules/camera/views/settings.html',
-    ""
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Camera\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"debug\">Debug Logging: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n"
   );
 
 
@@ -2000,7 +2040,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -2090,7 +2134,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <div class=\"panel-body\">\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -2210,7 +2258,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <div class=\"panel-body\">\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -2762,7 +2814,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
     "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
-    "    <h2>Settings / Providers / Rad\n" +
+    "    <h2>Settings / Rad\n" +
     "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
     "  </div>\n" +
     "</div>\n" +
@@ -2774,7 +2826,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -2823,7 +2879,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
     "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
-    "    <h2>Settings / Providers / Radiothermostat\n" +
+    "    <h2>Settings / Radiothermostat\n" +
     "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
     "  </div>\n" +
     "</div>\n" +
@@ -2832,7 +2888,28 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "        <div class=\"panel panel-default\">\n" +
     "          <div class=\"panel-body\">\n" +
-    "            hi\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Process Interval (min)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Process Interval\" required=\"\" ng-model=\"config.interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"debug\">Debug Logging: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
     "          </div>\n" +
     "        </div>\n" +
     "\n" +
@@ -4349,7 +4426,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                <i class=\"icon-erroralt text-danger\"></i> Error Loading Providers\n" +
     "              </h3>\n" +
     "              <ul class=\"list-group\" ng-hide=\"loading\">\n" +
-    "                <li class=\"list-group-item\" ng-class=\"{'text-muted': !provider.installed}\" style=\"cursor: pointer;\" ng-click=\"providerSettings(provider)\" ng-repeat=\"provider in providers | orderBy: ['-installed','enabled','name']\">\n" +
+    "                <li class=\"list-group-item\" ng-class=\"{'text-muted': !provider.installed}\" style=\"cursor: pointer;\" ng-click=\"providerSettings(provider)\" ng-repeat=\"provider in providers | orderBy: ['-installed','-enabled','name']\">\n" +
     "                  <i class=\"icon-check text-success\" ng-show=\"provider.enabled\"></i>\n" +
     "                  <i class=\"icon-checkboxalt\" ng-show=\"!provider.enabled\"></i>\n" +
     "                  {{provider.name}}\n" +
@@ -5739,7 +5816,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
     "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
-    "    <h2>Settings / Providers / Video\n" +
+    "    <h2>Settings / Video\n" +
     "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
     "  </div>\n" +
     "</div>\n" +
@@ -5751,7 +5828,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -6271,7 +6352,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <div class=\"panel-body\">\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -6400,7 +6485,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <div class=\"panel-body\">\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -6421,6 +6510,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "            <div class=\"form-group\">\n" +
     "              <label for=\"interval\">Poll Interval (sec)</label>\n" +
     "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Poll Interval\" required=\"\" ng-model=\"config.poll_interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"security_key\">Network Key</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"interval\" placeholder=\"Key\" required=\"\" ng-model=\"config.security_key\" ng-minlength=\"16\" ng-maxlength=\"16\" maxlength=\"16\" >\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +

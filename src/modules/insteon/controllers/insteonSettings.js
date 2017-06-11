@@ -35,6 +35,7 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
   $scope.get_status = function () {
     insteon.status().then(function (status) {
       $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
     });
   };
 

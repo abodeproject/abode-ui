@@ -47018,12 +47018,15 @@ autoshades.config(function($stateProvider, $urlRouterProvider) {
     resolve: {
       config: function (autoshades) {
         return autoshades.get_config();
+      },
+      status: function (autoshades) {
+        return autoshades.status();
       }
     }
   });
 });
 
-autoshades.service('autoshades', function ($q, settings, $uibModal, devices) {
+autoshades.service('autoshades', function ($http, $q, abode, settings, $uibModal, devices) {
 
   var get_config = function () {
 
@@ -47067,22 +47070,96 @@ autoshades.service('autoshades', function ($q, settings, $uibModal, devices) {
     });
   };
 
+  var status = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/autoshades').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/autoshades/enable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/autoshades/disable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
     save: save_config,
-    addDevice: add_device
+    addDevice: add_device,
+    status: status,
+    enable: enable,
+    disable: disable
   };
 
 });
 
-autoshades.controller('autoshadesSettings', function ($scope, autoshades, abode, config) {
+autoshades.controller('autoshadesSettings', function ($scope, autoshades, abode, config, status) {
   $scope.config = config;
-  $scope.status = 'idle';
+  $scope.status = status;
+
+  $scope.get_status = function () {
+    autoshades.status().then(function (status) {
+      $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
+    });
+  };
+
+  $scope.toggle = function () {
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+      $scope.error = '';
+
+      $scope.get_status();
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+      $scope.error = err.data.message;
+      $scope.get_status();
+
+      abode.message({
+        'type': 'failed',
+        'message': err.data.message,
+        'details': err
+      });
+    };
+
+    if ($scope.status.enabled) {
+      autoshades.disable().then(success, failure);
+    } else {
+      autoshades.enable().then(success, failure);
+    }
+  };
 
   $scope.save = function () {
 
-    zwave.save($scope.config).then(function () {
-      $scope.status = 'saved';
+    autoshades.save($scope.config).then(function () {
 
       abode.message({
         'type': 'success',
@@ -47172,11 +47249,14 @@ angular.module('camera', [])
     resolve: {
       config: function (camera) {
         return camera.get_config();
+      },
+      status: function (camera) {
+        return camera.status();
       }
     }
   });
 })
-.service('camera', function ($q, settings) {
+.service('camera', function ($http, $q, abode, settings) {
 
   var get_config = function () {
 
@@ -47190,30 +47270,104 @@ angular.module('camera', [])
 
   };
 
+  var status = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/cameras').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/cameras/enable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/cameras/disable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
-    save: save_config
+    save: save_config,
+    status: status,
+    enable: enable,
+    disable: disable
   };
 
 })
-.controller('cameraSettings', function ($scope, camera, notifier, config) {
+.controller('cameraSettings', function ($scope, camera, abode, config, status) {
   $scope.config = config;
-  $scope.status = 'idle';
+  $scope.status = status;
+
+  $scope.get_status = function () {
+    camera.status().then(function (status) {
+      $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
+    });
+  };
+
+  $scope.toggle = function () {
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+      $scope.error = '';
+
+      $scope.get_status();
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+      $scope.error = err.data.message;
+      $scope.get_status();
+
+      abode.message({
+        'type': 'failed',
+        'message': err.data.message,
+        'details': err
+      });
+    };
+
+    if ($scope.status.enabled) {
+      camera.disable().then(success, failure);
+    } else {
+      camera.enable().then(success, failure);
+    }
+  };
 
   $scope.save = function () {
 
     camera.save($scope.config).then(function () {
-      $scope.status = 'saved';
 
-      notifier.notify({
-        'status': 'success',
-        'message': 'Wunderground Settings Saved'
+      abode.message({
+        'type': 'success',
+        'message': 'Camera Settings Saved'
       });
 
     }, function (err) {
-      notifier.notify({
-        'status': 'failed',
-        'message': 'Wunderground Settings Failed to Saved',
+      abode.message({
+        'type': 'failed',
+        'message': 'Camera Settings Failed to Saved',
         'details': err
       });
     });
@@ -50285,6 +50439,7 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
   $scope.get_status = function () {
     insteon.status().then(function (status) {
       $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
     });
   };
 
@@ -50809,11 +50964,14 @@ angular.module('insteonhub', [])
     resolve: {
       config: function (insteonhub) {
         return insteonhub.get_config();
+      },
+      status: function (insteonhub) {
+        return insteonhub.status();
       }
     }
   });
 })
-.service('insteonhub', function (settings) {
+.service('insteonhub', function ($http, $q, abode, settings) {
 
   var get_config = function () {
 
@@ -50827,14 +50985,54 @@ angular.module('insteonhub', [])
 
   };
 
+  var status = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/insteonhub').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/insteonhub/enable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/insteonhub/disable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
-    save: save_config
+    save: save_config,
+    status: status,
+    enable: enable,
+    disable: disable
   };
 
 })
-.controller('insteonHubSettings', function ($scope, insteonhub, abode, config) {
+.controller('insteonHubSettings', function ($scope, insteonhub, abode, config, status) {
 
+  $scope.status = status;
   $scope.config = config;
   $scope.devices = [
     '/dev/ttyUSB0',
@@ -50843,20 +51041,49 @@ angular.module('insteonhub', [])
     '/dev/ttyUSB3',
   ];
 
+  $scope.get_status = function () {
+    insteonhub.status().then(function (status) {
+      $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
+    });
+  };
+
+  $scope.toggle = function () {
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+      $scope.error = '';
+
+      $scope.get_status();
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+      $scope.error = err.data.message;
+      $scope.get_status();
+    };
+
+    if ($scope.status.enabled) {
+      insteonhub.disable().then(success, failure);
+    } else {
+      insteonhub.enable().then(success, failure);
+    }
+  };
+
   $scope.save = function () {
 
     insteonhub.save($scope.config).then(function () {
-      $scope.status = 'saved';
 
       abode.message({
         'type': 'success',
-        'message': 'Insteon Settings Saved'
+        'message': 'Insteon Hub Settings Saved'
       });
 
     }, function (err) {
       abode.message({
         'type': 'failed',
-        'message': 'Insteon Settings Failed to Saved',
+        'message': 'Insteon Hub Settings Failed to Saved',
         'details': err
       });
     });
@@ -50958,12 +51185,15 @@ lutroncaseta.config(function($stateProvider, $urlRouterProvider) {
     resolve: {
       config: function (lutroncaseta) {
         return lutroncaseta.get_config();
+      },
+      status: function (lutroncaseta) {
+        return lutroncaseta.status();
       }
     }
   });
 });
 
-lutroncaseta.service('lutroncaseta', function ($q, settings) {
+lutroncaseta.service('lutroncaseta', function ($http, $q, abode, settings) {
 
   var get_config = function () {
 
@@ -50977,21 +51207,95 @@ lutroncaseta.service('lutroncaseta', function ($q, settings) {
 
   };
 
+  var status = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/lutroncaseta').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/lutroncaseta/enable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/lutroncaseta/disable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
-    save: save_config
+    save: save_config,
+    status: status,
+    enable: enable,
+    disable: disable
   };
 
 });
 
-lutroncaseta.controller('lutroncasetaSettings', function ($scope, lutroncaseta, abode, config) {
+lutroncaseta.controller('lutroncasetaSettings', function ($scope, lutroncaseta, abode, config, status) {
   $scope.config = config;
-  $scope.status = 'idle';
+  $scope.status = status;
+
+  $scope.get_status = function () {
+    lutroncaseta.status().then(function (status) {
+      $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
+    });
+  };
+
+  $scope.toggle = function () {
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+      $scope.error = '';
+
+      $scope.get_status();
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+      $scope.error = err.data.message;
+      $scope.get_status();
+
+      abode.message({
+        'type': 'failed',
+        'message': err.data.message,
+        'details': err
+      });
+    };
+
+    if ($scope.status.enabled) {
+      lutroncaseta.disable().then(success, failure);
+    } else {
+      lutroncaseta.enable().then(success, failure);
+    }
+  };
 
   $scope.save = function () {
 
     lutroncaseta.save($scope.config).then(function () {
-      $scope.status = 'saved';
 
       abode.message({
         'type': 'success',
@@ -51031,12 +51335,15 @@ mqtt.config(function($stateProvider, $urlRouterProvider) {
     resolve: {
       config: function (mqtt) {
         return mqtt.get_config();
+      },
+      status: function (mqtt) {
+        return mqtt.status();
       }
     }
   });
 });
 
-mqtt.service('mqtt', function ($q, settings) {
+mqtt.service('mqtt', function ($http, $q, abode, settings) {
 
   var get_config = function () {
 
@@ -51050,21 +51357,95 @@ mqtt.service('mqtt', function ($q, settings) {
 
   };
 
+  var status = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/mqtt').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/mqtt/enable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/mqtt/disable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
-    save: save_config
+    save: save_config,
+    status: status,
+    enable: enable,
+    disable: disable
   };
 
 });
 
-mqtt.controller('mqttSettings', function ($scope, mqtt, abode, config) {
+mqtt.controller('mqttSettings', function ($scope, mqtt, abode, config, status) {
   $scope.config = config;
-  $scope.status = 'idle';
+  $scope.status = status;
+
+  $scope.get_status = function () {
+    mqtt.status().then(function (status) {
+      $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
+    });
+  };
+
+  $scope.toggle = function () {
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+      $scope.error = '';
+
+      $scope.get_status();
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+      $scope.error = err.data.message;
+      $scope.get_status();
+
+      abode.message({
+        'type': 'failed',
+        'message': err.data.message,
+        'details': err
+      });
+    };
+
+    if ($scope.status.enabled) {
+      mqtt.disable().then(success, failure);
+    } else {
+      mqtt.enable().then(success, failure);
+    }
+  };
 
   $scope.save = function () {
 
     mqtt.save($scope.config).then(function () {
-      $scope.status = 'saved';
 
       abode.message({
         'type': 'success',
@@ -51774,12 +52155,15 @@ rad.config(function($stateProvider, $urlRouterProvider) {
     resolve: {
       config: function (rad) {
         return rad.get_config();
+      },
+      status: function (rad) {
+        return rad.status();
       }
     }
   });
 });
 
-rad.service('rad', function (settings) {
+rad.service('rad', function ($http, $q, abode, settings) {
 
   var get_config = function () {
 
@@ -51793,16 +52177,86 @@ rad.service('rad', function (settings) {
 
   };
 
+  var status = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/rad').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/rad/enable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/rad/disable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
-    save: save_config
+    save: save_config,
+    status: status,
+    enable: enable,
+    disable: disable
   };
 
 });
 
-rad.controller('radSettings', function ($scope, rad, notifier, config) {
+rad.controller('radSettings', function ($scope, abode, rad, config, status) {
 
+  $scope.status = status;
   $scope.config = config;
+
+  $scope.get_status = function () {
+    rad.status().then(function (status) {
+      $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
+    });
+  };
+
+  $scope.toggle = function () {
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+      $scope.error = '';
+
+      $scope.get_status();
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+      $scope.error = err.data.message;
+      $scope.get_status();
+    };
+
+    if ($scope.status.enabled) {
+      rad.disable().then(success, failure);
+    } else {
+      rad.enable().then(success, failure);
+    }
+  };
 
   $scope.save = function () {
 
@@ -51883,11 +52337,14 @@ angular.module('radiothermostat', [])
     resolve: {
       config: function (radiothermostat) {
         return radiothermostat.get_config();
+      },
+      status: function (radiothermostat) {
+        return radiothermostat.status();
       }
     }
   });
 })
-.service('radiothermostat', function (settings) {
+.service('radiothermostat', function ($http, $q, abode, settings) {
 
   var get_config = function () {
 
@@ -51901,29 +52358,105 @@ angular.module('radiothermostat', [])
 
   };
 
+  var status = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/radiothermostat').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/radiothermostat/enable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/radiothermostat/disable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
-    save: save_config
+    save: save_config,
+    status: status,
+    enable: enable,
+    disable: disable
   };
 
 })
-.controller('radiothermostatSettings', function ($scope, radiothermostat, notifier, config) {
+.controller('radiothermostatSettings', function ($scope, radiothermostat, abode, config, status) {
 
   $scope.config = config;
+  $scope.status = status;
+
+  $scope.get_status = function () {
+    radiothermostat.status().then(function (status) {
+      $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
+    });
+  };
+
+  $scope.toggle = function () {
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+      $scope.error = '';
+
+      $scope.get_status();
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+      $scope.error = err.data.message;
+      $scope.get_status();
+
+      abode.message({
+        'type': 'failed',
+        'message': err.data.message,
+        'details': err
+      });
+    };
+
+    if ($scope.status.enabled) {
+      radiothermostat.disable().then(success, failure);
+    } else {
+      radiothermostat.enable().then(success, failure);
+    }
+  };
 
   $scope.save = function () {
 
     radiothermostat.save($scope.config).then(function () {
       $scope.status = 'saved';
 
-      notifier.notify({
-        'status': 'success',
+      abode.message({
+        'type': 'success',
         'message': 'Radiothermostat Settings Saved'
       });
 
     }, function (err) {
-      notifier.notify({
-        'status': 'failed',
+      abode.message({
+        'type': 'failed',
         'message': 'Radiothermostat Settings Failed to Saved',
         'details': err
       });
@@ -55514,7 +56047,7 @@ settings.service('settings', function ($q, $http, $templateCache, $timeout, abod
       $http.get(abode.url('/api/abode/status').value(), {timeout: 1000}).then(function () {
         defer.resolve();
       }, function () {
-        $timeout(check, 1000);
+        $timeout(check, 1000 * count);
       });
     };
 
@@ -56286,7 +56819,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <div class=\"panel-body\">\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -56421,7 +56958,43 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('modules/camera/views/settings.html',
-    ""
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Camera\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"debug\">Debug Logging: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n"
   );
 
 
@@ -57628,7 +58201,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -57718,7 +58295,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <div class=\"panel-body\">\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -57838,7 +58419,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <div class=\"panel-body\">\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -58390,7 +58975,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
     "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
-    "    <h2>Settings / Providers / Rad\n" +
+    "    <h2>Settings / Rad\n" +
     "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
     "  </div>\n" +
     "</div>\n" +
@@ -58402,7 +58987,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -58451,7 +59040,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
     "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
-    "    <h2>Settings / Providers / Radiothermostat\n" +
+    "    <h2>Settings / Radiothermostat\n" +
     "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
     "  </div>\n" +
     "</div>\n" +
@@ -58460,7 +59049,28 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "        <div class=\"panel panel-default\">\n" +
     "          <div class=\"panel-body\">\n" +
-    "            hi\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"enabled\">Enabled: </label>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"interval\">Process Interval (min)</label>\n" +
+    "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Process Interval\" required=\"\" ng-model=\"config.interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"debug\">Debug Logging: </label>\n" +
+    "              <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "            </div>\n" +
     "          </div>\n" +
     "        </div>\n" +
     "\n" +
@@ -59977,7 +60587,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                <i class=\"icon-erroralt text-danger\"></i> Error Loading Providers\n" +
     "              </h3>\n" +
     "              <ul class=\"list-group\" ng-hide=\"loading\">\n" +
-    "                <li class=\"list-group-item\" ng-class=\"{'text-muted': !provider.installed}\" style=\"cursor: pointer;\" ng-click=\"providerSettings(provider)\" ng-repeat=\"provider in providers | orderBy: ['-installed','enabled','name']\">\n" +
+    "                <li class=\"list-group-item\" ng-class=\"{'text-muted': !provider.installed}\" style=\"cursor: pointer;\" ng-click=\"providerSettings(provider)\" ng-repeat=\"provider in providers | orderBy: ['-installed','-enabled','name']\">\n" +
     "                  <i class=\"icon-check text-success\" ng-show=\"provider.enabled\"></i>\n" +
     "                  <i class=\"icon-checkboxalt\" ng-show=\"!provider.enabled\"></i>\n" +
     "                  {{provider.name}}\n" +
@@ -61367,7 +61977,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "<div class=\"row\">\n" +
     "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
-    "    <h2>Settings / Providers / Video\n" +
+    "    <h2>Settings / Video\n" +
     "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
     "  </div>\n" +
     "</div>\n" +
@@ -61379,7 +61989,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -61899,7 +62513,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <div class=\"panel-body\">\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -62028,7 +62646,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <div class=\"panel-body\">\n" +
     "            <div class=\"form-group\">\n" +
     "              <label for=\"enabled\">Enabled: </label>\n" +
-    "              <toggle value=\"config.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "              </button>\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -62049,6 +62671,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "            <div class=\"form-group\">\n" +
     "              <label for=\"interval\">Poll Interval (sec)</label>\n" +
     "              <input type=\"number\" class=\"form-control\" id=\"interval\" placeholder=\"Poll Interval\" required=\"\" ng-model=\"config.poll_interval\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "              <label for=\"security_key\">Network Key</label>\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"interval\" placeholder=\"Key\" required=\"\" ng-model=\"config.security_key\" ng-minlength=\"16\" ng-maxlength=\"16\" maxlength=\"16\" >\n" +
     "            </div>\n" +
     "\n" +
     "            <div class=\"form-group\">\n" +
@@ -63256,11 +63883,14 @@ angular.module('video', [])
     resolve: {
       config: function (video) {
         return video.get_config();
+      },
+      status: function (video) {
+        return video.status();
       }
     }
   });
 })
-.service('video', function (settings) {
+.service('video', function ($http, $q, abode, settings) {
 
   var get_config = function () {
 
@@ -63274,30 +63904,106 @@ angular.module('video', [])
 
   };
 
+  var status = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/video').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/video/enable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/video/disable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
-    save: save_config
+    save: save_config,
+    status: status,
+    enable: enable,
+    disable: disable
   };
 
 })
-.controller('videoSettings', function ($scope, video, notifier, config) {
+.controller('videoSettings', function ($scope, video, abode, config, status) {
 
   $scope.config = config;
+  $scope.status = status;
+
+  $scope.get_status = function () {
+    video.status().then(function (status) {
+      $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
+    });
+  };
+
+  $scope.toggle = function () {
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+      $scope.error = '';
+
+      $scope.get_status();
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+      $scope.error = err.data.message;
+      $scope.get_status();
+
+      abode.message({
+        'type': 'failed',
+        'message': err.data.message,
+        'details': err
+      });
+    };
+
+    if ($scope.status.enabled) {
+      video.disable().then(success, failure);
+    } else {
+      video.enable().then(success, failure);
+    }
+  };
 
   $scope.save = function () {
 
     video.save($scope.config).then(function () {
       $scope.status = 'saved';
 
-      notifier.notify({
-        'status': 'success',
-        'message': 'Radiothermostat Settings Saved'
+      abode.message({
+        'type': 'success',
+        'message': 'Video Settings Saved'
       });
 
     }, function (err) {
-      notifier.notify({
-        'status': 'failed',
-        'message': 'Radiothermostat Settings Failed to Saved',
+      abode.message({
+        'type': 'failed',
+        'message': 'Video Settings Failed to Saved',
         'details': err
       });
     });
@@ -64456,11 +65162,14 @@ angular.module('wunderground', [])
     resolve: {
       config: function (wunderground) {
         return wunderground.get_config();
+      },
+      status: function (wunderground) {
+        return wunderground.status();
       }
     }
   });
 })
-.service('wunderground', function ($q, settings) {
+.service('wunderground', function ($http, $q, abode, settings) {
 
   var get_config = function () {
 
@@ -64474,20 +65183,94 @@ angular.module('wunderground', [])
 
   };
 
+  var status = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/wunderground').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/wunderground/enable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/wunderground/disable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
-    save: save_config
+    save: save_config,
+    status: status,
+    enable: enable,
+    disable: disable
   };
 
 })
-.controller('wundergroundSettings', function ($scope, wunderground, abode, config) {
+.controller('wundergroundSettings', function ($scope, wunderground, abode, config, status) {
   $scope.config = config;
-  $scope.status = 'idle';
+  $scope.status = status;
+
+  $scope.get_status = function () {
+    wunderground.status().then(function (status) {
+      $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
+    });
+  };
+
+  $scope.toggle = function () {
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+      $scope.error = '';
+
+      $scope.get_status();
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+      $scope.error = err.data.message;
+      $scope.get_status();
+
+      abode.message({
+        'type': 'failed',
+        'message': err.data.message,
+        'details': err
+      });
+    };
+
+    if ($scope.status.enabled) {
+      wunderground.disable().then(success, failure);
+    } else {
+      wunderground.enable().then(success, failure);
+    }
+  };
 
   $scope.save = function () {
 
     wunderground.save($scope.config).then(function () {
-      $scope.status = 'saved';
 
       abode.message({
         'type': 'success',
@@ -64526,12 +65309,15 @@ zwave.config(function($stateProvider, $urlRouterProvider) {
     resolve: {
       config: function (zwave) {
         return zwave.get_config();
+      },
+      status: function (zwave) {
+        return zwave.status();
       }
     }
   });
 });
 
-zwave.service('zwave', function ($q, settings) {
+zwave.service('zwave', function ($http, $q, abode, settings) {
 
   var get_config = function () {
 
@@ -64545,16 +65331,91 @@ zwave.service('zwave', function ($q, settings) {
 
   };
 
+  var status = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/zwave').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/zwave/enable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/zwave/disable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
-    save: save_config
+    save: save_config,
+    status: status,
+    enable: enable,
+    disable: disable
   };
 
 });
 
-zwave.controller('zwaveSettings', function ($scope, zwave, abode, config) {
+zwave.controller('zwaveSettings', function ($scope, zwave, abode, config, status) {
   $scope.config = config;
-  $scope.status = 'idle';
+  $scope.status = status;
+
+  $scope.get_status = function () {
+    zwave.status().then(function (status) {
+      $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
+    });
+  };
+
+  $scope.toggle = function () {
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+      $scope.error = '';
+
+      $scope.get_status();
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+      $scope.error = err.data.message;
+      $scope.get_status();
+
+      abode.message({
+        'type': 'failed',
+        'message': err.data.message,
+        'details': err
+      });
+    };
+
+    if ($scope.status.enabled) {
+      zwave.disable().then(success, failure);
+    } else {
+      zwave.enable().then(success, failure);
+    }
+  };
 
   $scope.save = function () {
 

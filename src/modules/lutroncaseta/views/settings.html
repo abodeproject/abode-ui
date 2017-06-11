@@ -13,7 +13,11 @@
           <div class="panel-body">
             <div class="form-group">
               <label for="enabled">Enabled: </label>
-              <toggle value="config.enabled" class="pull-right"></toggle>
+              <button class="btn btn-sm pull-right" ng-class="{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}" ng-disabled="enabling" ng-click="toggle()">
+                <span ng-show="enabling"><i class="icon-circleselection spin"></i> Enabling</span>
+                <span ng-show="!status.enabled && !enabling">Enable</span>
+                <span ng-show="status.enabled && !enabling">Disable</span>
+              </button>
             </div>
 
             <div class="form-group">

@@ -10,12 +10,15 @@ lutroncaseta.config(function($stateProvider, $urlRouterProvider) {
     resolve: {
       config: function (lutroncaseta) {
         return lutroncaseta.get_config();
+      },
+      status: function (lutroncaseta) {
+        return lutroncaseta.status();
       }
     }
   });
 });
 
-lutroncaseta.service('lutroncaseta', function ($q, settings) {
+lutroncaseta.service('lutroncaseta', function ($http, $q, abode, settings) {
 
   var get_config = function () {
 
@@ -29,21 +32,95 @@ lutroncaseta.service('lutroncaseta', function ($q, settings) {
 
   };
 
+  var status = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/lutroncaseta').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/lutroncaseta/enable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/lutroncaseta/disable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
-    save: save_config
+    save: save_config,
+    status: status,
+    enable: enable,
+    disable: disable
   };
 
 });
 
-lutroncaseta.controller('lutroncasetaSettings', function ($scope, lutroncaseta, abode, config) {
+lutroncaseta.controller('lutroncasetaSettings', function ($scope, lutroncaseta, abode, config, status) {
   $scope.config = config;
-  $scope.status = 'idle';
+  $scope.status = status;
+
+  $scope.get_status = function () {
+    lutroncaseta.status().then(function (status) {
+      $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
+    });
+  };
+
+  $scope.toggle = function () {
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+      $scope.error = '';
+
+      $scope.get_status();
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+      $scope.error = err.data.message;
+      $scope.get_status();
+
+      abode.message({
+        'type': 'failed',
+        'message': err.data.message,
+        'details': err
+      });
+    };
+
+    if ($scope.status.enabled) {
+      lutroncaseta.disable().then(success, failure);
+    } else {
+      lutroncaseta.enable().then(success, failure);
+    }
+  };
 
   $scope.save = function () {
 
     lutroncaseta.save($scope.config).then(function () {
-      $scope.status = 'saved';
 
       abode.message({
         'type': 'success',

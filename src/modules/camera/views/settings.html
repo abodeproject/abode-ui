@@ -1,0 +1,37 @@
+
+<div class="container-fluid bg-muted" style="padding-bottom: 2em;">
+<div class="row">
+  <div class="col-sm-8 col-sm-offset-2 col-xs-offset-1">
+    <h2>Settings / Camera
+           <div class="pull-right pointer"  ui-sref="^.providers"><i class="glyphicon glyphicon-arrow-left"></i></div></h2>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-8 col-sm-offset-2">
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="form-group">
+              <label for="enabled">Enabled: </label>
+              <button class="btn btn-sm pull-right" ng-class="{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}" ng-disabled="enabling" ng-click="toggle()">
+                <span ng-show="enabling"><i class="icon-circleselection spin"></i> Enabling</span>
+                <span ng-show="!status.enabled && !enabling">Enable</span>
+                <span ng-show="status.enabled && !enabling">Disable</span>
+              </button>
+            </div>
+
+            <div class="form-group">
+              <label for="debug">Debug Logging: </label>
+              <toggle value="config.debug" class="pull-right"></toggle>
+            </div>
+
+            <div class="form-group">
+              <button type="submit" class="pull-right btn btn-sm btn-primary" ng-click="save()"><i class="icon-savetodrive"></i> Save</button>
+            </div>
+
+          </div>
+        </div>
+
+  </div>
+</div>
+</div>

@@ -161,7 +161,7 @@ settings.service('settings', function ($q, $http, $templateCache, $timeout, abod
       $http.get(abode.url('/api/abode/status').value(), {timeout: 1000}).then(function () {
         defer.resolve();
       }, function () {
-        $timeout(check, 1000);
+        $timeout(check, 1000 * count);
       });
     };
 

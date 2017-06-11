@@ -10,12 +10,15 @@ autoshades.config(function($stateProvider, $urlRouterProvider) {
     resolve: {
       config: function (autoshades) {
         return autoshades.get_config();
+      },
+      status: function (autoshades) {
+        return autoshades.status();
       }
     }
   });
 });
 
-autoshades.service('autoshades', function ($q, settings, $uibModal, devices) {
+autoshades.service('autoshades', function ($http, $q, abode, settings, $uibModal, devices) {
 
   var get_config = function () {
 
@@ -59,22 +62,96 @@ autoshades.service('autoshades', function ($q, settings, $uibModal, devices) {
     });
   };
 
+  var status = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/autoshades').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/autoshades/enable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/autoshades/disable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
     save: save_config,
-    addDevice: add_device
+    addDevice: add_device,
+    status: status,
+    enable: enable,
+    disable: disable
   };
 
 });
 
-autoshades.controller('autoshadesSettings', function ($scope, autoshades, abode, config) {
+autoshades.controller('autoshadesSettings', function ($scope, autoshades, abode, config, status) {
   $scope.config = config;
-  $scope.status = 'idle';
+  $scope.status = status;
+
+  $scope.get_status = function () {
+    autoshades.status().then(function (status) {
+      $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
+    });
+  };
+
+  $scope.toggle = function () {
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+      $scope.error = '';
+
+      $scope.get_status();
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+      $scope.error = err.data.message;
+      $scope.get_status();
+
+      abode.message({
+        'type': 'failed',
+        'message': err.data.message,
+        'details': err
+      });
+    };
+
+    if ($scope.status.enabled) {
+      autoshades.disable().then(success, failure);
+    } else {
+      autoshades.enable().then(success, failure);
+    }
+  };
 
   $scope.save = function () {
 
-    zwave.save($scope.config).then(function () {
-      $scope.status = 'saved';
+    autoshades.save($scope.config).then(function () {
 
       abode.message({
         'type': 'success',

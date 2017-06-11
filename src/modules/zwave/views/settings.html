@@ -13,7 +13,11 @@
           <div class="panel-body">
             <div class="form-group">
               <label for="enabled">Enabled: </label>
-              <toggle value="config.enabled" class="pull-right"></toggle>
+              <button class="btn btn-sm pull-right" ng-class="{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}" ng-disabled="enabling" ng-click="toggle()">
+                <span ng-show="enabling"><i class="icon-circleselection spin"></i> Enabling</span>
+                <span ng-show="!status.enabled && !enabling">Enable</span>
+                <span ng-show="status.enabled && !enabling">Disable</span>
+              </button>
             </div>
 
             <div class="form-group">
@@ -34,6 +38,11 @@
             <div class="form-group">
               <label for="interval">Poll Interval (sec)</label>
               <input type="number" class="form-control" id="interval" placeholder="Poll Interval" required="" ng-model="config.poll_interval">
+            </div>
+
+            <div class="form-group">
+              <label for="security_key">Network Key</label>
+              <input type="text" class="form-control" id="interval" placeholder="Key" required="" ng-model="config.security_key" ng-minlength="16" ng-maxlength="16" maxlength="16" >
             </div>
 
             <div class="form-group">

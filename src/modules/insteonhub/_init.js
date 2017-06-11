@@ -9,11 +9,14 @@ angular.module('insteonhub', [])
     resolve: {
       config: function (insteonhub) {
         return insteonhub.get_config();
+      },
+      status: function (insteonhub) {
+        return insteonhub.status();
       }
     }
   });
 })
-.service('insteonhub', function (settings) {
+.service('insteonhub', function ($http, $q, abode, settings) {
 
   var get_config = function () {
 
@@ -27,14 +30,54 @@ angular.module('insteonhub', [])
 
   };
 
+  var status = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/insteonhub').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/insteonhub/enable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/insteonhub/disable').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
-    save: save_config
+    save: save_config,
+    status: status,
+    enable: enable,
+    disable: disable
   };
 
 })
-.controller('insteonHubSettings', function ($scope, insteonhub, abode, config) {
+.controller('insteonHubSettings', function ($scope, insteonhub, abode, config, status) {
 
+  $scope.status = status;
   $scope.config = config;
   $scope.devices = [
     '/dev/ttyUSB0',
@@ -43,20 +86,49 @@ angular.module('insteonhub', [])
     '/dev/ttyUSB3',
   ];
 
+  $scope.get_status = function () {
+    insteonhub.status().then(function (status) {
+      $scope.status = status;
+      $scope.config.enabled = $scope.status.enabled;
+    });
+  };
+
+  $scope.toggle = function () {
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+      $scope.error = '';
+
+      $scope.get_status();
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+      $scope.error = err.data.message;
+      $scope.get_status();
+    };
+
+    if ($scope.status.enabled) {
+      insteonhub.disable().then(success, failure);
+    } else {
+      insteonhub.enable().then(success, failure);
+    }
+  };
+
   $scope.save = function () {
 
     insteonhub.save($scope.config).then(function () {
-      $scope.status = 'saved';
 
       abode.message({
         'type': 'success',
-        'message': 'Insteon Settings Saved'
+        'message': 'Insteon Hub Settings Saved'
       });
 
     }, function (err) {
       abode.message({
         'type': 'failed',
-        'message': 'Insteon Settings Failed to Saved',
+        'message': 'Insteon Hub Settings Failed to Saved',
         'details': err
       });
     });
