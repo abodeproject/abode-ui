@@ -59977,7 +59977,9 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                <i class=\"icon-erroralt text-danger\"></i> Error Loading Providers\n" +
     "              </h3>\n" +
     "              <ul class=\"list-group\" ng-hide=\"loading\">\n" +
-    "                <li class=\"list-group-item\" ng-class=\"{'text-muted': !provider.installed}\" style=\"cursor: pointer;\" ng-click=\"providerSettings(provider)\" ng-repeat=\"provider in providers | orderBy: ['-installed', '-enabled', '+name']\">\n" +
+    "                <li class=\"list-group-item\" ng-class=\"{'text-muted': !provider.installed}\" style=\"cursor: pointer;\" ng-click=\"providerSettings(provider)\" ng-repeat=\"provider in providers | orderBy: ['-installed','enabled','name']\">\n" +
+    "                  <i class=\"icon-check text-success\" ng-show=\"provider.enabled\"></i>\n" +
+    "                  <i class=\"icon-checkboxalt\" ng-show=\"!provider.enabled\"></i>\n" +
     "                  {{provider.name}}\n" +
     "                  <button class=\"btn btn-xs btn-danger pull-right\" ng-show=\"provider.installed\" ng-click=\"remove_provider(provider)\" stop-event><i class=\"icon-trash\"></i> Remove</button>\n" +
     "                  <button class=\"btn btn-xs btn-default pull-right\" ng-show=\"!provider.installed\" ng-click=\"install_provider(provider)\" stop-event><i class=\"icon-software\"></i> Install</button>\n" +

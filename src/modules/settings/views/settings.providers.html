@@ -20,7 +20,9 @@
                 <i class="icon-erroralt text-danger"></i> Error Loading Providers
               </h3>
               <ul class="list-group" ng-hide="loading">
-                <li class="list-group-item" ng-class="{'text-muted': !provider.installed}" style="cursor: pointer;" ng-click="providerSettings(provider)" ng-repeat="provider in providers | orderBy: ['-installed', '-enabled', '+name']">
+                <li class="list-group-item" ng-class="{'text-muted': !provider.installed}" style="cursor: pointer;" ng-click="providerSettings(provider)" ng-repeat="provider in providers | orderBy: ['-installed','enabled','name']">
+                  <i class="icon-check text-success" ng-show="provider.enabled"></i>
+                  <i class="icon-checkboxalt" ng-show="!provider.enabled"></i>
                   {{provider.name}}
                   <button class="btn btn-xs btn-danger pull-right" ng-show="provider.installed" ng-click="remove_provider(provider)" stop-event><i class="icon-trash"></i> Remove</button>
                   <button class="btn btn-xs btn-default pull-right" ng-show="!provider.installed" ng-click="install_provider(provider)" stop-event><i class="icon-software"></i> Install</button>
