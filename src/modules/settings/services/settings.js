@@ -1,7 +1,7 @@
 
 var settings = angular.module('abode.settings');
 
-settings.service('settings', function ($q, $http, $templateCache, abode) {
+settings.service('settings', function ($q, $http, $templateCache, $timeout, abode) {
 
   var get_sources = function () {
     var defer = $q.defer();
@@ -83,7 +83,7 @@ settings.service('settings', function ($q, $http, $templateCache, abode) {
 
     var url = (provider) ? '/api/abode/config/' + provider : '/api/abode/config';
 
-    $http.put(url, config).then(function (response) {
+    $http.put(abode.url(url).value(), config).then(function (response) {
       write_config().then(function (response) {
         defer.resolve(response);
       }, function (err) {
@@ -99,7 +99,7 @@ settings.service('settings', function ($q, $http, $templateCache, abode) {
   var write_config = function () {
     var defer = $q.defer();
 
-    $http.post('/api/abode/save').then(function (response) {
+    $http.post(abode.url('/api/abode/save').value()).then(function (response) {
       defer.resolve(response.data);
     }, function (err) {
       defer.reject(err);
@@ -133,6 +133,123 @@ settings.service('settings', function ($q, $http, $templateCache, abode) {
     return defer.promise;
   };
 
+  var check_db = function (config) {
+    var defer = $q.defer();
+
+    $http.post('/api/abode/check_db', config).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var reload = function (config) {
+    var count = 0,
+        defer = $q.defer();
+
+    $http.post(abode.url('/api/abode/reload').value(), config, {timeout: 1000});
+
+    var check = function () {
+      count += 1;
+
+      if (count > 5) {
+        return defer.reject();
+      }
+
+      $http.get(abode.url('/api/abode/status').value(), {timeout: 1000}).then(function () {
+        defer.resolve();
+      }, function () {
+        $timeout(check, 1000);
+      });
+    };
+
+    $timeout(check, 5000);
+
+    return defer.promise;
+  };
+
+  var get_providers = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/abode/providers').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var install_provider = function (provider) {
+    var defer = $q.defer();
+
+    var fail = function (msg, err) {
+      defer.reject({'message': msg, 'details': err});
+    };
+
+    var save = function (config) {
+      if (config.providers.indexOf(provider) >= 0) {
+        return fail('Provider already installed');
+      }
+
+      config.providers.push(provider);
+
+      save_config(undefined, config).then(function () {
+        reload().then(function () {
+          defer.resolve();
+        }, function (err) {
+          fail('Failed to reload Abode', err);
+        })
+      }, function (err) {
+        fail('Failed to save config', err);
+      });
+    };
+
+    get_config().then(function (config) {
+      save(config);
+    }, function (err) {
+      fail('Failed to get config', err);
+    });
+
+    return defer.promise;
+  };
+
+  var remove_provider = function (provider) {
+    var defer = $q.defer();
+
+    var fail = function (msg, err) {
+      defer.reject({'message': msg, 'details': err});
+    };
+
+    var save = function (config) {
+      if (config.providers.indexOf(provider) === -1) {
+        return fail('Provider not installed');
+      }
+
+      config.providers.splice(config.providers.indexOf(provider), 1);
+
+      save_config(undefined, config).then(function () {
+        reload().then(function () {
+          defer.resolve();
+        }, function (err) {
+          fail('Failed to reload Abode', err);
+        })
+      }, function (err) {
+        fail('Failed to save config', err);
+      });
+    };
+
+    get_config().then(function (config) {
+      save(config);
+    }, function (err) {
+      fail('Failed to get config', err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
     save_config: save_config,
@@ -144,6 +261,11 @@ settings.service('settings', function ($q, $http, $templateCache, abode) {
     save_source: save_source,
     add_source: add_source,
     remove_source: remove_source,
+    check_db: check_db,
+    reload: reload,
+    get_providers: get_providers,
+    install_provider: install_provider,
+    remove_provider: remove_provider
   };
 
 });

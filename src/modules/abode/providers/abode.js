@@ -121,7 +121,8 @@ abode.provider('abode', ['$httpProvider', function ($httpProvider) {
 
     try {
       this.config = JSON.parse(localStorage.getItem('abode'));
-      this.config = this.config || {};
+      this.config = this.config || {'server': ''};
+      this.config.server = this.config.server || '';
 
       if (this.config.auth && this.config.auth.token) {
         $httpProvider.defaults.headers.common.client_token = this.config.auth.token.client_token;

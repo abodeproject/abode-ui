@@ -26,6 +26,11 @@ welcome.config(['$stateProvider', '$urlRouterProvider', function($state, $urlRou
       templateUrl: "modules/welcome/views/configure.html",
       controller: 'welcomeConfigureController',
     })
+    .state('welcome_providers', {
+      url: '/Welcome/Providers',
+      templateUrl: "modules/welcome/views/providers.html",
+      controller: 'welcomeProvidersController',
+    })
     .state('welcome_login', {
       url: '/Welcome/Login',
       templateUrl: "modules/welcome/views/login.html",

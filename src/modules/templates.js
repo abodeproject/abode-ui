@@ -4350,10 +4350,17 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <div class=\"panel-body\">\n" +
     "            <uib-alert ng-repeat=\"alert in alerts\" type=\"{{alert.type}}\" close=\"closeAlert($index)\">{{alert.msg}}</uib-alert>\n" +
     "            <form name=\"settings\">\n" +
-    "\n" +
+    "              <h3 ng-show=\"loading\">\n" +
+    "                <i class=\"icon-circleselection spin\"></i> Loading Providers\n" +
+    "              </h3>\n" +
+    "              <h3 ng-show=\"error\">\n" +
+    "                <i class=\"icon-erroralt text-danger\"></i> Error Loading Providers\n" +
+    "              </h3>\n" +
     "              <ul class=\"list-group\" ng-hide=\"loading\">\n" +
-    "                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-click=\"providerSettings(provider.route)\" ng-repeat=\"provider in providers | orderBy: '+name'\">\n" +
-    "                  {{provider.name}} <span class=\"badge\"><i class=\"glyphicon glyphicon-ok text-success\"></i></span>\n" +
+    "                <li class=\"list-group-item\" ng-class=\"{'text-muted': !provider.installed}\" style=\"cursor: pointer;\" ng-click=\"providerSettings(provider)\" ng-repeat=\"provider in providers | orderBy: ['-installed', '-enabled', '+name']\">\n" +
+    "                  {{provider.name}}\n" +
+    "                  <button class=\"btn btn-xs btn-danger pull-right\" ng-show=\"provider.installed\" ng-click=\"remove_provider(provider)\" stop-event><i class=\"icon-trash\"></i> Remove</button>\n" +
+    "                  <button class=\"btn btn-xs btn-default pull-right\" ng-show=\"!provider.installed\" ng-click=\"install_provider(provider)\" stop-event><i class=\"icon-software\"></i> Install</button>\n" +
     "                </li>\n" +
     "              </ul>\n" +
     "\n" +
@@ -4368,6 +4375,46 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "</div>\n" +
     "\n"
+  );
+
+
+  $templateCache.put('modules/settings/views/settings.providers.install.html',
+    "<div class=\"modal-body\">\n" +
+    "    <h3>Are you sure you want to install this provider?</h3>\n" +
+    "    <h4>{{provider.name}}</h4>\n" +
+    "    <div class=\"well\" ng-show=\"error\">\n" +
+    "        <i class=\"icon-erroralt text-danger\"></i> {{error.message}}\n" +
+    "    </div>\n" +
+    "</div>\n" +
+    "\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-sm btn-warning pull-left\" ng-click=\"cancel()\" ng-disabled=\"loading\">Cancel</button>\n" +
+    "    <button class=\"btn btn-sm btn-success\" ng-click=\"install()\" ng-disabled=\"loading\">\n" +
+    "        <i class=\"icon-circleselection spin\" ng-show=\"loading\"></i>\n" +
+    "        <i class=\"icon-trash\" ng-hide=\"loading\"></i>\n" +
+    "        Yes\n" +
+    "    </button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/settings/views/settings.providers.remove.html',
+    "<div class=\"modal-body\">\n" +
+    "    <h3>Are you sure you want to remove this provider?</h3>\n" +
+    "    <h4>{{provider.name}}</h4>\n" +
+    "    <div class=\"well\" ng-show=\"error\">\n" +
+    "        <i class=\"icon-erroralt text-danger\"></i> {{error.message}}\n" +
+    "    </div>\n" +
+    "</div>\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-sm btn-warning pull-left\" ng-click=\"cancel()\" ng-disabled=\"loading\">Cancel</button>\n" +
+    "    <button class=\"btn btn-sm btn-danger\" ng-click=\"remove()\" ng-disabled=\"loading\">\n" +
+    "        <i class=\"icon-circleselection spin\" ng-show=\"loading\"></i>\n" +
+    "        <i class=\"icon-software\" ng-hide=\"loading\"></i>\n" +
+    "        Yes\n" +
+    "    </button>\n" +
+    "\n" +
+    "</div>\n"
   );
 
 
@@ -5850,12 +5897,35 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "      <div class=\"col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-0\">\n" +
     "        <p class=\"text-center\"><strong>Configure your new Abode Server</strong></p>\n" +
-    "        <form name=\"configureFrm\">\n" +
+    "\n" +
+    "        <h3 ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Loading Configuration</h3>\n" +
+    "        <form name=\"configureFrm\" ng-hide=\"loading\">\n" +
     "          <div class=\"form-group\">\n" +
     "            <label for=\"name\">Name</label>\n" +
-    "            <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" ng-model=\"config.name\" required>\n" +
+    "            <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" ng-model=\"config.name\" required ng-disabled=\"saving\">\n" +
     "          </div>\n" +
-    "          <button class=\"btn btn-success\" ng-disabled=\"configureFrm.$invalid || loading\" ng-click=\"do_login()\"><span class=\"icon-settingsandroid\"></span> Setup</button>\n" +
+    "          <div class=\"form-group\">\n" +
+    "            <label for=\"url\">URL</label>\n" +
+    "            <input type=\"text\" class=\"form-control\" id=\"url\" placeholder=\"URL\" ng-model=\"config.url\" required ng-disabled=\"saving\">\n" +
+    "          </div>\n" +
+    "          <div class=\"form-group\">\n" +
+    "            <label for=\"url\">Database Server</label>\n" +
+    "            <input type=\"text\" class=\"form-control\" id=\"url\" placeholder=\"DB Server\" ng-model=\"config.database.server\" required ng-disabled=\"saving\">\n" +
+    "          </div>\n" +
+    "          <div class=\"form-group\">\n" +
+    "            <label for=\"url\">Database Name</label>\n" +
+    "            <input type=\"text\" class=\"form-control\" id=\"url\" placeholder=\"DB Name\" ng-model=\"config.database.database\" required ng-disabled=\"saving\">\n" +
+    "          </div>\n" +
+    "          <div class=\"form-group\">\n" +
+    "            <label for=\"upnp\"><input type=\"checkbox\"  id=\"upnp\" name=\"upnp\" ng-model=\"config.disable_upnp\" ng-disabled=\"saving\"> Disable UPNP</label>\n" +
+    "\n" +
+    "          </div>\n" +
+    "\n" +
+    "          <button class=\"btn btn-success\" ng-disabled=\"configureFrm.$invalid || saving || error\" ng-click=\"setup()\" ng-class=\"{'btn-danger': error}\">\n" +
+    "              <span class=\"icon-settingsandroid\" ng-hide=\"saving\"></span>\n" +
+    "              <i class=\"icon-circleselection spin\" ng-show=\"saving\"></i>\n" +
+    "              Setup\n" +
+    "          </button>\n" +
     "        </form>\n" +
     "\n" +
     "      </div>\n" +
@@ -5867,7 +5937,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "</content>\n" +
     "<div class=\"status-bar\">\n" +
     "  <device-status device=\"device\"></device-status>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -5882,7 +5952,6 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "      <div class=\"col-xs-6 col-xs-offset-3 col-sm-4 col-sm-offset-4 col-md-4 col-md-offset-0\">\n" +
     "        <img src=\"images/home.png\"  class=\"img-responsive img-rounded\">\n" +
     "      </div>\n" +
-    "\n" +
     "      <div class=\"col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-0\">\n" +
     "        <div class=\"input-group\">\n" +
     "          <input type=\"text\" class=\"form-control\" id=\"server\" ng-model=\"config.server\" disabled>\n" +
@@ -6094,6 +6163,43 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "	<button class=\"btn btn-small btn-warning\" style=\"width: 100%\" ng-click=\"restart()\" ng-disabled=\"working\">Restart</button>\n" +
     "	<button class=\"btn btn-small btn-danger\" style=\"width: 100%\" ng-click=\"shutdown()\" ng-disabled=\"working\">Power Off</button>\n" +
     "</div>"
+  );
+
+
+  $templateCache.put('modules/welcome/views/providers.html',
+    "<content top=\"0\" bottom=\"0\" left=\"0\" right=\"0\" overflow=\"auto\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1\">\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div class=\"row well\">\n" +
+    "      <div class=\"col-xs-6 col-xs-offset-3 col-sm-4 col-sm-offset-4 col-md-4 col-md-offset-0\">\n" +
+    "        <img src=\"images/home.png\"  class=\"img-responsive img-rounded\">\n" +
+    "      </div>\n" +
+    "\n" +
+    "      <div class=\"col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-0\">\n" +
+    "        <p class=\"text-center\"><strong>Setup Providers</strong></p>\n" +
+    "\n" +
+    "        <h3 ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Loading Providers</h3>\n" +
+    "        <form name=\"configureFrm\" ng-hide=\"loading\">\n" +
+    "\n" +
+    "          <button class=\"btn btn-success\" ng-disabled=\"configureFrm.$invalid || saving || error\" ng-click=\"finish()\" ng-class=\"{'btn-danger': error}\">\n" +
+    "              <span class=\"icon-ok-circle\"></span>\n" +
+    "              Finish\n" +
+    "          </button>\n" +
+    "        </form>\n" +
+    "\n" +
+    "      </div>\n" +
+    "\n" +
+    "    </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</content>\n" +
+    "<div class=\"status-bar\">\n" +
+    "  <device-status device=\"device\"></device-status>\n" +
+    "</div>\n"
   );
 
 

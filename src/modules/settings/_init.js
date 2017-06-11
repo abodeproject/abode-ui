@@ -201,6 +201,7 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.providers', {
     url: '/providers',
+    controller: 'providersCtl',
     templateUrl: 'modules/settings/views/settings.providers.html',
   })
   .state('main.settings.display', {

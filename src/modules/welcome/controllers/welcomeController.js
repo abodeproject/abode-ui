@@ -88,6 +88,7 @@ welcome.controller('welcomeController', ['$scope', '$timeout', '$interval', '$ht
 
   $scope.connect = function (source) {
     if (source.mode === 'device') {
+      abode.save({});
       $state.go('welcome_configure');
       return;
     }

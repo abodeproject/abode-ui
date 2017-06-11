@@ -46474,7 +46474,8 @@ abode.provider('abode', ['$httpProvider', function ($httpProvider) {
 
     try {
       this.config = JSON.parse(localStorage.getItem('abode'));
-      this.config = this.config || {};
+      this.config = this.config || {'server': ''};
+      this.config.server = this.config.server || '';
 
       if (this.config.auth && this.config.auth.token) {
         $httpProvider.defaults.headers.common.client_token = this.config.auth.token.client_token;
@@ -54565,6 +54566,7 @@ settings.config(function($stateProvider, $urlRouterProvider) {
   })
   .state('main.settings.providers', {
     url: '/providers',
+    controller: 'providersCtl',
     templateUrl: 'modules/settings/views/settings.providers.html',
   })
   .state('main.settings.display', {
@@ -54745,6 +54747,35 @@ settings.controller('editSourceSettings', function ($scope, $state, abode, setti
 
 var settings = angular.module('abode.settings');
 
+settings.controller('installProvidersController', ['$scope', '$uibModalInstance', 'settings', 'provider', function ($scope, $uibModalInstance, settings, provider) {
+  'use strict';
+
+  $scope.loading = false;
+  $scope.error = false;
+  $scope.provider = provider;
+
+  $scope.cancel = function () {
+    $uibModalInstance.dismiss();
+  };
+
+  $scope.install = function () {
+    $scope.loading = true;
+    $scope.error = false;
+
+    settings.install_provider(provider.id).then(function () {
+      $scope.loading = false;
+      $uibModalInstance.close();
+    }, function (err) {
+      $scope.loading = false;
+      $scope.error = err;
+    });
+  };
+}]);
+
+
+
+var settings = angular.module('abode.settings');
+
 settings.controller('interfacesAdd', ['$scope', '$state', 'abode', 'Interfaces', function ($scope, $state, abode, Interfaces) {
   $scope.iface = new Interfaces();
 
@@ -54873,6 +54904,105 @@ settings.controller('pinsList', ['$scope', 'Pins', function ($scope, Pins) {
     $scope.pins = results;
   });
 
+}]);
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.controller('providersCtl', function ($scope, $state, $uibModal, abode, settings) {
+
+  $scope.loading = false;
+  $scope.error = false;
+  $scope.providers = [];
+
+  var get_providers = function () {
+    $scope.loading = true;
+    $scope.error = false;
+
+    settings.get_providers().then(function (providers) {
+      $scope.loading = false;
+      $scope.providers = providers;
+    }, function () {
+      $scope.loading = false;
+      $scope.error = true;
+    });
+  };
+
+  $scope.providerSettings = function (provider) {
+    if (provider.installed) {
+      $state.go('main.settings.' + provider.id);
+    }
+  };
+
+  $scope.remove_provider = function (provider) {
+    var modal = $uibModal.open({
+      keyboard: false,
+      backdrop: 'static',
+      'controller': 'removeProvidersController',
+      'resolve': {
+        'provider': function () {
+          return provider;
+        }
+      },
+      'templateUrl': 'modules/settings/views/settings.providers.remove.html'
+    });
+
+    modal.result.then(function () {
+      get_providers();
+    });
+  };
+
+  $scope.install_provider = function (provider) {
+    var modal = $uibModal.open({
+      keyboard: false,
+      backdrop: 'static',
+      'controller': 'installProvidersController',
+      'resolve': {
+        'provider': function () {
+          return provider;
+        }
+      },
+      'templateUrl': 'modules/settings/views/settings.providers.install.html'
+    });
+
+    modal.result.then(function () {
+      get_providers();
+    });
+  };
+
+
+  get_providers();
+});
+
+
+
+var settings = angular.module('abode.settings');
+
+settings.controller('removeProvidersController', ['$scope', '$uibModalInstance', 'settings', 'provider', function ($scope, $uibModalInstance, settings, provider) {
+  'use strict';
+
+  $scope.loading = false;
+  $scope.error = false;
+  $scope.provider = provider;
+
+  $scope.cancel = function () {
+    $uibModalInstance.dismiss();
+  };
+
+  $scope.remove = function () {
+    $scope.loading = true;
+    $scope.error = false;
+
+    settings.remove_provider(provider.id).then(function () {
+      $scope.loading = false;
+      $uibModalInstance.close();
+    }, function (err) {
+      $scope.loading = false;
+      $scope.error = err;
+    });
+
+  };
 }]);
 
 
@@ -55187,7 +55317,7 @@ settings.service('Users', ['$q', '$http', '$resource', 'abode', function ($q, $h
 
 var settings = angular.module('abode.settings');
 
-settings.service('settings', function ($q, $http, $templateCache, abode) {
+settings.service('settings', function ($q, $http, $templateCache, $timeout, abode) {
 
   var get_sources = function () {
     var defer = $q.defer();
@@ -55269,7 +55399,7 @@ settings.service('settings', function ($q, $http, $templateCache, abode) {
 
     var url = (provider) ? '/api/abode/config/' + provider : '/api/abode/config';
 
-    $http.put(url, config).then(function (response) {
+    $http.put(abode.url(url).value(), config).then(function (response) {
       write_config().then(function (response) {
         defer.resolve(response);
       }, function (err) {
@@ -55285,7 +55415,7 @@ settings.service('settings', function ($q, $http, $templateCache, abode) {
   var write_config = function () {
     var defer = $q.defer();
 
-    $http.post('/api/abode/save').then(function (response) {
+    $http.post(abode.url('/api/abode/save').value()).then(function (response) {
       defer.resolve(response.data);
     }, function (err) {
       defer.reject(err);
@@ -55319,6 +55449,123 @@ settings.service('settings', function ($q, $http, $templateCache, abode) {
     return defer.promise;
   };
 
+  var check_db = function (config) {
+    var defer = $q.defer();
+
+    $http.post('/api/abode/check_db', config).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var reload = function (config) {
+    var count = 0,
+        defer = $q.defer();
+
+    $http.post(abode.url('/api/abode/reload').value(), config, {timeout: 1000});
+
+    var check = function () {
+      count += 1;
+
+      if (count > 5) {
+        return defer.reject();
+      }
+
+      $http.get(abode.url('/api/abode/status').value(), {timeout: 1000}).then(function () {
+        defer.resolve();
+      }, function () {
+        $timeout(check, 1000);
+      });
+    };
+
+    $timeout(check, 5000);
+
+    return defer.promise;
+  };
+
+  var get_providers = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/abode/providers').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var install_provider = function (provider) {
+    var defer = $q.defer();
+
+    var fail = function (msg, err) {
+      defer.reject({'message': msg, 'details': err});
+    };
+
+    var save = function (config) {
+      if (config.providers.indexOf(provider) >= 0) {
+        return fail('Provider already installed');
+      }
+
+      config.providers.push(provider);
+
+      save_config(undefined, config).then(function () {
+        reload().then(function () {
+          defer.resolve();
+        }, function (err) {
+          fail('Failed to reload Abode', err);
+        })
+      }, function (err) {
+        fail('Failed to save config', err);
+      });
+    };
+
+    get_config().then(function (config) {
+      save(config);
+    }, function (err) {
+      fail('Failed to get config', err);
+    });
+
+    return defer.promise;
+  };
+
+  var remove_provider = function (provider) {
+    var defer = $q.defer();
+
+    var fail = function (msg, err) {
+      defer.reject({'message': msg, 'details': err});
+    };
+
+    var save = function (config) {
+      if (config.providers.indexOf(provider) === -1) {
+        return fail('Provider not installed');
+      }
+
+      config.providers.splice(config.providers.indexOf(provider), 1);
+
+      save_config(undefined, config).then(function () {
+        reload().then(function () {
+          defer.resolve();
+        }, function (err) {
+          fail('Failed to reload Abode', err);
+        })
+      }, function (err) {
+        fail('Failed to save config', err);
+      });
+    };
+
+    get_config().then(function (config) {
+      save(config);
+    }, function (err) {
+      fail('Failed to get config', err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
     save_config: save_config,
@@ -55330,6 +55577,11 @@ settings.service('settings', function ($q, $http, $templateCache, abode) {
     save_source: save_source,
     add_source: add_source,
     remove_source: remove_source,
+    check_db: check_db,
+    reload: reload,
+    get_providers: get_providers,
+    install_provider: install_provider,
+    remove_provider: remove_provider
   };
 
 });
@@ -59689,10 +59941,17 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <div class=\"panel-body\">\n" +
     "            <uib-alert ng-repeat=\"alert in alerts\" type=\"{{alert.type}}\" close=\"closeAlert($index)\">{{alert.msg}}</uib-alert>\n" +
     "            <form name=\"settings\">\n" +
-    "\n" +
+    "              <h3 ng-show=\"loading\">\n" +
+    "                <i class=\"icon-circleselection spin\"></i> Loading Providers\n" +
+    "              </h3>\n" +
+    "              <h3 ng-show=\"error\">\n" +
+    "                <i class=\"icon-erroralt text-danger\"></i> Error Loading Providers\n" +
+    "              </h3>\n" +
     "              <ul class=\"list-group\" ng-hide=\"loading\">\n" +
-    "                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-click=\"providerSettings(provider.route)\" ng-repeat=\"provider in providers | orderBy: '+name'\">\n" +
-    "                  {{provider.name}} <span class=\"badge\"><i class=\"glyphicon glyphicon-ok text-success\"></i></span>\n" +
+    "                <li class=\"list-group-item\" ng-class=\"{'text-muted': !provider.installed}\" style=\"cursor: pointer;\" ng-click=\"providerSettings(provider)\" ng-repeat=\"provider in providers | orderBy: ['-installed', '-enabled', '+name']\">\n" +
+    "                  {{provider.name}}\n" +
+    "                  <button class=\"btn btn-xs btn-danger pull-right\" ng-show=\"provider.installed\" ng-click=\"remove_provider(provider)\" stop-event><i class=\"icon-trash\"></i> Remove</button>\n" +
+    "                  <button class=\"btn btn-xs btn-default pull-right\" ng-show=\"!provider.installed\" ng-click=\"install_provider(provider)\" stop-event><i class=\"icon-software\"></i> Install</button>\n" +
     "                </li>\n" +
     "              </ul>\n" +
     "\n" +
@@ -59707,6 +59966,46 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "</div>\n" +
     "\n"
+  );
+
+
+  $templateCache.put('modules/settings/views/settings.providers.install.html',
+    "<div class=\"modal-body\">\n" +
+    "    <h3>Are you sure you want to install this provider?</h3>\n" +
+    "    <h4>{{provider.name}}</h4>\n" +
+    "    <div class=\"well\" ng-show=\"error\">\n" +
+    "        <i class=\"icon-erroralt text-danger\"></i> {{error.message}}\n" +
+    "    </div>\n" +
+    "</div>\n" +
+    "\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-sm btn-warning pull-left\" ng-click=\"cancel()\" ng-disabled=\"loading\">Cancel</button>\n" +
+    "    <button class=\"btn btn-sm btn-success\" ng-click=\"install()\" ng-disabled=\"loading\">\n" +
+    "        <i class=\"icon-circleselection spin\" ng-show=\"loading\"></i>\n" +
+    "        <i class=\"icon-trash\" ng-hide=\"loading\"></i>\n" +
+    "        Yes\n" +
+    "    </button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/settings/views/settings.providers.remove.html',
+    "<div class=\"modal-body\">\n" +
+    "    <h3>Are you sure you want to remove this provider?</h3>\n" +
+    "    <h4>{{provider.name}}</h4>\n" +
+    "    <div class=\"well\" ng-show=\"error\">\n" +
+    "        <i class=\"icon-erroralt text-danger\"></i> {{error.message}}\n" +
+    "    </div>\n" +
+    "</div>\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-sm btn-warning pull-left\" ng-click=\"cancel()\" ng-disabled=\"loading\">Cancel</button>\n" +
+    "    <button class=\"btn btn-sm btn-danger\" ng-click=\"remove()\" ng-disabled=\"loading\">\n" +
+    "        <i class=\"icon-circleselection spin\" ng-show=\"loading\"></i>\n" +
+    "        <i class=\"icon-software\" ng-hide=\"loading\"></i>\n" +
+    "        Yes\n" +
+    "    </button>\n" +
+    "\n" +
+    "</div>\n"
   );
 
 
@@ -61189,12 +61488,35 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "      <div class=\"col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-0\">\n" +
     "        <p class=\"text-center\"><strong>Configure your new Abode Server</strong></p>\n" +
-    "        <form name=\"configureFrm\">\n" +
+    "\n" +
+    "        <h3 ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Loading Configuration</h3>\n" +
+    "        <form name=\"configureFrm\" ng-hide=\"loading\">\n" +
     "          <div class=\"form-group\">\n" +
     "            <label for=\"name\">Name</label>\n" +
-    "            <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" ng-model=\"config.name\" required>\n" +
+    "            <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" ng-model=\"config.name\" required ng-disabled=\"saving\">\n" +
     "          </div>\n" +
-    "          <button class=\"btn btn-success\" ng-disabled=\"configureFrm.$invalid || loading\" ng-click=\"do_login()\"><span class=\"icon-settingsandroid\"></span> Setup</button>\n" +
+    "          <div class=\"form-group\">\n" +
+    "            <label for=\"url\">URL</label>\n" +
+    "            <input type=\"text\" class=\"form-control\" id=\"url\" placeholder=\"URL\" ng-model=\"config.url\" required ng-disabled=\"saving\">\n" +
+    "          </div>\n" +
+    "          <div class=\"form-group\">\n" +
+    "            <label for=\"url\">Database Server</label>\n" +
+    "            <input type=\"text\" class=\"form-control\" id=\"url\" placeholder=\"DB Server\" ng-model=\"config.database.server\" required ng-disabled=\"saving\">\n" +
+    "          </div>\n" +
+    "          <div class=\"form-group\">\n" +
+    "            <label for=\"url\">Database Name</label>\n" +
+    "            <input type=\"text\" class=\"form-control\" id=\"url\" placeholder=\"DB Name\" ng-model=\"config.database.database\" required ng-disabled=\"saving\">\n" +
+    "          </div>\n" +
+    "          <div class=\"form-group\">\n" +
+    "            <label for=\"upnp\"><input type=\"checkbox\"  id=\"upnp\" name=\"upnp\" ng-model=\"config.disable_upnp\" ng-disabled=\"saving\"> Disable UPNP</label>\n" +
+    "\n" +
+    "          </div>\n" +
+    "\n" +
+    "          <button class=\"btn btn-success\" ng-disabled=\"configureFrm.$invalid || saving || error\" ng-click=\"setup()\" ng-class=\"{'btn-danger': error}\">\n" +
+    "              <span class=\"icon-settingsandroid\" ng-hide=\"saving\"></span>\n" +
+    "              <i class=\"icon-circleselection spin\" ng-show=\"saving\"></i>\n" +
+    "              Setup\n" +
+    "          </button>\n" +
     "        </form>\n" +
     "\n" +
     "      </div>\n" +
@@ -61206,7 +61528,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "</content>\n" +
     "<div class=\"status-bar\">\n" +
     "  <device-status device=\"device\"></device-status>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -61221,7 +61543,6 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "      <div class=\"col-xs-6 col-xs-offset-3 col-sm-4 col-sm-offset-4 col-md-4 col-md-offset-0\">\n" +
     "        <img src=\"images/home.png\"  class=\"img-responsive img-rounded\">\n" +
     "      </div>\n" +
-    "\n" +
     "      <div class=\"col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-0\">\n" +
     "        <div class=\"input-group\">\n" +
     "          <input type=\"text\" class=\"form-control\" id=\"server\" ng-model=\"config.server\" disabled>\n" +
@@ -61433,6 +61754,43 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "	<button class=\"btn btn-small btn-warning\" style=\"width: 100%\" ng-click=\"restart()\" ng-disabled=\"working\">Restart</button>\n" +
     "	<button class=\"btn btn-small btn-danger\" style=\"width: 100%\" ng-click=\"shutdown()\" ng-disabled=\"working\">Power Off</button>\n" +
     "</div>"
+  );
+
+
+  $templateCache.put('modules/welcome/views/providers.html',
+    "<content top=\"0\" bottom=\"0\" left=\"0\" right=\"0\" overflow=\"auto\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1\">\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div class=\"row well\">\n" +
+    "      <div class=\"col-xs-6 col-xs-offset-3 col-sm-4 col-sm-offset-4 col-md-4 col-md-offset-0\">\n" +
+    "        <img src=\"images/home.png\"  class=\"img-responsive img-rounded\">\n" +
+    "      </div>\n" +
+    "\n" +
+    "      <div class=\"col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-0\">\n" +
+    "        <p class=\"text-center\"><strong>Setup Providers</strong></p>\n" +
+    "\n" +
+    "        <h3 ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Loading Providers</h3>\n" +
+    "        <form name=\"configureFrm\" ng-hide=\"loading\">\n" +
+    "\n" +
+    "          <button class=\"btn btn-success\" ng-disabled=\"configureFrm.$invalid || saving || error\" ng-click=\"finish()\" ng-class=\"{'btn-danger': error}\">\n" +
+    "              <span class=\"icon-ok-circle\"></span>\n" +
+    "              Finish\n" +
+    "          </button>\n" +
+    "        </form>\n" +
+    "\n" +
+    "      </div>\n" +
+    "\n" +
+    "    </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</content>\n" +
+    "<div class=\"status-bar\">\n" +
+    "  <device-status device=\"device\"></device-status>\n" +
+    "</div>\n"
   );
 
 
@@ -63414,6 +63772,11 @@ welcome.config(['$stateProvider', '$urlRouterProvider', function($state, $urlRou
       templateUrl: "modules/welcome/views/configure.html",
       controller: 'welcomeConfigureController',
     })
+    .state('welcome_providers', {
+      url: '/Welcome/Providers',
+      templateUrl: "modules/welcome/views/providers.html",
+      controller: 'welcomeProvidersController',
+    })
     .state('welcome_login', {
       url: '/Welcome/Login',
       templateUrl: "modules/welcome/views/login.html",
@@ -63489,8 +63852,100 @@ welcome.controller('powerController', ['$scope', '$http', 'abode', function ($sc
 
 var welcome = angular.module('abode.welcome');
 
-welcome.controller('welcomeConfigureController', ['$scope', '$state', function ($scope, $state) {
+welcome.controller('welcomeConfigureController', ['$scope', '$state', '$timeout', 'abode', 'settings', 'Auth', function ($scope, $state, $timeout, abode, settings, Auth) {
+  'use strict';
 
+  $scope.loading = true;
+  $scope.error = false;
+  $scope.saving = false;
+
+  settings.get_config().then(function (config) {
+    $scope.loading = false;
+    $scope.error = false;
+
+    $scope.config = config;
+    $scope.config.mode = 'server';
+    $scope.config.url = 'http://' + document.location.host;
+  }, function (err) {
+    $scope.loading = false;
+    $scope.error = true;
+  });
+
+  $scope.setup = function () {
+    $scope.saving = true;
+
+    var fail = function (msg, err) {
+      $scope.saving = false;
+      $scope.error = true;
+
+      $timeout(function () {
+        $scope.error = false;
+      }, 2000);
+
+      abode.message({
+        'type': 'failed',
+        'message': msg,
+        'details': err
+      });
+    };
+
+
+    var finish = function () {
+      abode.config = {
+        server: $scope.config.url
+      };
+
+      $scope.auth = new Auth();
+      $scope.auth.$check().then(function (status) {
+        if (status.client_token && status.auth_token) {
+          abode.config.auth = status;
+          abode.save(abode.config);
+          $state.go('welcome_devices');
+        } else {
+          abode.save($scope.config);
+          $state.go('welcome_login');
+        }
+
+      }, function (error) {
+        if (error.status === 401) {
+          abode.save(abode.config);
+          $state.go('welcome_login');
+        } else if (error.status === 403) {
+          abode.save(abode.config);
+          $state.go('welcome_devices');
+        } else {
+          abode.message({'type': 'failed', 'message': 'Failed to connect'});
+        }
+      });
+    };
+
+    var reload_abode = function () {
+      settings.reload().then(function () {
+
+        finish();
+      }, function (err) {
+        fail('Failed to reload Abode', err);
+      });
+    };
+
+    var save_config = function () {
+      settings.save_config(undefined, $scope.config).then(function () {
+        reload_abode();
+      }, function (err) {
+        fail('Failed to save settings', err);
+      });
+    };
+
+    var check_db = function () {
+      settings.check_db($scope.config.database).then(function () {
+        save_config();
+      }, function (err) {
+        fail('Failed to check database settings', err);
+      });
+    };
+
+    check_db();
+  };
 }]);
 
 
@@ -63584,6 +64039,7 @@ welcome.controller('welcomeController', ['$scope', '$timeout', '$interval', '$ht
 
   $scope.connect = function (source) {
     if (source.mode === 'device') {
+      abode.save({});
       $state.go('welcome_configure');
       return;
     }
@@ -63945,6 +64401,15 @@ welcome.controller('welcomeLoginController', ['$scope', '$timeout', '$http', '$q
   };
 
   $scope.do_login(true);
+
+}]);
+
+
+
+var welcome = angular.module('abode.welcome');
+
+welcome.controller('welcomeProvidersController', ['$scope', '$state', '$timeout', 'abode', 'settings', 'Auth', function ($scope, $state, $timeout, abode, settings, Auth) {
+  'use strict';
 
 }]);
 

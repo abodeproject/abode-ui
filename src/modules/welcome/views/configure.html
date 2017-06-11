@@ -11,12 +11,35 @@
 
       <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-0">
         <p class="text-center"><strong>Configure your new Abode Server</strong></p>
-        <form name="configureFrm">
+
+        <h3 ng-show="loading"><i class="icon-circleselection spin"></i> Loading Configuration</h3>
+        <form name="configureFrm" ng-hide="loading">
           <div class="form-group">
             <label for="name">Name</label>
-            <input type="text" class="form-control" id="name" placeholder="Name" ng-model="config.name" required>
+            <input type="text" class="form-control" id="name" placeholder="Name" ng-model="config.name" required ng-disabled="saving">
           </div>
-          <button class="btn btn-success" ng-disabled="configureFrm.$invalid || loading" ng-click="do_login()"><span class="icon-settingsandroid"></span> Setup</button>
+          <div class="form-group">
+            <label for="url">URL</label>
+            <input type="text" class="form-control" id="url" placeholder="URL" ng-model="config.url" required ng-disabled="saving">
+          </div>
+          <div class="form-group">
+            <label for="url">Database Server</label>
+            <input type="text" class="form-control" id="url" placeholder="DB Server" ng-model="config.database.server" required ng-disabled="saving">
+          </div>
+          <div class="form-group">
+            <label for="url">Database Name</label>
+            <input type="text" class="form-control" id="url" placeholder="DB Name" ng-model="config.database.database" required ng-disabled="saving">
+          </div>
+          <div class="form-group">
+            <label for="upnp"><input type="checkbox"  id="upnp" name="upnp" ng-model="config.disable_upnp" ng-disabled="saving"> Disable UPNP</label>
+
+          </div>
+
+          <button class="btn btn-success" ng-disabled="configureFrm.$invalid || saving || error" ng-click="setup()" ng-class="{'btn-danger': error}">
+              <span class="icon-settingsandroid" ng-hide="saving"></span>
+              <i class="icon-circleselection spin" ng-show="saving"></i>
+              Setup
+          </button>
         </form>
 
       </div>

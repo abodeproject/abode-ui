@@ -136,7 +136,7 @@ module.exports = function(grunt) {
     },
     concurrent: {
       dev: {
-        tasks: ['watch:scripts', 'configureProxies:server', 'connect:server'],
+        tasks: ['watch', 'configureProxies:server', 'connect:server'],
         options: {
           logConcurrentOutput: true
         }

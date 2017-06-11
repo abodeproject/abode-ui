@@ -1,0 +1,16 @@
+<div class="modal-body">
+    <h3>Are you sure you want to remove this provider?</h3>
+    <h4>{{provider.name}}</h4>
+    <div class="well" ng-show="error">
+        <i class="icon-erroralt text-danger"></i> {{error.message}}
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-sm btn-warning pull-left" ng-click="cancel()" ng-disabled="loading">Cancel</button>
+    <button class="btn btn-sm btn-danger" ng-click="remove()" ng-disabled="loading">
+        <i class="icon-circleselection spin" ng-show="loading"></i>
+        <i class="icon-software" ng-hide="loading"></i>
+        Yes
+    </button>
+
+</div>
