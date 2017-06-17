@@ -5132,7 +5132,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "      <div class=\"col-sm-6\" ng-show=\"type_args.indexOf('temperature') != -1\">\n" +
     "        <div class=\"form-group\">\n" +
     "          <label for=\"name\">Temperature</label>\n" +
-    "          <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Temperature\" ng-model=\"builder.mode.temperature\">\n" +
+    "          <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Temperature\" ng-model=\"builder.temperature\">\n" +
     "        </div>\n" +
     "      </div>\n" +
     "\n" +
@@ -5153,7 +5153,6 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "        </div>\n" +
     "      </div>\n" +
     "    </div>\n" +
-    "\n" +
     "  </div>\n" +
     "\n" +
     "  <input type=\"hidden\" required=\"\" ng-model=\"builder.type\">\n" +

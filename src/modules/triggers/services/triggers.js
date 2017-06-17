@@ -92,7 +92,7 @@ triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, c
       animation: true,
       templateUrl: 'modules/triggers/views/triggers.action.html',
       size: 'lg',
-      controller: function ($scope, $uibModalInstance, action, devices, rooms, scenes, title) {
+      controller: function ($scope, $uibModalInstance, $timeout, action, devices, rooms, scenes, title) {
         $scope.action = action;
         $scope.title = title;
         $scope.builder = {};
@@ -187,7 +187,7 @@ triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, c
           });
         };
 
-        parser();
+        $timeout(parser, 500);
 
         $scope.changeType = function (t) {
           $scope.builder.type = t;
