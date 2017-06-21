@@ -113,6 +113,7 @@ triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, c
 
         $scope.type_actions = [
           {name: 'On', value: 'on', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
+          {name: 'Beep', value: 'beep', arguments: ['count'], capabilities: ['beep']},
           {name: 'Off', value: 'off', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
           {name: 'Motion On', value: 'motion_on', arguments: [], capabilities: ['motion_sensor']},
           {name: 'Motion Off', value: 'motion_off', arguments: [], capabilities: ['motion_sensor']},

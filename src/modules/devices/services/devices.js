@@ -82,6 +82,26 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
     return defer.promise;
   };
 
+  methods.$beep = function () {
+    var self = this,
+      defer = $q.defer(),
+      url = abode.url('/api/devices/' + this._id + '/beep').value();
+
+    self.$loading = true;
+    self.$error = false;
+
+    $http.post(url).then(function (response) {
+      self.$loading = false;
+      defer.resolve(response.data);
+    }, function (err) {
+      self.$loading = false;
+      self.$error = true;
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
   methods.$on = function () {
     var self = this,
       defer = $q.defer(),
@@ -621,6 +641,21 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
           $scope.errors = false;
 
           $scope.device.$toggle().then(function () {
+            $scope.processing = false;
+            $scope.errors = false;
+          }, function (err) {
+            console.log(err);
+            $scope.processing = false;
+            $scope.errors = true;
+          });
+        };
+
+        $scope.beep = function (count) {
+
+          $scope.processing = true;
+          $scope.errors = false;
+
+          $scope.device.$beep().then(function () {
             $scope.processing = false;
             $scope.errors = false;
           }, function (err) {

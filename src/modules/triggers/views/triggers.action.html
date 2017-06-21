@@ -63,6 +63,13 @@
         </div>
       </div>
 
+      <div class="col-sm-6" ng-show="type_args.indexOf('count') != -1">
+        <div class="form-group">
+          <label for="name">Count</label>
+          <input type="text" class="form-control" id="name" placeholder="Count" ng-model="builder.count">
+        </div>
+      </div>
+
       <div class="col-sm-6" ng-show="type_args.indexOf('level') != -1">
         <div class="form-group">
           <label for="name">Level</label>

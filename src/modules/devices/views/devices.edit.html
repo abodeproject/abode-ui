@@ -32,7 +32,7 @@
                   <div ng-show="section=='advanced'">
                     <div class="form-group">
                       <label for="name">Provider</label>
-                      <select size="1" class="form-control" id="provider" placeholder="Provider" required="" ng-model="device.provider" ng-options="o as o for o in providers | orderBy: '+'"></select>
+                      <select size="1" class="form-control" id="provider" placeholder="Provider" required="" ng-model="device.provider" ng-options="o.id as o.name for o in providers | orderBy: '+name'"></select>
                     </div>
                     <div class="form-group">
                       <label for="enabled">Active: </label>

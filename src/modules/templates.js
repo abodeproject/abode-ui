@@ -873,6 +873,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('modules/devices/views/capabilities/beep.html',
+    "<div style=\"text-align: center; padding-top: 2em;\" ng-show=\"has_capability('beep')\">\n" +
+    "    <button class=\"btn btn-primary btn-sm\" ng-click=\"beep()\"><i class=\"icon-alertalt\"></i></button>\n" +
+    "</div>\n"
+  );
+
+
   $templateCache.put('modules/devices/views/capabilities/camera.html',
     "<div style=\"text-align: center;\">\n" +
     "  <img src=\"{{image_url}}\" style=\"width: 100%; cursor: pointer\" ng-click=\"openVideo(device)\">\n" +
@@ -1195,7 +1202,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                  <div ng-show=\"section=='advanced'\">\n" +
     "                    <div class=\"form-group\">\n" +
     "                      <label for=\"name\">Provider</label>\n" +
-    "                      <select size=\"1\" class=\"form-control\" id=\"provider\" placeholder=\"Provider\" required=\"\" ng-model=\"device.provider\" ng-options=\"o as o for o in providers | orderBy: '+'\"></select>\n" +
+    "                      <select size=\"1\" class=\"form-control\" id=\"provider\" placeholder=\"Provider\" required=\"\" ng-model=\"device.provider\" ng-options=\"o.id as o.name for o in providers | orderBy: '+name'\"></select>\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
     "                      <label for=\"enabled\">Active: </label>\n" +
@@ -5105,6 +5112,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "            </li>\n" +
     "          </ul>\n" +
     "          </div>\n" +
+    "        </div>\n" +
+    "      </div>\n" +
+    "\n" +
+    "      <div class=\"col-sm-6\" ng-show=\"type_args.indexOf('count') != -1\">\n" +
+    "        <div class=\"form-group\">\n" +
+    "          <label for=\"name\">Count</label>\n" +
+    "          <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Count\" ng-model=\"builder.count\">\n" +
     "        </div>\n" +
     "      </div>\n" +
     "\n" +

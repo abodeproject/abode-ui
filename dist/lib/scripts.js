@@ -80197,6 +80197,26 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
     return defer.promise;
   };
 
+  methods.$beep = function () {
+    var self = this,
+      defer = $q.defer(),
+      url = abode.url('/api/devices/' + this._id + '/beep').value();
+
+    self.$loading = true;
+    self.$error = false;
+
+    $http.post(url).then(function (response) {
+      self.$loading = false;
+      defer.resolve(response.data);
+    }, function (err) {
+      self.$loading = false;
+      self.$error = true;
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
   methods.$on = function () {
     var self = this,
       defer = $q.defer(),
@@ -80736,6 +80756,21 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
           $scope.errors = false;
 
           $scope.device.$toggle().then(function () {
+            $scope.processing = false;
+            $scope.errors = false;
+          }, function (err) {
+            console.log(err);
+            $scope.processing = false;
+            $scope.errors = true;
+          });
+        };
+
+        $scope.beep = function (count) {
+
+          $scope.processing = true;
+          $scope.errors = false;
+
+          $scope.device.$beep().then(function () {
             $scope.processing = false;
             $scope.errors = false;
           }, function (err) {
@@ -88934,6 +88969,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('modules/devices/views/capabilities/beep.html',
+    "<div style=\"text-align: center; padding-top: 2em;\" ng-show=\"has_capability('beep')\">\n" +
+    "    <button class=\"btn btn-primary btn-sm\" ng-click=\"beep()\"><i class=\"icon-alertalt\"></i></button>\n" +
+    "</div>\n"
+  );
+
+
   $templateCache.put('modules/devices/views/capabilities/camera.html',
     "<div style=\"text-align: center;\">\n" +
     "  <img src=\"{{image_url}}\" style=\"width: 100%; cursor: pointer\" ng-click=\"openVideo(device)\">\n" +
@@ -89256,7 +89298,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                  <div ng-show=\"section=='advanced'\">\n" +
     "                    <div class=\"form-group\">\n" +
     "                      <label for=\"name\">Provider</label>\n" +
-    "                      <select size=\"1\" class=\"form-control\" id=\"provider\" placeholder=\"Provider\" required=\"\" ng-model=\"device.provider\" ng-options=\"o as o for o in providers | orderBy: '+'\"></select>\n" +
+    "                      <select size=\"1\" class=\"form-control\" id=\"provider\" placeholder=\"Provider\" required=\"\" ng-model=\"device.provider\" ng-options=\"o.id as o.name for o in providers | orderBy: '+name'\"></select>\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
     "                      <label for=\"enabled\">Active: </label>\n" +
@@ -93169,6 +93211,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "        </div>\n" +
     "      </div>\n" +
     "\n" +
+    "      <div class=\"col-sm-6\" ng-show=\"type_args.indexOf('count') != -1\">\n" +
+    "        <div class=\"form-group\">\n" +
+    "          <label for=\"name\">Count</label>\n" +
+    "          <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Count\" ng-model=\"builder.count\">\n" +
+    "        </div>\n" +
+    "      </div>\n" +
+    "\n" +
     "      <div class=\"col-sm-6\" ng-show=\"type_args.indexOf('level') != -1\">\n" +
     "        <div class=\"form-group\">\n" +
     "          <label for=\"name\">Level</label>\n" +
@@ -95442,6 +95491,7 @@ triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, c
 
         $scope.type_actions = [
           {name: 'On', value: 'on', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
+          {name: 'Beep', value: 'beep', arguments: ['count'], capabilities: ['beep']},
           {name: 'Off', value: 'off', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
           {name: 'Motion On', value: 'motion_on', arguments: [], capabilities: ['motion_sensor']},
           {name: 'Motion Off', value: 'motion_off', arguments: [], capabilities: ['motion_sensor']},
