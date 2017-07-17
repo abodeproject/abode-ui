@@ -1,4 +1,3 @@
-
 var triggers = angular.module('abode.triggers');
 
 triggers.directive('conditionSide', function ($uibModal, devices, rooms, scenes) {
@@ -49,7 +48,9 @@ triggers.directive('conditionSide', function ($uibModal, devices, rooms, scenes)
         {name: 'On Time', value: 'on_time', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
         {name: 'Off Time', value: 'off_time', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
         {name: 'Has Motion', value: '_motion', arguments: [], capabilities: ['motion_sensor']},
+        {name: 'Motion On', value: '_motion_on', arguments: [], capabilities: ['room']},
         {name: 'Motion On Age', value: 'motion_on_age', arguments: [], capabilities: ['room', 'motion_sensor']},
+        {name: 'Motion Off', value: '_motion_off', arguments: [], capabilities: ['room']},
         {name: 'Motion Off Age', value: 'motion_off_age', arguments: [], capabilities: ['room', 'motion_sensor']},
         {name: 'Lights On', value: 'lights_on', arguments: [], capabilities: ['room']},
         {name: 'Lights Off', value: 'lights_off', arguments: [], capabilities: ['room']},
