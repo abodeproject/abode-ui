@@ -93790,7 +93790,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"trigger in triggers | filter: search | orderBy: '+name'\" ng-click=\"edit(trigger)\">\n" +
     "            <i class=\"{{trigger.icon}}\" ng-show=\"trigger.icon\"></i>\n" +
     "            {{trigger.name}}<button class=\"pull-right btn btn-xs btn-danger\" ng-click=\"remove(trigger)\" stop-event><i class=\"icon-trash\"></i></button>\n" +
-    "            <div style=\"font-size: .8em;\" class=\"text-muted\" ng-class=\"{'strike-through': !trigger.enabled}\">\n" +
+    "            <div style=\"font-size: .8em;\" class=\"text-muted\" ng-class=\"{'strike-through': !trigger.enabled}\" ng-show=\"trigger.match_type\">\n" +
     "              <span ng-show=\"trigger.match\">{{trigger.match_type | capitalize}} is\n" +
     "                <span ng-show=\"trigger.match_type == 'time'\">{{trigger.match | time}} during </span>\n" +
     "                <span ng-show=\"trigger.match_type == 'date'\">{{trigger.match | date: 'EEE MMM d, yyyy'}} during </span>\n" +
@@ -93800,6 +93800,18 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "              </span>\n" +
     "              {{trigger.trigger}} Event\n" +
     "            </div>\n" +
+    "            <ul style=\"font-size: .8em;\" class=\"text-muted\" ng-class=\"{'strike-through': !trigger.enabled}\">\n" +
+    "              <li ng-repeat=\"t in trigger.triggers\">\n" +
+    "              <span ng-show=\"t.match\">{{t.match_type | capitalize}} is\n" +
+    "                <span ng-show=\"t.match_type == 'time'\">{{t.match | time}} during </span>\n" +
+    "                <span ng-show=\"t.match_type == 'date'\">{{t.match | date: 'EEE MMM d, yyyy'}} during </span>\n" +
+    "                <span ng-show=\"t.match_type == 'device'\">{{t.match}} from </span>\n" +
+    "                <span ng-show=\"t.match_type == 'string'\">{{t.match}} from </span>\n" +
+    "                <span ng-show=\"t.match_type == 'number'\">{{t.match}} from </span>\n" +
+    "              </span>\n" +
+    "              {{t.trigger}} Event\n" +
+    "              </li>\n" +
+    "            </ul>\n" +
     "            <div style=\"font-size: .7em\" class=\"text-muted\" ng-show=\"trigger.tags.length > 0\"><i class=\"icon-tags\"></i>\n" +
     "              <span ng-repeat=\"tag in trigger.tags\" style=\"margin-right: 1em;\">{{tag}}</span>\n" +
     "            </div>\n" +

@@ -1135,3 +1135,7 @@ body {
 }
 
 .angular-google-map-container { height: 400px; }
+
+.strike-through {
+  text-decoration: line-through;
+}

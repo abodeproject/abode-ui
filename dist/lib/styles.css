@@ -9985,6 +9985,10 @@ body {
 
 .angular-google-map-container { height: 400px; }
 
+.strike-through {
+  text-decoration: line-through;
+}
+
 
 /*!
  * bootswatch v3.3.7
