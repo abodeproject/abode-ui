@@ -77287,7 +77287,7 @@ abode.directive('epochtime', ['$compile', function () {
 
         var h = 60 * 60 * scope.hours;
         var m = 60 * scope.minutes;
-        var o = (scope.meridian === 'PM' && scope.hours > 12) ? (60 * 60 * 12) : 0;
+        var o = (scope.meridian === 'PM' && scope.hours !== 12) ? (60 * 60 * 12) : 0;
         h = (scope.meridian === 'AM' && scope.hours === 12) ? 0 : h;
 
         scope.time = h + m + o;
