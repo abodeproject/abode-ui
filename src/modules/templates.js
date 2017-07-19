@@ -5680,7 +5680,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"trigger in triggers | filter: search | orderBy: '+name'\" ng-click=\"edit(trigger)\">\n" +
     "            <i class=\"{{trigger.icon}}\" ng-show=\"trigger.icon\"></i>\n" +
     "            {{trigger.name}}<button class=\"pull-right btn btn-xs btn-danger\" ng-click=\"remove(trigger)\" stop-event><i class=\"icon-trash\"></i></button>\n" +
-    "            <div style=\"font-size: .8em;\" class=\"text-muted\" ng-class=\"{'strike-through': !trigger.enabled}\" ng-show=\"trigger.match_type\">\n" +
+    "            <div style=\"font-size: .8em;\" class=\"text-muted\" ng-class=\"{'strike-through': !trigger.enabled}\" ng-show=\"trigger.trigger\">\n" +
     "              <span ng-show=\"trigger.match\">{{trigger.match_type | capitalize}} is\n" +
     "                <span ng-show=\"trigger.match_type == 'time'\">{{trigger.match | time}} during </span>\n" +
     "                <span ng-show=\"trigger.match_type == 'date'\">{{trigger.match | date: 'EEE MMM d, yyyy'}} during </span>\n" +
