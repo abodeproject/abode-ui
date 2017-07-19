@@ -91099,7 +91099,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "  <div class=\"room-icon-badge room-icon-fan\" ng-class=\"{'room-fan': room._fans_on}\"><i class=\"icon-fan\"></i></div>\n" +
     "  <div class=\"room-icon-badge room-icon-conditioner\" ng-class=\"{'room-cool': room._mode_cool}\"><i class=\"icon-snow\"></i></div>\n" +
     "  <div class=\"room-icon-badge room-icon-conditioner\" ng-class=\"{'room-heat': room._mode_heat}\"><i class=\"icon-fire\"></i></div>\n" +
-    "  <div class=\"room-title\" ng-show=\"title\"><span style=\"font-size: .8em;\">{{title}}</span></div>\n" +
+    "  <div class=\"room-title\" ng-show=\"title\"><span style=\"font-size: .6em;\">{{title}}</span></div>\n" +
     "</div>\n"
   );
 
