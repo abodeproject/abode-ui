@@ -141,13 +141,13 @@ triggers.directive('triggerMatchers', function () {
     templateUrl: 'modules/triggers/views/triggers.matchers.html',
     replace: true,
     link: function(scope, elm, attrs, ngModel) {
-        scope.$watch('ngModel', function (value) {
-          if (attrs.required !== undefined && (value === undefined || value.length === 0)) {
-            ngModel.$setValidity('matchersExist', false);
-          } else {
-            ngModel.$setValidity('matchersExist', true);
-          }
-        });
+        //scope.$watch('ngModel', function (value) {
+        //  if (attrs.required !== undefined && (value === undefined || value.length === 0)) {
+        //    ngModel.$setValidity('matchersExist', false);
+        //  } else {
+        //    ngModel.$setValidity('matchersExist', true);
+        //  }
+        //});
 
     }
   };
