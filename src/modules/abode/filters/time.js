@@ -7,8 +7,8 @@ abode.filter('time', function() {
     var h = Math.floor(((seconds % 31536000) % 86400) / 3600);
     var m = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
     m = (m < 10) ? '0' + m : m;
-    if (h > 12) {
-      h = h - 12;
+    if (h >= 12) {
+      h = h - 12 || 12;
       r = 'PM';
     } else if (h === 0) {
       h = 12;

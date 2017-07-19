@@ -32,7 +32,8 @@ abode.directive('epochtime', ['$compile', function () {
 
         var h = 60 * 60 * scope.hours;
         var m = 60 * scope.minutes;
-        var o = (scope.meridian === 'PM') ? (60 * 60 * 12) : 0;
+        var o = (scope.meridian === 'PM' && scope.hours > 12) ? (60 * 60 * 12) : 0;
+        h = (scope.meridian === 'AM' && scope.hours === 12) ? 0 : h;
 
         scope.time = h + m + o;
 
@@ -46,9 +47,10 @@ abode.directive('epochtime', ['$compile', function () {
         scope.minutes =  parseInt(scope.time % (60 * 60) / 60);
         scope.meridian = (scope.hours >= 12) ? 'PM' : 'AM';
 
-        console.log(scope.hours);
         if (scope.meridian === 'PM') {
-          scope.hours = scope.hours - 12;
+          scope.hours = scope.hours - 12 || 12;
+        } else if (scope.meridian === 'AM') {
+          scope.hours = scope.hours || 12;
         }
 
         makeWatches();
@@ -56,10 +58,16 @@ abode.directive('epochtime', ['$compile', function () {
 
       scope.increaseHour = function () {
         scope.hours = parseInt(scope.hours, 10);
-        if (scope.hours === 12 && scope.meridian === 'AM') {
+        if (scope.hours === 11 && scope.meridian === 'AM') {
+          scope.hours = 12;
+          scope.meridian = 'PM';
+        } else if (scope.hours === 11 && scope.meridian === 'PM') {
+          scope.hours = 12;
+          scope.meridian = 'AM';
+        } else if (scope.hours === 12 && scope.meridian === 'PM') {
           scope.hours = 1;
           scope.meridian = 'PM';
-        } else if (scope.hours === 12 && scope.meridian === 'PM') {
+        } else if (scope.hours === 12 && scope.meridian === 'AM') {
           scope.hours = 1;
           scope.meridian = 'AM';
         } else {
@@ -69,12 +77,18 @@ abode.directive('epochtime', ['$compile', function () {
 
       scope.decreaseHour = function () {
         scope.hours = parseInt(scope.hours, 10);
-        if (scope.hours === 1 && scope.meridian === 'AM') {
+        if (scope.hours === 12 && scope.meridian === 'AM') {
+          scope.hours = 11;
+          scope.meridian = 'PM';
+        } else if (scope.hours === 12 && scope.meridian === 'PM') {
+          scope.hours =11;
+          scope.meridian = 'AM';
+        } else if (scope.hours === 1 && scope.meridian === 'AM') {
+          scope.hours = 12;
+          scope.meridian = 'AM';
+        } else if (scope.hours === 1 && scope.meridian === 'PM') {
           scope.hours = 12;
           scope.meridian = 'PM';
-        } else if (scope.hours === 1 && scope.meridian === 'PM') {
-          scope.hours =12;
-          scope.meridian = 'AM';
         } else {
           scope.hours -= 1;
         }
