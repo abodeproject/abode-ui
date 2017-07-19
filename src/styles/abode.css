@@ -637,6 +637,16 @@ body {
   background-color: #c27b0a !important;
 }
 
+.room-title {
+  position: absolute;
+  bottom: -1.75em;
+  height: 1em;
+  line-height: 1em;
+  width: 5em;
+  left: -1.25em;
+  text-align: center;
+}
+
 .night .room-light {
   color: #fff;
 }

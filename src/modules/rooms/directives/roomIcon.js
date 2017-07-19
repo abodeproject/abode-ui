@@ -17,6 +17,7 @@ rooms.directive('roomIcon', function () {
       'size': '@',
       'room': '=?',
       'name': '@',
+      'title': '@',
       'id': '@',
       'icon': '@',
       'tempType': '@',
