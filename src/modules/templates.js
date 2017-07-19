@@ -5209,88 +5209,18 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "              </div>\n" +
     "              <div class=\"col-sm-9 col-xs-12\">\n" +
     "\n" +
-    "                <form name=\"edit\">\n" +
+    "                <form name=\"addTriggerFrm\">\n" +
     "                  <div ng-show=\"section=='general'\">\n" +
     "                    <div class=\"form-group\">\n" +
     "                      <label for=\"enabled\">Enabled: </label>\n" +
-    "                      <toggle value=\"trigger.enabled\" class=\"pull-right\"></toggle>\n" +
+    "                      <toggle value=\"trigger.enabled\" required class=\"pull-right\"></toggle>\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
     "                      <label for=\"name\">Name</label>\n" +
     "                      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"trigger.name\">\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
-    "                      <label for=\"trigger\">Trigger<span ng-show=\"trigger.trigger\">: {{trigger.trigger}}</span></label>\n" +
-    "\n" +
-    "                      <div>\n" +
-    "                      <ul class=\"list-group bg-muted select-list\">\n" +
-    "                        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"t in trigger_types | orderBy: '+name'\" ng-click=\"trigger.trigger = t.name\" ng-class=\"{'list-group-item-success': trigger.trigger == t.name}\">\n" +
-    "                          {{t.name}}\n" +
-    "                        </li>\n" +
-    "                      </ul>\n" +
-    "                      </div>\n" +
-    "                    </div>\n" +
-    "\n" +
-    "                    <div class=\"form-group\">\n" +
-    "                      <label for=\"trigger\">Match<span ng-show=\"trigger.match_type\">: {{trigger.match_type}}<span ng-show=\"trigger.match_type == 'device' && trigger.match\">.{{trigger.match}}</span></span></label>\n" +
-    "                    </div>\n" +
-    "                    <div class=\"container-fluid\">\n" +
-    "                      <div class=\"row\">\n" +
-    "                        <div class=\"col-sm-6\">\n" +
-    "\n" +
-    "                          <div class=\"form-group\">\n" +
-    "                            <ul class=\"list-group bg-muted select-list\" >\n" +
-    "                              <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"t in match_types\" ng-click=\"changeType(t.value)\" ng-class=\"{'list-group-item-success': trigger.match_type == t.value}\">\n" +
-    "                                <i class=\"{{t.icon}}\"></i> {{t.name}}\n" +
-    "                              </li>\n" +
-    "                            </ul>\n" +
-    "                          </div>\n" +
-    "                        </div>\n" +
-    "                        <div class=\"col-sm-6\">\n" +
-    "\n" +
-    "                          <div class=\"form-group\">\n" +
-    "                            <div ng-show=\"trigger.match_type == 'device'\">\n" +
-    "                              <div ng-show=\"devices_loading\"><i class=\"icon-loadingalt spin\"></i> Loading...</div>\n" +
-    "                              <ul class=\"list-group bg-muted select-list\" ng-hide=\"devices_loading\">\n" +
-    "                                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"device in devices | orderBy: '+name'\" ng-click=\"changeDevice(device)\" ng-class=\"{'list-group-item-success': trigger.match == device.name}\">\n" +
-    "                                  {{device.name}}\n" +
-    "                                </li>\n" +
-    "                              </ul>\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                            <div ng-show=\"trigger.match_type == 'room'\">\n" +
-    "                              <div ng-show=\"rooms_loading\"><i class=\"icon-loadingalt spin\"></i> Loading...</div>\n" +
-    "                              <ul class=\"list-group bg-muted select-list\" ng-hide=\"rooms_loading\">\n" +
-    "                                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"room in rooms | orderBy: '+name'\" ng-click=\"changeRoom(room)\" ng-class=\"{'list-group-item-success': trigger.match == room.name}\">\n" +
-    "                                  {{room.name}}\n" +
-    "                                </li>\n" +
-    "                              </ul>\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                            <div ng-show=\"trigger.match_type == 'scene'\">\n" +
-    "                              <div ng-show=\"scenes_loading\"><i class=\"icon-loadingalt spin\"></i> Loading...</div>\n" +
-    "                              <ul class=\"list-group bg-muted select-list\" ng-hide=\"scenes_loading\">\n" +
-    "                                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"scene in scenes | orderBy: '+name'\" ng-click=\"changeScene(scene)\" ng-class=\"{'list-group-item-success': trigger.match == scene.name}\">\n" +
-    "                                  {{scene.name}}\n" +
-    "                                </li>\n" +
-    "                              </ul>\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                            <div ng-show=\"trigger.match_type == 'time'\" style=\"padding-left: 1em;\">\n" +
-    "                              <epochtime time=\"trigger.match\" disabled=\"{{trigger.match_type != 'time'}}\"></epochtime>\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                            <div ng-show=\"trigger.match_type == 'string'\" style=\"padding-left: 1em;\">\n" +
-    "                              <input type=\"text\" class=\"form-control\" id=\"match\" placeholder=\"String\" required=\"\" ng-model=\"trigger.match\">\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                            <div ng-show=\"trigger.match_type == 'number'\" style=\"padding-left: 1em;\">\n" +
-    "                              <input type=\"text\" class=\"form-control\" id=\"match\" placeholder=\"Number\" required=\"\" ng-model=\"trigger.match\">\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                          </div>\n" +
-    "                        </div>\n" +
-    "                      </div>\n" +
+    "                      <trigger-matchers ng-model=\"trigger.triggers\" ng-required></trigger-matchers>\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
     "                      <label for=\"name\">Icon</label>\n" +
@@ -5301,7 +5231,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                      <tags tag-model=\"trigger.tags\" />\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
-    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"add()\" ng-disabled=\"editTrigger.$invalid\"><i class=\"icon-savetodrive\"></i> Add</button>\n" +
+    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"add()\" ng-disabled=\"addTriggerFrm.$invalid\"><i class=\"icon-savetodrive\"></i> Add</button>\n" +
     "                      <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"state.go('^')\">Cancel</button>\n" +
     "                    </div>\n" +
     "\n" +
@@ -5322,7 +5252,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                      </div>\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
-    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"add()\" ng-disabled=\"editTrigger.$invalid\"><i class=\"icon-savetodrive\"></i> Add</button>\n" +
+    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"add()\" ng-disabled=\"addTriggerFrm.$invalid\"><i class=\"icon-savetodrive\"></i> Add</button>\n" +
     "                      <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"state.go('^')\">Cancel</button>\n" +
     "                    </div>\n" +
     "\n" +
@@ -5342,7 +5272,12 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                        </li>\n" +
     "                      </ul>\n" +
     "                    </div>\n" +
-    "                    \n" +
+    "\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"add()\" ng-disabled=\"addTriggerFrm.$invalid\"><i class=\"icon-savetodrive\"></i> Add</button>\n" +
+    "                      <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"state.go('^')\">Cancel</button>\n" +
+    "                    </div>\n" +
+    "\n" +
     "                  </div>\n" +
     "\n" +
     "                  <div ng-show=\"section=='delay'\">\n" +
@@ -5361,7 +5296,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                      </div>\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
-    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"add()\" ng-disabled=\"editTrigger.$invalid\"><i class=\"icon-savetodrive\"></i> Add</button>\n" +
+    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"add()\" ng-disabled=\"addTriggerFrm.$invalid\"><i class=\"icon-savetodrive\"></i> Add</button>\n" +
     "                      <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"state.go('^')\">Cancel</button>\n" +
     "                    </div>\n" +
     "\n" +
@@ -5383,7 +5318,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                      </div>\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
-    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"add()\" ng-disabled=\"editTrigger.$invalid\"><i class=\"icon-savetodrive\"></i> Add</button>\n" +
+    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"add()\" ng-disabled=\"addTriggerFrm.$invalid\"><i class=\"icon-savetodrive\"></i> Add</button>\n" +
     "                      <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"state.go('^')\">Cancel</button>\n" +
     "                    </div>\n" +
     "\n" +
@@ -5424,7 +5359,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
-    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"add()\" ng-disabled=\"editTrigger.$invalid\"><i class=\"icon-savetodrive\"></i> Add</button>\n" +
+    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"add()\" ng-disabled=\"addTriggerFrm.$invalid\"><i class=\"icon-savetodrive\"></i> Add</button>\n" +
     "                      <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"state.go('^')\">Cancel</button>\n" +
     "                    </div>\n" +
     "                  </div>\n" +
@@ -5539,7 +5474,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "              </div>\n" +
     "              <div class=\"col-sm-9 col-xs-12\">\n" +
     "\n" +
-    "                <form name=\"edit\">\n" +
+    "                <form name=\"editTriggerFrm\">\n" +
     "                  <div ng-show=\"section=='general'\">\n" +
     "                    <div class=\"form-group\">\n" +
     "                      <label for=\"enabled\">Enabled: </label>\n" +
@@ -5550,78 +5485,16 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"trigger.name\">\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
-    "                      <label for=\"trigger\">Trigger<span ng-show=\"trigger.trigger\">: {{trigger.trigger}}</span></label>\n" +
+    "                      <trigger-matchers ng-model=\"trigger.triggers\" required></trigger-matchers>\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\" ng-show=\"trigger.trigger\">\n" +
+    "                      <label for=\"trigger\">Legacy Trigger<span ng-show=\"trigger.trigger\">: {{trigger.trigger}}</span></label>\n" +
     "\n" +
     "                      <div>\n" +
-    "                      <ul class=\"list-group bg-muted select-list\">\n" +
-    "                        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"t in trigger_types | orderBy: '+name'\" ng-click=\"trigger.trigger = t.name\" ng-class=\"{'list-group-item-success': trigger.trigger == t.name}\">\n" +
-    "                          {{t.name}}\n" +
-    "                        </li>\n" +
-    "                      </ul>\n" +
+    "                        {{trigger.trigger}}.{{trigger.match_type}}.{{trigger.match}}\n" +
     "                      </div>\n" +
     "                    </div>\n" +
     "\n" +
-    "                    <div class=\"form-group\">\n" +
-    "                      <label for=\"trigger\">Match<span ng-show=\"trigger.match_type\">: {{trigger.match_type}}<span ng-show=\"trigger.match_type == 'device' && trigger.match\">.{{trigger.match}}</span></span></label>\n" +
-    "                    </div>\n" +
-    "                    <div class=\"container-fluid\">\n" +
-    "                      <div class=\"row\">\n" +
-    "                        <div class=\"col-sm-6\">\n" +
-    "\n" +
-    "                          <div class=\"form-group\">\n" +
-    "                            <ul class=\"list-group bg-muted select-list\" >\n" +
-    "                              <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"t in match_types\" ng-click=\"changeType(t.value)\" ng-class=\"{'list-group-item-success': trigger.match_type == t.value}\">\n" +
-    "                                <i class=\"{{t.icon}}\"></i> {{t.name}}\n" +
-    "                              </li>\n" +
-    "                            </ul>\n" +
-    "                          </div>\n" +
-    "                        </div>\n" +
-    "                        <div class=\"col-sm-6\">\n" +
-    "\n" +
-    "                          <div class=\"form-group\">\n" +
-    "                            <div ng-show=\"trigger.match_type == 'device'\">\n" +
-    "                              <div ng-show=\"devices_loading\"><i class=\"icon-loadingalt spin\"></i> Loading...</div>\n" +
-    "                              <ul class=\"list-group bg-muted select-list\" ng-hide=\"devices_loading\">\n" +
-    "                                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"device in devices | orderBy: '+name'\" ng-click=\"changeDevice(device)\" ng-class=\"{'list-group-item-success': trigger.match == device.name}\">\n" +
-    "                                  {{device.name}}\n" +
-    "                                </li>\n" +
-    "                              </ul>\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                            <div ng-show=\"trigger.match_type == 'room'\">\n" +
-    "                              <div ng-show=\"rooms_loading\"><i class=\"icon-loadingalt spin\"></i> Loading...</div>\n" +
-    "                              <ul class=\"list-group bg-muted select-list\" ng-hide=\"rooms_loading\">\n" +
-    "                                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"room in rooms | orderBy: '+name'\" ng-click=\"changeRoom(room)\" ng-class=\"{'list-group-item-success': trigger.match == room.name}\">\n" +
-    "                                  {{room.name}}\n" +
-    "                                </li>\n" +
-    "                              </ul>\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                            <div ng-show=\"trigger.match_type == 'scene'\">\n" +
-    "                              <div ng-show=\"scenes_loading\"><i class=\"icon-loadingalt spin\"></i> Loading...</div>\n" +
-    "                              <ul class=\"list-group bg-muted select-list\" ng-hide=\"scenes_loading\">\n" +
-    "                                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"scene in scenes | orderBy: '+name'\" ng-click=\"changeScene(scene)\" ng-class=\"{'list-group-item-success': trigger.match == scene.name}\">\n" +
-    "                                  {{scene.name}}\n" +
-    "                                </li>\n" +
-    "                              </ul>\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                            <div ng-show=\"trigger.match_type == 'time'\" style=\"padding-left: 1em;\">\n" +
-    "                              <epochtime time=\"trigger.match\" disabled=\"{{trigger.match_type != 'time'}}\"></epochtime>\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                            <div ng-show=\"trigger.match_type == 'string'\" style=\"padding-left: 1em;\">\n" +
-    "                              <input type=\"text\" class=\"form-control\" id=\"match\" placeholder=\"String\" required=\"\" ng-model=\"trigger.match\">\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                            <div ng-show=\"trigger.match_type == 'number'\" style=\"padding-left: 1em;\">\n" +
-    "                              <input type=\"text\" class=\"form-control\" id=\"match\" placeholder=\"Number\" required=\"\" ng-model=\"trigger.match\">\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                          </div>\n" +
-    "                        </div>\n" +
-    "                      </div>\n" +
-    "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
     "                      <label for=\"name\">Icon</label>\n" +
     "                      <icon-selector value=\"trigger.icon\" />\n" +
@@ -5632,7 +5505,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                    </div>\n" +
     "\n" +
     "                    <div class=\"form-group\">\n" +
-    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editTrigger.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editTriggerFrm.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
     "                      <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"state.go('^')\">Cancel</button>\n" +
     "                      <button class=\"btn btn-info btn-sm pull-left\" type=\"button\" ng-click=\"check()\"><i class=\"icon-check\"></i> Check</button>\n" +
     "                    </div>\n" +
@@ -5654,7 +5527,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                      </div>\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
-    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editTrigger.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editTriggerFrm.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
     "                      <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"state.go('^')\">Cancel</button>\n" +
     "                      <button class=\"btn btn-info btn-sm pull-left\" type=\"button\" ng-click=\"check()\"><i class=\"icon-check\"></i> Check</button>\n" +
     "                    </div>\n" +
@@ -5675,7 +5548,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                        </li>\n" +
     "                      </ul>\n" +
     "                    </div>\n" +
-    "                    \n" +
+    "\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editTriggerFrm.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "                      <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"state.go('^')\">Cancel</button>\n" +
+    "                      <button class=\"btn btn-info btn-sm pull-left\" type=\"button\" ng-click=\"check()\"><i class=\"icon-check\"></i> Check</button>\n" +
+    "                    </div>\n" +
+    "\n" +
     "                  </div>\n" +
     "\n" +
     "                  <div ng-show=\"section=='delay'\">\n" +
@@ -5694,7 +5573,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                      </div>\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
-    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editTrigger.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editTriggerFrm.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
     "                      <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"state.go('^')\">Cancel</button>\n" +
     "                      <button class=\"btn btn-info btn-sm pull-left\" type=\"button\" ng-click=\"check()\"><i class=\"icon-check\"></i> Check</button>\n" +
     "                    </div>\n" +
@@ -5717,7 +5596,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                      </div>\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
-    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editTrigger.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editTriggerFrm.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
     "                      <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"state.go('^')\">Cancel</button>\n" +
     "                      <button class=\"btn btn-info btn-sm pull-left\" type=\"button\" ng-click=\"check()\"><i class=\"icon-check\"></i> Check</button>\n" +
     "                    </div>\n" +
@@ -5759,7 +5638,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
-    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editTrigger.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editTriggerFrm.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
     "                      <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"state.go('^')\">Cancel</button>\n" +
     "                      <button class=\"btn btn-info btn-sm pull-left\" type=\"button\" ng-click=\"check()\"><i class=\"icon-check\"></i> Check</button>\n" +
     "                    </div>\n" +
@@ -5820,6 +5699,113 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "    </div>\n" +
     "  </div>\n" +
     "  <div class=\"bg-success img-circle \" style=\"position: fixed; bottom: 1.5em; right: 1.5em; font-size: 1.5em; height: 2.5em; width: 2.5em; text-align: center; box-shadow: .2em .2em .3em black; line-height: 2.7em; font-weight: bold; cursor: pointer;\" ui-sref=\"main.triggers.add\"><i class=\"icon-plus\"></i></button>\n"
+  );
+
+
+  $templateCache.put('modules/triggers/views/triggers.matchers.html',
+    "<div>\n" +
+    "    <div class=\"clearfix\">\n" +
+    "        <label for=\"trigger\">Triggers </label>\n" +
+    "        <button class=\"btn btn-xs btn-success pull-right\" ng-click=\"addTriggerMatcher()\"><i class=\"icon-circleadd\"></i></button>\n" +
+    "    </div>\n" +
+    "  <ul class=\"list-group bg-muted select-list\">\n" +
+    "    <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"t in ngModel | orderBy: '+trigger'\" ng-click=\"editTriggerMatcher(t)\">\n" +
+    "        <button class=\"btn btn-xs btn-danger pull-right\" ng-click=\"deleteTriggerMatcher($index)\" stop-event><i class=\"icon-trash\"></i></button>\n" +
+    "      {{t.trigger}}\n" +
+    "        <div ng-show=\"t.match_type === 'device' || t.match_type === 'room' || t.match_type === 'scene'\">From the {{t.match_type}} {{t.match}}</div>\n" +
+    "        <div ng-show=\"t.match_type === 'number' || t.match_type === 'string'\">{{t.match_type | capitalize}} of {{t.match}}</div>\n" +
+    "        <div ng-show=\"t.match_type === 'time'\">{{t.match_type | capitalize}} is {{t.match | time}}</div>\n" +
+    "    </li>\n" +
+    "  </ul>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/triggers/views/triggers.matchers.matcher.html',
+    "<div class=\"modal-header\">\n" +
+    "    <h4 class=\"modal-title\">Trigger Matcher</h4>\n" +
+    "</div>\n" +
+    "<div class=\"modal-body\">\n" +
+    "  <div>\n" +
+    "    <div class=\"form-group\">\n" +
+    "      <label for=\"trigger\">Trigger<span ng-show=\"trigger.trigger\">: {{trigger.trigger}}</span></label>\n" +
+    "\n" +
+    "      <div>\n" +
+    "      <ul class=\"list-group bg-muted select-list\">\n" +
+    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"t in trigger_types | orderBy: '+name'\" ng-click=\"matcher.trigger = t.name\" ng-class=\"{'list-group-item-success': matcher.trigger == t.name}\">\n" +
+    "          {{t.name}}\n" +
+    "        </li>\n" +
+    "      </ul>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\">\n" +
+    "      <label for=\"trigger\">Match<span ng-show=\"trigger.match_type\">: {{trigger.match_type}}<span ng-show=\"trigger.match_type == 'device' && trigger.match\">.{{trigger.match}}</span></span></label>\n" +
+    "    </div>\n" +
+    "    <div class=\"container-fluid\">\n" +
+    "      <div class=\"row\">\n" +
+    "        <div class=\"col-sm-6\">\n" +
+    "\n" +
+    "          <div class=\"form-group\">\n" +
+    "            <ul class=\"list-group bg-muted select-list\" >\n" +
+    "              <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"t in match_types\" ng-click=\"changeType(t.value)\" ng-class=\"{'list-group-item-success': matcher.match_type == t.value}\">\n" +
+    "                <i class=\"{{t.icon}}\"></i> {{t.name}}\n" +
+    "              </li>\n" +
+    "            </ul>\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "        <div class=\"col-sm-6\">\n" +
+    "\n" +
+    "          <div class=\"form-group\">\n" +
+    "            <div ng-show=\"matcher.match_type == 'device'\">\n" +
+    "              <div ng-show=\"devices_loading\"><i class=\"icon-loadingalt spin\"></i> Loading...</div>\n" +
+    "              <ul class=\"list-group bg-muted select-list\" ng-hide=\"devices_loading\">\n" +
+    "                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"device in devices | orderBy: '+name'\" ng-click=\"changeDevice(device)\" ng-class=\"{'list-group-item-success': matcher.match == device.name}\">\n" +
+    "                  {{device.name}}\n" +
+    "                </li>\n" +
+    "              </ul>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div ng-show=\"matcher.match_type == 'room'\">\n" +
+    "              <div ng-show=\"rooms_loading\"><i class=\"icon-loadingalt spin\"></i> Loading...</div>\n" +
+    "              <ul class=\"list-group bg-muted select-list\" ng-hide=\"rooms_loading\">\n" +
+    "                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"room in rooms | orderBy: '+name'\" ng-click=\"changeRoom(room)\" ng-class=\"{'list-group-item-success': matcher.match == room.name}\">\n" +
+    "                  {{room.name}}\n" +
+    "                </li>\n" +
+    "              </ul>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div ng-show=\"matcher.match_type == 'scene'\">\n" +
+    "              <div ng-show=\"scenes_loading\"><i class=\"icon-loadingalt spin\"></i> Loading...</div>\n" +
+    "              <ul class=\"list-group bg-muted select-list\" ng-hide=\"scenes_loading\">\n" +
+    "                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"scene in scenes | orderBy: '+name'\" ng-click=\"changeScene(scene)\" ng-class=\"{'list-group-item-success': matcher.match == scene.name}\">\n" +
+    "                  {{scene.name}}\n" +
+    "                </li>\n" +
+    "              </ul>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div ng-show=\"matcher.match_type == 'time'\" style=\"padding-left: 1em;\">\n" +
+    "              <epochtime time=\"matcher.match\" disabled=\"{{matcher.match_type != 'time'}}\"></epochtime>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div ng-show=\"matcher.match_type == 'string'\" style=\"padding-left: 1em;\">\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"match\" placeholder=\"String\" required=\"\" ng-model=\"matcher.match\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div ng-show=\"matcher.match_type == 'number'\" style=\"padding-left: 1em;\">\n" +
+    "              <input type=\"text\" class=\"form-control\" id=\"match\" placeholder=\"Number\" required=\"\" ng-model=\"matcher.match\">\n" +
+    "            </div>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "\n" +
+    "</div>\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"cancel()\">Cancel</button>\n" +
+    "    <button class=\"btn btn-success btn-sm\" type=\"button\" ng-click=\"save()\"><i class=\"icon-save-floppy\"></i> Save</button>\n" +
+    "</div>\n"
   );
 
 

@@ -1,0 +1,15 @@
+<div>
+    <div class="clearfix">
+        <label for="trigger">Triggers </label>
+        <button class="btn btn-xs btn-success pull-right" ng-click="addTriggerMatcher()"><i class="icon-circleadd"></i></button>
+    </div>
+  <ul class="list-group bg-muted select-list">
+    <li class="list-group-item" style="cursor: pointer;" ng-repeat="t in ngModel | orderBy: '+trigger'" ng-click="editTriggerMatcher(t)">
+        <button class="btn btn-xs btn-danger pull-right" ng-click="deleteTriggerMatcher($index)" stop-event><i class="icon-trash"></i></button>
+      {{t.trigger}}
+        <div ng-show="t.match_type === 'device' || t.match_type === 'room' || t.match_type === 'scene'">From the {{t.match_type}} {{t.match}}</div>
+        <div ng-show="t.match_type === 'number' || t.match_type === 'string'">{{t.match_type | capitalize}} of {{t.match}}</div>
+        <div ng-show="t.match_type === 'time'">{{t.match_type | capitalize}} is {{t.match | time}}</div>
+    </li>
+  </ul>
+</div>

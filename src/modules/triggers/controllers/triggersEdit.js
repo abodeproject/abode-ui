@@ -222,6 +222,10 @@ triggers.controller('triggersEdit', function ($scope, $state, $uibModal, abode, 
   };
 
   $scope.save = function () {
+    $scope.trigger.trigger = '';
+    $scope.trigger.match_type = '';
+    $scope.trigger.match = '';
+
     $scope.trigger.$update().then(function () {
       abode.message({'type': 'success', 'message': 'Trigger Saved'});
     }, function (err) {
