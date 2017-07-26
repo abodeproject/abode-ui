@@ -119,6 +119,8 @@ home.directive('controller', [function () {
         }
 
         $scope.loading = true;
+        $scope.error = false;
+
         $scope.obj.$refresh().then(function () {
           $scope.loading = false;
           $scope.error = false;
