@@ -10,7 +10,7 @@ devices.controller('devicesAdd', function ($scope, $state, abode, Devices, provi
   $scope.provider_templates = {};
 
   $scope.providers.forEach(function (p) {
-    $scope.provider_templates[p] = 'modules/' + p + '/views/add.html';
+    $scope.provider_templates[p.id] = 'modules/' + p.id + '/views/add.html';
   });
 
   $scope.back = function () {
@@ -22,9 +22,9 @@ devices.controller('devicesAdd', function ($scope, $state, abode, Devices, provi
   };
 
   $scope.changeProvider = function (p) {
-    $scope.device.provider = p;
+    $scope.device.provider = p.id;
     $scope.section = 'settings';
-    $scope.provider_template = 'modules/' + p + '/views/add.html';
+    $scope.provider_template = 'modules/' + p.id + '/views/add.html';
   };
 
   $scope.add = function () {

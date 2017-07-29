@@ -5,6 +5,10 @@ insteon.controller('insteonEdit', function ($scope, $http, $uibModal, $timeout, 
   $scope.device = $scope.$parent.device;
   $scope.loading = false;
   $scope.error = false;
+  $scope.linking_loading = false;
+  $scope.linking_error = false;
+  $scope.beep_error = false;
+  $scope.beep_loading = false;
 
   $scope.reload_database = function () {
     $scope.loading = true;
@@ -20,19 +24,67 @@ insteon.controller('insteonEdit', function ($scope, $http, $uibModal, $timeout, 
   };
 
   $scope.beep = function () {
-    insteon.beep($scope.device.config.address);
+    $scope.beep_loading = true;
+    $scope.beep_error = false;
+
+    insteon.beep($scope.device.config.address)
+        .then(function () {
+            $scope.beep_loading = false;
+        }, function () {
+          $scope.beep_error = true;
+
+          $timeout(function () {
+            $scope.beep_error = false;
+            $scope.beep_loading = false;
+          }, 2500);
+        });
   };
 
   $scope.enterlinking = function (group) {
-    insteon.enterlinking($scope.device.config.address, group);
+    $scope.linking_loading = true;
+    $scope.linking_error = false;
+
+    insteon.enterlinking($scope.device.config.address, group)
+        .then(function () {
+            $scope.linking_loading = false;
+        }, function () {
+          $scope.linking_error = true;
+
+          $timeout(function () {
+            $scope.linking_error = false;
+            $scope.linking_loading = false;
+          }, 2500);
+        });
   };
 
   $scope.enterunlinking = function (group) {
-    insteon.enterunlinking($scope.device.config.address, group);
+    $scope.linking_loading = true;
+    insteon.enterunlinking($scope.device.config.address, group)
+        .then(function () {
+            $scope.linking_loading = false;
+        }, function () {
+          $scope.linking_error = true;
+
+          $timeout(function () {
+            $scope.linking_error = false;
+            $scope.linking_loading = false;
+          }, 2500);
+        });
   };
 
   $scope.exitlinking = function () {
-    insteon.exitlinking($scope.device.config.address);
+    $scope.linking_loading = true;
+    insteon.exitlinking($scope.device.config.address)
+        .then(function () {
+            $scope.linking_loading = false;
+        }, function () {
+          $scope.linking_error = true;
+
+          $timeout(function () {
+            $scope.linking_error = false;
+            $scope.linking_loading = false;
+          }, 2500);
+        });
   };
 
   $scope.idrequest = function () {

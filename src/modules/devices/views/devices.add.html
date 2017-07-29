@@ -27,8 +27,8 @@
                   <div class="form-group">
                     <label for="name">Provider</label>
                     <ul class="list-group bg-muted select-list" >
-                      <li class="list-group-item" style="cursor: pointer;" ng-repeat="p in providers | orderBy: '+'" ng-click="changeProvider(p)" ng-class="{'list-group-item-success': device.provider == p}">
-                        {{p | capitalize}}
+                      <li class="list-group-item" style="cursor: pointer;" ng-repeat="p in providers | orderBy: '+name' | filter:{enabled: true}" ng-click="changeProvider(p)" ng-class="{'list-group-item-success': device.provider == p}">
+                        {{p.name | capitalize}}
                       </li>
                     </ul>
                   </div>
@@ -36,7 +36,7 @@
                 <form name="addDevice">
 
                   <div ng-show="device.provider && section == 'settings'">
-                    <div ng-repeat="p in providers | orderBy: '+'" ng-include="provider_templates[p]" ng-if="device.provider == p">
+                    <div ng-repeat="p in providers | orderBy: '+name' | filter:{enabled: true}" ng-include="provider_templates[p.id]" ng-if="device.provider == p.id">
 
                     </div>
 

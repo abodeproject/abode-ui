@@ -1099,8 +1099,8 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                  <div class=\"form-group\">\n" +
     "                    <label for=\"name\">Provider</label>\n" +
     "                    <ul class=\"list-group bg-muted select-list\" >\n" +
-    "                      <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"p in providers | orderBy: '+'\" ng-click=\"changeProvider(p)\" ng-class=\"{'list-group-item-success': device.provider == p}\">\n" +
-    "                        {{p | capitalize}}\n" +
+    "                      <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"p in providers | orderBy: '+name' | filter:{enabled: true}\" ng-click=\"changeProvider(p)\" ng-class=\"{'list-group-item-success': device.provider == p}\">\n" +
+    "                        {{p.name | capitalize}}\n" +
     "                      </li>\n" +
     "                    </ul>\n" +
     "                  </div>\n" +
@@ -1108,7 +1108,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                <form name=\"addDevice\">\n" +
     "\n" +
     "                  <div ng-show=\"device.provider && section == 'settings'\">\n" +
-    "                    <div ng-repeat=\"p in providers | orderBy: '+'\" ng-include=\"provider_templates[p]\" ng-if=\"device.provider == p\">\n" +
+    "                    <div ng-repeat=\"p in providers | orderBy: '+name' | filter:{enabled: true}\" ng-include=\"provider_templates[p.id]\" ng-if=\"device.provider == p.id\">\n" +
     "\n" +
     "                    </div>\n" +
     "\n" +
@@ -1602,11 +1602,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "	<div ng-hide=\"has_capability('scene')\">\n" +
     "		<div class=\"form-group\">\n" +
-    "			<button class=\"btn btn-sm btn-primary\" ng-click=\"beep()\"><i class=\"icon-volume-down\"></i> Beep</button>\n" +
+    "			<button class=\"btn btn-sm btn-primary\" ng-click=\"beep()\" ng-disabled=\"beep_loading\" ng-class=\"{'btn-danger': beep_error}\"><i class=\"icon-volume-down\"></i> Beep</button>\n" +
     "\n" +
     "			<div class=\"btn-group\" uib-dropdown>\n" +
-    "			  <button id=\"split-button\" type=\"button\" class=\"btn btn-sm btn-primary\"  ng-click=\"enterlinking()\">Linking</button>\n" +
-    "			  <button type=\"button\" class=\"btn btn-sm btn-primary\" uib-dropdown-toggle>\n" +
+    "			  <button id=\"split-button\" type=\"button\" class=\"btn btn-sm btn-primary\"  ng-click=\"enterlinking()\" ng-disabled=\"linking_loading\" ng-class=\"{'btn-danger': linking_error}\">Linking</button>\n" +
+    "			  <button type=\"button\" class=\"btn btn-sm btn-primary\" uib-dropdown-toggle ng-disabled=\"linking_loading\" ng-class=\"{'btn-danger': linking_error}\">\n" +
     "				<span class=\"caret\"></span>\n" +
     "			  </button>\n" +
     "			  <ul class=\"dropdown-menu\" uib-dropdown-menu role=\"menu\" aria-labelledby=\"split-button\">\n" +
@@ -1615,8 +1615,8 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "			</div>\n" +
     "\n" +
     "			<div class=\"btn-group\" uib-dropdown>\n" +
-    "			  <button id=\"split-button\" type=\"button\" class=\"btn btn-sm btn-primary\"  ng-click=\"enterunlinking()\">Un-Linking</button>\n" +
-    "			  <button type=\"button\" class=\"btn btn-sm btn-primary\" uib-dropdown-toggle>\n" +
+    "			  <button id=\"split-button\" type=\"button\" class=\"btn btn-sm btn-primary\"  ng-click=\"enterunlinking()\" ng-disabled=\"linking_loading\" ng-class=\"{'btn-danger': linking_error}\">Un-Linking</button>\n" +
+    "			  <button type=\"button\" class=\"btn btn-sm btn-primary\" uib-dropdown-toggle ng-disabled=\"linking_loading\" ng-class=\"{'btn-danger': linking_error}\">\n" +
     "				<span class=\"caret\"></span>\n" +
     "			  </button>\n" +
     "			  <ul class=\"dropdown-menu\" uib-dropdown-menu role=\"menu\" aria-labelledby=\"split-button\">\n" +
@@ -1624,7 +1624,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "			  </ul>\n" +
     "			</div>\n" +
     "\n" +
-    "			<button class=\"btn btn-sm btn-primary\" ng-click=\"exitlinking()\"><i class=\"icon-circlestopempty\"></i> Stop Linking</button>\n" +
+    "			<button class=\"btn btn-sm btn-primary\" ng-click=\"exitlinking()\" ng-disabled=\"linking_loading\" ng-class=\"{'btn-danger': linking_error}\"><i class=\"icon-circlestopempty\"></i> Stop Linking</button>\n" +
     "			<button class=\"btn btn-sm btn-primary\" ng-class=\"{'btn-danger': id_error, 'btn-success': id_success}\" ng-disabled=\"id_loading || id_success || id_error\" ng-click=\"idrequest()\">\n" +
     "				<i class=\"icon-circleselection spin\" ng-show=\"id_loading\"></i>\n" +
     "				<i class=\"icon-circleselect\" ng-show=\"id_success\"></i>\n" +
@@ -1633,6 +1633,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "				<i class=\"icon-tagalt-pricealt\" ng-hide=\"id_loading || id_success || id_error\"></i> ID Request\n" +
     "			</button>\n" +
     "		</div>\n" +
+    "		<insteon-modem-linking ng-model=\"linked\" show-heading=\"true\"></insteon-modem-linking>\n" +
     "	</div>\n" +
     "\n" +
     "\n" +
@@ -1723,6 +1724,40 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "    <button class=\"btn btn-sm\" type=\"button\" ng-click=\"save()\" ng-disabled=\"loading\" ng-class=\"{'btn-primary': loading, 'btn-success': !loading}\">\n" +
     "        <span ng-hide=\"loading\"><i class=\"icon-save-floppy\"></i> Save</span>\n" +
     "        <span ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Saving</span></button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/insteon/views/modem_linking.html',
+    "\n" +
+    "<div class=\"panel panel-default\">\n" +
+    "  <div class=\"panel-heading\" ng-click=\"isCollapsed = !isCollapsed\" ng-show=\"showHeading\" style=\"cursor: pointer\">\n" +
+    "    <i class=\"glyphicon glyphicon-triangle-bottom\" ng-show=\"!isCollapsed\"></i>\n" +
+    "    <i class=\"glyphicon glyphicon-triangle-right\" ng-show=\"isCollapsed\"></i>\n" +
+    "    Insteon Modem Linking\n" +
+    "  </div>\n" +
+    "  <div class=\"panel-body\" uib-collapse=\"isCollapsed\">\n" +
+    "    <div class=\"form-group\">\n" +
+    "      <label for=\"exampleInputEmail1\">Link Type:</label>\n" +
+    "      <label><input type=\"radio\" ng-model=\"linking.controller\" ng-value=\"true\" ng-disabled=\"link_waiting\"> Controller</label>\n" +
+    "      <label><input type=\"radio\" ng-model=\"linking.controller\" ng-value=\"false\" ng-disabled=\"link_waiting\"> Responder</label>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\">\n" +
+    "      <label for=\"exampleInputEmail1\">Group:</label>\n" +
+    "      <select class=\"form-control\" ng-model=\"linking.group\" ng-options=\"scene.id as scene.address for scene in scenes\" ng-disabled=\"link_waiting\"></select>\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <button class=\"btn btn-sm btn-primary\" ng-click=\"start_linking(linking.controller, linking.group)\" ng-hide=\"link_waiting\" ng-disabled=\"link_waiting || link_error\" ng-class=\"{'btn-danger': link_error}\">\n" +
+    "      <i class=\"icon-link\" ng-hide=\"link_waiting || link_error\"></i>\n" +
+    "      <i class=\"icon-circleselection spin\" ng-show=\"link_waiting\"></i>\n" +
+    "      <i class=\"icon-erroralt\" ng-show=\"link_error\"></i>\n" +
+    "        Start Linking\n" +
+    "    </button>\n" +
+    "    <button class=\"btn btn-sm btn-muted\" ng-click=\"cancel_linking()\" ng-show=\"link_waiting\" ng-disabled=\"!link_waiting\" ng-class=\"{'btn-warning': link_waiting}\">\n" +
+    "      <i class=\"icon-circleselection spin\"></i>\n" +
+    "      Cancel\n" +
+    "    </button>\n" +
+    "  </div>\n" +
     "</div>\n"
   );
 
@@ -1868,27 +1903,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "              </uib-tab>\n" +
     "              <uib-tab index=\"2\" heading=\"Linking\">\n" +
     "                <div class=\"panel\"><div class=\"panel-body\">\n" +
-    "                  <div class=\"well well-lg\">\n" +
-    "                    <div class=\"form-group\">\n" +
-    "                      <label for=\"exampleInputEmail1\">Link Type:</label>\n" +
-    "                      <label><input type=\"radio\" ng-model=\"linking.controller\" ng-value=\"true\" ng-disabled=\"link_waiting\"> Controller</label>\n" +
-    "                      <label><input type=\"radio\" ng-model=\"linking.controller\" ng-value=\"false\" ng-disabled=\"link_waiting\"> Responder</label>\n" +
-    "                    </div>\n" +
-    "                    <div class=\"form-group\">\n" +
-    "                      <label for=\"exampleInputEmail1\">Group:</label>\n" +
-    "                      <select class=\"form-control\" ng-model=\"linking.group\" ng-options=\"scene.id as scene.address for scene in scenes\" ng-disabled=\"link_waiting\"></select>\n" +
-    "                    </div>\n" +
-    "\n" +
-    "                      <button class=\"btn btn-sm btn-primary\" ng-click=\"start_linking(linking.controller, linking.group)\" ng-hide=\"link_waiting\" ng-disabled=\"link_waiting || link_error\" ng-class=\"{'btn-danger': link_error}\">\n" +
-    "                        <i class=\"icon-link\" ng-hide=\"link_waiting || link_error\"></i>\n" +
-    "                        <i class=\"icon-circleselection spin\" ng-show=\"link_waiting\"></i>\n" +
-    "                        <i class=\"icon-erroralt\" ng-show=\"link_error\"></i>\n" +
-    "                          Start Linking\n" +
-    "                      </button>\n" +
-    "                      <button class=\"btn btn-sm btn-muted\" ng-click=\"cancel_linking()\" ng-show=\"link_waiting\" ng-disabled=\"!link_waiting\" ng-class=\"{'btn-warning': link_waiting}\">\n" +
-    "                        <i class=\"icon-circleselection spin\"></i>\n" +
-    "                        Cancel</button>\n" +
-    "                   </div>\n" +
+    "                  <insteon-modem-linking ng-model=\"linking.device\"></insteon-modem-linking>\n" +
     "                  <div class=\"well\" ng-show=\"linking.device\">\n" +
     "                    <h3><i class=\"icon-ok-sign text-success\"></i> Device Linked</h3>\n" +
     "                    <div class=\"form-group\">\n" +
