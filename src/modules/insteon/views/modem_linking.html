@@ -13,7 +13,7 @@
     </div>
     <div class="form-group">
       <label for="exampleInputEmail1">Group:</label>
-      <select class="form-control" ng-model="linking.group" ng-options="scene.id as scene.address for scene in scenes" ng-disabled="link_waiting"></select>
+      <select class="form-control" ng-model="linking.group" ng-options="scene.id as scene.title for scene in scenes" ng-disabled="link_waiting"></select>
     </div>
 
     <button class="btn btn-sm btn-primary" ng-click="start_linking(linking.controller, linking.group)" ng-hide="link_waiting" ng-disabled="link_waiting || link_error" ng-class="{'btn-danger': link_error}">

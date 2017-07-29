@@ -6,12 +6,68 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
   $scope.enabling = false;
   $scope.status = status;
   $scope.config = status.config;
-  $scope.devices = [
+  $scope.ports = [
     '/dev/ttyUSB0',
     '/dev/ttyUSB1',
     '/dev/ttyUSB2',
     '/dev/ttyUSB3',
   ];
+
+  $scope.age_compare = function (value, age) {
+      if (value === undefined) {
+        return;
+      }
+
+      var now = new Date();
+      var age_ms = 0;
+      var age_str = String(age);
+
+      switch (age_str[age_str.length - 1]) {
+        case 's':
+          age_ms = age_str.substring(0,age_str.length - 2);
+          age_ms = parseInt(age_ms) * 1000;
+
+          break;
+        case 'm':
+          age_ms = age_str.substring(0,age_str.length - 2);
+          age_ms = parseInt(age_ms) * 1000 * 60;
+          break;
+        case 'h':
+          age_ms = age_str.substring(0,age_str.length - 2);
+          age_ms = parseInt(age_ms) * 1000 * 60 * 60;
+          break;
+        case 'd':
+          age_ms = age_str.substring(0,age_str.length - 2);
+          age_ms = parseInt(age_ms) * 1000 * 60 * 60 * 24;
+          break;
+        default:
+          age_ms = age_str.substring(0,age_str.length - 2);
+          age_ms = parseInt(age_ms);
+          break;
+      }
+
+    return ((now - new Date(value)) > age_ms) ? 1 : -1;
+
+  };
+
+  $scope.is_linked = function (addr) {
+    var matches = $scope.database.filter(function (record) {
+      return (record.address === addr);
+    });
+
+    return (matches.length > 0);
+  };
+
+  $scope.scene_used = function (addr) {
+    if (!$scope.database) { return; }
+    var group_number = parseInt(addr.split('.')[2], 16);
+
+    var matches = $scope.database.filter(function (record) {
+      return (record.controller === true && record.group === group_number);
+    });
+
+    return (matches.length > 0);
+  };
 
   $scope.linking = {
     controller: true,
@@ -19,6 +75,11 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
   };
 
   $scope.db_loading = true;
+
+  insteon.get_devices().then(function (results) {
+    $scope.devices = results;
+  }, function () {
+  });
 
   insteon.get_scenes().then(function (results) {
     $scope.scenes = results;

@@ -82414,12 +82414,68 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
   $scope.enabling = false;
   $scope.status = status;
   $scope.config = status.config;
-  $scope.devices = [
+  $scope.ports = [
     '/dev/ttyUSB0',
     '/dev/ttyUSB1',
     '/dev/ttyUSB2',
     '/dev/ttyUSB3',
   ];
+
+  $scope.age_compare = function (value, age) {
+      if (value === undefined) {
+        return;
+      }
+
+      var now = new Date();
+      var age_ms = 0;
+      var age_str = String(age);
+
+      switch (age_str[age_str.length - 1]) {
+        case 's':
+          age_ms = age_str.substring(0,age_str.length - 2);
+          age_ms = parseInt(age_ms) * 1000;
+
+          break;
+        case 'm':
+          age_ms = age_str.substring(0,age_str.length - 2);
+          age_ms = parseInt(age_ms) * 1000 * 60;
+          break;
+        case 'h':
+          age_ms = age_str.substring(0,age_str.length - 2);
+          age_ms = parseInt(age_ms) * 1000 * 60 * 60;
+          break;
+        case 'd':
+          age_ms = age_str.substring(0,age_str.length - 2);
+          age_ms = parseInt(age_ms) * 1000 * 60 * 60 * 24;
+          break;
+        default:
+          age_ms = age_str.substring(0,age_str.length - 2);
+          age_ms = parseInt(age_ms);
+          break;
+      }
+
+    return ((now - new Date(value)) > age_ms) ? 1 : -1;
+
+  };
+
+  $scope.is_linked = function (addr) {
+    var matches = $scope.database.filter(function (record) {
+      return (record.address === addr);
+    });
+
+    return (matches.length > 0);
+  };
+
+  $scope.scene_used = function (addr) {
+    if (!$scope.database) { return; }
+    var group_number = parseInt(addr.split('.')[2], 16);
+
+    var matches = $scope.database.filter(function (record) {
+      return (record.controller === true && record.group === group_number);
+    });
+
+    return (matches.length > 0);
+  };
 
   $scope.linking = {
     controller: true,
@@ -82427,6 +82483,11 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
   };
 
   $scope.db_loading = true;
+
+  insteon.get_devices().then(function (results) {
+    $scope.devices = results;
+  }, function () {
+  });
 
   insteon.get_scenes().then(function (results) {
     $scope.scenes = results;
@@ -82677,6 +82738,208 @@ insteon.directive('insteonModemLinking', function () {
       };
     },
     templateUrl: 'modules/insteon/views/modem_linking.html',
+    replace: true,
+  };
+
+});
+
+
+
+var insteon = angular.module('insteon');
+
+insteon.directive('insteonSceneMembers', function () {
+
+  return {
+    restrict: 'E',
+    transclude: false,
+    scope: {
+      'ngModel': '=',
+    },
+    require: 'ngModel',
+    controller: function ($scope, $timeout, $uibModal, insteon, confirm) {
+      $scope.ngModel.config.scene_members = $scope.ngModel.config.scene_members || [];
+      $scope.status = 'idle';
+
+      var openMember = function (member) {
+        var modal = $uibModal.open({
+          animation: true,
+          templateUrl: 'modules/insteon/views/scene_member_modal.html',
+          size: 'sm',
+          controller: function ($scope, $timeout, $uibModalInstance, member, devices) {
+            $scope.member = member;
+            $scope.devices = devices;
+            $scope.rates = insteon.rates;
+            $scope.editing = (member.address !== undefined);
+
+            $scope.changeDevice = function (device) {
+              $scope.member.name = device.name;
+              $scope.member.address = device.config.address;
+            };
+
+            $scope.save = function () {
+              var matches = $scope.devices.filter(function (device) {
+                return (device.config.address === $scope.member.address);
+              });
+
+              if (matches.length > 0) {
+                $scope.member.name = matches[0].name;
+              }
+              $uibModalInstance.close($scope.member);
+            };
+
+            $scope.cancel = function () {
+              $uibModalInstance.dismiss();
+            };
+
+            $timeout(function () {
+                $scope.$broadcast('rzSliderForceRender');
+            });
+          },
+          resolve: {
+            'member': function () {
+              return angular.copy(member);
+            },
+            'devices': function ($q, insteon) {
+              var defer = $q.defer();
+
+              insteon.get_devices().then(function (devices) {
+                var existing = $scope.ngModel.config.scene_members.map(function (device) {
+                  return device.address;
+                });
+
+                var filtered = devices.filter(function (dev) {
+                  return (existing.indexOf(dev.config.address) === -1);
+                });
+
+                defer.resolve(filtered);
+              }, function (err) {
+                defer.reject(err);
+              });
+
+              return defer.promise;
+            },
+          }
+        });
+
+        return modal;
+      };
+
+      $scope.add_member = function () {
+
+        var modal = openMember({'button': 1, 'on_level': 100, 'ramp_rate': 31});
+
+        modal.result.then(function (member) {
+          member.action = 'add';
+          member.status = 'pending';
+          $scope.ngModel.config.scene_members.push(member);
+        });
+      };
+
+      $scope.edit_member = function (member) {
+        if ($scope.status === 'applying') {
+          return;
+        }
+
+        var index = $scope.ngModel.config.scene_members.indexOf(member),
+          modal = openMember(member);
+
+        modal.result.then(function (member) {
+          member.action = (member.action === 'add') ? 'add' : 'update';
+          member.status = 'pending';
+          $scope.ngModel.config.scene_members.splice(index, 1, member);
+        });
+      };
+
+      $scope.delete_member = function (member) {
+        if (member.action !== 'delete') {
+          confirm('Delete scene member?').then(function () {
+            if (member.action === 'add') {
+              var index = $scope.ngModel.config.scene_members.indexOf(member);
+              $scope.ngModel.config.scene_members.splice(index, 1);
+            } else {
+              member.status = 'pending';
+              member.action = 'delete';
+            }
+          });
+
+        } else {
+          confirm('Force remove scene member?').then(function () {
+            var index = $scope.ngModel.config.scene_members.indexOf(member);
+            $scope.ngModel.config.scene_members.splice(index, 1);
+          });
+        }
+      };
+
+      $scope.apply = function () {
+        var index = -1,
+            deleted = [],
+            pending = $scope.ngModel.config.scene_members.filter(function (member) {
+          return (member.status === 'pending' || member.status === 'failed');
+        });
+
+        var apply_member = function () {
+          index += 1;
+          var promise,
+              member = pending[index];
+
+          if (!member) {
+            deleted.forEach(function () {
+               $scope.ngModel.config.scene_members.splice($scope.ngModel.config.scene_members.indexOf(member), 1);
+            });
+
+            $scope.status = '';
+            $scope.ngModel.config.scene_members.forEach(function (member) {
+              delete member.$processing;
+            });
+            return;
+          }
+
+          member.$processing = true;
+
+          switch (member.action) {
+            case 'add':
+              promise = insteon.add_scene_member($scope.ngModel.config.address, member);
+              break;
+            case 'update':
+              promise = insteon.update_scene_member($scope.ngModel.config.address, member);
+              break;
+            case 'delete':
+              promise = insteon.delete_scene_member($scope.ngModel.config.address, member);
+              break;
+          }
+
+          promise.then(function () {
+            $timeout(function () {
+              if (member.action === 'delete') {
+                deleted.push(member);
+              }
+              member.status = 'complete';
+              member.action = '';
+              member.$processing = false;
+              apply_member();
+            }, 1000);
+          }, function () {
+            $timeout(function () {
+              member.status = 'failed';
+              member.$processing = false;
+              apply_member();
+            }, 1000);
+          });
+        }
+
+        $scope.status = 'applying';
+        apply_member();
+      };
+
+      $scope.has_pending = function () {
+        var matches = $scope.ngModel.config.scene_members.filter(function (member) {
+          return (member.status === 'pending' || member.status === 'failed');
+        });
+
+        return (matches.length > 0);
+      };
+    },
+    templateUrl: 'modules/insteon/views/scene_members.html',
     replace: true,
   };
 
@@ -83011,6 +83274,42 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
     return defer.promise;
   };
 
+  var add_scene_member = function (scene, member) {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/insteon/scenes/' + scene + '/members').value(), member).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
+  var update_scene_member = function (scene, member) {
+    var defer = $q.defer();
+
+    $http.put(abode.url('/api/insteon/scenes/' + scene + '/members/' + member.address).value(), member).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
+  var delete_scene_member = function (scene, member) {
+    var defer = $q.defer();
+
+    $http.delete(abode.url('/api/insteon/scenes/' + scene + '/members/' + member.address, member).value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err.data);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
     save: save_config,
@@ -83031,7 +83330,10 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
     modem_load_database: modem_load_database,
     modem_start_all_linking: modem_start_all_linking,
     modem_cancel_all_linking: modem_cancel_all_linking,
-    get_scenes: get_scenes
+    get_scenes: get_scenes,
+    add_scene_member: add_scene_member,
+    update_scene_member: update_scene_member,
+    delete_scene_member: delete_scene_member,
   };
 
 });
@@ -89883,7 +90185,10 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "	</div>\n" +
     "\n" +
     "\n" +
-    "	<div>\n" +
+    "	<div ng-show=\"device.capabilities.indexOf('scene') !== -1\">\n" +
+    "		<insteon-scene-members ng-model=\"device\"></insteon-scene-members>\n" +
+    "	</div>\n" +
+    "	<div ng-show=\"device.capabilities.indexOf('scene') === -1\">\n" +
     "		<div class=\"form-group\">\n" +
     "		  <label for=\"name\">Links</label>\n" +
     "	      <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"add_link()\">\n" +
@@ -89990,7 +90295,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "    </div>\n" +
     "    <div class=\"form-group\">\n" +
     "      <label for=\"exampleInputEmail1\">Group:</label>\n" +
-    "      <select class=\"form-control\" ng-model=\"linking.group\" ng-options=\"scene.id as scene.address for scene in scenes\" ng-disabled=\"link_waiting\"></select>\n" +
+    "      <select class=\"form-control\" ng-model=\"linking.group\" ng-options=\"scene.id as scene.title for scene in scenes\" ng-disabled=\"link_waiting\"></select>\n" +
     "    </div>\n" +
     "\n" +
     "    <button class=\"btn btn-sm btn-primary\" ng-click=\"start_linking(linking.controller, linking.group)\" ng-hide=\"link_waiting\" ng-disabled=\"link_waiting || link_error\" ng-class=\"{'btn-danger': link_error}\">\n" +
@@ -90004,6 +90309,73 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "      Cancel\n" +
     "    </button>\n" +
     "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/insteon/views/scene_member_modal.html',
+    "<div class=\"modal-header\"><h3>{{action}} Link</h3></div>\n" +
+    "\n" +
+    "<div class=\"modal-body\">\n" +
+    "    <form name=\"memberFrm\">\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <label for=\"on_level\">Device</label>\n" +
+    "        <select ng-hide=\"editing\" class=\"form-control\" ng-model=\"member.address\" ng-options=\"device.config.address as device.name for device in devices | orderBy: 'name'\" ng-required=\"true\" ng-disabled=\"editing\"></select>\n" +
+    "        <span ng-show=\"editing\">{{member.name}} ({{member.address}})</span>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <label for=\"address\">Button</label>\n" +
+    "        <rzslider rz-slider-model=\"member.button\" rz-slider-options=\"{floor: 0, ceil: 255, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <label for=\"on_level\">On Level</label>\n" +
+    "        <rzslider rz-slider-model=\"member.on_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <label for=\"address\">Ramp Rate</label>\n" +
+    "        <select size=\"1\" class=\"form-control\" ng-model=\"member.ramp_rate\" ng-options=\"rate.value as rate.text for rate in rates | orderBy:'value':true\">\n" +
+    "        </select>\n" +
+    "    </div>\n" +
+    "    </form>\n" +
+    "</div>\n" +
+    "\n" +
+    "\n" +
+    "\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"cancel()\" ng-disabled=\"loading\">Cancel</button>\n" +
+    "    <button class=\"btn btn-sm\" type=\"button\" ng-click=\"save()\" ng-disabled=\"memberFrm.$invalid\" ng-class=\"{'btn-primary': loading, 'btn-success': !loading}\">\n" +
+    "        <span ng-hide=\"loading\"><i class=\"icon-save-floppy\"></i> Save</span>\n" +
+    "        <span ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Saving</span></button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/insteon/views/scene_members.html',
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <label for=\"name\">Members</label>\n" +
+    "    <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"add_member()\" ng-disabled=\"status=='applying'\">\n" +
+    "      <i class=\"icon-circleadd\"></i> Add</button>\n" +
+    "    <button class=\"pull-right btn btn-warning btn-xs\" ng-click=\"apply()\" ng-show=\"has_pending()\" ng-disabled=\"status=='applying'\">\n" +
+    "      <i class=\"icon-savetodrive\"></i> Apply</button>\n" +
+    "\n" +
+    "  <ul class=\"list-group bg-muted select-list\" style=\"height: 20em;\">\n" +
+    "    <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"member in ngModel.config.scene_members | orderBy: 'name'\" ng-click=\"edit_member(member)\">\n" +
+    "      <button class=\"btn btn-xs btn-danger pull-right\" ng-click=\"delete_member(member)\" stop-event ng-disabled=\"status=='applying'\">\n" +
+    "        <i class=\"icon-trash\"></i>\n" +
+    "      </button>\n" +
+    "      <div>\n" +
+    "        <i class=\"icon-time text-warning\" ng-show=\"member.status == 'pending' && !member.$processing\" uib-popover=\"{{member.action | capitalize}}\" popover-trigger=\"'mouseenter'\" popover-append-to-body=\"true\"></i>\n" +
+    "        <i class=\"icon-ok-circle text-success\" ng-show=\"member.status == 'complete'\"></i>\n" +
+    "        <i class=\"icon-circleselection spin\" ng-show=\"member.$processing\"></i>\n" +
+    "        <i class=\"icon-exclamation-sign text-danger\" ng-show=\"member.status == 'failed' && !member.$processing\"></i>\n" +
+    "        <span ng-class=\"{'strike-through': member.action === 'delete'}\">{{member.name || member.address}}<span ng-show=\"member.name\"> ({{member.address}})</span></span>\n" +
+    "      </div>\n" +
+    "      <div><small>\n" +
+    "        Set <span ng-show=\"member.button > 1\"> button {{member.button}}</span> level to {{member.on_level}}% in {{member.ramp_rate | insteonRate}}\n" +
+    "      </small></div>\n" +
+    "    </li>\n" +
+    "   </ul>\n" +
     "</div>\n"
   );
 
@@ -90050,7 +90422,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "\n" +
     "                    <ul class=\"list-group bg-muted select-list\">\n" +
-    "                      <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"d in devices\" ng-click=\"config.serial_device = d\" ng-class=\"{'list-group-item-success': config.serial_device == d}\">\n" +
+    "                      <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"d in ports\" ng-click=\"config.serial_device = d\" ng-class=\"{'list-group-item-success': config.serial_device == d}\">\n" +
     "                        {{d}}\n" +
     "                      </li>\n" +
     "                    </ul>\n" +
@@ -90117,7 +90489,52 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "                </div>\n" +
     "              </uib-tab>\n" +
-    "              <uib-tab index=\"1\" heading=\"Database\">\n" +
+    "              <uib-tab index=\"1\" heading=\"Devices\">\n" +
+    "                  <p>\n" +
+    "                    <div class=\"input-group\" ng-hide=\"loading\">\n" +
+    "                      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"device_search\" autocomplete='off'>\n" +
+    "                      <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "                    </div>\n" +
+    "                  </p>\n" +
+    "                  <p>\n" +
+    "                    <ul class=\"list-group\">\n" +
+    "                      <li class=\"list-group-item\" ng-repeat=\"device in devices | orderBy: 'name' | filter: {'is_scene': false, 'name': device_search}\">\n" +
+    "                        <button class=\"btn btn-xs btn-default\" uib-popover=\"{{device.config.address}}\" popover-trigger=\"'outsideClick'\" ng-class=\"{'btn-danger': device.low_battery}\">\n" +
+    "                          <i class=\"icon-info-sign\" ng-shide=\"device.low_battery\"></i>\n" +
+    "                          <i class=\"icon-batteryaltthird\" ng-show=\"device.low_battery\"></i>\n" +
+    "                        </button> <a ui-sref=\"main.devices.edit({name: device.name})\">{{device.name}}</a>\n" +
+    "                        <div class=\"pull-right\">\n" +
+    "                          <button class=\"btn btn-xs btn-success\" ng-class=\"{'btn-danger': !is_linked(device.config.address)}\"><i class=\"icon-linkalt\"></i></button>\n" +
+    "                          <button class=\"btn btn-xs\" uib-popover=\"0x{{device.config.device_cat}} 0x{{device.config.device_subcat}}\" popover-trigger=\"'outsideClick'\" ng-class=\"{'btn-success': device.config.device_cat, 'btn-danger': !device.config.device_cat || device.config.device_cat == '00'}\" ng-disabled=\"!device.config.device_cat || device.config.device_cat == '00'\"><i class=\"icon-cpu-processor\"></i></button>\n" +
+    "                          <button class=\"btn btn-xs btn-default\" uib-popover=\"{{device.config.last_heartbeat | date: 'short'}}\" popover-trigger=\"'outsideClick'\"ng-class=\"{'btn-danger': age_compare(device.config.last_heartbeat, '1d') === 1, 'btn-success': age(device.config.last_heartbeat, '1d') === -1}\"><i class=\"icon-heart\"></i></button>\n" +
+    "                          <button class=\"btn btn-xs\" ng-class=\"{'btn-success': device.config.database.length > 0, 'btn-danger': !device.config.database.length}\"><i class=\"icon-database\"></i></button>\n" +
+    "                        </div>\n" +
+    "                        <div><small>Last Seen: {{device.last_seen | date : 'short'}}</small></div>\n" +
+    "                      </li>\n" +
+    "                    </ul>\n" +
+    "                  </p>\n" +
+    "              </uib-tab>\n" +
+    "              <uib-tab index=\"2\" heading=\"Scenes\">\n" +
+    "                  <p>\n" +
+    "                    <div class=\"input-group\" ng-hide=\"loading\">\n" +
+    "                      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"scene_search\" autocomplete='off'>\n" +
+    "                      <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "                    </div>\n" +
+    "                  </p>\n" +
+    "                  <p>\n" +
+    "                    <ul class=\"list-group\">\n" +
+    "                      <li class=\"list-group-item\" ng-repeat=\"scene in scenes | orderBy: ['address'] | filter: {'name': scene_search}\">\n" +
+    "                        <button class=\"btn btn-xs btn-default\" uib-popover=\"{{scene.address}}\" popover-trigger=\"'outsideClick'\" ng-class=\"{'btn-danger': device.low_battery}\">\n" +
+    "                          <i class=\"icon-info-sign\"></i>\n" +
+    "                        </button> <a ui-sref=\"main.devices.edit({name: scene.name})\" ng-hide=\"scene.name === 'UNUSED'\">{{scene.name}}</a><span class=\"text-muted\" ng-show=\"scene.name === 'UNUSED'\">{{scene.name}}</span>\n" +
+    "                        <div class=\"pull-right\">\n" +
+    "                          <button class=\"btn btn-xs btn-success\" ng-class=\"{'btn-danger': !scene_used(scene.address)}\"><i class=\"icon-linkalt\"></i></button>\n" +
+    "                        </div>\n" +
+    "                      </li>\n" +
+    "                    </ul>\n" +
+    "                  </p>\n" +
+    "              </uib-tab>\n" +
+    "              <uib-tab index=\"3\" heading=\"Database\">\n" +
     "                <div class=\"panel\"><div class=\"panel-body\">\n" +
     "                  <p>\n" +
     "                    <button class=\"btn btn-primary btn-sm pull-right\" ng-click=\"load_modem_database()\" ng-disabled=\"db_loading || db_error\" ng-class=\"{'btn-danger': db_error}\">\n" +
@@ -90147,7 +90564,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                  </p>\n" +
     "                </div></div>\n" +
     "              </uib-tab>\n" +
-    "              <uib-tab index=\"2\" heading=\"Linking\">\n" +
+    "              <uib-tab index=\"4\" heading=\"Linking\">\n" +
     "                <div class=\"panel\"><div class=\"panel-body\">\n" +
     "                  <insteon-modem-linking ng-model=\"linking.device\"></insteon-modem-linking>\n" +
     "                  <div class=\"well\" ng-show=\"linking.device\">\n" +

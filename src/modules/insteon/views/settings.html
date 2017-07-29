@@ -39,7 +39,7 @@ retries = 3
 
 
                     <ul class="list-group bg-muted select-list">
-                      <li class="list-group-item" style="cursor: pointer;" ng-repeat="d in devices" ng-click="config.serial_device = d" ng-class="{'list-group-item-success': config.serial_device == d}">
+                      <li class="list-group-item" style="cursor: pointer;" ng-repeat="d in ports" ng-click="config.serial_device = d" ng-class="{'list-group-item-success': config.serial_device == d}">
                         {{d}}
                       </li>
                     </ul>
@@ -106,7 +106,52 @@ retries = 3
 
                 </div>
               </uib-tab>
-              <uib-tab index="1" heading="Database">
+              <uib-tab index="1" heading="Devices">
+                  <p>
+                    <div class="input-group" ng-hide="loading">
+                      <input type="text" class="form-control" id="name" placeholder="Search" ng-model="device_search" autocomplete='off'>
+                      <div class="input-group-addon"><i class="icon-search"></i></div>
+                    </div>
+                  </p>
+                  <p>
+                    <ul class="list-group">
+                      <li class="list-group-item" ng-repeat="device in devices | orderBy: 'name' | filter: {'is_scene': false, 'name': device_search}">
+                        <button class="btn btn-xs btn-default" uib-popover="{{device.config.address}}" popover-trigger="'outsideClick'" ng-class="{'btn-danger': device.low_battery}">
+                          <i class="icon-info-sign" ng-shide="device.low_battery"></i>
+                          <i class="icon-batteryaltthird" ng-show="device.low_battery"></i>
+                        </button> <a ui-sref="main.devices.edit({name: device.name})">{{device.name}}</a>
+                        <div class="pull-right">
+                          <button class="btn btn-xs btn-success" ng-class="{'btn-danger': !is_linked(device.config.address)}"><i class="icon-linkalt"></i></button>
+                          <button class="btn btn-xs" uib-popover="0x{{device.config.device_cat}} 0x{{device.config.device_subcat}}" popover-trigger="'outsideClick'" ng-class="{'btn-success': device.config.device_cat, 'btn-danger': !device.config.device_cat || device.config.device_cat == '00'}" ng-disabled="!device.config.device_cat || device.config.device_cat == '00'"><i class="icon-cpu-processor"></i></button>
+                          <button class="btn btn-xs btn-default" uib-popover="{{device.config.last_heartbeat | date: 'short'}}" popover-trigger="'outsideClick'"ng-class="{'btn-danger': age_compare(device.config.last_heartbeat, '1d') === 1, 'btn-success': age(device.config.last_heartbeat, '1d') === -1}"><i class="icon-heart"></i></button>
+                          <button class="btn btn-xs" ng-class="{'btn-success': device.config.database.length > 0, 'btn-danger': !device.config.database.length}"><i class="icon-database"></i></button>
+                        </div>
+                        <div><small>Last Seen: {{device.last_seen | date : 'short'}}</small></div>
+                      </li>
+                    </ul>
+                  </p>
+              </uib-tab>
+              <uib-tab index="2" heading="Scenes">
+                  <p>
+                    <div class="input-group" ng-hide="loading">
+                      <input type="text" class="form-control" id="name" placeholder="Search" ng-model="scene_search" autocomplete='off'>
+                      <div class="input-group-addon"><i class="icon-search"></i></div>
+                    </div>
+                  </p>
+                  <p>
+                    <ul class="list-group">
+                      <li class="list-group-item" ng-repeat="scene in scenes | orderBy: ['address'] | filter: {'name': scene_search}">
+                        <button class="btn btn-xs btn-default" uib-popover="{{scene.address}}" popover-trigger="'outsideClick'" ng-class="{'btn-danger': device.low_battery}">
+                          <i class="icon-info-sign"></i>
+                        </button> <a ui-sref="main.devices.edit({name: scene.name})" ng-hide="scene.name === 'UNUSED'">{{scene.name}}</a><span class="text-muted" ng-show="scene.name === 'UNUSED'">{{scene.name}}</span>
+                        <div class="pull-right">
+                          <button class="btn btn-xs btn-success" ng-class="{'btn-danger': !scene_used(scene.address)}"><i class="icon-linkalt"></i></button>
+                        </div>
+                      </li>
+                    </ul>
+                  </p>
+              </uib-tab>
+              <uib-tab index="3" heading="Database">
                 <div class="panel"><div class="panel-body">
                   <p>
                     <button class="btn btn-primary btn-sm pull-right" ng-click="load_modem_database()" ng-disabled="db_loading || db_error" ng-class="{'btn-danger': db_error}">
@@ -136,7 +181,7 @@ retries = 3
                   </p>
                 </div></div>
               </uib-tab>
-              <uib-tab index="2" heading="Linking">
+              <uib-tab index="4" heading="Linking">
                 <div class="panel"><div class="panel-body">
                   <insteon-modem-linking ng-model="linking.device"></insteon-modem-linking>
                   <div class="well" ng-show="linking.device">

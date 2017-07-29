@@ -1637,7 +1637,10 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "	</div>\n" +
     "\n" +
     "\n" +
-    "	<div>\n" +
+    "	<div ng-show=\"device.capabilities.indexOf('scene') !== -1\">\n" +
+    "		<insteon-scene-members ng-model=\"device\"></insteon-scene-members>\n" +
+    "	</div>\n" +
+    "	<div ng-show=\"device.capabilities.indexOf('scene') === -1\">\n" +
     "		<div class=\"form-group\">\n" +
     "		  <label for=\"name\">Links</label>\n" +
     "	      <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"add_link()\">\n" +
@@ -1744,7 +1747,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "    </div>\n" +
     "    <div class=\"form-group\">\n" +
     "      <label for=\"exampleInputEmail1\">Group:</label>\n" +
-    "      <select class=\"form-control\" ng-model=\"linking.group\" ng-options=\"scene.id as scene.address for scene in scenes\" ng-disabled=\"link_waiting\"></select>\n" +
+    "      <select class=\"form-control\" ng-model=\"linking.group\" ng-options=\"scene.id as scene.title for scene in scenes\" ng-disabled=\"link_waiting\"></select>\n" +
     "    </div>\n" +
     "\n" +
     "    <button class=\"btn btn-sm btn-primary\" ng-click=\"start_linking(linking.controller, linking.group)\" ng-hide=\"link_waiting\" ng-disabled=\"link_waiting || link_error\" ng-class=\"{'btn-danger': link_error}\">\n" +
@@ -1758,6 +1761,73 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "      Cancel\n" +
     "    </button>\n" +
     "  </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/insteon/views/scene_member_modal.html',
+    "<div class=\"modal-header\"><h3>{{action}} Link</h3></div>\n" +
+    "\n" +
+    "<div class=\"modal-body\">\n" +
+    "    <form name=\"memberFrm\">\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <label for=\"on_level\">Device</label>\n" +
+    "        <select ng-hide=\"editing\" class=\"form-control\" ng-model=\"member.address\" ng-options=\"device.config.address as device.name for device in devices | orderBy: 'name'\" ng-required=\"true\" ng-disabled=\"editing\"></select>\n" +
+    "        <span ng-show=\"editing\">{{member.name}} ({{member.address}})</span>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <label for=\"address\">Button</label>\n" +
+    "        <rzslider rz-slider-model=\"member.button\" rz-slider-options=\"{floor: 0, ceil: 255, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <label for=\"on_level\">On Level</label>\n" +
+    "        <rzslider rz-slider-model=\"member.on_level\" rz-slider-options=\"{floor: 0, ceil: 100, hideLimitLabels: true}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <label for=\"address\">Ramp Rate</label>\n" +
+    "        <select size=\"1\" class=\"form-control\" ng-model=\"member.ramp_rate\" ng-options=\"rate.value as rate.text for rate in rates | orderBy:'value':true\">\n" +
+    "        </select>\n" +
+    "    </div>\n" +
+    "    </form>\n" +
+    "</div>\n" +
+    "\n" +
+    "\n" +
+    "\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-warning btn-sm\" type=\"button\" ng-click=\"cancel()\" ng-disabled=\"loading\">Cancel</button>\n" +
+    "    <button class=\"btn btn-sm\" type=\"button\" ng-click=\"save()\" ng-disabled=\"memberFrm.$invalid\" ng-class=\"{'btn-primary': loading, 'btn-success': !loading}\">\n" +
+    "        <span ng-hide=\"loading\"><i class=\"icon-save-floppy\"></i> Save</span>\n" +
+    "        <span ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Saving</span></button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/insteon/views/scene_members.html',
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <label for=\"name\">Members</label>\n" +
+    "    <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"add_member()\" ng-disabled=\"status=='applying'\">\n" +
+    "      <i class=\"icon-circleadd\"></i> Add</button>\n" +
+    "    <button class=\"pull-right btn btn-warning btn-xs\" ng-click=\"apply()\" ng-show=\"has_pending()\" ng-disabled=\"status=='applying'\">\n" +
+    "      <i class=\"icon-savetodrive\"></i> Apply</button>\n" +
+    "\n" +
+    "  <ul class=\"list-group bg-muted select-list\" style=\"height: 20em;\">\n" +
+    "    <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"member in ngModel.config.scene_members | orderBy: 'name'\" ng-click=\"edit_member(member)\">\n" +
+    "      <button class=\"btn btn-xs btn-danger pull-right\" ng-click=\"delete_member(member)\" stop-event ng-disabled=\"status=='applying'\">\n" +
+    "        <i class=\"icon-trash\"></i>\n" +
+    "      </button>\n" +
+    "      <div>\n" +
+    "        <i class=\"icon-time text-warning\" ng-show=\"member.status == 'pending' && !member.$processing\" uib-popover=\"{{member.action | capitalize}}\" popover-trigger=\"'mouseenter'\" popover-append-to-body=\"true\"></i>\n" +
+    "        <i class=\"icon-ok-circle text-success\" ng-show=\"member.status == 'complete'\"></i>\n" +
+    "        <i class=\"icon-circleselection spin\" ng-show=\"member.$processing\"></i>\n" +
+    "        <i class=\"icon-exclamation-sign text-danger\" ng-show=\"member.status == 'failed' && !member.$processing\"></i>\n" +
+    "        <span ng-class=\"{'strike-through': member.action === 'delete'}\">{{member.name || member.address}}<span ng-show=\"member.name\"> ({{member.address}})</span></span>\n" +
+    "      </div>\n" +
+    "      <div><small>\n" +
+    "        Set <span ng-show=\"member.button > 1\"> button {{member.button}}</span> level to {{member.on_level}}% in {{member.ramp_rate | insteonRate}}\n" +
+    "      </small></div>\n" +
+    "    </li>\n" +
+    "   </ul>\n" +
     "</div>\n"
   );
 
@@ -1804,7 +1874,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "\n" +
     "                    <ul class=\"list-group bg-muted select-list\">\n" +
-    "                      <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"d in devices\" ng-click=\"config.serial_device = d\" ng-class=\"{'list-group-item-success': config.serial_device == d}\">\n" +
+    "                      <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"d in ports\" ng-click=\"config.serial_device = d\" ng-class=\"{'list-group-item-success': config.serial_device == d}\">\n" +
     "                        {{d}}\n" +
     "                      </li>\n" +
     "                    </ul>\n" +
@@ -1871,7 +1941,52 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "                </div>\n" +
     "              </uib-tab>\n" +
-    "              <uib-tab index=\"1\" heading=\"Database\">\n" +
+    "              <uib-tab index=\"1\" heading=\"Devices\">\n" +
+    "                  <p>\n" +
+    "                    <div class=\"input-group\" ng-hide=\"loading\">\n" +
+    "                      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"device_search\" autocomplete='off'>\n" +
+    "                      <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "                    </div>\n" +
+    "                  </p>\n" +
+    "                  <p>\n" +
+    "                    <ul class=\"list-group\">\n" +
+    "                      <li class=\"list-group-item\" ng-repeat=\"device in devices | orderBy: 'name' | filter: {'is_scene': false, 'name': device_search}\">\n" +
+    "                        <button class=\"btn btn-xs btn-default\" uib-popover=\"{{device.config.address}}\" popover-trigger=\"'outsideClick'\" ng-class=\"{'btn-danger': device.low_battery}\">\n" +
+    "                          <i class=\"icon-info-sign\" ng-shide=\"device.low_battery\"></i>\n" +
+    "                          <i class=\"icon-batteryaltthird\" ng-show=\"device.low_battery\"></i>\n" +
+    "                        </button> <a ui-sref=\"main.devices.edit({name: device.name})\">{{device.name}}</a>\n" +
+    "                        <div class=\"pull-right\">\n" +
+    "                          <button class=\"btn btn-xs btn-success\" ng-class=\"{'btn-danger': !is_linked(device.config.address)}\"><i class=\"icon-linkalt\"></i></button>\n" +
+    "                          <button class=\"btn btn-xs\" uib-popover=\"0x{{device.config.device_cat}} 0x{{device.config.device_subcat}}\" popover-trigger=\"'outsideClick'\" ng-class=\"{'btn-success': device.config.device_cat, 'btn-danger': !device.config.device_cat || device.config.device_cat == '00'}\" ng-disabled=\"!device.config.device_cat || device.config.device_cat == '00'\"><i class=\"icon-cpu-processor\"></i></button>\n" +
+    "                          <button class=\"btn btn-xs btn-default\" uib-popover=\"{{device.config.last_heartbeat | date: 'short'}}\" popover-trigger=\"'outsideClick'\"ng-class=\"{'btn-danger': age_compare(device.config.last_heartbeat, '1d') === 1, 'btn-success': age(device.config.last_heartbeat, '1d') === -1}\"><i class=\"icon-heart\"></i></button>\n" +
+    "                          <button class=\"btn btn-xs\" ng-class=\"{'btn-success': device.config.database.length > 0, 'btn-danger': !device.config.database.length}\"><i class=\"icon-database\"></i></button>\n" +
+    "                        </div>\n" +
+    "                        <div><small>Last Seen: {{device.last_seen | date : 'short'}}</small></div>\n" +
+    "                      </li>\n" +
+    "                    </ul>\n" +
+    "                  </p>\n" +
+    "              </uib-tab>\n" +
+    "              <uib-tab index=\"2\" heading=\"Scenes\">\n" +
+    "                  <p>\n" +
+    "                    <div class=\"input-group\" ng-hide=\"loading\">\n" +
+    "                      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"scene_search\" autocomplete='off'>\n" +
+    "                      <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "                    </div>\n" +
+    "                  </p>\n" +
+    "                  <p>\n" +
+    "                    <ul class=\"list-group\">\n" +
+    "                      <li class=\"list-group-item\" ng-repeat=\"scene in scenes | orderBy: ['address'] | filter: {'name': scene_search}\">\n" +
+    "                        <button class=\"btn btn-xs btn-default\" uib-popover=\"{{scene.address}}\" popover-trigger=\"'outsideClick'\" ng-class=\"{'btn-danger': device.low_battery}\">\n" +
+    "                          <i class=\"icon-info-sign\"></i>\n" +
+    "                        </button> <a ui-sref=\"main.devices.edit({name: scene.name})\" ng-hide=\"scene.name === 'UNUSED'\">{{scene.name}}</a><span class=\"text-muted\" ng-show=\"scene.name === 'UNUSED'\">{{scene.name}}</span>\n" +
+    "                        <div class=\"pull-right\">\n" +
+    "                          <button class=\"btn btn-xs btn-success\" ng-class=\"{'btn-danger': !scene_used(scene.address)}\"><i class=\"icon-linkalt\"></i></button>\n" +
+    "                        </div>\n" +
+    "                      </li>\n" +
+    "                    </ul>\n" +
+    "                  </p>\n" +
+    "              </uib-tab>\n" +
+    "              <uib-tab index=\"3\" heading=\"Database\">\n" +
     "                <div class=\"panel\"><div class=\"panel-body\">\n" +
     "                  <p>\n" +
     "                    <button class=\"btn btn-primary btn-sm pull-right\" ng-click=\"load_modem_database()\" ng-disabled=\"db_loading || db_error\" ng-class=\"{'btn-danger': db_error}\">\n" +
@@ -1901,7 +2016,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                  </p>\n" +
     "                </div></div>\n" +
     "              </uib-tab>\n" +
-    "              <uib-tab index=\"2\" heading=\"Linking\">\n" +
+    "              <uib-tab index=\"4\" heading=\"Linking\">\n" +
     "                <div class=\"panel\"><div class=\"panel-body\">\n" +
     "                  <insteon-modem-linking ng-model=\"linking.device\"></insteon-modem-linking>\n" +
     "                  <div class=\"well\" ng-show=\"linking.device\">\n" +

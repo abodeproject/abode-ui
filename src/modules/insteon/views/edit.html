@@ -71,7 +71,10 @@
 	</div>
 
 
-	<div>
+	<div ng-show="device.capabilities.indexOf('scene') !== -1">
+		<insteon-scene-members ng-model="device"></insteon-scene-members>
+	</div>
+	<div ng-show="device.capabilities.indexOf('scene') === -1">
 		<div class="form-group">
 		  <label for="name">Links</label>
 	      <button class="pull-right btn btn-success btn-xs" ng-click="add_link()">
