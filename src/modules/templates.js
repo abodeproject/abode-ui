@@ -1081,8 +1081,9 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "  <div class=\"container-flex\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-xs-8\">\n" +
-    "        <i class=\"{{ngModel.icon}}\" ng-show=\"ngModel.icon\"></i>\n" +
-    "        <span ng-hide=\"ngModel.icon\">\n" +
+    "        <i class=\"icon-circleselection spin\" ng-show=\"ngModel.$is_open\"></i>\n" +
+    "        <i class=\"{{ngModel.icon}}\" ng-show=\"ngModel.icon && !ngModel.$is_open\"></i>\n" +
+    "        <span ng-hide=\"ngModel.icon || ngModel.$is_open\">\n" +
     "          <i class=\"icon-fan\" ng-show=\"ngModel.$is('fan')\"></i>\n" +
     "          <i class=\"icon-videocamerathree\" ng-show=\"ngModel.$is('camera')\"></i>\n" +
     "          <i class=\"icon-lightbulb-idea\" ng-show=\"ngModel.$is('light')\"></i>\n" +

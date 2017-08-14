@@ -2,8 +2,9 @@
   <div class="container-flex">
     <div class="row">
       <div class="col-xs-8">
-        <i class="{{ngModel.icon}}" ng-show="ngModel.icon"></i>
-        <span ng-hide="ngModel.icon">
+        <i class="icon-circleselection spin" ng-show="ngModel.$is_open"></i>
+        <i class="{{ngModel.icon}}" ng-show="ngModel.icon && !ngModel.$is_open"></i>
+        <span ng-hide="ngModel.icon || ngModel.$is_open">
           <i class="icon-fan" ng-show="ngModel.$is('fan')"></i>
           <i class="icon-videocamerathree" ng-show="ngModel.$is('camera')"></i>
           <i class="icon-lightbulb-idea" ng-show="ngModel.$is('light')"></i>
