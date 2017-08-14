@@ -89843,8 +89843,8 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "      </div>\n" +
     "    </div>\n" +
     "    <div class=\"row\">\n" +
-    "      <div class=\"col-xs-12\" stop-event>\n" +
-    "        <device-level ng-model=\"ngModel\" ng-if=\"ngModel.$is('dimmer') && showControls\"></device-level>\n" +
+    "      <div class=\"col-xs-12\" style=\"padding-top: 1em;\">\n" +
+    "        <device-level ng-model=\"ngModel\" ng-if=\"ngModel.$is('dimmer') && showControls\" stop-event></device-level>\n" +
     "      </div>\n" +
     "    </div>\n" +
     "    <div class=\"row\" ng-show=\"ngModel.tags.length > 0\">\n" +
