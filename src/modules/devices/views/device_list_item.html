@@ -1,0 +1,53 @@
+<li class="list-group-item" style="cursor: pointer" ng-class="{'list-group-item-danger': ngModel._on && ngModel.$is('openclose', 'motion_sensor'), 'text-muted': ngModel.$is_open, 'list-group-item-info': ngModel._mode == 'COOL', 'list-group-item-warning': ngModel._mode == 'HEAT'}" ng-click="ngModel.$open()">
+  <div class="container-flex">
+    <div class="row">
+      <div class="col-xs-8">
+        <i class="{{ngModel.icon}}" ng-show="ngModel.icon"></i>
+        <span ng-hide="ngModel.icon">
+          <i class="icon-fan" ng-show="ngModel.$is('fan')"></i>
+          <i class="icon-videocamerathree" ng-show="ngModel.$is('camera')"></i>
+          <i class="icon-lightbulb-idea" ng-show="ngModel.$is('light')"></i>
+          <i class="icon-monitor" ng-show="ngModel.$is('display')"></i>
+          <i class="fi-window" ng-show="ngModel.$is('window')"></i>
+          <i class="fi-door-open" ng-show="ngModel.$is('door')"></i>
+          <i class="fi-motion" ng-show="ngModel.$is('motion_sensor')"></i>
+          <i class="icon-temperaturealt-thermometeralt" ng-show="ngModel.$is('conditioner')"></i>
+          <i class="wi wi-day-snow-thunderstorm" ng-show="ngModel.$is('weather')"></i>
+          <i class="icon-browser" ng-show="ngModel.$is('browser')"></i>
+          <i class="glyphicon glyphicon-bullhorn" ng-show="ngModel.$is('siren')"></i>
+          <i class="icon-lockalt-keyhole" ng-show="ngModel.$is('lock')"></i>
+        </span>
+        {{ngModel.name}}
+      </div>
+      <div class="col-xs-4 text-right" ng-if="showControls" stop-event>
+        <div class="pull-right">
+            <span class="badge" ng-show="ngModel._mode == 'COOL'">{{ngModel._set_point}} <i class="icon-snow"></i></span>
+            <span class="badge" ng-show="ngModel._mode == 'HEAT'">{{ngModel._set_point}} <i class="icon-fire"></i></span>
+            <span class="badge" ng-show="ngModel.$is('temperature_sensor')">{{ngModel._temperature}} <i class="wi wi-thermometer"></i></span>
+            <span class="badge" ng-show="ngModel.$is('humidity_sensor')">{{ngModel._humidity}} <i class="wi wi-humidity"></i></span>
+            <span class="badge" ng-show="ngModel.$is('light_sensor')">{{ngModel._lumens}} <i class="wi wi-day-sunny wi-fw"></i></span>
+
+            <device-toggle ng-model="ngModel" ng-if="ngModel.$is('onoff', 'light', 'fan')"></device-toggle>
+            <device-toggle ng-model="ngModel" ng-if="ngModel.$is('motion_sensor')" on-color="#af4b4b" off-color="#4baf4d"></device-toggle>
+            <device-toggle ng-model="ngModel" ng-if="ngModel.$is('openclose')" on-label="Open" off-label="Closed" on-color="#af4b4b" off-color="#4baf4d"></device-toggle>
+          </div>
+      </div>
+      <div class="col-xs-4 text-right" ng-if="!showControls" stop-event>
+        <button class="btn btn-xs btn-primary" ng-click="ngModel.$edit()"><i class="icon-edit"></i> Edit</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12" stop-event>
+        <device-level ng-model="ngModel" ng-if="ngModel.$is('dimmer') && showControls"></device-level>
+      </div>
+    </div>
+    <div class="row" ng-show="ngModel.tags.length > 0">
+      <div style="font-size: .7em" class="col-xs-12 text-muted"><i class="icon-tags"></i>
+        <span ng-repeat="tag in ngModel.tags" style="margin-right: 1em;">{{tag}}</span>
+      </div>
+    </div>
+    <div class="row" ng-show="ngModel.age">
+      <div class="col-xs-12"><small>{{ngModel.age | ageHumanReadable}}</small></div>
+    </div>
+  </div>
+</li>

@@ -938,7 +938,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('modules/devices/views/capabilities/fan.html',
     "<div style=\"text-align: center;\">\n" +
-    "  <div style=\"border: .1em solid white; border-radius: .4em; height: 18em; width: 10em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; cursor: pointer; padding-top: 5em; transition: 2s;\" ng-class=\"{'bg-success':  device._on}\" ng-click=\"toggle_onoff()\">\n" +
+    "  <div style=\"border: .1em solid white; border-radius: .4em; height: 9em; width: 10em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; cursor: pointer; padding-top: 2em; transition: 2s;\" ng-class=\"{'bg-success':  device._on}\" ng-click=\"toggle_onoff()\">\n" +
     "    <div style=\"text-align: center;\">\n" +
     "      <h2><i class=\"icon-fan\" ng-class=\"{'spin': device._on, 'spin-stop': !device._on}\"></i></h2>\n" +
     "    </div>\n" +
@@ -1066,6 +1066,81 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   $templateCache.put('modules/devices/views/capabilities/temperature_sensor.html',
     "\n" +
     "<h4 style=\" white-space: nowrap\">{{device._temperature}} <i class=\"wi wi-thermometer wi-fw\"></i></h4>\n"
+  );
+
+
+  $templateCache.put('modules/devices/views/device_level.html',
+    "<div class=\"device-level\">\n" +
+    "    <rzslider class=\"device-level-slider\" rz-slider-model=\"ngModel.$temp_level\" rz-slider-options=\"slider\" ng-disabled=\"ngModel.$loading || ngModel.$error\"></rzslider>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('modules/devices/views/device_list_item.html',
+    "<li class=\"list-group-item\" style=\"cursor: pointer\" ng-class=\"{'list-group-item-danger': ngModel._on && ngModel.$is('openclose', 'motion_sensor'), 'text-muted': ngModel.$is_open, 'list-group-item-info': ngModel._mode == 'COOL', 'list-group-item-warning': ngModel._mode == 'HEAT'}\" ng-click=\"ngModel.$open()\">\n" +
+    "  <div class=\"container-flex\">\n" +
+    "    <div class=\"row\">\n" +
+    "      <div class=\"col-xs-8\">\n" +
+    "        <i class=\"{{ngModel.icon}}\" ng-show=\"ngModel.icon\"></i>\n" +
+    "        <span ng-hide=\"ngModel.icon\">\n" +
+    "          <i class=\"icon-fan\" ng-show=\"ngModel.$is('fan')\"></i>\n" +
+    "          <i class=\"icon-videocamerathree\" ng-show=\"ngModel.$is('camera')\"></i>\n" +
+    "          <i class=\"icon-lightbulb-idea\" ng-show=\"ngModel.$is('light')\"></i>\n" +
+    "          <i class=\"icon-monitor\" ng-show=\"ngModel.$is('display')\"></i>\n" +
+    "          <i class=\"fi-window\" ng-show=\"ngModel.$is('window')\"></i>\n" +
+    "          <i class=\"fi-door-open\" ng-show=\"ngModel.$is('door')\"></i>\n" +
+    "          <i class=\"fi-motion\" ng-show=\"ngModel.$is('motion_sensor')\"></i>\n" +
+    "          <i class=\"icon-temperaturealt-thermometeralt\" ng-show=\"ngModel.$is('conditioner')\"></i>\n" +
+    "          <i class=\"wi wi-day-snow-thunderstorm\" ng-show=\"ngModel.$is('weather')\"></i>\n" +
+    "          <i class=\"icon-browser\" ng-show=\"ngModel.$is('browser')\"></i>\n" +
+    "          <i class=\"glyphicon glyphicon-bullhorn\" ng-show=\"ngModel.$is('siren')\"></i>\n" +
+    "          <i class=\"icon-lockalt-keyhole\" ng-show=\"ngModel.$is('lock')\"></i>\n" +
+    "        </span>\n" +
+    "        {{ngModel.name}}\n" +
+    "      </div>\n" +
+    "      <div class=\"col-xs-4 text-right\" ng-if=\"showControls\" stop-event>\n" +
+    "        <div class=\"pull-right\">\n" +
+    "            <span class=\"badge\" ng-show=\"ngModel._mode == 'COOL'\">{{ngModel._set_point}} <i class=\"icon-snow\"></i></span>\n" +
+    "            <span class=\"badge\" ng-show=\"ngModel._mode == 'HEAT'\">{{ngModel._set_point}} <i class=\"icon-fire\"></i></span>\n" +
+    "            <span class=\"badge\" ng-show=\"ngModel.$is('temperature_sensor')\">{{ngModel._temperature}} <i class=\"wi wi-thermometer\"></i></span>\n" +
+    "            <span class=\"badge\" ng-show=\"ngModel.$is('humidity_sensor')\">{{ngModel._humidity}} <i class=\"wi wi-humidity\"></i></span>\n" +
+    "            <span class=\"badge\" ng-show=\"ngModel.$is('light_sensor')\">{{ngModel._lumens}} <i class=\"wi wi-day-sunny wi-fw\"></i></span>\n" +
+    "\n" +
+    "            <device-toggle ng-model=\"ngModel\" ng-if=\"ngModel.$is('onoff', 'light', 'fan')\"></device-toggle>\n" +
+    "            <device-toggle ng-model=\"ngModel\" ng-if=\"ngModel.$is('motion_sensor')\" on-color=\"#af4b4b\" off-color=\"#4baf4d\"></device-toggle>\n" +
+    "            <device-toggle ng-model=\"ngModel\" ng-if=\"ngModel.$is('openclose')\" on-label=\"Open\" off-label=\"Closed\" on-color=\"#af4b4b\" off-color=\"#4baf4d\"></device-toggle>\n" +
+    "          </div>\n" +
+    "      </div>\n" +
+    "      <div class=\"col-xs-4 text-right\" ng-if=\"!showControls\" stop-event>\n" +
+    "        <button class=\"btn btn-xs btn-primary\" ng-click=\"ngModel.$edit()\"><i class=\"icon-edit\"></i> Edit</button>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "    <div class=\"row\">\n" +
+    "      <div class=\"col-xs-12\" stop-event>\n" +
+    "        <device-level ng-model=\"ngModel\" ng-if=\"ngModel.$is('dimmer') && showControls\"></device-level>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "    <div class=\"row\" ng-show=\"ngModel.tags.length > 0\">\n" +
+    "      <div style=\"font-size: .7em\" class=\"col-xs-12 text-muted\"><i class=\"icon-tags\"></i>\n" +
+    "        <span ng-repeat=\"tag in ngModel.tags\" style=\"margin-right: 1em;\">{{tag}}</span>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "    <div class=\"row\" ng-show=\"ngModel.age\">\n" +
+    "      <div class=\"col-xs-12\"><small>{{ngModel.age | ageHumanReadable}}</small></div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</li>"
+  );
+
+
+  $templateCache.put('modules/devices/views/device_toggle.html',
+    "<div class=\"device-toggle\" ng-click=\"toggle()\" ng-style=\"styles\" ng-class=\"{'device-toggle-off': !ngModel._on && !ngModel.$loading && !ngModel.$error, 'device-toggle-on': ngModel._on && !ngModel.$loading && !ngModel.$error, 'device-toggle-loading': ngModel.$loading && !ngModel.$error, 'device-toggle-error': ngModel.$error, 'device-toggle-light': ngModel.$is('light')}\">\n" +
+    "<div class=\"device-toggle-button\">\n" +
+    "  <div class=\"device-toggle-spinner\" ng-show=\"ngModel.$loading\"><i class=\"glyphicon glyphicon-refresh\"></i></div>\n" +
+    "  <div class=\"device-toggle-label-error\" ng-show=\"ngModel.$error\"><i class=\"glyphicon glyphicon-minus-sign text-danger\"></i></div>\n" +
+    "  <div class=\"device-toggle-label\" ng-hide=\"ngModel.$loading || ngModel.$error\">{{label}}</div>\n" +
+    "</div>\n" +
+    "</div>"
   );
 
 
@@ -1303,6 +1378,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "        </p>\n" +
     "        <h4 ng-show=\"loading\"><i class=\"icon-refresh spin\"></i> Loading...</h4>\n" +
     "        <ul class=\"list-group\" ng-hide=\"loading\">\n" +
+    "          <!--\n" +
     "          <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-click=\"view(device)\" ng-repeat=\"device in devices | filter: search | orderBy: '+name'\">\n" +
     "            <i class=\"{{device.icon}}\" ng-show=\"device.icon\"></i>\n" +
     "            <span ng-hide=\"device.icon\">\n" +
@@ -1324,6 +1400,8 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "              <span ng-repeat=\"tag in device.tags\" style=\"margin-right: 1em;\">{{tag}}</span>\n" +
     "            </div>\n" +
     "          </li>\n" +
+    "          -->\n" +
+    "          <device-list-item ng-repeat=\"device in devices | filter: search | orderBy: '+name'\" ng-model=\"device\"></device-list-item>\n" +
     "        </ul>\n" +
     "      </div>\n" +
     "    </div>\n" +
@@ -3330,6 +3408,8 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "        <h5 class=\"list-group-item-heading\"><i class=\"icon-picture\"></i> {{scene.name}}</h5>\n" +
     "        <p style=\"font-size: .8em;\" class=\"list-group-item-text \">{{scene.age | ageHumanReadable}}</p>\n" +
     "      </li>\n" +
+    "      <device-list-item ng-repeat=\"device in devices | orderBy: ['-_motion', '-_on', '+age', '+name']\" ng-model=\"device\" show-controls=\"true\" ng-show=\"check_filter(device)\"></device-list-item>\n" +
+    "      <!--\n" +
     "      <li class=\"list-group-item\" style=\"cursor: pointer\" ng-repeat=\"device in devices | orderBy: ['-_motion', '-_on', '+age', '+name']\" ng-class=\"{'list-group-item-success': device_state(device, '_on', true, ['light', 'display', 'fan']), 'list-group-item-danger': device_state(device, '_motion', true, ['motion_sensor']) || device_state(device, '_on', true, ['door', 'window']) || device._mode == 'HEAT', 'list-group-item-info': device._mode == 'COOL'}\" ng-click=\"open(device)\" ng-show=\"check_filter(device)\">\n" +
     "        <h4 class=\"list-group-item-heading\">\n" +
     "          <i class=\"icon-videocamerathree\" ng-show=\"has_capability(device, 'camera')\"></i>\n" +
@@ -3354,6 +3434,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "        <p class=\"list-group-item-text \" style=\"font-size: .8em;\">{{device.age | ageHumanReadable}}</p>\n" +
     "      </li>\n" +
+    "      -->\n" +
     "    </ul>\n" +
     "  </div>\n" +
     "  <div ng-show=\"controls\" style=\"overflow-x: scroll; overflow-y: hidden; height: 18em; white-space : nowrap;\">\n" +

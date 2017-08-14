@@ -1149,3 +1149,115 @@ body {
 .strike-through {
   text-decoration: line-through;
 }
+
+.device-toggle {
+  border: 1px inset #ccc;
+  display: inline-block;
+  width: 3em;
+  height: 1em;
+  padding: .1em;
+  border-radius: .2em .2em;
+  cursor: pointer;
+  font-size: 1.5em;
+}
+
+.device-toggle.device-toggle-light.device-toggle-on {
+  box-shadow: 0px 0px  .4em yellow;
+}
+
+.device-toggle-button {
+  border: 1px solid #ccc;
+  display: inline-black;
+  width: 2em;
+  height: .7em;
+  border-radius: .2em .2em;
+  background-color: #ddd;
+  transition: all .25s linear;
+  overflow: hidden;
+  background: -moz-linear-gradient(-22deg,  #eeeeee 0%, #cccccc 100%);
+  background: -webkit-linear-gradient(-22deg,  #eeeeee 0%,#cccccc 100%);
+  background: linear-gradient(140deg,  #eeeeee 0%,#cccccc 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#cccccc',GradientType=1 );
+
+
+}
+
+.device-toggle-label {
+  font-size: .5em;
+  text-align: center;
+  color: black;
+}
+
+.device-toggle-spinner {
+  font-size: .4em;
+  text-align: center;
+  color: #777;
+  -webkit-animation:spin 2s linear infinite;
+  -moz-animation:spin 2s linear infinite;
+  animation:spin 2s linear infinite;
+}
+
+@keyframes error-pulse {
+  from {
+    background-color: #eee;
+  }
+
+  to {
+    background-color: #af4b4b;
+  }
+}
+
+.device-toggle-error {
+  background-color: #f2c6c6;
+  -webkit-animation: error-pulse 1s linear infinite;
+  -moz-animation: error-pulse 1s linear infinite;
+  animation: error-pulse 1s linear infinite;
+  cursor: not-allowed;
+}
+
+.device-toggle-label-error {
+  font-size: .4em;
+  text-align: center;
+}
+
+.device-toggle-loading {
+  background-color: #f0eec4 !important;
+  cursor: wait;
+}
+
+.device-toggle-on .device-toggle-button {
+  margin-left: .7em;
+}
+
+.device-toggle-loading .device-toggle-button {
+  margin-left: .4em;
+}
+
+.device-toggle-error .device-toggle-button {
+  margin-left: .4em;
+}
+.device-level-slider.rzslider .rz-pointer {
+  top: -9px;
+  width: 12px;
+  height: 20px;
+  background-color: #777;
+}
+
+.device-level-slider.rzslider[disabled] .rz-pointer  {
+  background-color: #bbb;
+}
+.device-level-slider.rzslider .rz-pointer:after {
+  display: none;
+}
+.device-level-slider.rzslider .rz-bar {
+  background: #aaa;
+  height: 2px;
+}
+.device-level-slider.rzslider .rz-selection {
+  background: #f2e398;
+  height: 4px;
+}
+
+.device-level-slider.rzslider {
+  margin-top: 25px;
+}

@@ -314,7 +314,20 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
 
           var room_scenes = function () {
             $scope.room.$scenes().$promise.then(function (scenes) {
-              $scope.scenes = scenes;
+
+              scenes.forEach(function (scene) {
+                var match = $scope.scenes.filter(function (item) {
+                  return (scene._id === item._id);
+                });
+
+                if (match.length > 0) {
+                  angular.merge(match[0], scene);
+                } else {
+                  $scope.scenes.push(scene);
+                }
+              });
+
+              //$scope.scenes = scenes;
               $scope.filter_counts.scenes = $scope.scenes.length;
               $scope.on_counts.scenes = $scope.scenes.filter(function (d) { return d._on; });
 
@@ -328,7 +341,19 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
           var room_devices = function () {
 
             $scope.room.$devices().$promise.then(function (devices) {
-              $scope.devices = devices;
+
+              devices.forEach(function (device) {
+                var match = $scope.devices.filter(function (item) {
+                  return (device._id === item._id);
+                });
+
+                if (match.length > 0) {
+                  angular.merge(match[0], device);
+                } else {
+                  $scope.devices.push(device);
+                }
+              });
+              //$scope.devices = devices;
               $scope.default_filter();
 
               room_scenes();

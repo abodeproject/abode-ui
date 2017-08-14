@@ -1,7 +1,7 @@
 
 var devices = angular.module('abode.devices');
 
-devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout, $resource, abode, DeviceRooms) {
+devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout, $resource, $state, abode, DeviceRooms) {
   var model = $resource(abode.url('/api/devices/:id/:action'), {id: '@_id'}, {
     'update': { method: 'PUT' },
     'on': { method: 'POST', params: {'action': 'on'}},
@@ -12,10 +12,31 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
 
   var methods = {};
 
+  methods.$is_open = false;
+  methods.$loading = false;
+  methods.$error = false;
+
   methods.$rooms = function () {
     return DeviceRooms.query({'device': this.name});
 
   };
+
+  methods.$is = function () {
+    var self = this,
+      has = false;
+
+    Array.from(arguments).forEach(function(item) {
+      has = (self.capabilities.indexOf(item) >= 0) ? true : has;
+    });
+
+    return has;
+  };
+
+  methods.$edit = function () {
+
+    $state.go('main.devices.edit', {'name': this.name});
+  };
+
 
   methods.$refresh = function (force) {
     var req,
@@ -232,7 +253,21 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
   methods.$open = function () {
     var self = this;
 
-    return openDevice(self);
+    if (self.$is_open) {
+      return;
+    }
+
+    var modal = openDevice(self);
+
+    self.$is_open = true;
+
+    modal.result.then(function () {
+      self.$is_open = false;
+    }, function () {
+      self.$is_open = false;
+    });
+
+    return modal;
   };
 
   methods.$camera = function () {
@@ -795,7 +830,6 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
         $scope.level_wait = function (id, value) {
           $scope.processing = true;
           $scope.errors = false;
-          console.log('1');
           if (level_wait) {
             $timeout.cancel(level_wait);
           }
@@ -831,6 +865,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
       resolve: {
         device: function (Devices) {
           if (typeof device === 'object') {
+            //return device;
             return Devices.get({'id': device._id}).$promise;
           } else {
             return Devices.get({'id': device}).$promise;

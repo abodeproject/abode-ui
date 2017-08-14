@@ -28,6 +28,8 @@
         <h5 class="list-group-item-heading"><i class="icon-picture"></i> {{scene.name}}</h5>
         <p style="font-size: .8em;" class="list-group-item-text ">{{scene.age | ageHumanReadable}}</p>
       </li>
+      <device-list-item ng-repeat="device in devices | orderBy: ['-_motion', '-_on', '+age', '+name']" ng-model="device" show-controls="true" ng-show="check_filter(device)"></device-list-item>
+      <!--
       <li class="list-group-item" style="cursor: pointer" ng-repeat="device in devices | orderBy: ['-_motion', '-_on', '+age', '+name']" ng-class="{'list-group-item-success': device_state(device, '_on', true, ['light', 'display', 'fan']), 'list-group-item-danger': device_state(device, '_motion', true, ['motion_sensor']) || device_state(device, '_on', true, ['door', 'window']) || device._mode == 'HEAT', 'list-group-item-info': device._mode == 'COOL'}" ng-click="open(device)" ng-show="check_filter(device)">
         <h4 class="list-group-item-heading">
           <i class="icon-videocamerathree" ng-show="has_capability(device, 'camera')"></i>
@@ -52,6 +54,7 @@
 
         <p class="list-group-item-text " style="font-size: .8em;">{{device.age | ageHumanReadable}}</p>
       </li>
+      -->
     </ul>
   </div>
   <div ng-show="controls" style="overflow-x: scroll; overflow-y: hidden; height: 18em; white-space : nowrap;">

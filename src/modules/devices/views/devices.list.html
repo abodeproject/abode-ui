@@ -14,6 +14,7 @@
         </p>
         <h4 ng-show="loading"><i class="icon-refresh spin"></i> Loading...</h4>
         <ul class="list-group" ng-hide="loading">
+          <!--
           <li class="list-group-item" style="cursor: pointer;" ng-click="view(device)" ng-repeat="device in devices | filter: search | orderBy: '+name'">
             <i class="{{device.icon}}" ng-show="device.icon"></i>
             <span ng-hide="device.icon">
@@ -35,6 +36,8 @@
               <span ng-repeat="tag in device.tags" style="margin-right: 1em;">{{tag}}</span>
             </div>
           </li>
+          -->
+          <device-list-item ng-repeat="device in devices | filter: search | orderBy: '+name'" ng-model="device"></device-list-item>
         </ul>
       </div>
     </div>
