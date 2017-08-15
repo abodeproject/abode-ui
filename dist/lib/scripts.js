@@ -89854,7 +89854,10 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "      </div>\n" +
     "    </div>\n" +
     "    <div class=\"row\" ng-show=\"ngModel.age\">\n" +
-    "      <div class=\"col-xs-12\"><small>{{ngModel.age | ageHumanReadable}}</small></div>\n" +
+    "      <div class=\"col-xs-12 text-muted\"><small><span ng-show=\"ngModel._on || ngModel._motion\">On</span><span ng-show=\"!ngModel._on && !ngModel._motion\">Off</span> Age: {{ngModel.age | ageHumanReadable}}</small></div>\n" +
+    "    </div>\n" +
+    "    <div class=\"row\" ng-show=\"ngModel.last_seen\">\n" +
+    "      <div class=\"col-xs-12 text-muted\"><small>Seen: {{ngModel.last_seen | date: 'medium'}}</small></div>\n" +
     "    </div>\n" +
     "  </div>\n" +
     "</li>"
