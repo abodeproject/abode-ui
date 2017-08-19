@@ -123,6 +123,18 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
     return defer.promise;
   };
 
+  methods.$throw_error = function (time) {
+    var self = this;
+
+    time = time || 2500;
+
+    self.$error = true;
+    $timeout(function () {
+      self.$error = false;
+    }, time);
+
+  };
+
   methods.$on = function () {
     var self = this,
       defer = $q.defer(),
@@ -131,16 +143,29 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
     self.$loading = true;
     self.$error = false;
 
-    $http.post(url).then(function (response) {
-      self.$loading = false;
-      self._on = true;
-      self._level = 100;
-      defer.resolve(response.data);
-    }, function (err) {
-      self.$loading = false;
-      self.$error = true;
-      defer.reject(err.data);
-    });
+    if (self.active) {
+      $http.post(url).then(function (response) {
+        self.$loading = false;
+        self._on = true;
+        self._level = 100;
+        defer.resolve(response.data);
+      }, function (err) {
+        self.$loading = false;
+        self.$throw_error();
+        defer.reject(err.data);
+      });
+    } else {
+      url = abode.url('/api/devices/' + this.name).value();
+      $http.put(url, {'_on': true}).then(function (response) {
+        self.$loading = false;
+        self._on = true;
+        defer.resolve(response.data);
+      }, function (err) {
+        self.$loading = false;
+        self.$throw_error();
+        defer.reject(err.data);
+      });
+    }
 
     return defer.promise;
   };
@@ -153,16 +178,29 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
     self.$loading = true;
     self.$error = false;
 
-    $http.post(url).then(function (response) {
-      self.$loading = false;
-      self._on = false;
-      self._level = 0;
-      defer.resolve(response.data);
-    }, function (err) {
-      self.$loading = false;
-      self.$error = true;
-      defer.reject(err.data);
-    });
+    if (self.active) {
+      $http.post(url).then(function (response) {
+        self.$loading = false;
+        self._on = false;
+        self._level = 0;
+        defer.resolve(response.data);
+      }, function (err) {
+        self.$loading = false;
+        self.$throw_error();
+        defer.reject(err.data);
+      });
+    } else {
+      url = abode.url('/api/devices/' + this.name).value();
+      $http.put(url, {'_on': false}).then(function (response) {
+        self.$loading = false;
+        self._on = false;
+        defer.resolve(response.data);
+      }, function (err) {
+        self.$loading = false;
+        self.$throw_error();
+        defer.reject(err.data);
+      });
+    }
 
     return defer.promise;
   };
@@ -177,6 +215,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
       self._motion = true;
       defer.resolve(response.data);
     }, function (err) {
+      self.$throw_error();
       defer.reject(err.data);
     });
 
@@ -193,6 +232,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
       self._motion = false;
       defer.resolve(response.data);
     }, function (err) {
+      self.$throw_error();
       defer.reject(err.data);
     });
 
@@ -322,7 +362,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
       defer.resolve(response.data);
     }, function (err) {
       self.$loading = false;
-      self.$error = true;
+      self.$throw_error();
       defer.reject(err.data);
     });
 

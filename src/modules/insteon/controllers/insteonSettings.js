@@ -60,6 +60,8 @@ insteon.controller('insteonSettings', function ($scope, $http, $timeout, insteon
 
   $scope.scene_used = function (addr) {
     if (!$scope.database) { return; }
+    if (!addr) { return; }
+
     var group_number = parseInt(addr.split('.')[2], 16);
 
     var matches = $scope.database.filter(function (record) {
