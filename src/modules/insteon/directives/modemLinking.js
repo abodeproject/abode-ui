@@ -9,6 +9,9 @@ insteon.directive('insteonModemLinking', function () {
     scope: {
       'ngModel': '=',
       'showHeading': '=',
+      'forceController': '=',
+      'forceResponder': '=',
+      'forceGroup': '=',
     },
     require: 'ngModel',
     controller: function ($scope, insteon) {
@@ -18,6 +21,18 @@ insteon.directive('insteonModemLinking', function () {
         controller: true,
         group: 1
       };
+
+      if ($scope.forceController) {
+        $scope.linking.controller = true;
+      }
+
+      if ($scope.forceResponder) {
+        $scope.linking.controller = false;
+      }
+
+      if ($scope.forceGroup) {
+        $scope.linking.group = insteon.parseGroup($scope.forceGroup);
+      }
 
       insteon.get_scenes().then(function (results) {
         $scope.scenes = results;

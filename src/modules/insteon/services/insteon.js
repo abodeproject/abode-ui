@@ -1,7 +1,7 @@
 
 var insteon = angular.module('insteon');
 
-insteon.service('insteon', function ($http, $q, abode, settings) {
+insteon.service('insteon', function ($http, $q, $timeout, abode, settings) {
 
   var get_config = function () {
 
@@ -55,6 +55,18 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
     var defer = $q.defer();
 
     $http.post(abode.url('/api/insteon/devices/' + addr + '/beep').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var set_level = function (addr, level) {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/insteon/devices/' + addr + '/set_level/' + level).value()).then(function (response) {
       defer.resolve(response.data);
     }, function (err) {
       defer.reject(err);
@@ -230,15 +242,29 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
     return defer.promise;
   };
 
-  var modem_start_all_linking = function (controller, group) {
+  var modem_start_all_linking = function (controller, group, timeout) {
     var defer = $q.defer();
     var url = (group) ? '/api/insteon/start_all_linking/' + group : '/api/insteon/start_all_linking';
 
+    timeout = timeout || 5 * 60 * 1000;
+
+    var timer = $timeout(function () {
+      modem_cancel_all_linking().then(function () {
+        defer.reject({'message': 'Timeout waiting for linking'});
+      }, function () {
+        defer.reject({'message': 'Timeout waiting for linking but also failed to cancel linking'});
+      });
+    }, timeout);
+
     $http.post(abode.url(url).value(), {'conroller': controller}).then(function () {
+      defer.notify({'status': 'linking'});
+
       abode.scope.$on('INSTEON_LINKED', function (type, message) {
+        $timeout.cancel(timer);
         defer.resolve(message.object);
       });
     }, function (err) {
+      $timeout.cancel(timer);
       defer.reject(err.data);
     });
 
@@ -272,23 +298,98 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
   var add_scene_member = function (scene, member) {
     var defer = $q.defer();
 
+    var stop_linking = function (error) {
+
+      var stop_modem = function () {
+        modem_cancel_all_linking().then(function () {
+          defer.reject({'message': error});
+        }, function () {
+          defer.reject({'message': 'Failed to remove device from linking mode'});
+        });
+      };
+
+      exitlinking(member.address).then(function () {
+        stop_modem();
+      }, function () {
+        stop_modem();
+      });
+    };
+
+    modem_start_all_linking(true, parseGroup(scene), 5000).then(function (device) {
+      if (device.config.address === member.address) {
+        defer.resolve();
+      } else {
+        stop_linking('Linked device not expected');
+      }
+    }, function (err) {
+      stop_linking(err.message || 'Failed to enter linking mode');
+    }, function () {
+      set_level(member.address, member.on_level).then(function () {
+        enterlinking(member.address, member.button).then(function () {
+        }, function () {
+          stop_linking('Failed to put device in linking mode');
+        });
+      }, function () {
+        stop_linking('Failed to set device to specified level');
+      });
+    });
+
+    /*
     $http.post(abode.url('/api/insteon/scenes/' + scene + '/members').value(), member).then(function (response) {
       defer.resolve(response.data);
     }, function (err) {
       defer.reject(err.data);
     });
-
+    */
     return defer.promise;
   };
 
   var update_scene_member = function (scene, member) {
     var defer = $q.defer();
 
+    var stop_linking = function (error) {
+
+      var stop_modem = function () {
+        modem_cancel_all_linking().then(function () {
+          defer.reject({'message': error});
+        }, function () {
+          defer.reject({'message': 'Failed to remove device from linking mode'});
+        });
+      };
+
+      stop_linking(member.address).then(function () {
+        stop_modem();
+      }, function () {
+        stop_modem();
+      });
+    };
+
+    modem_start_all_linking(true, parseGroup(scene), 5000).then(function (device) {
+      if (device.config.address === member.address) {
+        defer.resolve();
+      } else {
+        stop_linking('Linked device not expected');
+      }
+    }, function (err) {
+      stop_linking(err.message || 'Failed to enter linking mode');
+    }, function () {
+      set_level(member.address, member.on_level).then(function () {
+        enterlinking(member.address, member.button).then(function () {
+        }, function () {
+          stop_linking('Failed to put device in linking mode');
+        });
+      }, function () {
+        stop_linking('Failed to set device to specified level');
+      });
+    });
+
+    /*
     $http.put(abode.url('/api/insteon/scenes/' + scene + '/members/' + member.address).value(), member).then(function (response) {
       defer.resolve(response.data);
     }, function (err) {
       defer.reject(err.data);
     });
+    */
 
     return defer.promise;
   };
@@ -296,13 +397,23 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
   var delete_scene_member = function (scene, member) {
     var defer = $q.defer();
 
+    /*
     $http.delete(abode.url('/api/insteon/scenes/' + scene + '/members/' + member.address, member).value()).then(function (response) {
       defer.resolve(response.data);
     }, function (err) {
       defer.reject(err.data);
     });
+    */
 
     return defer.promise;
+  };
+
+  var parseGroup = function (group) {
+    if (group.indexOf('.') === -1) {
+      return parseInt(group, 10);
+    }
+
+    return parseInt(group.split('.')[2], 16);
   };
 
   return {
@@ -312,6 +423,7 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
     enable: enable,
     disable: disable,
     beep: beep,
+    set_level: set_level,
     enterlinking: enterlinking,
     enterunlinking: enterunlinking,
     exitlinking: exitlinking,
@@ -329,6 +441,7 @@ insteon.service('insteon', function ($http, $q, abode, settings) {
     add_scene_member: add_scene_member,
     update_scene_member: update_scene_member,
     delete_scene_member: delete_scene_member,
+    parseGroup: parseGroup
   };
 
 });

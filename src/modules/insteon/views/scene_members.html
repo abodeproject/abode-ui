@@ -1,10 +1,12 @@
 
 <div class="form-group">
-  <label for="name">Members</label>
+  <div class="clearfix">
     <button class="pull-right btn btn-success btn-xs" ng-click="add_member()" ng-disabled="status=='applying'">
       <i class="icon-circleadd"></i> Add</button>
     <button class="pull-right btn btn-warning btn-xs" ng-click="apply()" ng-show="has_pending()" ng-disabled="status=='applying'">
       <i class="icon-savetodrive"></i> Apply</button>
+    <label for="name">Members</label>
+  </div>
 
   <ul class="list-group bg-muted select-list" style="height: 20em;">
     <li class="list-group-item" style="cursor: pointer;" ng-repeat="member in ngModel.config.scene_members | orderBy: 'name'" ng-click="edit_member(member)">
@@ -15,7 +17,7 @@
         <i class="icon-time text-warning" ng-show="member.status == 'pending' && !member.$processing" uib-popover="{{member.action | capitalize}}" popover-trigger="'mouseenter'" popover-append-to-body="true"></i>
         <i class="icon-ok-circle text-success" ng-show="member.status == 'complete'"></i>
         <i class="icon-circleselection spin" ng-show="member.$processing"></i>
-        <i class="icon-exclamation-sign text-danger" ng-show="member.status == 'failed' && !member.$processing"></i>
+        <i class="icon-exclamation-sign text-danger" ng-show="member.status == 'failed' && !member.$processing" uib-popover="{{member.message}}" popover-trigger="'mouseenter'" popover-append-to-body="true"></i>
         <span ng-class="{'strike-through': member.action === 'delete'}">{{member.name || member.address}}<span ng-show="member.name"> ({{member.address}})</span></span>
       </div>
       <div><small>

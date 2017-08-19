@@ -1648,112 +1648,130 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   $templateCache.put('modules/insteon/views/edit.html',
     "\n" +
     "<div ng-controller=\"insteonEdit\">\n" +
-    "	<div class=\"form-group\">\n" +
-    "	  <label for=\"name\">Name</label>\n" +
-    "	  <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
-    "	</div>\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
     "\n" +
-    "	<div ng-hide=\"has_capability('scene')\">\n" +
-    "		<div class=\"form-group\">\n" +
-    "		  <label for=\"address\">Device Number</label>\n" +
-    "		  <input type=\"text\" class=\"form-control\" id=\"address\" placeholder=\"Address\" required=\"\" ng-model=\"device.config.address\" readonly>\n" +
-    "		</div>\n" +
-    "	</div>\n" +
+    "  <div ng-hide=\"has_capability('scene')\">\n" +
+    "    <div class=\"form-group\">\n" +
+    "      <label for=\"address\">Device Number</label>\n" +
+    "      <div class=\"input-group\">\n" +
+    "        <input type=\"text\" class=\"form-control\" id=\"address\" placeholder=\"Address\" required=\"\" ng-model=\"device.config.address\" ng-readonly=\"!editAddress\">\n" +
+    "        <span class=\"input-group-btn\">\n" +
+    "          <button class=\"btn btn-default\" type=\"button\" ng-click=\"toggleAddress()\"><i class=\"icon-edit\"></i></button>\n" +
+    "        </span>\n" +
+    "      </div>\n" +
+    "      <input type=\"text\" class=\"form-control\" id=\"address\" placeholder=\"Address\" required=\"\" ng-model=\"device.config.address\">\n" +
+    "    </div>\n" +
+    "  </div>\n" +
     "\n" +
-    "	<div ng-hide=\"has_capability('scene')\">\n" +
-    "		<div class=\"form-group\">\n" +
-    "			<div class=\"row\">\n" +
-    "				<div class=\"col-xs-4\">Device Cat</div>\n" +
-    "				<div class=\"col-xs-4\">Sub Cat</div>\n" +
-    "				<div class=\"col-xs-4\">Firmware</div>\n" +
-    "			</div>\n" +
-    "			<div class=\"row\">\n" +
-    "				<div class=\"col-xs-4\">{{device.config.device_cat | toHex}}</div>\n" +
-    "				<div class=\"col-xs-4\">{{device.config.device_subcat | toHex}}</div>\n" +
-    "				<div class=\"col-xs-4\">{{device.config.firmware | toHex}}</div>\n" +
-    "			</div>\n" +
-    "		</div>\n" +
-    "	</div>\n" +
+    "  <div ng-hide=\"has_capability('scene')\">\n" +
+    "    <div class=\"form-group\">\n" +
+    "      <div class=\"row\">\n" +
+    "        <div class=\"col-xs-4\">Device Cat</div>\n" +
+    "        <div class=\"col-xs-4\">Sub Cat</div>\n" +
+    "        <div class=\"col-xs-4\">Firmware</div>\n" +
+    "      </div>\n" +
+    "      <div class=\"row\">\n" +
+    "        <div class=\"col-xs-4\">{{device.config.device_cat | toHex}}</div>\n" +
+    "        <div class=\"col-xs-4\">{{device.config.device_subcat | toHex}}</div>\n" +
+    "        <div class=\"col-xs-4\">{{device.config.firmware | toHex}}</div>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
     "\n" +
-    "	<div ng-show=\"has_capability('scene')\">\n" +
-    "		<div class=\"form-group\">\n" +
-    "		  <label for=\"name\">Scene Number</label>\n" +
-    "		  <input type=\"text\" class=\"form-control\" id=\"scene\" placeholder=\"Scene\" required=\"\" ng-model=\"device.config.address\">\n" +
-    "		</div>\n" +
-    "	</div>\n" +
+    "  <div ng-show=\"has_capability('scene')\">\n" +
+    "    <div class=\"form-group\">\n" +
+    "      <label for=\"name\">Scene Number</label>\n" +
+    "      <div class=\"input-group\">\n" +
+    "        <input type=\"text\" class=\"form-control\" id=\"scene\" placeholder=\"Scene\" required=\"\" ng-model=\"device.config.address\" ng-readonly=\"!editAddress\">\n" +
+    "        <span class=\"input-group-btn\">\n" +
+    "          <button class=\"btn btn-default\" type=\"button\" ng-click=\"toggleAddress()\"><i class=\"icon-edit\"></i></button>\n" +
+    "        </span>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\">\n" +
+    "      <button class=\"btn btn-sm btn-primary\" ng-click=\"on()\" ng-disabled=\"cmd_loading\" ng-class=\"{'btn-danger': cmd_error}\"><i class=\"icon-lighton\"></i> On</button>\n" +
+    "      <button class=\"btn btn-sm btn-primary\" ng-click=\"off()\" ng-disabled=\"cmd_loading\" ng-class=\"{'btn-danger': cmd_error}\"><i class=\"icon-lightoff\"></i> Off</button>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
     "\n" +
-    "	<div ng-hide=\"has_capability('scene')\">\n" +
-    "		<div class=\"form-group\">\n" +
-    "			<button class=\"btn btn-sm btn-primary\" ng-click=\"beep()\" ng-disabled=\"beep_loading\" ng-class=\"{'btn-danger': beep_error}\"><i class=\"icon-volume-down\"></i> Beep</button>\n" +
+    "  <div ng-hide=\"has_capability('scene')\">\n" +
+    "    <div class=\"form-group\">\n" +
+    "      <button class=\"btn btn-sm btn-primary\" ng-click=\"beep()\" ng-disabled=\"beep_loading\" ng-class=\"{'btn-danger': beep_error}\"><i class=\"icon-volume-down\"></i> Beep</button>\n" +
     "\n" +
-    "			<div class=\"btn-group\" uib-dropdown>\n" +
-    "			  <button id=\"split-button\" type=\"button\" class=\"btn btn-sm btn-primary\"  ng-click=\"enterlinking()\" ng-disabled=\"linking_loading\" ng-class=\"{'btn-danger': linking_error}\">Linking</button>\n" +
-    "			  <button type=\"button\" class=\"btn btn-sm btn-primary\" uib-dropdown-toggle ng-disabled=\"linking_loading\" ng-class=\"{'btn-danger': linking_error}\">\n" +
-    "				<span class=\"caret\"></span>\n" +
-    "			  </button>\n" +
-    "			  <ul class=\"dropdown-menu\" uib-dropdown-menu role=\"menu\" aria-labelledby=\"split-button\">\n" +
-    "				<li role=\"menuitem\" ng-repeat=\"n in [].constructor(8) track by $index\"><a style=\"cursor: pointer\" ng-click=\"enterlinking($index + 1)\">Scene {{$index + 1}}</a></li>\n" +
-    "			  </ul>\n" +
-    "			</div>\n" +
+    "      <div class=\"btn-group\" uib-dropdown>\n" +
+    "        <button id=\"split-button\" type=\"button\" class=\"btn btn-sm btn-primary\"  ng-click=\"enterlinking()\" ng-disabled=\"linking_loading\" ng-class=\"{'btn-danger': linking_error}\">Linking</button>\n" +
+    "        <button type=\"button\" class=\"btn btn-sm btn-primary\" uib-dropdown-toggle ng-disabled=\"linking_loading\" ng-class=\"{'btn-danger': linking_error}\">\n" +
+    "        <span class=\"caret\"></span>\n" +
+    "        </button>\n" +
+    "        <ul class=\"dropdown-menu\" uib-dropdown-menu role=\"menu\" aria-labelledby=\"split-button\">\n" +
+    "        <li role=\"menuitem\" ng-repeat=\"n in [].constructor(8) track by $index\"><a style=\"cursor: pointer\" ng-click=\"enterlinking($index + 1)\">Scene {{$index + 1}}</a></li>\n" +
+    "        </ul>\n" +
+    "      </div>\n" +
     "\n" +
-    "			<div class=\"btn-group\" uib-dropdown>\n" +
-    "			  <button id=\"split-button\" type=\"button\" class=\"btn btn-sm btn-primary\"  ng-click=\"enterunlinking()\" ng-disabled=\"linking_loading\" ng-class=\"{'btn-danger': linking_error}\">Un-Linking</button>\n" +
-    "			  <button type=\"button\" class=\"btn btn-sm btn-primary\" uib-dropdown-toggle ng-disabled=\"linking_loading\" ng-class=\"{'btn-danger': linking_error}\">\n" +
-    "				<span class=\"caret\"></span>\n" +
-    "			  </button>\n" +
-    "			  <ul class=\"dropdown-menu\" uib-dropdown-menu role=\"menu\" aria-labelledby=\"split-button\">\n" +
-    "				<li role=\"menuitem\" ng-repeat=\"n in [].constructor(8) track by $index\"><a style=\"cursor: pointer\" ng-click=\"enterunlinking($index + 1)\">Scene {{$index + 1}}</a></li>\n" +
-    "			  </ul>\n" +
-    "			</div>\n" +
+    "      <div class=\"btn-group\" uib-dropdown>\n" +
+    "        <button id=\"split-button\" type=\"button\" class=\"btn btn-sm btn-primary\"  ng-click=\"enterunlinking()\" ng-disabled=\"linking_loading\" ng-class=\"{'btn-danger': linking_error}\">Un-Linking</button>\n" +
+    "        <button type=\"button\" class=\"btn btn-sm btn-primary\" uib-dropdown-toggle ng-disabled=\"linking_loading\" ng-class=\"{'btn-danger': linking_error}\">\n" +
+    "        <span class=\"caret\"></span>\n" +
+    "        </button>\n" +
+    "        <ul class=\"dropdown-menu\" uib-dropdown-menu role=\"menu\" aria-labelledby=\"split-button\">\n" +
+    "        <li role=\"menuitem\" ng-repeat=\"n in [].constructor(8) track by $index\"><a style=\"cursor: pointer\" ng-click=\"enterunlinking($index + 1)\">Scene {{$index + 1}}</a></li>\n" +
+    "        </ul>\n" +
+    "      </div>\n" +
     "\n" +
-    "			<button class=\"btn btn-sm btn-primary\" ng-click=\"exitlinking()\" ng-disabled=\"linking_loading\" ng-class=\"{'btn-danger': linking_error}\"><i class=\"icon-circlestopempty\"></i> Stop Linking</button>\n" +
-    "			<button class=\"btn btn-sm btn-primary\" ng-class=\"{'btn-danger': id_error, 'btn-success': id_success}\" ng-disabled=\"id_loading || id_success || id_error\" ng-click=\"idrequest()\">\n" +
-    "				<i class=\"icon-circleselection spin\" ng-show=\"id_loading\"></i>\n" +
-    "				<i class=\"icon-circleselect\" ng-show=\"id_success\"></i>\n" +
-    "				<i class=\"icon-erroralt\" ng-show=\"id_error\"></i>\n" +
+    "      <button class=\"btn btn-sm btn-primary\" ng-click=\"exitlinking()\" ng-disabled=\"linking_loading\" ng-class=\"{'btn-danger': linking_error}\"><i class=\"icon-circlestopempty\"></i> Stop Linking</button>\n" +
+    "      <button class=\"btn btn-sm btn-primary\" ng-class=\"{'btn-danger': id_error, 'btn-success': id_success}\" ng-disabled=\"id_loading || id_success || id_error\" ng-click=\"idrequest()\">\n" +
+    "        <i class=\"icon-circleselection spin\" ng-show=\"id_loading\"></i>\n" +
+    "        <i class=\"icon-circleselect\" ng-show=\"id_success\"></i>\n" +
+    "        <i class=\"icon-erroralt\" ng-show=\"id_error\"></i>\n" +
     "\n" +
-    "				<i class=\"icon-tagalt-pricealt\" ng-hide=\"id_loading || id_success || id_error\"></i> ID Request\n" +
-    "			</button>\n" +
-    "		</div>\n" +
-    "		<insteon-modem-linking ng-model=\"linked\" show-heading=\"true\"></insteon-modem-linking>\n" +
-    "	</div>\n" +
+    "        <i class=\"icon-tagalt-pricealt\" ng-hide=\"id_loading || id_success || id_error\"></i> ID Request\n" +
+    "      </button>\n" +
+    "    </div>\n" +
+    "    <insteon-modem-linking ng-model=\"linked\" show-heading=\"true\"></insteon-modem-linking>\n" +
+    "  </div>\n" +
     "\n" +
     "\n" +
-    "	<div ng-show=\"device.capabilities.indexOf('scene') !== -1\">\n" +
-    "		<insteon-scene-members ng-model=\"device\"></insteon-scene-members>\n" +
-    "	</div>\n" +
-    "	<div ng-show=\"device.capabilities.indexOf('scene') === -1\">\n" +
-    "		<div class=\"form-group\">\n" +
-    "		  <label for=\"name\">Links</label>\n" +
-    "	      <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"add_link()\">\n" +
-    "	      	<i class=\"icon-circleadd\"></i> Add</button>\n" +
-    "	      <button class=\"pull-right btn btn-xs\" ng-class=\"{'btn-info': !loading && !error, 'btn-primary': loading, 'btn-danger': error}\" ng-click=\"reload_database()\" ng-disabled=\"loading\">\n" +
-    "	      	<i class=\"icon-refresh\" ng-show=\"!loading && !error\"></i>\n" +
-    "	      	<i class=\"icon-circleselection spin\" ng-show=\"loading\"></i>\n" +
-    "	      	<i class=\"icon-erroralt\" ng-show=\"error\"></i>\n" +
-    "	      	Reload</button>\n" +
-    "		  <ul class=\"list-group bg-muted select-list\" style=\"height: 20em;\">\n" +
-    "		    <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"record in device.config.database | orderBy: 'name'\" ng-click=\"edit_link(record)\" ng-show=\"record.used\">\n" +
-    "		      <button class=\"btn btn-xs btn-danger pull-right\" ng-click=\"delete_link(record)\" stop-event>\n" +
-    "		      	<i class=\"icon-trash\"></i>\n" +
-    "		      </button>\n" +
-    "		      <div>\n" +
-    "		      	<i class=\"icon-uploadalt\" ng-show=\"record.controller\"></i>\n" +
-    "		      	<i class=\"icon-download-alt\" ng-show=\"!record.controller\"></i>\n" +
-    "				  {{record.name || record.address}}<span ng-show=\"record.name\"> ({{record.address}})</span>\n" +
-    "		      </div>\n" +
-    "		      <div><small>\n" +
-    "			      <span ng-show=\"!record.controller\">\n" +
-    "					  When scene {{record.group}}, use on level of {{record.on_level / 255 * 100 | number: 0}}% in {{record.ramp_rate | insteonRate}}<span ng-show=\"record.button > 1\"> and button {{record.button}}</span>\n" +
-    "			      </span>\n" +
-    "			      <span ng-show=\"record.controller\">\n" +
-    "					  Send scene {{record.group}} <span ng-show=\"record.button > 1\">with button {{record.button}}</span>\n" +
-    "			      </span>\n" +
-    "		      </small></div>\n" +
-    "		    </li>\n" +
-    "		   </ul>\n" +
-    "		</div>\n" +
-    "	</div>\n" +
+    "  <div ng-show=\"device.capabilities.indexOf('scene') !== -1\">\n" +
+    "    <insteon-scene-members ng-model=\"device\" on-update=\"save()\"></insteon-scene-members>\n" +
+    "    <insteon-modem-linking ng-model=\"linked\" show-heading=\"false\" force-controller=\"true\" force-group=\"device.config.address\"></insteon-modem-linking>\n" +
+    "  </div>\n" +
+    "  <div ng-show=\"device.capabilities.indexOf('scene') === -1\">\n" +
+    "    <div class=\"form-group\">\n" +
+    "      <div class=\"clearfix\">\n" +
+    "        <label for=\"name\">Links</label>\n" +
+    "        <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"add_link()\">\n" +
+    "          <i class=\"icon-circleadd\"></i> Add</button>\n" +
+    "        <button class=\"pull-right btn btn-xs\" ng-class=\"{'btn-info': !loading && !error, 'btn-primary': loading, 'btn-danger': error}\" ng-click=\"reload_database()\" ng-disabled=\"loading\">\n" +
+    "          <i class=\"icon-refresh\" ng-show=\"!loading && !error\"></i>\n" +
+    "          <i class=\"icon-circleselection spin\" ng-show=\"loading\"></i>\n" +
+    "          <i class=\"icon-erroralt\" ng-show=\"error\"></i>\n" +
+    "          Reload</button>\n" +
+    "        </div>\n" +
+    "      <ul class=\"list-group bg-muted select-list\" style=\"height: 20em;\">\n" +
+    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"record in device.config.database | orderBy: 'name'\" ng-click=\"edit_link(record)\" ng-show=\"record.used\">\n" +
+    "          <button class=\"btn btn-xs btn-danger pull-right\" ng-click=\"delete_link(record)\" stop-event>\n" +
+    "            <i class=\"icon-trash\"></i>\n" +
+    "          </button>\n" +
+    "          <div>\n" +
+    "            <i class=\"icon-uploadalt\" ng-show=\"record.controller\"></i>\n" +
+    "            <i class=\"icon-download-alt\" ng-show=\"!record.controller\"></i>\n" +
+    "          {{record.name || record.address}}<span ng-show=\"record.name\"> ({{record.address}})</span>\n" +
+    "          </div>\n" +
+    "          <div><small>\n" +
+    "            <span ng-show=\"!record.controller\">\n" +
+    "            When scene {{record.group}}, use on level of {{record.on_level / 255 * 100 | number: 0}}% in {{record.ramp_rate | insteonRate}}<span ng-show=\"record.button > 1\"> and button {{record.button}}</span>\n" +
+    "            </span>\n" +
+    "            <span ng-show=\"record.controller\">\n" +
+    "            Send scene {{record.group}} <span ng-show=\"record.button > 1\">with button {{record.button}}</span>\n" +
+    "            </span>\n" +
+    "          </small></div>\n" +
+    "        </li>\n" +
+    "       </ul>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
     "</div>\n" +
     "\n" +
     "<div class=\"form-group\">\n" +
@@ -1822,12 +1840,12 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "    Insteon Modem Linking\n" +
     "  </div>\n" +
     "  <div class=\"panel-body\" uib-collapse=\"isCollapsed\">\n" +
-    "    <div class=\"form-group\">\n" +
+    "    <div class=\"form-group\" ng-hide=\"forceController || forceResponder\">\n" +
     "      <label for=\"exampleInputEmail1\">Link Type:</label>\n" +
     "      <label><input type=\"radio\" ng-model=\"linking.controller\" ng-value=\"true\" ng-disabled=\"link_waiting\"> Controller</label>\n" +
     "      <label><input type=\"radio\" ng-model=\"linking.controller\" ng-value=\"false\" ng-disabled=\"link_waiting\"> Responder</label>\n" +
     "    </div>\n" +
-    "    <div class=\"form-group\">\n" +
+    "    <div class=\"form-group\" ng-hide=\"forceGroup\">\n" +
     "      <label for=\"exampleInputEmail1\">Group:</label>\n" +
     "      <select class=\"form-control\" ng-model=\"linking.group\" ng-options=\"scene.id as scene.title for scene in scenes\" ng-disabled=\"link_waiting\"></select>\n" +
     "    </div>\n" +
@@ -1871,6 +1889,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "        </select>\n" +
     "    </div>\n" +
     "    </form>\n" +
+    "    <div uib-alert class=\"alert-danger\" ng-show=\"error\">{{error}}</div>\n" +
     "</div>\n" +
     "\n" +
     "\n" +
@@ -1887,11 +1906,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   $templateCache.put('modules/insteon/views/scene_members.html',
     "\n" +
     "<div class=\"form-group\">\n" +
-    "  <label for=\"name\">Members</label>\n" +
+    "  <div class=\"clearfix\">\n" +
     "    <button class=\"pull-right btn btn-success btn-xs\" ng-click=\"add_member()\" ng-disabled=\"status=='applying'\">\n" +
     "      <i class=\"icon-circleadd\"></i> Add</button>\n" +
     "    <button class=\"pull-right btn btn-warning btn-xs\" ng-click=\"apply()\" ng-show=\"has_pending()\" ng-disabled=\"status=='applying'\">\n" +
     "      <i class=\"icon-savetodrive\"></i> Apply</button>\n" +
+    "    <label for=\"name\">Members</label>\n" +
+    "  </div>\n" +
     "\n" +
     "  <ul class=\"list-group bg-muted select-list\" style=\"height: 20em;\">\n" +
     "    <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"member in ngModel.config.scene_members | orderBy: 'name'\" ng-click=\"edit_member(member)\">\n" +
@@ -1902,7 +1923,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "        <i class=\"icon-time text-warning\" ng-show=\"member.status == 'pending' && !member.$processing\" uib-popover=\"{{member.action | capitalize}}\" popover-trigger=\"'mouseenter'\" popover-append-to-body=\"true\"></i>\n" +
     "        <i class=\"icon-ok-circle text-success\" ng-show=\"member.status == 'complete'\"></i>\n" +
     "        <i class=\"icon-circleselection spin\" ng-show=\"member.$processing\"></i>\n" +
-    "        <i class=\"icon-exclamation-sign text-danger\" ng-show=\"member.status == 'failed' && !member.$processing\"></i>\n" +
+    "        <i class=\"icon-exclamation-sign text-danger\" ng-show=\"member.status == 'failed' && !member.$processing\" uib-popover=\"{{member.message}}\" popover-trigger=\"'mouseenter'\" popover-append-to-body=\"true\"></i>\n" +
     "        <span ng-class=\"{'strike-through': member.action === 'delete'}\">{{member.name || member.address}}<span ng-show=\"member.name\"> ({{member.address}})</span></span>\n" +
     "      </div>\n" +
     "      <div><small>\n" +

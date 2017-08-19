@@ -9,6 +9,11 @@ insteon.controller('insteonEdit', function ($scope, $http, $uibModal, $timeout, 
   $scope.linking_error = false;
   $scope.beep_error = false;
   $scope.beep_loading = false;
+  $scope.editAddress = false;
+
+  $scope.toggleAddress = function () {
+    $scope.editAddress = (!$scope.editAddress);
+  };
 
   $scope.reload_database = function () {
     $scope.loading = true;
@@ -38,6 +43,40 @@ insteon.controller('insteonEdit', function ($scope, $http, $uibModal, $timeout, 
             $scope.beep_loading = false;
           }, 2500);
         });
+  };
+
+  $scope.on = function () {
+    $scope.cmd_loading = true;
+    $scope.cmd_error = false;
+
+    $scope.device.$on($scope.device.config.address).then(function () {
+      $scope.cmd_loading = false;
+      $scope.cmd_error = false;
+    }, function () {
+      $scope.cmd_error = true;
+
+      $timeout(function () {
+        $scope.cmd_error = false;
+        $scope.cmd_loading = false;
+      }, 2500);
+    });
+  };
+
+  $scope.off = function () {
+    $scope.cmd_loading = true;
+    $scope.cmd_error = false;
+
+    $scope.device.$off($scope.device.config.address).then(function () {
+      $scope.cmd_loading = false;
+      $scope.cmd_error = false;
+    }, function () {
+      $scope.cmd_error = true;
+
+      $timeout(function () {
+        $scope.cmd_error = false;
+        $scope.cmd_loading = false;
+      }, 2500);
+    });
   };
 
   $scope.enterlinking = function (group) {

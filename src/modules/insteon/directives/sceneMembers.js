@@ -8,6 +8,7 @@ insteon.directive('insteonSceneMembers', function () {
     transclude: false,
     scope: {
       'ngModel': '=',
+      'onUpdate': '&?'
     },
     require: 'ngModel',
     controller: function ($scope, $timeout, $uibModal, insteon, confirm) {
@@ -19,11 +20,12 @@ insteon.directive('insteonSceneMembers', function () {
           animation: true,
           templateUrl: 'modules/insteon/views/scene_member_modal.html',
           size: 'sm',
-          controller: function ($scope, $timeout, $uibModalInstance, member, devices) {
+          controller: function ($scope, $timeout, $uibModalInstance, insteon, scene, member, devices) {
             $scope.member = member;
             $scope.devices = devices;
             $scope.rates = insteon.rates;
             $scope.editing = (member.address !== undefined);
+            $scope.error = '';
 
             $scope.changeDevice = function (device) {
               $scope.member.name = device.name;
@@ -31,6 +33,7 @@ insteon.directive('insteonSceneMembers', function () {
             };
 
             $scope.save = function () {
+
               var matches = $scope.devices.filter(function (device) {
                 return (device.config.address === $scope.member.address);
               });
@@ -38,6 +41,7 @@ insteon.directive('insteonSceneMembers', function () {
               if (matches.length > 0) {
                 $scope.member.name = matches[0].name;
               }
+
               $uibModalInstance.close($scope.member);
             };
 
@@ -50,6 +54,9 @@ insteon.directive('insteonSceneMembers', function () {
             });
           },
           resolve: {
+            'scene': function () {
+              return $scope.ngModel;
+            },
             'member': function () {
               return angular.copy(member);
             },
@@ -62,7 +69,7 @@ insteon.directive('insteonSceneMembers', function () {
                 });
 
                 var filtered = devices.filter(function (dev) {
-                  return (existing.indexOf(dev.config.address) === -1);
+                  return (existing.indexOf(dev.config.address) === -1 && dev.config.address.split('.')[0] !== '00');
                 });
 
                 defer.resolve(filtered);
@@ -141,10 +148,20 @@ insteon.directive('insteonSceneMembers', function () {
                $scope.ngModel.config.scene_members.splice($scope.ngModel.config.scene_members.indexOf(member), 1);
             });
 
-            $scope.status = '';
             $scope.ngModel.config.scene_members.forEach(function (member) {
               delete member.$processing;
             });
+
+            if (!$scope.onUpdate) {
+              $scope.status = '';
+              return;
+            }
+
+            $scope.onUpdate().then(function () {
+              $scope.status = '';
+            }, function () {
+              $scope.status = '';
+            })
             return;
           }
 
@@ -169,17 +186,19 @@ insteon.directive('insteonSceneMembers', function () {
               }
               member.status = 'complete';
               member.action = '';
+              member.message = '';
               member.$processing = false;
               apply_member();
             }, 1000);
-          }, function () {
+          }, function (err) {
             $timeout(function () {
               member.status = 'failed';
+              member.message = err.message;
               member.$processing = false;
               apply_member();
             }, 1000);
           });
-        }
+        };
 
         $scope.status = 'applying';
         apply_member();

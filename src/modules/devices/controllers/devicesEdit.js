@@ -1,7 +1,7 @@
 
 var devices = angular.module('abode.devices');
 
-devices.controller('devicesEdit', function ($scope, $state, $uibModal, abode, devices, device, confirm, providers, capabilities) {
+devices.controller('devicesEdit', function ($scope, $state, $uibModal, $q, abode, devices, device, confirm, providers, capabilities) {
   $scope.providers = providers;
   $scope.capabilities = capabilities;
   $scope.device = device;
@@ -37,12 +37,18 @@ devices.controller('devicesEdit', function ($scope, $state, $uibModal, abode, de
   };
 
   $scope.save = function () {
+    var defer = $q.defer();
+
     $scope.device.$update().then(function () {
       abode.message({'type': 'success', 'message': 'Device Saved'});
+      defer.resolve();
     }, function (err) {
-        abode.message({'type': 'failed', 'message': 'Failed to save Device', 'details': err});
+      abode.message({'type': 'failed', 'message': 'Failed to save Device', 'details': err});
       $scope.errors = err;
+      defer.reject();
     });
+
+    return defer.promise;
   };
 
   $scope.remove = function () {

@@ -6,12 +6,12 @@
     Insteon Modem Linking
   </div>
   <div class="panel-body" uib-collapse="isCollapsed">
-    <div class="form-group">
+    <div class="form-group" ng-hide="forceController || forceResponder">
       <label for="exampleInputEmail1">Link Type:</label>
       <label><input type="radio" ng-model="linking.controller" ng-value="true" ng-disabled="link_waiting"> Controller</label>
       <label><input type="radio" ng-model="linking.controller" ng-value="false" ng-disabled="link_waiting"> Responder</label>
     </div>
-    <div class="form-group">
+    <div class="form-group" ng-hide="forceGroup">
       <label for="exampleInputEmail1">Group:</label>
       <select class="form-control" ng-model="linking.group" ng-options="scene.id as scene.title for scene in scenes" ng-disabled="link_waiting"></select>
     </div>
