@@ -86094,12 +86094,13 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
         $scope.controls = controls || false;
 
         var filters = {
-          'light': ['light'],
+          'light': ['light', 'scene'],
           'motion_sensor': ['motion_sensor'],
           'window': ['window'],
           'door': ['door'],
           'temperature_sensor': ['conditioner', 'temperature_sensor', 'fan', 'humidity_sensor'],
-          'shade': ['shade']
+          'shade': ['shade'],
+          'scenes': ['scene'],
         };
 
         $scope.set_device_level = function (device) {
