@@ -78020,14 +78020,21 @@ abode.directive('slideNav', ['slideNavSvc', '$timeout', function (slideNavSvc, $
     'transclude': true,
     'scope': {
       minTime: '=?',
-      minOpen: '=?'
+      minOpen: '=?',
+      minLeft: '=?'
     },
     'template': '<div><div class="slide-nav" ng-transclude></div><div class="slide-nav-shade" ng-click="close()"></div></div>',
     'link': function ($scope, elem) {
       var nav_elem = elem[0].childNodes[0];
       var shade_elem = elem[0].childNodes[1];
+
+      $scope.minTime = $scope.minTime || 500;
+      $scope.minOpen = $scope.minOpen || 40;
+      $scope.minLeft = $scope.minLeft || 20;
+
       nav_elem.style.left = '-1000px';
       nav_elem.style.display = 'block';
+
       slideNavSvc.init($scope, elem);
 
       $scope.$on('set_state', function (e, state) {
@@ -78035,6 +78042,7 @@ abode.directive('slideNav', ['slideNavSvc', '$timeout', function (slideNavSvc, $
 
           //$scope.nav_styles.left = state.nav.left;
           nav_elem.style.left = state.nav.left;
+          nav_elem.style.transition = state.nav.left;
           shade_elem.style.display = state.shade.display;
           shade_elem.style.backgroundColor = state.shade['background-color'];
           $scope.is_open = state.is_open;
@@ -78875,7 +78883,7 @@ abode.service('slideNavSvc', ['$window', '$document', function () {
     status.event = e.type;
     status.x = e.touches[0].clientX;
 
-    if (status.x < 10 || (status.is_open && status.x > status.menu_width)) {
+    if (status.x < nav_scope.minLeft || (status.is_open && status.x > status.menu_width)) {
       status.is_down = true;
       status.is_open = false;
       status.start_time = new Date();
@@ -78897,7 +78905,7 @@ abode.service('slideNavSvc', ['$window', '$document', function () {
     status.time_diff = status.end_time - status.start_time;
     status.left_percent = (status.x / status.menu_width * 100);
 
-    if ((status.time_diff < 500 && status.left_percent > 20) || status.left_percent > 40) {
+    if ((status.time_diff < nav_scope.minTime && status.left_percent > 20) || status.left_percent > nav_scope.minLeft) {
       open();
     } else {
       close();
@@ -78928,7 +78936,8 @@ abode.service('slideNavSvc', ['$window', '$document', function () {
     nav_scope.$broadcast('set_state', {
       'is_open': false,
       'nav': {
-        'left': status.left + 'px'
+        'left': status.left + 'px',
+        'transition': 'none'
       },
       'shade': {
         'display': 'block',
@@ -78958,6 +78967,7 @@ abode.service('slideNavSvc', ['$window', '$document', function () {
       'is_open': status.is_open,
       'nav': {
         'left': '0px',
+        'transition': 'left .5s ease'
       },
       'shade': {
         'display': 'block',
@@ -78972,7 +78982,8 @@ abode.service('slideNavSvc', ['$window', '$document', function () {
     nav_scope.$broadcast('set_state', {
       'is_open': status.is_open,
       'nav': {
-        'left': (-1 * status.menu_width) + 'px'
+        'left': (-1 * status.menu_width) + 'px',
+        'transition': 'left .5s'
       },
       'shade': {
         'display': 'none',
