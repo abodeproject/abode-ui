@@ -5,22 +5,16 @@
 
 <slide-nav>
   <div class="slide-nav-header">
-    <div class="row">
-      <div class="col-xs-4">
         <img src="https://abode.scottneel.com/images/home.png" class="slide-nav-header-badge img-circle">
-      </div>
-      <div class="col-xs-8">
 
         <div class="btn-group" uib-dropdown is-open="status.isopen">
           <button id="single-button" type="button" class="btn btn-default" uib-dropdown-toggle ng-disabled="disabled">
-            <i class="icon-monitor"></i> Interface <span class="caret"></span>
+            <i class="icon-monitor"></i> Interface&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="caret"></span>
           </button>
           <ul uib-dropdown-menu role="menu" aria-labelledby="single-button">
             <li role="menuitem" ng-repeat="interface in interfaces | orderBy: '+name'" ui-sref="main.home({interface: interface.name})" ><a href="#"ng-click="anav_open=false"><i class="{{interface.icon}}"></i> {{interface.name}}</a></li>
           </ul>
         </div>
-      </div>
-    </div>
   </div>
   <div class="slide-nav-body">
     <div class="row">

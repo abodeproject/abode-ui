@@ -89258,22 +89258,16 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "<slide-nav>\n" +
     "  <div class=\"slide-nav-header\">\n" +
-    "    <div class=\"row\">\n" +
-    "      <div class=\"col-xs-4\">\n" +
     "        <img src=\"https://abode.scottneel.com/images/home.png\" class=\"slide-nav-header-badge img-circle\">\n" +
-    "      </div>\n" +
-    "      <div class=\"col-xs-8\">\n" +
     "\n" +
     "        <div class=\"btn-group\" uib-dropdown is-open=\"status.isopen\">\n" +
     "          <button id=\"single-button\" type=\"button\" class=\"btn btn-default\" uib-dropdown-toggle ng-disabled=\"disabled\">\n" +
-    "            <i class=\"icon-monitor\"></i> Interface <span class=\"caret\"></span>\n" +
+    "            <i class=\"icon-monitor\"></i> Interface&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"caret\"></span>\n" +
     "          </button>\n" +
     "          <ul uib-dropdown-menu role=\"menu\" aria-labelledby=\"single-button\">\n" +
     "            <li role=\"menuitem\" ng-repeat=\"interface in interfaces | orderBy: '+name'\" ui-sref=\"main.home({interface: interface.name})\" ><a href=\"#\"ng-click=\"anav_open=false\"><i class=\"{{interface.icon}}\"></i> {{interface.name}}</a></li>\n" +
     "          </ul>\n" +
     "        </div>\n" +
-    "      </div>\n" +
-    "    </div>\n" +
     "  </div>\n" +
     "  <div class=\"slide-nav-body\">\n" +
     "    <div class=\"row\">\n" +

@@ -1381,5 +1381,6 @@ background-color: rgb(46, 47, 48);
 .slide-nav-header-badge {
 width: 6em;
 height: 6em;
-border: 2px solid rgb(50, 56, 62);
+  background-color: rgb(28, 30, 34);
+border: 6px solid rgb(28, 30, 34);
 }
