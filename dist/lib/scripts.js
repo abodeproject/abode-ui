@@ -89270,25 +89270,19 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "<slide-nav>\n" +
     "  <div class=\"slide-nav-header\">\n" +
     "        <img src=\"https://abode.scottneel.com/images/home.png\" class=\"slide-nav-header-badge img-circle\">\n" +
-    "\n" +
-    "        <div class=\"btn-group\" uib-dropdown is-open=\"status.isopen\">\n" +
-    "          <button id=\"single-button\" type=\"button\" class=\"btn btn-default\" uib-dropdown-toggle ng-disabled=\"disabled\">\n" +
-    "            <i class=\"icon-monitor\"></i> Interface&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"caret\"></span>\n" +
-    "          </button>\n" +
-    "          <ul uib-dropdown-menu role=\"menu\" aria-labelledby=\"single-button\">\n" +
-    "            <li role=\"menuitem\" ng-repeat=\"interface in interfaces | orderBy: '+name'\" ui-sref=\"main.home({interface: interface.name})\" ><a href=\"#\"ng-click=\"anav_open=false\"><i class=\"{{interface.icon}}\"></i> {{interface.name}}</a></li>\n" +
-    "          </ul>\n" +
-    "        </div>\n" +
     "  </div>\n" +
     "  <div class=\"slide-nav-body\">\n" +
     "    <div class=\"row\">\n" +
     "      <ul class=\"slide-nav-list\">\n" +
     "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.home')\"><i class=\"glyphicon glyphicon-home\"></i> Home</li>\n" +
+    "        <li class=\"slide-nav-list-item\" ng-repeat=\"interface in interfaces | orderBy: '+name'\" ui-sref=\"main.home({interface: interface.name})\" ><i class=\"{{interface.icon}}\"></i> {{interface.name}}</li>\n" +
+    "        <!--\n" +
     "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.rooms')\"><i class=\"glyphicon glyphicon-modal-window\"></i> Rooms</li>\n" +
     "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.devices')\"><i class=\"glyphicon glyphicon-oil\"></i> Devices</li>\n" +
     "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.scenes')\"><i class=\"icon-picture\"></i> Scenes</li>\n" +
     "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.notifications')\"><i class=\"icon-flag\"></i> Notifications</li>\n" +
     "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.triggers')\"><i class=\"icon-bomb\"></i> Triggers</li>\n" +
+    "        -->\n" +
     "      </ul>\n" +
     "    </div>\n" +
     "  </div>\n" +
@@ -89355,6 +89349,25 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "  <weather-status></weather-status>\n" +
     "  <device-status device=\"device\"></device-status>\n" +
     "  <notifications-status></notifications-status>\n" +
+    "  &nbsp;\n" +
+    "  <span uib-dropdown class=\"pointer\">\n" +
+    "    <span uib-dropdown-toggle>\n" +
+    "      &nbsp;\n" +
+    "      <i class=\"glyphicon glyphicon-option-vertical\"></i>\n" +
+    "      &nbsp;\n" +
+    "    </span>\n" +
+    "    <ul class=\"dropdown-menu dropdown-menu-right\" uib-dropdown-menu>\n" +
+    "          <li><a ui-sref=\"main.rooms\"><i class=\"glyphicon glyphicon-modal-window\"></i> Rooms</a></li>\n" +
+    "          <li><a ui-sref=\"main.devices\"><i class=\"glyphicon glyphicon-oil\"></i> Devices</a></li>\n" +
+    "          <li><a ui-sref=\"main.scenes\"><i class=\"icon-picture\"></i> Scenes</a></li>\n" +
+    "          <li><a ui-sref=\"main.notifications\"><i class=\"icon-flag\"></i> Notifications</a></li>\n" +
+    "          <li><a ui-sref=\"main.triggers\"><i class=\"icon-bomb\"></i> Triggers</a></li>\n" +
+    "          <li class=\"divider\"></li>\n" +
+    "          <li><a ui-sref=\"main.settings\"><i class=\"glyphicon glyphicon-cog\"></i> Settings</a></li>\n" +
+    "          <li class=\"divider\"></li>\n" +
+    "          <li><a  ng-click=\"logout()\"><i class=\"glyphicon glyphicon-log-out\"></i> Logout</a></li>\n" +
+    "      </ul>\n" +
+    "  </span>\n" +
     "</div>\n" +
     "<notifications></notifications>\n"
   );

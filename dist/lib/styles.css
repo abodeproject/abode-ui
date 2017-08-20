@@ -8875,7 +8875,7 @@ body {
 .status-bar {
   font-size: 1.5em;
   text-align: right;
-  background-color: rgba(0,0,0,.5);
+  background-color: rgba(28, 30, 34,.5);
   position: absolute;
   top: 0em;
   right: 0em;
@@ -10234,6 +10234,9 @@ height: 6em;
 border: 6px solid rgb(28, 30, 34);
 }
 
+.dropdown-menu>li>a {
+  padding: .5em 1em !important;
+}
 
 /*!
  * bootswatch v3.3.7
