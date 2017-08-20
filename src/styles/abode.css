@@ -1261,3 +1261,125 @@ body {
 .device-level-slider.rzslider {
   margin-top: 15px;
 }
+
+.slide-nav {
+    position: fixed;
+    display: none;
+    top: 0em;
+    bottom: 0px;
+    overflow: hidden;
+    z-index: 1000;
+    width: 220px;
+    background-color: rgb(50, 56, 62);
+    transition: left .5s;
+    z-index: 10000;
+}
+
+@media (min-width: 320px) {
+  .slide-nav {
+    width: 300px;
+  }
+}
+
+@media (min-width: 768px) {
+    .slide-nav {
+        width: 300px;
+    }
+}
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .slide-nav {
+        width: 400px;
+    }
+}
+
+/* Large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .slide-nav {
+        width: 400px;
+    }
+}
+
+.slide-nav-shade {
+    position: fixed;
+    display: none;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    transition: background-color 1s;
+    z-index: 9990;
+}
+
+.slide-nav-list {
+list-style: none;
+padding: 0px;
+}
+
+.slide-nav-list-item {
+padding: 1em 4em;
+cursor: pointer;
+}
+
+.slide-nav-list-item:hover {
+  background-color: rgb(79, 81, 84);
+}
+
+.slide-nav-list-item i {
+padding-right: 2em;
+}
+
+.slide-nav-list-item-active, .slide-nav-list-item-active:hover {
+background-color: rgb(37, 53, 68);
+font-weight: bold;
+}
+
+.slide-nav-header {
+position: absolute;
+top: 0px;
+left: 0px;
+right: 0px;
+height: 6em;
+padding: 1em;
+background-color: rgb(28, 30, 34);
+}
+
+.slide-nav-body {
+position: absolute;
+top: 6em;
+  padding-top: 1em;
+bottom: 5em;
+left: 0px;
+right: 0px;
+overflow-x: hidden;
+overflow-y: auto;
+}
+
+.slide-nav-footer {
+position: absolute;
+bottom: 0px;
+left: 0px;
+right: 0px;
+height: 5em;
+background-color: rgb(28, 30, 34);
+}
+
+.slide-nav-footer-item {
+cursor: pointer;
+display: inline-block;
+width: 49%;
+height: 3.5em;
+line-height: 4.5em;
+text-align: center;
+}
+
+.slide-nav-footer-item:hover {
+background-color: rgb(46, 47, 48);
+}
+
+.slide-nav-header-badge {
+width: 6em;
+height: 6em;
+border: 2px solid rgb(50, 56, 62);
+}

@@ -3,55 +3,99 @@
 </div>
 <div class="anav-shade" ng-click="anav_open = false; notifications.hidden = true" ng-show="anav_open || !notifications.hidden"></div>
 
+<slide-nav>
+  <div class="slide-nav-header">
+    <div class="row">
+      <div class="col-xs-4">
+        <img src="https://abode.scottneel.com/images/home.png" class="slide-nav-header-badge img-circle">
+      </div>
+      <div class="col-xs-8">
+
+        <div class="btn-group" uib-dropdown is-open="status.isopen">
+          <button id="single-button" type="button" class="btn btn-default" uib-dropdown-toggle ng-disabled="disabled">
+            <i class="icon-monitor"></i> Interface <span class="caret"></span>
+          </button>
+          <ul uib-dropdown-menu role="menu" aria-labelledby="single-button">
+            <li role="menuitem" ng-repeat="interface in interfaces | orderBy: '+name'" ui-sref="main.home({interface: interface.name})" ><a href="#"ng-click="anav_open=false"><i class="{{interface.icon}}"></i> {{interface.name}}</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav-body">
+    <div class="row">
+      <ul class="slide-nav-list">
+        <li class="slide-nav-list-item" ng-click="go('main.home')"><i class="glyphicon glyphicon-home"></i> Home</li>
+        <li class="slide-nav-list-item" ng-click="go('main.rooms')"><i class="glyphicon glyphicon-modal-window"></i> Rooms</li>
+        <li class="slide-nav-list-item" ng-click="go('main.devices')"><i class="glyphicon glyphicon-oil"></i> Devices</li>
+        <li class="slide-nav-list-item" ng-click="go('main.scenes')"><i class="icon-picture"></i> Scenes</li>
+        <li class="slide-nav-list-item" ng-click="go('main.notifications')"><i class="icon-flag"></i> Notifications</li>
+        <li class="slide-nav-list-item" ng-click="go('main.triggers')"><i class="icon-bomb"></i> Triggers</li>
+      </ul>
+    </div>
+  </div>
+  <div class="slide-nav-footer">
+    <div class="slide-nav-footer-item" ng-click="go('main.settings')">
+      <i class="glyphicon glyphicon-cog"></i> Settings
+    </div>
+    <div class="slide-nav-footer-item" ng-click="logout()">
+      <i class="glyphicon glyphicon-log-out"></i>Log out</div>
+    </div>
+  </div>
+</slide-nav>
+<!--
 <div class="anav-drawer" ng-class="{'anav-visible': anav_open}">
-	<div class="anav-opener">
+  <div class="anav-opener">
 
-	</div>
-	<div class="anav-top">
+  </div>
+  <div class="anav-top">
 
-	    <div class="row">
-	      <div class="col-xs-4"><img src="./images/home.png" style="height: 5em;"></div>
-	      <div class="col-xs-8" style="text-align: right">
+      <div class="row">
+        <div class="col-xs-4"><img src="./images/home.png" style="height: 5em;"></div>
+        <div class="col-xs-8" style="text-align: right">
 
-	<div class="btn-group" uib-dropdown is-open="status.isopen">
-	  <button id="single-button" type="button" class="btn btn-default" uib-dropdown-toggle ng-disabled="disabled">
-	    <i class="icon-monitor"></i> Interface <span class="caret"></span>
-	  </button>
-	  <ul uib-dropdown-menu role="menu" aria-labelledby="single-button">
-	    <li role="menuitem" ng-repeat="interface in interfaces | orderBy: '+name'" ui-sref="main.home({interface: interface.name})" ><a href="#"ng-click="anav_open=false"><i class="{{interface.icon}}"></i> {{interface.name}}</a></li>
-	  </ul>
-	</div>
+  <div class="btn-group" uib-dropdown is-open="status.isopen">
+    <button id="single-button" type="button" class="btn btn-default" uib-dropdown-toggle ng-disabled="disabled">
+      <i class="icon-monitor"></i> Interface <span class="caret"></span>
+    </button>
+    <ul uib-dropdown-menu role="menu" aria-labelledby="single-button">
+      <li role="menuitem" ng-repeat="interface in interfaces | orderBy: '+name'" ui-sref="main.home({interface: interface.name})" ><a href="#"ng-click="anav_open=false"><i class="{{interface.icon}}"></i> {{interface.name}}</a></li>
+    </ul>
+  </div>
 
-	      </div>
-	    </div>
+        </div>
+      </div>
 
-	</div>
-	<div class="anav-mid">
-	  <ul>
-	    <li ui-sref="main.home" ng-click="anav_open=false"><i class="glyphicon glyphicon-home"></i> Home</li>
-	    <li ui-sref="main.rooms" ng-click="anav_open=false"><i class="glyphicon glyphicon-modal-window"></i> Rooms</li>
-	    <li ui-sref="main.devices" ng-click="anav_open=false"><i class="glyphicon glyphicon-oil"></i> Devices</li>
-	    <li ui-sref="main.scenes" ng-click="anav_open=false"><i class="icon-picture"></i> Scenes</li>
+  </div>
+  <div class="anav-mid">
+    <ul>
+      <li ui-sref="main.home" ng-click="anav_open=false"><i class="glyphicon glyphicon-home"></i> Home</li>
+      <li ui-sref="main.rooms" ng-click="anav_open=false"><i class="glyphicon glyphicon-modal-window"></i> Rooms</li>
+      <li ui-sref="main.devices" ng-click="anav_open=false"><i class="glyphicon glyphicon-oil"></i> Devices</li>
+      <li ui-sref="main.scenes" ng-click="anav_open=false"><i class="icon-picture"></i> Scenes</li>
       <li ui-sref="main.notifications" ng-click="anav_open=false"><i class="icon-flag"></i> Notifications</li>
-	    <li ui-sref="main.triggers" ng-click="anav_open=false"><i class="icon-bomb"></i> Triggers</li>
+      <li ui-sref="main.triggers" ng-click="anav_open=false"><i class="icon-bomb"></i> Triggers</li>
 
-	  </ul>
-	</div>
-	<div class="anav-bottom">
-	  <ul>
-	    <li ui-sref="main.settings" ng-click="anav_open=false"><i class="glyphicon glyphicon-cog"></i> Settings</li>
-	    <li class="text-right" ng-click="logout()"><i class="glyphicon glyphicon-log-out"></i> Logout</li>
-	  </ul>
-	</div>
+    </ul>
+  </div>
+  <div class="anav-bottom">
+    <ul>
+      <li ui-sref="main.settings" ng-click="anav_open=false"><i class="glyphicon glyphicon-cog"></i> Settings</li>
+      <li class="text-right" ng-click="logout()"><i class="glyphicon glyphicon-log-out"></i> Logout</li>
+    </ul>
+  </div>
 </div>
-
+-->
 <div style="position: absolute; z-index: 1000; font-size: 3em;">
 </div>
 <div class="status-bar" ng-class="{night: time.is.night && client.night_mode}">
-	<div class="anav-opener  text-muted pull-left"  ng-click="anav_open = true"><i class="icon-menu"></i></div>
-	<div ng-show="client.show_date">{{date | date:'EEE, MMM d'}}</div>
-	<weather-status></weather-status>
-	<device-status device="device"></device-status>
-	<notifications-status></notifications-status>
+  <div class="anav-opener  text-muted pull-left"  ng-click="openNav()"><i class="icon-menu"></i></div>
+  <!--
+  <div class="anav-opener  text-muted pull-left"  ng-click="anav_open = true"><i class="icon-menu"></i></div>
+  -->
+  <div ng-show="client.show_date">{{date | date:'EEE, MMM d'}}</div>
+  <weather-status></weather-status>
+  <device-status device="device"></device-status>
+  <notifications-status></notifications-status>
 </div>
 <notifications></notifications>

@@ -112,56 +112,100 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "<div class=\"anav-shade\" ng-click=\"anav_open = false; notifications.hidden = true\" ng-show=\"anav_open || !notifications.hidden\"></div>\n" +
     "\n" +
+    "<slide-nav>\n" +
+    "  <div class=\"slide-nav-header\">\n" +
+    "    <div class=\"row\">\n" +
+    "      <div class=\"col-xs-4\">\n" +
+    "        <img src=\"https://abode.scottneel.com/images/home.png\" class=\"slide-nav-header-badge img-circle\">\n" +
+    "      </div>\n" +
+    "      <div class=\"col-xs-8\">\n" +
+    "\n" +
+    "        <div class=\"btn-group\" uib-dropdown is-open=\"status.isopen\">\n" +
+    "          <button id=\"single-button\" type=\"button\" class=\"btn btn-default\" uib-dropdown-toggle ng-disabled=\"disabled\">\n" +
+    "            <i class=\"icon-monitor\"></i> Interface <span class=\"caret\"></span>\n" +
+    "          </button>\n" +
+    "          <ul uib-dropdown-menu role=\"menu\" aria-labelledby=\"single-button\">\n" +
+    "            <li role=\"menuitem\" ng-repeat=\"interface in interfaces | orderBy: '+name'\" ui-sref=\"main.home({interface: interface.name})\" ><a href=\"#\"ng-click=\"anav_open=false\"><i class=\"{{interface.icon}}\"></i> {{interface.name}}</a></li>\n" +
+    "          </ul>\n" +
+    "        </div>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"slide-nav-body\">\n" +
+    "    <div class=\"row\">\n" +
+    "      <ul class=\"slide-nav-list\">\n" +
+    "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.home')\"><i class=\"glyphicon glyphicon-home\"></i> Home</li>\n" +
+    "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.rooms')\"><i class=\"glyphicon glyphicon-modal-window\"></i> Rooms</li>\n" +
+    "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.devices')\"><i class=\"glyphicon glyphicon-oil\"></i> Devices</li>\n" +
+    "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.scenes')\"><i class=\"icon-picture\"></i> Scenes</li>\n" +
+    "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.notifications')\"><i class=\"icon-flag\"></i> Notifications</li>\n" +
+    "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.triggers')\"><i class=\"icon-bomb\"></i> Triggers</li>\n" +
+    "      </ul>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"slide-nav-footer\">\n" +
+    "    <div class=\"slide-nav-footer-item\" ng-click=\"go('main.settings')\">\n" +
+    "      <i class=\"glyphicon glyphicon-cog\"></i> Settings\n" +
+    "    </div>\n" +
+    "    <div class=\"slide-nav-footer-item\" ng-click=\"logout()\">\n" +
+    "      <i class=\"glyphicon glyphicon-log-out\"></i>Log out</div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</slide-nav>\n" +
+    "<!--\n" +
     "<div class=\"anav-drawer\" ng-class=\"{'anav-visible': anav_open}\">\n" +
-    "	<div class=\"anav-opener\">\n" +
+    "  <div class=\"anav-opener\">\n" +
     "\n" +
-    "	</div>\n" +
-    "	<div class=\"anav-top\">\n" +
+    "  </div>\n" +
+    "  <div class=\"anav-top\">\n" +
     "\n" +
-    "	    <div class=\"row\">\n" +
-    "	      <div class=\"col-xs-4\"><img src=\"./images/home.png\" style=\"height: 5em;\"></div>\n" +
-    "	      <div class=\"col-xs-8\" style=\"text-align: right\">\n" +
+    "      <div class=\"row\">\n" +
+    "        <div class=\"col-xs-4\"><img src=\"./images/home.png\" style=\"height: 5em;\"></div>\n" +
+    "        <div class=\"col-xs-8\" style=\"text-align: right\">\n" +
     "\n" +
-    "	<div class=\"btn-group\" uib-dropdown is-open=\"status.isopen\">\n" +
-    "	  <button id=\"single-button\" type=\"button\" class=\"btn btn-default\" uib-dropdown-toggle ng-disabled=\"disabled\">\n" +
-    "	    <i class=\"icon-monitor\"></i> Interface <span class=\"caret\"></span>\n" +
-    "	  </button>\n" +
-    "	  <ul uib-dropdown-menu role=\"menu\" aria-labelledby=\"single-button\">\n" +
-    "	    <li role=\"menuitem\" ng-repeat=\"interface in interfaces | orderBy: '+name'\" ui-sref=\"main.home({interface: interface.name})\" ><a href=\"#\"ng-click=\"anav_open=false\"><i class=\"{{interface.icon}}\"></i> {{interface.name}}</a></li>\n" +
-    "	  </ul>\n" +
-    "	</div>\n" +
+    "  <div class=\"btn-group\" uib-dropdown is-open=\"status.isopen\">\n" +
+    "    <button id=\"single-button\" type=\"button\" class=\"btn btn-default\" uib-dropdown-toggle ng-disabled=\"disabled\">\n" +
+    "      <i class=\"icon-monitor\"></i> Interface <span class=\"caret\"></span>\n" +
+    "    </button>\n" +
+    "    <ul uib-dropdown-menu role=\"menu\" aria-labelledby=\"single-button\">\n" +
+    "      <li role=\"menuitem\" ng-repeat=\"interface in interfaces | orderBy: '+name'\" ui-sref=\"main.home({interface: interface.name})\" ><a href=\"#\"ng-click=\"anav_open=false\"><i class=\"{{interface.icon}}\"></i> {{interface.name}}</a></li>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
     "\n" +
-    "	      </div>\n" +
-    "	    </div>\n" +
+    "        </div>\n" +
+    "      </div>\n" +
     "\n" +
-    "	</div>\n" +
-    "	<div class=\"anav-mid\">\n" +
-    "	  <ul>\n" +
-    "	    <li ui-sref=\"main.home\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-home\"></i> Home</li>\n" +
-    "	    <li ui-sref=\"main.rooms\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-modal-window\"></i> Rooms</li>\n" +
-    "	    <li ui-sref=\"main.devices\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-oil\"></i> Devices</li>\n" +
-    "	    <li ui-sref=\"main.scenes\" ng-click=\"anav_open=false\"><i class=\"icon-picture\"></i> Scenes</li>\n" +
+    "  </div>\n" +
+    "  <div class=\"anav-mid\">\n" +
+    "    <ul>\n" +
+    "      <li ui-sref=\"main.home\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-home\"></i> Home</li>\n" +
+    "      <li ui-sref=\"main.rooms\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-modal-window\"></i> Rooms</li>\n" +
+    "      <li ui-sref=\"main.devices\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-oil\"></i> Devices</li>\n" +
+    "      <li ui-sref=\"main.scenes\" ng-click=\"anav_open=false\"><i class=\"icon-picture\"></i> Scenes</li>\n" +
     "      <li ui-sref=\"main.notifications\" ng-click=\"anav_open=false\"><i class=\"icon-flag\"></i> Notifications</li>\n" +
-    "	    <li ui-sref=\"main.triggers\" ng-click=\"anav_open=false\"><i class=\"icon-bomb\"></i> Triggers</li>\n" +
+    "      <li ui-sref=\"main.triggers\" ng-click=\"anav_open=false\"><i class=\"icon-bomb\"></i> Triggers</li>\n" +
     "\n" +
-    "	  </ul>\n" +
-    "	</div>\n" +
-    "	<div class=\"anav-bottom\">\n" +
-    "	  <ul>\n" +
-    "	    <li ui-sref=\"main.settings\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-cog\"></i> Settings</li>\n" +
-    "	    <li class=\"text-right\" ng-click=\"logout()\"><i class=\"glyphicon glyphicon-log-out\"></i> Logout</li>\n" +
-    "	  </ul>\n" +
-    "	</div>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
+    "  <div class=\"anav-bottom\">\n" +
+    "    <ul>\n" +
+    "      <li ui-sref=\"main.settings\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-cog\"></i> Settings</li>\n" +
+    "      <li class=\"text-right\" ng-click=\"logout()\"><i class=\"glyphicon glyphicon-log-out\"></i> Logout</li>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
     "</div>\n" +
-    "\n" +
+    "-->\n" +
     "<div style=\"position: absolute; z-index: 1000; font-size: 3em;\">\n" +
     "</div>\n" +
     "<div class=\"status-bar\" ng-class=\"{night: time.is.night && client.night_mode}\">\n" +
-    "	<div class=\"anav-opener  text-muted pull-left\"  ng-click=\"anav_open = true\"><i class=\"icon-menu\"></i></div>\n" +
-    "	<div ng-show=\"client.show_date\">{{date | date:'EEE, MMM d'}}</div>\n" +
-    "	<weather-status></weather-status>\n" +
-    "	<device-status device=\"device\"></device-status>\n" +
-    "	<notifications-status></notifications-status>\n" +
+    "  <div class=\"anav-opener  text-muted pull-left\"  ng-click=\"openNav()\"><i class=\"icon-menu\"></i></div>\n" +
+    "  <!--\n" +
+    "  <div class=\"anav-opener  text-muted pull-left\"  ng-click=\"anav_open = true\"><i class=\"icon-menu\"></i></div>\n" +
+    "  -->\n" +
+    "  <div ng-show=\"client.show_date\">{{date | date:'EEE, MMM d'}}</div>\n" +
+    "  <weather-status></weather-status>\n" +
+    "  <device-status device=\"device\"></device-status>\n" +
+    "  <notifications-status></notifications-status>\n" +
     "</div>\n" +
     "<notifications></notifications>\n"
   );

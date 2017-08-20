@@ -1,7 +1,7 @@
 
 var abode = angular.module('abode');
 
-abode.controller('rootController', ['$rootScope', '$scope', '$state', '$window', 'abode', '$timeout', '$uibModal', function ($rootScope, $scope, $state, $window, abode, $timeout, $uibModal) {
+abode.controller('rootController', ['$rootScope', '$scope', '$state', '$window', 'abode', '$timeout', '$uibModal', 'slideNavSvc', function ($rootScope, $scope, $state, $window, abode, $timeout, $uibModal, slideNavSvc) {
 
   var idleTimer;
 
@@ -73,6 +73,10 @@ abode.controller('rootController', ['$rootScope', '$scope', '$state', '$window',
       }]
     });
   };
+
+  $rootScope.$on('$stateChangeStart', function () {
+    slideNavSvc.close();
+  });
 
   $rootScope.$on('$stateChangeError', function (event, toState, toParams, fromState, fromParams, error) {
 

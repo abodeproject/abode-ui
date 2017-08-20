@@ -1,7 +1,7 @@
 
 var abode = angular.module('abode');
 
-abode.controller('mainController', ['$scope', '$state', '$interval', 'abode', 'Security', 'Interfaces', 'auth', 'time', function ($scope, $state, $interval, abode, Security, Interfaces, auth, time) {
+abode.controller('mainController', ['$scope', '$state', '$interval', 'abode', 'Security', 'Interfaces', 'auth', 'time', 'slideNavSvc', function ($scope, $state, $interval, abode, Security, Interfaces, auth, time, slideNavSvc) {
 
   $scope.date = new Date();
   $scope.root = abode.scope;
@@ -10,6 +10,10 @@ abode.controller('mainController', ['$scope', '$state', '$interval', 'abode', 'S
   $scope.interfaces = Interfaces.query();
   $scope.time = time;
   abode.get_events();
+
+  $scope.openNav = slideNavSvc.open;
+
+  $scope.go = $state.go;
 
   if ($scope.device.locked) {
     Security.show_lock();

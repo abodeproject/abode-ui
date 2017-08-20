@@ -76754,7 +76754,7 @@ abode.config(['$stateProvider', '$urlRouterProvider', 'abodeProvider', 'uiGmapGo
 
 var abode = angular.module('abode');
 
-abode.controller('mainController', ['$scope', '$state', '$interval', 'abode', 'Security', 'Interfaces', 'auth', 'time', function ($scope, $state, $interval, abode, Security, Interfaces, auth, time) {
+abode.controller('mainController', ['$scope', '$state', '$interval', 'abode', 'Security', 'Interfaces', 'auth', 'time', 'slideNavSvc', function ($scope, $state, $interval, abode, Security, Interfaces, auth, time, slideNavSvc) {
 
   $scope.date = new Date();
   $scope.root = abode.scope;
@@ -76763,6 +76763,10 @@ abode.controller('mainController', ['$scope', '$state', '$interval', 'abode', 'S
   $scope.interfaces = Interfaces.query();
   $scope.time = time;
   abode.get_events();
+
+  $scope.openNav = slideNavSvc.open;
+
+  $scope.go = $state.go;
 
   if ($scope.device.locked) {
     Security.show_lock();
@@ -76810,7 +76814,7 @@ abode.controller('mainController', ['$scope', '$state', '$interval', 'abode', 'S
 
 var abode = angular.module('abode');
 
-abode.controller('rootController', ['$rootScope', '$scope', '$state', '$window', 'abode', '$timeout', '$uibModal', function ($rootScope, $scope, $state, $window, abode, $timeout, $uibModal) {
+abode.controller('rootController', ['$rootScope', '$scope', '$state', '$window', 'abode', '$timeout', '$uibModal', 'slideNavSvc', function ($rootScope, $scope, $state, $window, abode, $timeout, $uibModal, slideNavSvc) {
 
   var idleTimer;
 
@@ -76882,6 +76886,10 @@ abode.controller('rootController', ['$rootScope', '$scope', '$state', '$window',
       }]
     });
   };
+
+  $rootScope.$on('$stateChangeStart', function () {
+    slideNavSvc.close();
+  });
 
   $rootScope.$on('$stateChangeError', function (event, toState, toParams, fromState, fromParams, error) {
 
@@ -78005,6 +78013,44 @@ abode.directive('slider', function () {
 
 var abode = angular.module('abode');
 
+abode.directive('slideNav', ['slideNavSvc', '$timeout', function (slideNavSvc, $timeout) {
+  return {
+    'resitrct': 'E',
+    'replace': true,
+    'transclude': true,
+    'scope': {
+      minTime: '=?',
+      minOpen: '=?'
+    },
+    'template': '<div><div class="slide-nav" ng-transclude></div><div class="slide-nav-shade" ng-click="close()"></div></div>',
+    'link': function ($scope, elem) {
+      var nav_elem = elem[0].childNodes[0];
+      var shade_elem = elem[0].childNodes[1];
+      nav_elem.style.left = '-1000px';
+      nav_elem.style.display = 'block';
+      slideNavSvc.init($scope, elem);
+
+      $scope.$on('set_state', function (e, state) {
+        $timeout(function () {
+
+          //$scope.nav_styles.left = state.nav.left;
+          nav_elem.style.left = state.nav.left;
+          shade_elem.style.display = state.shade.display;
+          shade_elem.style.backgroundColor = state.shade['background-color'];
+          $scope.is_open = state.is_open;
+        });
+      });
+
+      $scope.open = slideNavSvc.open;
+      $scope.close = slideNavSvc.close;
+    },
+  }
+}]);
+
+
+
+var abode = angular.module('abode');
+
 abode.directive('stopEvent', function () {
   return {
     restrict: 'A',
@@ -78805,6 +78851,142 @@ abode.service('power', ['$uibModal', function ($uibModal) {
     }
   };
 
+}]);
+
+
+
+var abode = angular.module('abode');
+
+abode.service('slideNavSvc', ['$window', '$document', function () {
+  var menu, nav_scope;
+  var status = {
+    left: 0,
+    menu_width: 0,
+    is_open: false,
+    is_down: false,
+    has_touch: false
+  };
+
+  var get_size = function () {
+    status.menu_width = menu.offsetWidth;
+  };
+
+  var press = function (e) {
+    status.event = e.type;
+    status.x = e.touches[0].clientX;
+
+    if (status.x < 10 || (status.is_open && status.x > status.menu_width)) {
+      status.is_down = true;
+      status.is_open = false;
+      status.start_time = new Date();
+    }
+  };
+
+  var release = function (e) {
+    status.event = e.type;
+    if (!status.is_down || status.is_open) {
+      return;
+    }
+
+
+    get_size();
+
+    status.is_down = false;
+    status.end_time = new Date();
+    status.x = e.changedTouches[0].clientX;
+    status.time_diff = status.end_time - status.start_time;
+    status.left_percent = (status.x / status.menu_width * 100);
+
+    if ((status.time_diff < 500 && status.left_percent > 20) || status.left_percent > 40) {
+      open();
+    } else {
+      close();
+    }
+  };
+
+  var move = function (e) {
+    status.event = e.type;
+
+    if (e.touches[0].clientX < 4) {
+      status.is_down = true;
+    }
+
+    if (!status.is_down) {
+      return
+    }
+
+    get_size();
+
+    status.x = e.touches[0].clientX;
+    status.shade_alpha = (status.x / status.menu_width);
+    status.left = (status.x / status.menu_width) * status.menu_width - status.menu_width;
+
+    if (status.left < (-1 * status.menu_width) || status.left > 0) {
+      return;
+    }
+
+    nav_scope.$broadcast('set_state', {
+      'is_open': false,
+      'nav': {
+        'left': status.left + 'px'
+      },
+      'shade': {
+        'display': 'block',
+        'background-color': 'rgba(0,0,0,' + status.shade_alpha / 2 + ')'
+      }
+    });
+  };
+
+  var init = function (scope, element) {
+    menu = element[0].childNodes[0];
+    nav_scope = scope;
+
+    get_size();
+
+    document.addEventListener('resize', get_size);
+
+    document.addEventListener('touchstart', press, true);
+    document.addEventListener('touchend', release, true);
+    document.addEventListener('touchmove', move, true);
+
+  };
+
+  var open = function () {
+    if (!nav_scope) { return; }
+    status.is_open = true;
+    nav_scope.$broadcast('set_state', {
+      'is_open': status.is_open,
+      'nav': {
+        'left': '0px',
+      },
+      'shade': {
+        'display': 'block',
+        'background-color': 'rgba(0,0,0,.5)'
+      }
+    });
+  };
+
+  var close = function () {
+    if (!nav_scope) { return; }
+    status.is_open = false;
+    nav_scope.$broadcast('set_state', {
+      'is_open': status.is_open,
+      'nav': {
+        'left': (-1 * status.menu_width) + 'px'
+      },
+      'shade': {
+        'display': 'none',
+        'background-color': 'rgba(0,0,0,0)'
+      }
+    });
+  };
+
+  return {
+    'init': init,
+    'open': open,
+    'close': close,
+    'status': status
+  }
 }]);
 
 
@@ -89074,56 +89256,100 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "<div class=\"anav-shade\" ng-click=\"anav_open = false; notifications.hidden = true\" ng-show=\"anav_open || !notifications.hidden\"></div>\n" +
     "\n" +
+    "<slide-nav>\n" +
+    "  <div class=\"slide-nav-header\">\n" +
+    "    <div class=\"row\">\n" +
+    "      <div class=\"col-xs-4\">\n" +
+    "        <img src=\"https://abode.scottneel.com/images/home.png\" class=\"slide-nav-header-badge img-circle\">\n" +
+    "      </div>\n" +
+    "      <div class=\"col-xs-8\">\n" +
+    "\n" +
+    "        <div class=\"btn-group\" uib-dropdown is-open=\"status.isopen\">\n" +
+    "          <button id=\"single-button\" type=\"button\" class=\"btn btn-default\" uib-dropdown-toggle ng-disabled=\"disabled\">\n" +
+    "            <i class=\"icon-monitor\"></i> Interface <span class=\"caret\"></span>\n" +
+    "          </button>\n" +
+    "          <ul uib-dropdown-menu role=\"menu\" aria-labelledby=\"single-button\">\n" +
+    "            <li role=\"menuitem\" ng-repeat=\"interface in interfaces | orderBy: '+name'\" ui-sref=\"main.home({interface: interface.name})\" ><a href=\"#\"ng-click=\"anav_open=false\"><i class=\"{{interface.icon}}\"></i> {{interface.name}}</a></li>\n" +
+    "          </ul>\n" +
+    "        </div>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"slide-nav-body\">\n" +
+    "    <div class=\"row\">\n" +
+    "      <ul class=\"slide-nav-list\">\n" +
+    "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.home')\"><i class=\"glyphicon glyphicon-home\"></i> Home</li>\n" +
+    "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.rooms')\"><i class=\"glyphicon glyphicon-modal-window\"></i> Rooms</li>\n" +
+    "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.devices')\"><i class=\"glyphicon glyphicon-oil\"></i> Devices</li>\n" +
+    "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.scenes')\"><i class=\"icon-picture\"></i> Scenes</li>\n" +
+    "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.notifications')\"><i class=\"icon-flag\"></i> Notifications</li>\n" +
+    "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.triggers')\"><i class=\"icon-bomb\"></i> Triggers</li>\n" +
+    "      </ul>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"slide-nav-footer\">\n" +
+    "    <div class=\"slide-nav-footer-item\" ng-click=\"go('main.settings')\">\n" +
+    "      <i class=\"glyphicon glyphicon-cog\"></i> Settings\n" +
+    "    </div>\n" +
+    "    <div class=\"slide-nav-footer-item\" ng-click=\"logout()\">\n" +
+    "      <i class=\"glyphicon glyphicon-log-out\"></i>Log out</div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</slide-nav>\n" +
+    "<!--\n" +
     "<div class=\"anav-drawer\" ng-class=\"{'anav-visible': anav_open}\">\n" +
-    "	<div class=\"anav-opener\">\n" +
+    "  <div class=\"anav-opener\">\n" +
     "\n" +
-    "	</div>\n" +
-    "	<div class=\"anav-top\">\n" +
+    "  </div>\n" +
+    "  <div class=\"anav-top\">\n" +
     "\n" +
-    "	    <div class=\"row\">\n" +
-    "	      <div class=\"col-xs-4\"><img src=\"./images/home.png\" style=\"height: 5em;\"></div>\n" +
-    "	      <div class=\"col-xs-8\" style=\"text-align: right\">\n" +
+    "      <div class=\"row\">\n" +
+    "        <div class=\"col-xs-4\"><img src=\"./images/home.png\" style=\"height: 5em;\"></div>\n" +
+    "        <div class=\"col-xs-8\" style=\"text-align: right\">\n" +
     "\n" +
-    "	<div class=\"btn-group\" uib-dropdown is-open=\"status.isopen\">\n" +
-    "	  <button id=\"single-button\" type=\"button\" class=\"btn btn-default\" uib-dropdown-toggle ng-disabled=\"disabled\">\n" +
-    "	    <i class=\"icon-monitor\"></i> Interface <span class=\"caret\"></span>\n" +
-    "	  </button>\n" +
-    "	  <ul uib-dropdown-menu role=\"menu\" aria-labelledby=\"single-button\">\n" +
-    "	    <li role=\"menuitem\" ng-repeat=\"interface in interfaces | orderBy: '+name'\" ui-sref=\"main.home({interface: interface.name})\" ><a href=\"#\"ng-click=\"anav_open=false\"><i class=\"{{interface.icon}}\"></i> {{interface.name}}</a></li>\n" +
-    "	  </ul>\n" +
-    "	</div>\n" +
+    "  <div class=\"btn-group\" uib-dropdown is-open=\"status.isopen\">\n" +
+    "    <button id=\"single-button\" type=\"button\" class=\"btn btn-default\" uib-dropdown-toggle ng-disabled=\"disabled\">\n" +
+    "      <i class=\"icon-monitor\"></i> Interface <span class=\"caret\"></span>\n" +
+    "    </button>\n" +
+    "    <ul uib-dropdown-menu role=\"menu\" aria-labelledby=\"single-button\">\n" +
+    "      <li role=\"menuitem\" ng-repeat=\"interface in interfaces | orderBy: '+name'\" ui-sref=\"main.home({interface: interface.name})\" ><a href=\"#\"ng-click=\"anav_open=false\"><i class=\"{{interface.icon}}\"></i> {{interface.name}}</a></li>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
     "\n" +
-    "	      </div>\n" +
-    "	    </div>\n" +
+    "        </div>\n" +
+    "      </div>\n" +
     "\n" +
-    "	</div>\n" +
-    "	<div class=\"anav-mid\">\n" +
-    "	  <ul>\n" +
-    "	    <li ui-sref=\"main.home\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-home\"></i> Home</li>\n" +
-    "	    <li ui-sref=\"main.rooms\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-modal-window\"></i> Rooms</li>\n" +
-    "	    <li ui-sref=\"main.devices\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-oil\"></i> Devices</li>\n" +
-    "	    <li ui-sref=\"main.scenes\" ng-click=\"anav_open=false\"><i class=\"icon-picture\"></i> Scenes</li>\n" +
+    "  </div>\n" +
+    "  <div class=\"anav-mid\">\n" +
+    "    <ul>\n" +
+    "      <li ui-sref=\"main.home\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-home\"></i> Home</li>\n" +
+    "      <li ui-sref=\"main.rooms\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-modal-window\"></i> Rooms</li>\n" +
+    "      <li ui-sref=\"main.devices\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-oil\"></i> Devices</li>\n" +
+    "      <li ui-sref=\"main.scenes\" ng-click=\"anav_open=false\"><i class=\"icon-picture\"></i> Scenes</li>\n" +
     "      <li ui-sref=\"main.notifications\" ng-click=\"anav_open=false\"><i class=\"icon-flag\"></i> Notifications</li>\n" +
-    "	    <li ui-sref=\"main.triggers\" ng-click=\"anav_open=false\"><i class=\"icon-bomb\"></i> Triggers</li>\n" +
+    "      <li ui-sref=\"main.triggers\" ng-click=\"anav_open=false\"><i class=\"icon-bomb\"></i> Triggers</li>\n" +
     "\n" +
-    "	  </ul>\n" +
-    "	</div>\n" +
-    "	<div class=\"anav-bottom\">\n" +
-    "	  <ul>\n" +
-    "	    <li ui-sref=\"main.settings\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-cog\"></i> Settings</li>\n" +
-    "	    <li class=\"text-right\" ng-click=\"logout()\"><i class=\"glyphicon glyphicon-log-out\"></i> Logout</li>\n" +
-    "	  </ul>\n" +
-    "	</div>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
+    "  <div class=\"anav-bottom\">\n" +
+    "    <ul>\n" +
+    "      <li ui-sref=\"main.settings\" ng-click=\"anav_open=false\"><i class=\"glyphicon glyphicon-cog\"></i> Settings</li>\n" +
+    "      <li class=\"text-right\" ng-click=\"logout()\"><i class=\"glyphicon glyphicon-log-out\"></i> Logout</li>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
     "</div>\n" +
-    "\n" +
+    "-->\n" +
     "<div style=\"position: absolute; z-index: 1000; font-size: 3em;\">\n" +
     "</div>\n" +
     "<div class=\"status-bar\" ng-class=\"{night: time.is.night && client.night_mode}\">\n" +
-    "	<div class=\"anav-opener  text-muted pull-left\"  ng-click=\"anav_open = true\"><i class=\"icon-menu\"></i></div>\n" +
-    "	<div ng-show=\"client.show_date\">{{date | date:'EEE, MMM d'}}</div>\n" +
-    "	<weather-status></weather-status>\n" +
-    "	<device-status device=\"device\"></device-status>\n" +
-    "	<notifications-status></notifications-status>\n" +
+    "  <div class=\"anav-opener  text-muted pull-left\"  ng-click=\"openNav()\"><i class=\"icon-menu\"></i></div>\n" +
+    "  <!--\n" +
+    "  <div class=\"anav-opener  text-muted pull-left\"  ng-click=\"anav_open = true\"><i class=\"icon-menu\"></i></div>\n" +
+    "  -->\n" +
+    "  <div ng-show=\"client.show_date\">{{date | date:'EEE, MMM d'}}</div>\n" +
+    "  <weather-status></weather-status>\n" +
+    "  <device-status device=\"device\"></device-status>\n" +
+    "  <notifications-status></notifications-status>\n" +
     "</div>\n" +
     "<notifications></notifications>\n"
   );
