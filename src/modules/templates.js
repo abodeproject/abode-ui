@@ -129,14 +129,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.triggers')\"><i class=\"icon-bomb\"></i> Triggers</li>\n" +
     "        -->\n" +
     "      </ul>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "  <div class=\"slide-nav-footer\">\n" +
-    "    <div class=\"slide-nav-footer-item\" ng-click=\"go('main.settings')\">\n" +
-    "      <i class=\"glyphicon glyphicon-cog\"></i> Settings\n" +
-    "    </div>\n" +
-    "    <div class=\"slide-nav-footer-item\" ng-click=\"logout()\">\n" +
-    "      <i class=\"glyphicon glyphicon-log-out\"></i>Log out</div>\n" +
+    "      <div>&nbsp;</div>\n" +
     "    </div>\n" +
     "  </div>\n" +
     "</slide-nav>\n" +
@@ -1120,6 +1113,26 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('modules/devices/views/device.controls.html',
+    "<div class=\"container-fluid\" ng-style=\"styles\">\n" +
+    "  <div class=\"row\" ng-show=\"loading\">\n" +
+    "    <div class=\"col-xs-12\">\n" +
+    "      <i class=\"icon-circleselection spin\"></i> Loading...\n" +
+    "      <div>&nbsp;</div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"row\" ng-if=\"!loading\">\n" +
+    "    <div ng-class=\"{'col-xs-12': sensors.length == 0, 'col-xs-9': sensors.length != 0}\" ng-hide=\"controls.length == 0\">\n" +
+    "      <div ng-repeat=\"control in controls\" ng-include=\"control.view\" class=\"row\" style=\"font-size: .5em;\"> </div>\n" +
+    "    </div>\n" +
+    "    <div class=\"col-xs-3\" style=\"font-size: .8em;\" ng-class=\"{'col-xs-offset-4': controls.length == 0, 'text-center': controls.length == 0, 'text-right': controls.length != 0}\">\n" +
+    "      <div ng-repeat=\"sensor in sensors\" ng-include=\"sensor.view\" class=\"row\" style=\"\" > </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
   $templateCache.put('modules/devices/views/device_level.html',
     "<div class=\"device-level\">\n" +
     "    <rzslider class=\"device-level-slider\" rz-slider-model=\"ngModel.$temp_level\" rz-slider-options=\"slider\" ng-disabled=\"ngModel.$loading || ngModel.$error\"></rzslider>\n" +
@@ -1132,9 +1145,10 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "  <div class=\"container-flex\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-xs-8\">\n" +
-    "        <i class=\"icon-circleselection spin\" ng-show=\"ngModel.$is_open\"></i>\n" +
-    "        <i class=\"{{ngModel.icon}}\" ng-show=\"ngModel.icon && !ngModel.$is_open\"></i>\n" +
-    "        <span ng-hide=\"ngModel.icon || ngModel.$is_open\">\n" +
+    "        <button class=\"btn btn-xs btn-default\" ng-click=\"ngModel.$refresh()\" ng-disabled=\"ngModel.$loading\" stop-event>\n" +
+    "        <i class=\"icon-circleselection spin\" ng-show=\"ngModel.$is_open || ngModel.$loading\"></i>\n" +
+    "        <i class=\"{{ngModel.icon}}\" ng-show=\"ngModel.icon && !ngModel.$is_open && !ngModel.$loading\"></i>\n" +
+    "        <span ng-hide=\"ngModel.icon || ngModel.$is_open || ngModel.$loading\">\n" +
     "          <i class=\"icon-fan\" ng-show=\"ngModel.$is('fan')\"></i>\n" +
     "          <i class=\"icon-videocamerathree\" ng-show=\"ngModel.$is('camera')\"></i>\n" +
     "          <i class=\"icon-lightbulb-idea\" ng-show=\"ngModel.$is('light')\"></i>\n" +
@@ -1148,6 +1162,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <i class=\"glyphicon glyphicon-bullhorn\" ng-show=\"ngModel.$is('siren')\"></i>\n" +
     "          <i class=\"icon-lockalt-keyhole\" ng-show=\"ngModel.$is('lock')\"></i>\n" +
     "        </span>\n" +
+    "        </button>\n" +
     "        {{ngModel.name}}\n" +
     "      </div>\n" +
     "      <div class=\"col-xs-4 text-right\" ng-if=\"showControls\" stop-event>\n" +
@@ -3274,6 +3289,18 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "  <div class=\"room-icon-badge room-icon-conditioner\" ng-class=\"{'room-heat': room._mode_heat}\"><i class=\"icon-fire\"></i></div>\n" +
     "  <div class=\"room-title\" ng-show=\"title\"><span style=\"font-size: .6em;\">{{title}}</span></div>\n" +
     "</div>\n"
+  );
+
+
+  $templateCache.put('modules/rooms/views/room.items.html',
+    "<div class=\"room-items\">\n" +
+    "  <div ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Loading...</div>\n" +
+    "  <div class=\"room-items-list\" ng-hide=\"loading\">\n" +
+    "    <ul class=\"list-group\">\n" +
+    "      <device-list-item ng-repeat=\"device in items | orderBy: ['-_motion', '-_on', '+age', '+name']\" ng-model=\"device\" show-controls=\"true\"></device-list-item>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
+    "</div>"
   );
 
 

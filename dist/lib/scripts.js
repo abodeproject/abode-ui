@@ -78405,7 +78405,7 @@ abode.provider('abode', ['$httpProvider', function ($httpProvider) {
         self.scope.$broadcast('EVENTS_DIED', err);
       };
     }, function (err) {
-      console.dir('Failed to get event feed');
+      console.log('Failed to get event feed');
       self.starting_events = false;
       self.scope.status.connected = false;
       self.scope.$broadcast('EVENTS_DIED', err);
@@ -79889,6 +79889,141 @@ devices.config(function($stateProvider, $urlRouterProvider) {
 
 
 
+var devices = angular.module('abode.devices');
+
+devices.controller('deviceControlsCtl', ['$scope', '$timeout','abode', 'Devices', function ($scope, $timeout, abode, Devices) {
+  var listener;
+
+  $scope.loading = false;
+  $scope.capabilities = [];
+  $scope.controls = [];
+  $scope.styles = {
+    'width': ($scope.width || 14) + 'em'
+  };
+
+  //If we get an EVENTS_RESET event, schedule a refresh
+  var feed_detector = abode.scope.$on('EVENTS_RESET', function (event, msg) {
+    listener();
+
+    $scope.load_device();
+  });
+
+  var load_device = function () {
+    $scope.loading = true;
+    Devices.get({'id': $scope.name}).$promise.then(function (device) {
+      $scope.device = device;
+
+      $scope.capabilities = angular.copy($scope.device.capabilities).map(function (c) {
+        return {
+          'name': c,
+          'view': 'modules/devices/views/capabilities/' + c + '.html'
+        };
+      });
+
+      $scope.controls = $scope.capabilities.filter(function (c) {
+
+        return (c.name.indexOf('_sensor') === -1);
+
+      });
+
+      $scope.sensors = $scope.capabilities.filter(function (c) {
+
+        return (c.name.indexOf('_sensor') > -1);
+
+      });
+
+      listener = abode.scope.$on('UPDATED', function (event, msg) {
+        if (msg.object && msg.object._id !== $scope.device._id) {
+          return;
+        }
+
+        if (msg.object._on === true) {
+          msg.object.age = new Date() - new Date(msg.object.last_on);
+        } else {
+          msg.object.age = new Date() - new Date(msg.object.last_off);
+        }
+
+        if (!isNaN(msg.object.age)) {
+          msg.object.age = msg.object.age / 1000;
+        } else {
+          msg.object.age = 0;
+        }
+
+        angular.merge($scope.device, msg.object);
+
+      });
+
+      $scope.loading = false;
+
+    });
+  };
+
+  $scope.set_mode = function (mode) {
+
+    console.dir($scope.device.$set_mode);
+    $scope.processing = true;
+    $scope.errors = false;
+
+    $scope.device.$set_mode(mode).then(function () {
+      $scope.processing = false;
+      $scope.errors = false;
+    }, function (err) {
+      console.log(err);
+      $scope.processing = false;
+      $scope.errors = true;
+    });
+  };
+
+
+  $scope.temp_up = function () {
+    $scope.processing = true;
+    $scope.errors = false;
+    if (temp_wait) {
+      $timeout.cancel(temp_wait);
+    }
+    $scope.device._set_point += 1;
+
+    temp_wait = $timeout($scope.set_temp, 2000);
+  };
+
+  $scope.temp_down = function () {
+    $scope.processing = true;
+    $scope.errors = false;
+    if (temp_wait) {
+      $timeout.cancel(temp_wait);
+    }
+    $scope.device._set_point -= 1;
+
+    temp_wait = $timeout($scope.set_temp, 2000);
+  };
+
+  $scope.set_temp = function () {
+
+    $scope.processing = true;
+    $scope.errors = false;
+
+    $scope.device.$set_temp($scope.device._set_point).then(function () {
+    //$http.post(source_uri + '/devices/' + $scope.device.name + '/set_point', [$scope.device._set_point]).then(function (response) {
+      temp_wait = undefined;
+      $scope.processing = false;
+      $scope.errors = false;
+    }, function () {
+      temp_wait = undefined;
+      $scope.processing = false;
+      $scope.errors = true;
+    });
+  };
+
+  $timeout(load_device, 0);
+
+  $scope.$on('$destroy', function () {
+    listener();
+    feed_detector();
+  });
+}]);
+
+
+
 
 var devices = angular.module('abode.devices');
 
@@ -80235,6 +80370,25 @@ devices.directive('device', function () {
 
 var devices = angular.module('abode.devices');
 
+devices.directive('deviceControls', function () {
+  return {
+    scope: {
+      'name': '@',
+      'width': '@',
+    },
+    restrict: 'E',
+    replace: true,
+    transclude: false,
+    controller: 'deviceControlsCtl',
+    templateUrl: 'modules/devices/views/device.controls.html',
+  };
+
+});
+
+
+
+var devices = angular.module('abode.devices');
+
 devices.directive('deviceLevel', function () {
   return {
     'restrict': 'E',
@@ -80260,9 +80414,36 @@ devices.directive('deviceListItem', function () {
     'scope': {
       'ngModel': '=',
       'showControls': '@?'
-    }
+    },
+    'controller': ['$scope', 'abode', function ($scope, abode) {
+      var listener = abode.scope.$on('UPDATED', function (event, msg) {
+        if (msg.object && msg.object._id !== $scope.ngModel._id) {
+          return;
+        }
+
+        if (msg.object._on === true) {
+          msg.object.age = new Date() - new Date(msg.object.last_on);
+        } else {
+          msg.object.age = new Date() - new Date(msg.object.last_off);
+        }
+
+        if (!isNaN(msg.object.age)) {
+          msg.object.age = msg.object.age / 1000;
+        } else {
+          msg.object.age = 0;
+        }
+
+        angular.merge($scope.ngModel, msg.object);
+
+      });
+
+      $scope.$on('$destroy', function () {
+        listener();
+      });
+    }]
   };
 });
+
 
 
 var devices = angular.module('abode.devices');
@@ -85487,6 +85668,64 @@ rooms.controller('room', function () {
 
 var rooms = angular.module('abode.rooms');
 
+rooms.controller('roomItemsCtl', ['$scope', '$timeout','abode', 'rooms', function ($scope, $timeout, abode, Rooms) {
+
+  var success_splay = 1000 * 60 * Math.floor((Math.random() * 5) + 5);
+  var error_splay = 1000 * Math.floor((Math.random() * 5) + 1);
+  var listeners = [];
+  var rooms = (Array.isArray($scope.rooms)) ? $scope.rooms : [$scope.room];
+
+  $scope.loading = false;
+  $scope.items = [];
+
+  //If we get an EVENTS_RESET event, schedule a refresh
+  var feed_detector = abode.scope.$on('EVENTS_RESET', function (event, msg) {
+    listeners.forEach(function (listener) { listener(); });
+
+    $scope.load_rooms();
+  });
+
+  $scope.load_rooms = function () {
+    var i = -1;
+
+    $scope.loading = true;
+    $scope.error = false;
+    $scope.items = [];
+
+    var next = function () {
+      i += 1;
+
+      if (!rooms[i]) {
+        $scope.loading = false;
+        return;
+      }
+
+      Rooms.getDevices(rooms[i]).then(function (devices) {
+        devices.forEach(function (device) {
+          $scope.items.push(device);
+        });
+
+        next();
+      }, function () {
+        next();
+      });
+    }
+
+    next();
+  };
+
+  $timeout($scope.load_rooms, 0);
+
+  $scope.$on('$destroy', function () {
+    listeners.forEach(function (listener) { listener(); });
+    feed_detector();
+  });
+}]);
+
+
+
+var rooms = angular.module('abode.rooms');
+
 rooms.controller('roomsAdd', function ($scope, $state, abode, Rooms) {
   $scope.room = new Rooms();
   $scope.alerts = [];
@@ -85975,6 +86214,24 @@ rooms.directive('roomIcon', function () {
     replace: true,
   };
 
+});
+
+
+
+var rooms = angular.module('abode.rooms');
+
+rooms.directive('roomItems', function () {
+  return {
+    scope: {
+      'room': '@',
+      'rooms': '=?',
+    },
+    restrict: 'E',
+    replace: true,
+    transclude: false,
+    controller: 'roomItemsCtl',
+    templateUrl: 'modules/rooms/views/room.items.html',
+  };
 });
 
 
@@ -89284,14 +89541,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "        <li class=\"slide-nav-list-item\" ng-click=\"go('main.triggers')\"><i class=\"icon-bomb\"></i> Triggers</li>\n" +
     "        -->\n" +
     "      </ul>\n" +
-    "    </div>\n" +
-    "  </div>\n" +
-    "  <div class=\"slide-nav-footer\">\n" +
-    "    <div class=\"slide-nav-footer-item\" ng-click=\"go('main.settings')\">\n" +
-    "      <i class=\"glyphicon glyphicon-cog\"></i> Settings\n" +
-    "    </div>\n" +
-    "    <div class=\"slide-nav-footer-item\" ng-click=\"logout()\">\n" +
-    "      <i class=\"glyphicon glyphicon-log-out\"></i>Log out</div>\n" +
+    "      <div>&nbsp;</div>\n" +
     "    </div>\n" +
     "  </div>\n" +
     "</slide-nav>\n" +
@@ -90275,6 +90525,26 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('modules/devices/views/device.controls.html',
+    "<div class=\"container-fluid\" ng-style=\"styles\">\n" +
+    "  <div class=\"row\" ng-show=\"loading\">\n" +
+    "    <div class=\"col-xs-12\">\n" +
+    "      <i class=\"icon-circleselection spin\"></i> Loading...\n" +
+    "      <div>&nbsp;</div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"row\" ng-if=\"!loading\">\n" +
+    "    <div ng-class=\"{'col-xs-12': sensors.length == 0, 'col-xs-9': sensors.length != 0}\" ng-hide=\"controls.length == 0\">\n" +
+    "      <div ng-repeat=\"control in controls\" ng-include=\"control.view\" class=\"row\" style=\"font-size: .5em;\"> </div>\n" +
+    "    </div>\n" +
+    "    <div class=\"col-xs-3\" style=\"font-size: .8em;\" ng-class=\"{'col-xs-offset-4': controls.length == 0, 'text-center': controls.length == 0, 'text-right': controls.length != 0}\">\n" +
+    "      <div ng-repeat=\"sensor in sensors\" ng-include=\"sensor.view\" class=\"row\" style=\"\" > </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
   $templateCache.put('modules/devices/views/device_level.html',
     "<div class=\"device-level\">\n" +
     "    <rzslider class=\"device-level-slider\" rz-slider-model=\"ngModel.$temp_level\" rz-slider-options=\"slider\" ng-disabled=\"ngModel.$loading || ngModel.$error\"></rzslider>\n" +
@@ -90287,9 +90557,10 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "  <div class=\"container-flex\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-xs-8\">\n" +
-    "        <i class=\"icon-circleselection spin\" ng-show=\"ngModel.$is_open\"></i>\n" +
-    "        <i class=\"{{ngModel.icon}}\" ng-show=\"ngModel.icon && !ngModel.$is_open\"></i>\n" +
-    "        <span ng-hide=\"ngModel.icon || ngModel.$is_open\">\n" +
+    "        <button class=\"btn btn-xs btn-default\" ng-click=\"ngModel.$refresh()\" ng-disabled=\"ngModel.$loading\" stop-event>\n" +
+    "        <i class=\"icon-circleselection spin\" ng-show=\"ngModel.$is_open || ngModel.$loading\"></i>\n" +
+    "        <i class=\"{{ngModel.icon}}\" ng-show=\"ngModel.icon && !ngModel.$is_open && !ngModel.$loading\"></i>\n" +
+    "        <span ng-hide=\"ngModel.icon || ngModel.$is_open || ngModel.$loading\">\n" +
     "          <i class=\"icon-fan\" ng-show=\"ngModel.$is('fan')\"></i>\n" +
     "          <i class=\"icon-videocamerathree\" ng-show=\"ngModel.$is('camera')\"></i>\n" +
     "          <i class=\"icon-lightbulb-idea\" ng-show=\"ngModel.$is('light')\"></i>\n" +
@@ -90303,6 +90574,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <i class=\"glyphicon glyphicon-bullhorn\" ng-show=\"ngModel.$is('siren')\"></i>\n" +
     "          <i class=\"icon-lockalt-keyhole\" ng-show=\"ngModel.$is('lock')\"></i>\n" +
     "        </span>\n" +
+    "        </button>\n" +
     "        {{ngModel.name}}\n" +
     "      </div>\n" +
     "      <div class=\"col-xs-4 text-right\" ng-if=\"showControls\" stop-event>\n" +
@@ -92429,6 +92701,18 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "  <div class=\"room-icon-badge room-icon-conditioner\" ng-class=\"{'room-heat': room._mode_heat}\"><i class=\"icon-fire\"></i></div>\n" +
     "  <div class=\"room-title\" ng-show=\"title\"><span style=\"font-size: .6em;\">{{title}}</span></div>\n" +
     "</div>\n"
+  );
+
+
+  $templateCache.put('modules/rooms/views/room.items.html',
+    "<div class=\"room-items\">\n" +
+    "  <div ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Loading...</div>\n" +
+    "  <div class=\"room-items-list\" ng-hide=\"loading\">\n" +
+    "    <ul class=\"list-group\">\n" +
+    "      <device-list-item ng-repeat=\"device in items | orderBy: ['-_motion', '-_on', '+age', '+name']\" ng-model=\"device\" show-controls=\"true\"></device-list-item>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
+    "</div>"
   );
 
 

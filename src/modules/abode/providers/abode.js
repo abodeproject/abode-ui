@@ -79,7 +79,7 @@ abode.provider('abode', ['$httpProvider', function ($httpProvider) {
         self.scope.$broadcast('EVENTS_DIED', err);
       };
     }, function (err) {
-      console.dir('Failed to get event feed');
+      console.log('Failed to get event feed');
       self.starting_events = false;
       self.scope.status.connected = false;
       self.scope.$broadcast('EVENTS_DIED', err);

@@ -1,0 +1,16 @@
+<div class="container-fluid" ng-style="styles">
+  <div class="row" ng-show="loading">
+    <div class="col-xs-12">
+      <i class="icon-circleselection spin"></i> Loading...
+      <div>&nbsp;</div>
+    </div>
+  </div>
+  <div class="row" ng-if="!loading">
+    <div ng-class="{'col-xs-12': sensors.length == 0, 'col-xs-9': sensors.length != 0}" ng-hide="controls.length == 0">
+      <div ng-repeat="control in controls" ng-include="control.view" class="row" style="font-size: .5em;"> </div>
+    </div>
+    <div class="col-xs-3" style="font-size: .8em;" ng-class="{'col-xs-offset-4': controls.length == 0, 'text-center': controls.length == 0, 'text-right': controls.length != 0}">
+      <div ng-repeat="sensor in sensors" ng-include="sensor.view" class="row" style="" > </div>
+    </div>
+  </div>
+</div>

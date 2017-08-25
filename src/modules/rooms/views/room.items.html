@@ -1,0 +1,8 @@
+<div class="room-items">
+  <div ng-show="loading"><i class="icon-circleselection spin"></i> Loading...</div>
+  <div class="room-items-list" ng-hide="loading">
+    <ul class="list-group">
+      <device-list-item ng-repeat="device in items | orderBy: ['-_motion', '-_on', '+age', '+name']" ng-model="device" show-controls="true"></device-list-item>
+    </ul>
+  </div>
+</div>

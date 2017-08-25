@@ -1349,20 +1349,12 @@ background-color: rgb(28, 30, 34);
 position: absolute;
 top: 6em;
   padding-top: 1em;
-bottom: 5em;
+  padding-bottom: 4em;
+bottom: 0em;
 left: 0px;
 right: 0px;
 overflow-x: hidden;
 overflow-y: auto;
-}
-
-.slide-nav-footer {
-position: absolute;
-bottom: 0px;
-left: 0px;
-right: 0px;
-height: 5em;
-background-color: rgb(28, 30, 34);
 }
 
 .slide-nav-footer-item {
@@ -1387,4 +1379,17 @@ border: 6px solid rgb(28, 30, 34);
 
 .dropdown-menu>li>a {
   padding: .5em 1em !important;
+}
+
+.room-items {
+  height: 100%;
+}
+
+.room-items-list {
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  overflow-y: auto;
 }
