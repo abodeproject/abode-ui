@@ -6,6 +6,7 @@ rooms.directive('roomItems', function () {
     scope: {
       'room': '@',
       'rooms': '=?',
+      'showImages': '@?',
     },
     restrict: 'E',
     replace: true,

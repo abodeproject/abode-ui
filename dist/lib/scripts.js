@@ -77440,10 +77440,17 @@ abode.directive('iconSelector', ['$compile', function () {
     restrict: 'E',
     replace: 'true',
     scope: {
-      value: '='
+      value: '=',
+      height: '=',
     },
     templateUrl: 'modules/abode/views/icons.html',
     controller: ['$scope', function ($scope) {
+
+      var height = ($scope.height) ? $scope.height : 8;
+
+      $scope.styles = {
+        'max-height': height + 'em'
+      };
 
       $scope.selectIcon = function (icon) {
         $scope.value = icon.class;
@@ -80060,24 +80067,27 @@ devices.controller('deviceToggleCtl', function ($scope, $timeout) {
   $scope.offLabel = $scope.offLabel || 'Off';
   $scope.offColor = $scope.offColor || '#ddd';
   $scope.label = ($scope.ngModel._on) ? $scope.onLabel : $scope.offLabel;
+  $scope.state = false;
 
   $scope.styles = {
     'background-color': ($scope.ngModel._on) ? $scope.onColor : $scope.offColor
   };
-  $scope.toggle = function () {
-    if ($scope.waiting) {
+
+  var set_state = function () {
+
+    if ($scope.ngModel.$is('motion_sensor')) {
+      $scope.state = ($scope.ngModel._motion);
+      $scope.label = ($scope.ngModel._motion) ? $scope.onLabel : $scope.offLabel;
+
+      $scope.styles = {
+        'background-color': ($scope.ngModel._motion) ? $scope.onColor : $scope.offColor
+      };
+
       return;
     }
 
-    if ($scope.ngModel._on) {
-      $scope.ngModel.$off();
-    } else {
-      $scope.ngModel.$on();
-    }
+    $scope.state = ($scope.ngModel._on);
 
-  };
-
-  $scope.$watch('ngModel._level', function () {
     if ($scope.ngModel._level > 0 && $scope.ngModel._level < 100) {
       $scope.label = $scope.ngModel._level;
     } else {
@@ -80087,8 +80097,36 @@ devices.controller('deviceToggleCtl', function ($scope, $timeout) {
     $scope.styles = {
       'background-color': ($scope.ngModel._on) ? $scope.onColor : $scope.offColor
     };
-  });
+  };
+
+  $scope.toggle = function () {
+    if ($scope.waiting) {
+      return;
+    }
+
+    if ($scope.ngModel.$is('motion_sensor')) {
+      if ($scope.ngModel._motion) {
+        $scope.ngModel.$motion_off();
+      } else {
+        $scope.ngModel.$motion_on();
+      }
+    } else {
+      if ($scope.ngModel._on) {
+        $scope.ngModel.$off();
+      } else {
+        $scope.ngModel.$on();
+      }
+    }
+
+  };
+
+  set_state();
+
+  $scope.$watch('ngModel._level', set_state);
+  $scope.$watch('ngModel._on', set_state);
+  $scope.$watch('ngModel._motion', set_state);
 });
+
 
 
 var devices = angular.module('abode.devices');
@@ -80268,7 +80306,7 @@ devices.controller('devicesEdit', function ($scope, $state, $uibModal, $q, abode
       devices.addRoom(device.name, room.name).then(function () {
         getRooms();
         abode.message({'type': 'success', 'message': 'Room added to Device'});
-      }, function () {
+      }, function (err) {
         abode.message({'type': 'failed', 'message': 'Failed to add Room to Device', 'details': err});
       });
 
@@ -80413,7 +80451,8 @@ devices.directive('deviceListItem', function () {
     'templateUrl': 'modules/devices/views/device_list_item.html',
     'scope': {
       'ngModel': '=',
-      'showControls': '@?'
+      'showControls': '@?',
+      'showImage': '@?',
     },
     'controller': ['$scope', 'abode', function ($scope, abode) {
       var listener = abode.scope.$on('UPDATED', function (event, msg) {
@@ -80435,7 +80474,15 @@ devices.directive('deviceListItem', function () {
 
         angular.merge($scope.ngModel, msg.object);
 
+        if ($scope.ngModel._image) {
+          $scope.ngModel.$image = $scope.ngModel.$image_url();
+        }
+
       });
+
+      if ($scope.ngModel._image) {
+        $scope.ngModel.$image = $scope.ngModel.$image_url();
+      }
 
       $scope.$on('$destroy', function () {
         listener();
@@ -80600,7 +80647,7 @@ devices.factory('RoomDevices', ['$resource', 'abode', 'devices', function ($reso
           data = angular.fromJson(data);
 
           data.forEach(function (dev) {
-            if (dev._on === true) {
+            if (dev._on === true || dev._motion) {
               dev.age = new Date() - new Date(dev.last_on);
             } else {
               dev.age = new Date() - new Date(dev.last_off);
@@ -80685,16 +80732,16 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
     req.then(function (response) {
       var results = response.data.response || response.data;
 
-      for (var key in results) {
-        if (results.hasOwnProperty(key)) {
-          self[key] = results[key];
-        }
+      if (results._image) {
+        results.$image = self.$image_url();
       }
+      angular.merge(self, results);
+
       self.$loading = false;
       defer.resolve(self);
     }, function (err) {
       self.$loading = false;
-      self.$error = true;
+      self.$throw_error();
       defer.reject(err.data);
     });
 
@@ -80838,9 +80885,13 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
       defer = $q.defer(),
       url = abode.url('/api/devices/' + this._id + '/motion_on').value();
 
+    self.$loading = true;
+    self.$error = false;
+
     $http.post(url).then(function (response) {
       self._on = true;
       self._motion = true;
+      self.$loading = false;
       defer.resolve(response.data);
     }, function (err) {
       self.$throw_error();
@@ -81000,12 +81051,14 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
 
   methods.$image_url = function () {
     var random = new Date();
+    if (!this.config || !this.config.image_url) { return; }
     return (this.config.image_url) ? abode.url('/api/devices/' + this._id + '/image?' + random.getTime() + '&client_token=' + abode.config.auth.token.client_token + '&auth_token=' + abode.config.auth.token.auth_token).value() : undefined;
 
   };
 
   methods.$video_url = function () {
     var random = new Date();
+    if (!this.config || !this.config.video_url) { return; }
     return (this.config.video_url) ? abode.url('/api/devices/' + this._id + '/video?live=true&client_token=' + abode.config.auth.token.client_token + '&auth_token=' + abode.config.auth.token.auth_token).value() : undefined;
 
   };
@@ -81574,7 +81627,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
   var removeDevice = function (device) {
     var defer = $q.defer();
 
-    $http.delete('/api/devices/' + device).then(function () {
+    $http.delete(abode.url('/api/devices/' + device).value()).then(function () {
       defer.resolve();
     }, function () {
       defer.reject();
@@ -81586,7 +81639,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
   var getDeviceRooms = function (device) {
     var defer = $q.defer();
 
-    $http({ url: '/api/devices/' + device + '/rooms'}).then(function (response) {
+    $http({ url: abode.url('/api/devices/' + device + '/rooms').value()}).then(function (response) {
       defer.resolve(response.data);
     }, function (err) {
       defer.reject(err);
@@ -81598,7 +81651,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
   var addDeviceRoom = function (device, room) {
     var defer = $q.defer();
 
-    $http.post('/api/devices/' + device + '/rooms', {'name': room}).then(function () {
+    $http.post(abode.url('/api/devices/' + device + '/rooms').value(), {'name': room}).then(function () {
       defer.resolve();
     }, function () {
       defer.reject();
@@ -81610,7 +81663,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
   var removeDeviceRoom = function (device, room) {
     var defer = $q.defer();
 
-    $http.delete('/api/devices/' + device + '/rooms/' + room).then(function () {
+    $http.delete(abode.url('/api/devices/' + device + '/rooms/' + room).value()).then(function () {
       defer.resolve();
     }, function () {
       defer.reject();
@@ -86146,7 +86199,17 @@ rooms.directive('roomIcon', function () {
 
       //Room view function
       $scope.view = function () {
-        rooms.view($scope.room, $scope.devices);
+        if ($scope.opening) {
+          console.log('already open');
+          return;
+        }
+
+        $scope.opening = true;
+        rooms.view($scope.room, $scope.devices).result.then(function () {
+          $scope.opening = false;
+        }, function () {
+          $scope.opening = false;
+        })
       };
 
       //Loader function
@@ -86225,6 +86288,7 @@ rooms.directive('roomItems', function () {
     scope: {
       'room': '@',
       'rooms': '=?',
+      'showImages': '@?',
     },
     restrict: 'E',
     replace: true,
@@ -86238,17 +86302,52 @@ rooms.directive('roomItems', function () {
 
 var rooms = angular.module('abode.rooms');
 
-rooms.factory('Rooms', ['$resource', '$q', '$http', 'abode', 'rooms', 'RoomDevices', 'RoomScenes', function ($resource, $q, $http, abode, rooms, RoomDevices, RoomScenes) {
+rooms.directive('roomListItem', function () {
+  return {
+    'restrict': 'E',
+    'require': 'ngModel',
+    'replace': true,
+    'templateUrl': 'modules/rooms/views/room_list_item.html',
+    'scope': {
+      'ngModel': '=',
+      'showControls': '@?'
+    },
+    'controller': function () {
+
+    }
+  }
+});
+
+
+
+var rooms = angular.module('abode.rooms');
+
+rooms.factory('Rooms', ['$resource', '$q', '$http', '$state', 'abode', 'rooms', 'RoomDevices', 'RoomScenes', function ($resource, $q, $http, $state, abode, rooms, RoomDevices, RoomScenes) {
 
   var Rooms = $resource(abode.url('/api/rooms/:id/:action'), {id: '@_id'}, {
     'update': { method: 'PUT' },
   });
 
 
+  Rooms.prototype.$edit = function () {
+
+    $state.go('main.rooms.edit', {'name': this.name});
+  };
+
   Rooms.prototype.$open = function (controls) {
     var self = this;
 
-    return rooms.view(self, undefined, undefined, controls);
+    self.$is_open = true;
+
+    var modal = rooms.view(self, undefined, undefined, controls)
+
+    modal.result.then(function () {
+      self.$is_open = false;
+    }, function () {
+      self.$is_open = false;
+    });
+
+    return modal;
   };
 
   Rooms.prototype.$refresh = function () {
@@ -86527,9 +86626,13 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
       animation: false,
       templateUrl: 'modules/rooms/views/rooms.view.html',
       size: 'lg',
-      controller: function ($scope, $uibModalInstance, $interval, $timeout, $state, rooms, room, devices, scenes) {
+      controller: function ($scope, $rootScope, $uibModalInstance, $interval, $timeout, $state, rooms, room, devices, scenes) {
         var intervals = [];
         var reload_timer;
+
+        var state_listener = $rootScope.$on('$stateChangeStart', function () {
+          $scope.ok();
+        });
 
         $scope.name = room.name;
         $scope.room = room;
@@ -86775,6 +86878,7 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
           $scope.destroyed = true;
           $timeout.cancel(reload_timer);
           intervals.forEach($interval.cancel);
+          state_listener();
         });
       },
       resolve: {
@@ -89510,11 +89614,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('modules/abode/views/icons.html',
-    "<div class=\"icon-selector bg-muted\">\n" +
+    "<div class=\"icon-selector bg-muted\" ng-style=\"styles\">\n" +
     "<ul>\n" +
     "	<li ng-repeat=\"icon in icons | orderBy: 'name'\" ng-class=\"{'icon-selected': icon.class == value}\" ng-click=\"selectIcon(icon)\"><i class=\"{{icon.class}}\"></i></li>\n" +
     "<ul>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -89526,7 +89630,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "<slide-nav>\n" +
     "  <div class=\"slide-nav-header\">\n" +
-    "        <img src=\"https://abode.scottneel.com/images/home.png\" class=\"slide-nav-header-badge img-circle\">\n" +
+    "        <img src=\"images/home.png\" class=\"slide-nav-header-badge img-circle\">\n" +
     "  </div>\n" +
     "  <div class=\"slide-nav-body\">\n" +
     "    <div class=\"row\">\n" +
@@ -89607,11 +89711,12 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "      &nbsp;\n" +
     "    </span>\n" +
     "    <ul class=\"dropdown-menu dropdown-menu-right\" uib-dropdown-menu>\n" +
-    "          <li><a ui-sref=\"main.rooms\"><i class=\"glyphicon glyphicon-modal-window\"></i> Rooms</a></li>\n" +
     "          <li><a ui-sref=\"main.devices\"><i class=\"glyphicon glyphicon-oil\"></i> Devices</a></li>\n" +
+    "          <li><a ui-sref=\"main.rooms\"><i class=\"glyphicon glyphicon-modal-window\"></i> Rooms</a></li>\n" +
     "          <li><a ui-sref=\"main.scenes\"><i class=\"icon-picture\"></i> Scenes</a></li>\n" +
-    "          <li><a ui-sref=\"main.notifications\"><i class=\"icon-flag\"></i> Notifications</a></li>\n" +
     "          <li><a ui-sref=\"main.triggers\"><i class=\"icon-bomb\"></i> Triggers</a></li>\n" +
+    "          <li><a ui-sref=\"main.notifications\"><i class=\"icon-flag\"></i> Notifications</a></li>\n" +
+    "          <li><a ui-sref=\"main.settings.interfaces\"><i class=\"icon-controlpanelalt\"></i> Interfaces</a></li>\n" +
     "          <li class=\"divider\"></li>\n" +
     "          <li><a ui-sref=\"main.settings\"><i class=\"glyphicon glyphicon-cog\"></i> Settings</a></li>\n" +
     "          <li class=\"divider\"></li>\n" +
@@ -90412,7 +90517,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   $templateCache.put('modules/devices/views/capabilities/light.html',
     "<div class=\"container-fluid\">\n" +
     "  <div class=\"col-xs-5 text-left\" style=\"padding-top: 0em;\">\n" +
-    "    <div style=\"border: .1em solid white; border-radius: .4em; height: 10em; width: 4em; text-align: center; vertical-align: middle; position: relative; cursor: pointer; padding-top: 3em; transition: 2s;\" ng-class=\"{'bg-success':  device._on || device._level > 0}\" ng-click=\"toggle_onoff()\">\n" +
+    "    <div style=\"border: .1em solid white; border-radius: .4em; height: 10em; width: 4em; text-align: center; vertical-align: middle; position: relative; cursor: pointer; padding-top: 3em; transition: 2s;\" ng-class=\"{'bg-success':  device._on || device._level > 0, 'bg-muted': device.$loading}\" ng-click=\"device.$toggle()\">\n" +
     "      <div style=\"text-align: center;\">\n" +
     "        <h2><i class=\"icon-lightbulb-idea\"></i></h2>\n" +
     "      </div>\n" +
@@ -90420,7 +90525,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "  </div>\n" +
     "  <div class=\"col-xs-3\" style=\" ng-show=\"has_capability('dimmer')\">\n" +
     "    <div style=\"height: 10em;\">\n" +
-    "      <rzslider rz-slider-model=\"device._level\" rz-slider-options=\"{floor: 0, ceil: 100, step: 1, vertical: true, hideLimitLabels: true, hidePointerLabels: true, onEnd: level_wait}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "      <rzslider rz-slider-model=\"device._level\" ng-disabled=\"device.$loading\" rz-slider-options=\"{floor: 0, ceil: 100, step: 1, vertical: true, hideLimitLabels: true, hidePointerLabels: true, onEnd: level_wait}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
     "    </div>\n" +
     "  </div>\n" +
     "  <div class=\"col-xs-4\" style=\"text-align: center; padding-left: 1em;\" ng-show=\"has_capability('dimmer')\">\n" +
@@ -90553,14 +90658,23 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('modules/devices/views/device_list_item.html',
-    "<li class=\"list-group-item\" style=\"cursor: pointer\" ng-class=\"{'list-group-item-danger': ngModel._on && ngModel.$is('openclose', 'motion_sensor'), 'text-muted': ngModel.$is_open, 'list-group-item-info': ngModel._mode == 'COOL', 'list-group-item-warning': ngModel._mode == 'HEAT'}\" ng-click=\"ngModel.$open()\">\n" +
+    "<li class=\"list-group-item\" style=\"cursor: pointer\" ng-class=\"{'text-muted': ngModel.$is_open, 'list-group-item-info': ngModel._mode == 'COOL', 'list-group-item-warning': ngModel._mode == 'HEAT'}\" ng-click=\"ngModel.$open()\">\n" +
+    "  <div class=\"\" ng-show=\"ngModel.$image\" ng-if=\"showImage\">\n" +
+    "    <div class=\"row\">\n" +
+    "      <div class=\"col-xs-12\">\n" +
+    "        <img src=\"{{ngModel.$image}}\" style=\"width: 100%\">\n" +
+    "        <div>&nbsp;</div>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
     "  <div class=\"container-flex\">\n" +
     "    <div class=\"row\">\n" +
     "      <div class=\"col-xs-8\">\n" +
-    "        <button class=\"btn btn-xs btn-default\" ng-click=\"ngModel.$refresh()\" ng-disabled=\"ngModel.$loading\" stop-event>\n" +
-    "        <i class=\"icon-circleselection spin\" ng-show=\"ngModel.$is_open || ngModel.$loading\"></i>\n" +
-    "        <i class=\"{{ngModel.icon}}\" ng-show=\"ngModel.icon && !ngModel.$is_open && !ngModel.$loading\"></i>\n" +
-    "        <span ng-hide=\"ngModel.icon || ngModel.$is_open || ngModel.$loading\">\n" +
+    "        <button class=\"btn btn-xs btn-default\"  ng-class=\"{'btn-danger': ngModel._on && ngModel.$is('openclose'), 'btn-danger': ngModel._motion && ngModel.$is('motion_sensor')}\" ng-click=\"ngModel.$refresh(true)\" ng-disabled=\"ngModel.$loading\" stop-event>\n" +
+    "        <i class=\"icon-circleselection spin\" ng-show=\"ngModel.$is_open || ngModel.$loading && !ngModel.$error\"></i>\n" +
+    "          <i class=\"glyphicon glyphicon-minus-sign text-danger\" ng-show=\"ngModel.$error\"></i>\n" +
+    "        <i class=\"{{ngModel.icon}}\" ng-show=\"ngModel.icon && !ngModel.$is_open && !ngModel.$loading && !ngModel.$error\"></i>\n" +
+    "        <span ng-hide=\"ngModel.icon || ngModel.$is_open || ngModel.$loading || ngModel.$error\">\n" +
     "          <i class=\"icon-fan\" ng-show=\"ngModel.$is('fan')\"></i>\n" +
     "          <i class=\"icon-videocamerathree\" ng-show=\"ngModel.$is('camera')\"></i>\n" +
     "          <i class=\"icon-lightbulb-idea\" ng-show=\"ngModel.$is('light')\"></i>\n" +
@@ -90611,18 +90725,18 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "      <div class=\"col-xs-12 text-muted\"><small>Seen: {{ngModel.last_seen | date: 'medium'}}</small></div>\n" +
     "    </div>\n" +
     "  </div>\n" +
-    "</li>"
+    "</li>\n"
   );
 
 
   $templateCache.put('modules/devices/views/device_toggle.html',
-    "<div class=\"device-toggle\" ng-click=\"toggle()\" ng-style=\"styles\" ng-class=\"{'device-toggle-off': !ngModel._on && !ngModel.$loading && !ngModel.$error, 'device-toggle-on': ngModel._on && !ngModel.$loading && !ngModel.$error, 'device-toggle-loading': ngModel.$loading && !ngModel.$error, 'device-toggle-error': ngModel.$error, 'device-toggle-light': ngModel.$is('light')}\">\n" +
+    "<div class=\"device-toggle\" ng-click=\"toggle()\" ng-style=\"styles\" ng-class=\"{'device-toggle-off': !state && !ngModel.$loading && !ngModel.$error, 'device-toggle-on': state && !ngModel.$loading && !ngModel.$error, 'device-toggle-loading': ngModel.$loading && !ngModel.$error, 'device-toggle-error': ngModel.$error, 'device-toggle-light': ngModel.$is('light')}\">\n" +
     "<div class=\"device-toggle-button\">\n" +
     "  <div class=\"device-toggle-spinner\" ng-show=\"ngModel.$loading\"><i class=\"glyphicon glyphicon-refresh\"></i></div>\n" +
     "  <div class=\"device-toggle-label-error\" ng-show=\"ngModel.$error\"><i class=\"glyphicon glyphicon-minus-sign text-danger\"></i></div>\n" +
     "  <div class=\"device-toggle-label\" ng-hide=\"ngModel.$loading || ngModel.$error\">{{label}}</div>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -91140,7 +91254,6 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <button class=\"btn btn-default\" type=\"button\" ng-click=\"toggleAddress()\"><i class=\"icon-edit\"></i></button>\n" +
     "        </span>\n" +
     "      </div>\n" +
-    "      <input type=\"text\" class=\"form-control\" id=\"address\" placeholder=\"Address\" required=\"\" ng-model=\"device.config.address\">\n" +
     "    </div>\n" +
     "  </div>\n" +
     "\n" +
@@ -92690,9 +92803,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('modules/rooms/views/room.icon.html',
     "<div class=\"room-icon\" ng-style=\"styles\" ng-class=\"{'room-motion': room._motion_on, 'room-light': room._lights_on, 'active': room._motion_on || room._lights_on || room._doors_open || rooms._windows_open || tempType}\" ng-click=\"view()\">\n" +
-    "  <div class=\"room-icon-display\" ng-show=\"icon && room._temperature && tempType\"><i class=\"{{icon}}\"></i></div>\n" +
-    "  <div class=\"room-icon-temp\" ng-show=\"tempType && room._temperature\">{{room._temperature | number:0}}</div>\n" +
-    "  <span ng-show=\"icon && !room._temperature || !tempType\"><i class=\"{{icon}}\"></i></span>\n" +
+    "\n" +
+    "  <div class=\"room-icon-display\" ng-show=\"icon && room._temperature && tempType && !opening\"><i class=\"{{icon}}\"></i></div>\n" +
+    "  <div class=\"room-icon-temp\" ng-show=\"tempType && room._temperature && !opening\">{{room._temperature | number:0}}</div>\n" +
+    "  <span ng-show=\"icon && !room._temperature && !opening || !tempType && !opening\"><i class=\"{{icon}}\"></i></span>\n" +
+    "  <span ng-show=\"opening\"><i class=\"icon-circleselection spin\"></i></span>\n" +
     "  <div class=\"room-icon-status room-icon-loading\" ng-class=\"{'room-loading': loading}\"><i class=\"icon-loadingalt spin\"></i></div>\n" +
     "  <div class=\"room-icon-status room-icon-error\" ng-class=\"{'room-error': error}\"><i class=\"icon-warning-sign\"></i></div>\n" +
     "  <div class=\"room-icon-badge room-icon-openclose\" ng-class=\"{'room-openclose': room._doors_open || room._windows_open}\">{{room._door_on_count + room._window_on_count}}</div>\n" +
@@ -92709,10 +92824,22 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "  <div ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Loading...</div>\n" +
     "  <div class=\"room-items-list\" ng-hide=\"loading\">\n" +
     "    <ul class=\"list-group\">\n" +
-    "      <device-list-item ng-repeat=\"device in items | orderBy: ['-_motion', '-_on', '+age', '+name']\" ng-model=\"device\" show-controls=\"true\"></device-list-item>\n" +
+    "      <device-list-item ng-repeat=\"device in items | orderBy: ['-_motion', '-_on', '+age', '+name']\" ng-model=\"device\" show-controls=\"true\" show-image=\"{{showImages}}\"></device-list-item>\n" +
     "    </ul>\n" +
     "  </div>\n" +
-    "</div>"
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/rooms/views/room_list_item.html',
+    "<li class=\"list-group-item\" style=\"cursor: pointer;\" ng-class=\"{'text-muted': ngModel.$is_open}\" ng-click=\"ngModel.$open()\">\n" +
+    "  <i class=\"icon-circleselection spin\" ng-show=\"ngModel.$is_open || ngModel.$loading\"></i>\n" +
+    "  <i class=\"{{ngModel.icon}}\" ng-show=\"ngModel.icon && !ngModel.$is_open && !ngModel.$loading\"></i>\n" +
+    "  {{ngModel.name}} <div class=\"pull-right\" style=\"margin-left: .5em; margin-top: -.25em\"> <button class=\"btn btn-xs btn-default\" ng-click=\"ngModel.$edit()\" stop-event><i class=\"icon-edit\"></i></button></div> <span class=\"badge\">{{ngModel._devices.length}} <i class=\"glyphicon glyphicon-oil\"></i></span>\n" +
+    "  <div style=\"font-size: .7em\" class=\"text-muted\" ng-show=\"ngModel.tags.length > 0\"><i class=\"icon-tags\"></i>\n" +
+    "    <span ng-repeat=\"tag in ngModel.tags\" style=\"margin-right: 1em;\">{{tag}}</span>\n" +
+    "  </div>\n" +
+    "</li>\n"
   );
 
 
@@ -92877,6 +93004,8 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "        </p>\n" +
     "        <h4 ng-show=\"loading\"><i class=\"icon-refresh spin\"></i> Loading...</h4>\n" +
     "        <ul class=\"list-group\" ng-hide=\"loading\">\n" +
+    "          <room-list-item ng-repeat=\"room in rooms | filter: search | orderBy: '+name'\" ng-model=\"room\"></room-list-item>\n" +
+    "          <!--\n" +
     "          <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-click=\"view(room)\" ng-repeat=\"room in rooms | filter: search | orderBy: '+name'\">\n" +
     "            <i class=\"{{room.icon}}\" ng-show=\"room.icon\"></i>\n" +
     "            {{room.name}} <div class=\"pull-right\" style=\"margin-left: .5em; margin-top: -.25em\"> <button class=\"btn btn-xs btn-default\" ng-click=\"edit(room)\" stop-event><i class=\"icon-edit\"></i></button></div> <span class=\"badge\">{{room._devices.length}} <i class=\"glyphicon glyphicon-oil\"></i></span>\n" +
@@ -92884,6 +93013,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "              <span ng-repeat=\"tag in room.tags\" style=\"margin-right: 1em;\">{{tag}}</span>\n" +
     "            </div>\n" +
     "          </li>\n" +
+    "          -->\n" +
     "        </ul>\n" +
     "      </div>\n" +
     "    </div>\n" +
@@ -92913,7 +93043,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "        </div>\n" +
     "      </div>\n" +
     "      <div class=\"col-xs-2\"><div class=\"room_filter\" ng-click=\"filter('scenes')\" ng-class=\"{selected: filter_condition =='scenes'}\"><i class=\"icon-picture\"></i><div class=\"on-count\" ng-class=\"{'on-ok': on_counts.scenes != 0}\">{{filter_counts.scenes}}</div></div></div>\n" +
-    "      <div class=\"col-xs-2\"><div class=\"room_filter\" ng-click=\"filter('motion_sensor')\" ng-class=\"{selected: filter_condition =='motion_sensor'}\"><i class=\"fi-motion\"></i><div class=\"on-count\" ng-class=\"{'on-danger': on_counts.motion_sensor != 0}\">{{filter_counts.motion_sensor}}</div></div></div>\n" +
+    "      <div class=\"col-xs-2\"><div class=\"room_filter\" ng-click=\"filter('motion_sensor')\" ng-class=\"{selected: filter_condition =='motion_sensor'}\"><i class=\"fi-motion\"></i><div class=\"on-count\" ng-class=\"{'on-danger': room._motion_sensor_on_count != 0}\">{{filter_counts.motion_sensor}}</div></div></div>\n" +
     "      <div class=\"col-xs-2\"><div class=\"room_filter\" ng-click=\"filter('door')\" ng-class=\"{selected: filter_condition =='door'}\"><i class=\"fi-door-open\"></i><div class=\"on-count\" ng-class=\"{'on-danger': on_counts.door != 0}\">{{filter_counts.door}}</div></div></div>\n" +
     "      <div class=\"col-xs-2\"><div class=\"room_filter\" ng-click=\"filter('window')\" ng-class=\"{selected: filter_condition =='window'}\"><i class=\"fi-window\"></i><div class=\"on-count\" ng-class=\"{'on-danger': on_counts.window != 0}\">{{filter_counts.window}}</div></div></div>\n" +
     "      <div class=\"col-xs-2\"><div class=\"room_filter\" ng-click=\"filter('temperature_sensor')\" ng-class=\"{selected: filter_condition =='temperature_sensor'}\">{{room_temperature}}</div></div>\n" +

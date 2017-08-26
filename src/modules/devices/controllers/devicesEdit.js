@@ -120,7 +120,7 @@ devices.controller('devicesEdit', function ($scope, $state, $uibModal, $q, abode
       devices.addRoom(device.name, room.name).then(function () {
         getRooms();
         abode.message({'type': 'success', 'message': 'Room added to Device'});
-      }, function () {
+      }, function (err) {
         abode.message({'type': 'failed', 'message': 'Failed to add Room to Device', 'details': err});
       });
 

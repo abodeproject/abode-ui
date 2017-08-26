@@ -57,16 +57,16 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
     req.then(function (response) {
       var results = response.data.response || response.data;
 
-      for (var key in results) {
-        if (results.hasOwnProperty(key)) {
-          self[key] = results[key];
-        }
+      if (results._image) {
+        results.$image = self.$image_url();
       }
+      angular.merge(self, results);
+
       self.$loading = false;
       defer.resolve(self);
     }, function (err) {
       self.$loading = false;
-      self.$error = true;
+      self.$throw_error();
       defer.reject(err.data);
     });
 
@@ -210,9 +210,13 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
       defer = $q.defer(),
       url = abode.url('/api/devices/' + this._id + '/motion_on').value();
 
+    self.$loading = true;
+    self.$error = false;
+
     $http.post(url).then(function (response) {
       self._on = true;
       self._motion = true;
+      self.$loading = false;
       defer.resolve(response.data);
     }, function (err) {
       self.$throw_error();
@@ -372,12 +376,14 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
 
   methods.$image_url = function () {
     var random = new Date();
+    if (!this.config || !this.config.image_url) { return; }
     return (this.config.image_url) ? abode.url('/api/devices/' + this._id + '/image?' + random.getTime() + '&client_token=' + abode.config.auth.token.client_token + '&auth_token=' + abode.config.auth.token.auth_token).value() : undefined;
 
   };
 
   methods.$video_url = function () {
     var random = new Date();
+    if (!this.config || !this.config.video_url) { return; }
     return (this.config.video_url) ? abode.url('/api/devices/' + this._id + '/video?live=true&client_token=' + abode.config.auth.token.client_token + '&auth_token=' + abode.config.auth.token.auth_token).value() : undefined;
 
   };
@@ -946,7 +952,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
   var removeDevice = function (device) {
     var defer = $q.defer();
 
-    $http.delete('/api/devices/' + device).then(function () {
+    $http.delete(abode.url('/api/devices/' + device).value()).then(function () {
       defer.resolve();
     }, function () {
       defer.reject();
@@ -958,7 +964,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
   var getDeviceRooms = function (device) {
     var defer = $q.defer();
 
-    $http({ url: '/api/devices/' + device + '/rooms'}).then(function (response) {
+    $http({ url: abode.url('/api/devices/' + device + '/rooms').value()}).then(function (response) {
       defer.resolve(response.data);
     }, function (err) {
       defer.reject(err);
@@ -970,7 +976,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
   var addDeviceRoom = function (device, room) {
     var defer = $q.defer();
 
-    $http.post('/api/devices/' + device + '/rooms', {'name': room}).then(function () {
+    $http.post(abode.url('/api/devices/' + device + '/rooms').value(), {'name': room}).then(function () {
       defer.resolve();
     }, function () {
       defer.reject();
@@ -982,7 +988,7 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
   var removeDeviceRoom = function (device, room) {
     var defer = $q.defer();
 
-    $http.delete('/api/devices/' + device + '/rooms/' + room).then(function () {
+    $http.delete(abode.url('/api/devices/' + device + '/rooms/' + room).value()).then(function () {
       defer.resolve();
     }, function () {
       defer.reject();

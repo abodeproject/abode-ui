@@ -1,17 +1,32 @@
 
 var rooms = angular.module('abode.rooms');
 
-rooms.factory('Rooms', ['$resource', '$q', '$http', 'abode', 'rooms', 'RoomDevices', 'RoomScenes', function ($resource, $q, $http, abode, rooms, RoomDevices, RoomScenes) {
+rooms.factory('Rooms', ['$resource', '$q', '$http', '$state', 'abode', 'rooms', 'RoomDevices', 'RoomScenes', function ($resource, $q, $http, $state, abode, rooms, RoomDevices, RoomScenes) {
 
   var Rooms = $resource(abode.url('/api/rooms/:id/:action'), {id: '@_id'}, {
     'update': { method: 'PUT' },
   });
 
 
+  Rooms.prototype.$edit = function () {
+
+    $state.go('main.rooms.edit', {'name': this.name});
+  };
+
   Rooms.prototype.$open = function (controls) {
     var self = this;
 
-    return rooms.view(self, undefined, undefined, controls);
+    self.$is_open = true;
+
+    var modal = rooms.view(self, undefined, undefined, controls)
+
+    modal.result.then(function () {
+      self.$is_open = false;
+    }, function () {
+      self.$is_open = false;
+    });
+
+    return modal;
   };
 
   Rooms.prototype.$refresh = function () {

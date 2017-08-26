@@ -1,4 +1,4 @@
-<div class="icon-selector bg-muted">
+<div class="icon-selector bg-muted" ng-style="styles">
 <ul>
 	<li ng-repeat="icon in icons | orderBy: 'name'" ng-class="{'icon-selected': icon.class == value}" ng-click="selectIcon(icon)"><i class="{{icon.class}}"></i></li>
 <ul>

@@ -11,7 +11,7 @@ devices.factory('RoomDevices', ['$resource', 'abode', 'devices', function ($reso
           data = angular.fromJson(data);
 
           data.forEach(function (dev) {
-            if (dev._on === true) {
+            if (dev._on === true || dev._motion) {
               dev.age = new Date() - new Date(dev.last_on);
             } else {
               dev.age = new Date() - new Date(dev.last_off);

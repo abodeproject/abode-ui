@@ -9,7 +9,8 @@ devices.directive('deviceListItem', function () {
     'templateUrl': 'modules/devices/views/device_list_item.html',
     'scope': {
       'ngModel': '=',
-      'showControls': '@?'
+      'showControls': '@?',
+      'showImage': '@?',
     },
     'controller': ['$scope', 'abode', function ($scope, abode) {
       var listener = abode.scope.$on('UPDATED', function (event, msg) {
@@ -31,7 +32,15 @@ devices.directive('deviceListItem', function () {
 
         angular.merge($scope.ngModel, msg.object);
 
+        if ($scope.ngModel._image) {
+          $scope.ngModel.$image = $scope.ngModel.$image_url();
+        }
+
       });
+
+      if ($scope.ngModel._image) {
+        $scope.ngModel.$image = $scope.ngModel.$image_url();
+      }
 
       $scope.$on('$destroy', function () {
         listener();

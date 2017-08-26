@@ -157,9 +157,13 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
       animation: false,
       templateUrl: 'modules/rooms/views/rooms.view.html',
       size: 'lg',
-      controller: function ($scope, $uibModalInstance, $interval, $timeout, $state, rooms, room, devices, scenes) {
+      controller: function ($scope, $rootScope, $uibModalInstance, $interval, $timeout, $state, rooms, room, devices, scenes) {
         var intervals = [];
         var reload_timer;
+
+        var state_listener = $rootScope.$on('$stateChangeStart', function () {
+          $scope.ok();
+        });
 
         $scope.name = room.name;
         $scope.room = room;
@@ -405,6 +409,7 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
           $scope.destroyed = true;
           $timeout.cancel(reload_timer);
           intervals.forEach($interval.cancel);
+          state_listener();
         });
       },
       resolve: {

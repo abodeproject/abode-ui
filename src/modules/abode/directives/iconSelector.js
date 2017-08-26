@@ -6,10 +6,17 @@ abode.directive('iconSelector', ['$compile', function () {
     restrict: 'E',
     replace: 'true',
     scope: {
-      value: '='
+      value: '=',
+      height: '=',
     },
     templateUrl: 'modules/abode/views/icons.html',
     controller: ['$scope', function ($scope) {
+
+      var height = ($scope.height) ? $scope.height : 8;
+
+      $scope.styles = {
+        'max-height': height + 'em'
+      };
 
       $scope.selectIcon = function (icon) {
         $scope.value = icon.class;

@@ -78,7 +78,17 @@ rooms.directive('roomIcon', function () {
 
       //Room view function
       $scope.view = function () {
-        rooms.view($scope.room, $scope.devices);
+        if ($scope.opening) {
+          console.log('already open');
+          return;
+        }
+
+        $scope.opening = true;
+        rooms.view($scope.room, $scope.devices).result.then(function () {
+          $scope.opening = false;
+        }, function () {
+          $scope.opening = false;
+        })
       };
 
       //Loader function

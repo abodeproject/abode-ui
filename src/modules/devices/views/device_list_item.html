@@ -1,11 +1,20 @@
-<li class="list-group-item" style="cursor: pointer" ng-class="{'list-group-item-danger': ngModel._on && ngModel.$is('openclose', 'motion_sensor'), 'text-muted': ngModel.$is_open, 'list-group-item-info': ngModel._mode == 'COOL', 'list-group-item-warning': ngModel._mode == 'HEAT'}" ng-click="ngModel.$open()">
+<li class="list-group-item" style="cursor: pointer" ng-class="{'text-muted': ngModel.$is_open, 'list-group-item-info': ngModel._mode == 'COOL', 'list-group-item-warning': ngModel._mode == 'HEAT'}" ng-click="ngModel.$open()">
+  <div class="" ng-show="ngModel.$image" ng-if="showImage">
+    <div class="row">
+      <div class="col-xs-12">
+        <img src="{{ngModel.$image}}" style="width: 100%">
+        <div>&nbsp;</div>
+      </div>
+    </div>
+  </div>
   <div class="container-flex">
     <div class="row">
       <div class="col-xs-8">
-        <button class="btn btn-xs btn-default" ng-click="ngModel.$refresh()" ng-disabled="ngModel.$loading" stop-event>
-        <i class="icon-circleselection spin" ng-show="ngModel.$is_open || ngModel.$loading"></i>
-        <i class="{{ngModel.icon}}" ng-show="ngModel.icon && !ngModel.$is_open && !ngModel.$loading"></i>
-        <span ng-hide="ngModel.icon || ngModel.$is_open || ngModel.$loading">
+        <button class="btn btn-xs btn-default"  ng-class="{'btn-danger': ngModel._on && ngModel.$is('openclose'), 'btn-danger': ngModel._motion && ngModel.$is('motion_sensor')}" ng-click="ngModel.$refresh(true)" ng-disabled="ngModel.$loading" stop-event>
+        <i class="icon-circleselection spin" ng-show="ngModel.$is_open || ngModel.$loading && !ngModel.$error"></i>
+          <i class="glyphicon glyphicon-minus-sign text-danger" ng-show="ngModel.$error"></i>
+        <i class="{{ngModel.icon}}" ng-show="ngModel.icon && !ngModel.$is_open && !ngModel.$loading && !ngModel.$error"></i>
+        <span ng-hide="ngModel.icon || ngModel.$is_open || ngModel.$loading || ngModel.$error">
           <i class="icon-fan" ng-show="ngModel.$is('fan')"></i>
           <i class="icon-videocamerathree" ng-show="ngModel.$is('camera')"></i>
           <i class="icon-lightbulb-idea" ng-show="ngModel.$is('light')"></i>

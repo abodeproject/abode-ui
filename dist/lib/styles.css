@@ -8950,7 +8950,7 @@ body {
 }
 
 .bg-muted {
-  background-color: #777;
+  background-color: #636a71;
 }
 
 .pointer {
@@ -9860,7 +9860,6 @@ body {
 
 .icon-selector {
   overflow: auto;
-  max-height: 6em;
 }
 .icon-selector ul {
   list-style: none;
@@ -10048,11 +10047,11 @@ body {
 
 @keyframes error-pulse {
   from {
-    background-color: #eee;
+    background-color: #eee !important;
   }
 
   to {
-    background-color: #af4b4b;
+    background-color: #af4b4b !important;
   }
 }
 
