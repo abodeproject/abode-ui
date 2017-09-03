@@ -325,10 +325,16 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
       defer = $q.defer(),
       url = abode.url('/api/devices/' + this._id + '/set_mode').value();
 
+    self.$loading = true;
+    self.$error = false;
+
     $http.post(url, [mode]).then(function (response) {
+      self.$loading = false;
       self._mode = mode;
       defer.resolve(response.data);
     }, function (err) {
+      self.$loading = false;
+      self.$throw_error();
       defer.reject(err.data);
     });
 
@@ -340,10 +346,16 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
       defer = $q.defer(),
       url = abode.url('/api/devices/' + this._id + '/set_point').value();
 
+    self.$loading = true;
+    self.$error = false;
+
     $http.post(url, [temp]).then(function (response) {
+      self.$loading = false;
       self._set_point = temp;
       defer.resolve(response.data);
     }, function (err) {
+      self.$loading = false;
+      self.$throw_error();
       defer.reject(err.data);
     });
 
@@ -372,6 +384,46 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
 
     return defer.promise;
 
+  };
+
+  methods.$temp_timer = null;
+
+  methods.$temp_up = function () {
+    var self = this;
+
+    if (self._mode === 'OFF' || self._set_point > 85) {
+      return;
+    }
+
+    if (self.$temp_timer) {
+      $timeout.cancel(self.$temp_timer);
+    }
+
+    self.$temp_timer = $timeout(function () {
+      self.$set_temp(self._set_point);
+    }, 3000);
+
+    self.$loading = true;
+    self._set_point += 1;
+  };
+
+  methods.$temp_down = function () {
+    var self = this;
+
+    if (self._mode === 'OFF' || self._set_point < 50) {
+      return;
+    }
+
+    if (self.$temp_timer) {
+      $timeout.cancel(self.$temp_timer);
+    }
+
+    self.$loading = true;
+    self._set_point -= 1;
+
+    self.$temp_timer = $timeout(function () {
+      self.$set_temp(self._set_point);
+    }, 3000);
   };
 
   methods.$image_url = function () {

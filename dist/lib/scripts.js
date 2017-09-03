@@ -81000,10 +81000,16 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
       defer = $q.defer(),
       url = abode.url('/api/devices/' + this._id + '/set_mode').value();
 
+    self.$loading = true;
+    self.$error = false;
+
     $http.post(url, [mode]).then(function (response) {
+      self.$loading = false;
       self._mode = mode;
       defer.resolve(response.data);
     }, function (err) {
+      self.$loading = false;
+      self.$throw_error();
       defer.reject(err.data);
     });
 
@@ -81015,10 +81021,16 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
       defer = $q.defer(),
       url = abode.url('/api/devices/' + this._id + '/set_point').value();
 
+    self.$loading = true;
+    self.$error = false;
+
     $http.post(url, [temp]).then(function (response) {
+      self.$loading = false;
       self._set_point = temp;
       defer.resolve(response.data);
     }, function (err) {
+      self.$loading = false;
+      self.$throw_error();
       defer.reject(err.data);
     });
 
@@ -81047,6 +81059,46 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
 
     return defer.promise;
 
+  };
+
+  methods.$temp_timer = null;
+
+  methods.$temp_up = function () {
+    var self = this;
+
+    if (self._mode === 'OFF' || self._set_point > 85) {
+      return;
+    }
+
+    if (self.$temp_timer) {
+      $timeout.cancel(self.$temp_timer);
+    }
+
+    self.$temp_timer = $timeout(function () {
+      self.$set_temp(self._set_point);
+    }, 3000);
+
+    self.$loading = true;
+    self._set_point += 1;
+  };
+
+  methods.$temp_down = function () {
+    var self = this;
+
+    if (self._mode === 'OFF' || self._set_point < 50) {
+      return;
+    }
+
+    if (self.$temp_timer) {
+      $timeout.cancel(self.$temp_timer);
+    }
+
+    self.$loading = true;
+    self._set_point -= 1;
+
+    self.$temp_timer = $timeout(function () {
+      self.$set_temp(self._set_point);
+    }, 3000);
   };
 
   methods.$image_url = function () {
@@ -90451,14 +90503,14 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   $templateCache.put('modules/devices/views/capabilities/conditioner.html',
     "<div class=\"container-fluid\">\n" +
     "  <div class=\"col-xs-5\" style=\"padding-top: 0em; font-size: .7em;\">\n" +
-    "    <div class=\"img-circle\" ng-click=\"set_mode('HEAT')\" ng-class=\"{'bg-muted': device._mode == 'HEAT', 'bg-danger': (device._mode == 'HEAT' && device._on)}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"icon-fire\"></i></div>\n" +
-    "    <div class=\"img-circle\" ng-click=\"set_mode('COOL')\"  ng-class=\"{'bg-muted': device._mode == 'COOL', 'bg-info': (device._mode == 'COOL' && device._on)}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"icon-snow\"></i></div>\n" +
-    "    <div class=\"img-circle\" ng-click=\"set_mode('OFF')\"  ng-class=\"{'bg-muted': device._mode == 'OFF'}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"glyphicon glyphicon-off\"></i></div>\n" +
+    "    <div class=\"img-circle\" ng-click=\"device.$set_mode('HEAT')\" ng-class=\"{'bg-muted': device._mode == 'HEAT', 'bg-danger': (device._mode == 'HEAT' && device._on)}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"icon-circleselection spin\" ng-show=\"device._mode == 'HEAT' && device.$loading\"></i><i class=\"icon-fire\" ng-hide=\"device._mode == 'HEAT' && device.$loading\"></i></div>\n" +
+    "    <div class=\"img-circle\" ng-click=\"device.$set_mode('COOL')\"  ng-class=\"{'bg-muted': device._mode == 'COOL', 'bg-info': (device._mode == 'COOL' && device._on)}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"icon-circleselection spin\" ng-show=\"device._mode == 'COOL' && device.$loading\"></i><i class=\"icon-snow\" ng-hide=\"device._mode == 'COOL' && device.$loading\"></i></div>\n" +
+    "    <div class=\"img-circle\" ng-click=\"device.$set_mode('OFF')\"  ng-class=\"{'bg-muted': device._mode == 'OFF'}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"icon-circleselection spin\" ng-show=\"device._mode == 'OFF' && device.$loading\"></i><i ng-hide=\"device._mode == 'OFF' && device.$loading\" class=\"glyphicon glyphicon-off\"></i></div>\n" +
     "  </div>\n" +
-    "  <div class=\"col-xs-7 text-center\" style=\"font-size: 4em;padding-top: 0em;\">\n" +
-    "    <div><i class=\"icon-chevron-up\" style=\"cursor: pointer;\" ng-click=\"temp_up()\"></i></div>\n" +
+    "  <div class=\"col-xs-7 text-center\" style=\"font-size: 4em;padding-top: 0em;\" ng-class=\"{'text-muted': device._mode == 'OFF'}\">\n" +
+    "    <div><i class=\"icon-chevron-up\" style=\"cursor: pointer;\" ng-click=\"device.$temp_up()\"></i></div>\n" +
     "    <div>{{device._set_point}}</div>\n" +
-    "    <div><i class=\"icon-chevron-down\" style=\"cursor: pointer;\" ng-click=\"temp_down()\"></i></div>\n" +
+    "    <div><i class=\"icon-chevron-down\" style=\"cursor: pointer;\" ng-click=\"device.$temp_down()\"></i></div>\n" +
     "\n" +
     "  </div>\n" +
     "</div>\n"

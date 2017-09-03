@@ -935,14 +935,14 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   $templateCache.put('modules/devices/views/capabilities/conditioner.html',
     "<div class=\"container-fluid\">\n" +
     "  <div class=\"col-xs-5\" style=\"padding-top: 0em; font-size: .7em;\">\n" +
-    "    <div class=\"img-circle\" ng-click=\"set_mode('HEAT')\" ng-class=\"{'bg-muted': device._mode == 'HEAT', 'bg-danger': (device._mode == 'HEAT' && device._on)}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"icon-fire\"></i></div>\n" +
-    "    <div class=\"img-circle\" ng-click=\"set_mode('COOL')\"  ng-class=\"{'bg-muted': device._mode == 'COOL', 'bg-info': (device._mode == 'COOL' && device._on)}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"icon-snow\"></i></div>\n" +
-    "    <div class=\"img-circle\" ng-click=\"set_mode('OFF')\"  ng-class=\"{'bg-muted': device._mode == 'OFF'}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"glyphicon glyphicon-off\"></i></div>\n" +
+    "    <div class=\"img-circle\" ng-click=\"device.$set_mode('HEAT')\" ng-class=\"{'bg-muted': device._mode == 'HEAT', 'bg-danger': (device._mode == 'HEAT' && device._on)}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"icon-circleselection spin\" ng-show=\"device._mode == 'HEAT' && device.$loading\"></i><i class=\"icon-fire\" ng-hide=\"device._mode == 'HEAT' && device.$loading\"></i></div>\n" +
+    "    <div class=\"img-circle\" ng-click=\"device.$set_mode('COOL')\"  ng-class=\"{'bg-muted': device._mode == 'COOL', 'bg-info': (device._mode == 'COOL' && device._on)}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"icon-circleselection spin\" ng-show=\"device._mode == 'COOL' && device.$loading\"></i><i class=\"icon-snow\" ng-hide=\"device._mode == 'COOL' && device.$loading\"></i></div>\n" +
+    "    <div class=\"img-circle\" ng-click=\"device.$set_mode('OFF')\"  ng-class=\"{'bg-muted': device._mode == 'OFF'}\" style=\"cursor: pointer; margin: .5em; margin-left: -.5em; width: 1.7em; padding-top: .2em; text-align: center; vertical-align: middle; font-size: 3em;\"><i class=\"icon-circleselection spin\" ng-show=\"device._mode == 'OFF' && device.$loading\"></i><i ng-hide=\"device._mode == 'OFF' && device.$loading\" class=\"glyphicon glyphicon-off\"></i></div>\n" +
     "  </div>\n" +
-    "  <div class=\"col-xs-7 text-center\" style=\"font-size: 4em;padding-top: 0em;\">\n" +
-    "    <div><i class=\"icon-chevron-up\" style=\"cursor: pointer;\" ng-click=\"temp_up()\"></i></div>\n" +
+    "  <div class=\"col-xs-7 text-center\" style=\"font-size: 4em;padding-top: 0em;\" ng-class=\"{'text-muted': device._mode == 'OFF'}\">\n" +
+    "    <div><i class=\"icon-chevron-up\" style=\"cursor: pointer;\" ng-click=\"device.$temp_up()\"></i></div>\n" +
     "    <div>{{device._set_point}}</div>\n" +
-    "    <div><i class=\"icon-chevron-down\" style=\"cursor: pointer;\" ng-click=\"temp_down()\"></i></div>\n" +
+    "    <div><i class=\"icon-chevron-down\" style=\"cursor: pointer;\" ng-click=\"device.$temp_down()\"></i></div>\n" +
     "\n" +
     "  </div>\n" +
     "</div>\n"
