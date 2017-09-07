@@ -80634,20 +80634,22 @@ devices.factory('DeviceRooms', ['$resource', 'abode', function ($resource, abode
 }]);
 
 
-
 var devices = angular.module('abode.devices');
 
 devices.factory('RoomDevices', ['$resource', 'abode', 'devices', function ($resource, abode, devices) {
+  'use strict';
 
   var model = $resource(abode.url('/api/rooms/:room/devices/:id'), {id: '@_id'}, {
     'query': {
       isArray: true,
       transformResponse: [
-        function (data, headers, status) {
+        function (data) {
           data = angular.fromJson(data);
 
           data.forEach(function (dev) {
-            if (dev._on === true || dev._motion) {
+            if (dev.capabilities.indexOf('motion_sensor') > -1 && dev._motion) {
+              dev.age = new Date() - new Date(dev.last_on);
+            } else if (dev.capabilities.indexOf('motion_sensor') === -1 && dev._on === true) {
               dev.age = new Date() - new Date(dev.last_on);
             } else {
               dev.age = new Date() - new Date(dev.last_off);
@@ -82712,19 +82714,19 @@ insteon.controller('insteonAdd', function ($scope, $http, $timeout, abode) {
     },
     {
       'name': 'Door Sensor',
-      'capabilities': ['door', 'onoff'],
+      'capabilities': ['door', 'onoff', 'battery_sensor'],
       'controller': false,
       'active': false,
     },
     {
       'name': 'Window Sensor',
-      'capabilities': ['window', 'onoff'],
+      'capabilities': ['window', 'onoff', 'battery_sensor'],
       'controller': false,
       'active': false,
     },
     {
       'name': 'Motion Sensor',
-      'capabilities': ['motion_sensor'],
+      'capabilities': ['motion_sensor', 'battery_sensor'],
       'controller': false,
       'active': false,
     },
@@ -86801,7 +86803,9 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
             });
 
             $scope.filter_counts[f] = match.length;
-            $scope.on_counts[f] = match.filter( function (d) {return d._on; }).length;
+            $scope.on_counts[f] = match.filter( function (d) {
+              return (d.capabilities.indexOf('motion_sensor') === -1 && d._on) || (d.capabilities.indexOf('motion_sensor') > -1 && d._motion);
+            }).length;
 
             if ($scope.filter_condition !== undefined) return;
 
@@ -90478,10 +90482,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('modules/devices/views/capabilities/battery_sensor.html',
     "\n" +
-    "<h4 style=\" white-space: nowrap\">{{device._battery | number:0}}%\n" +
-    "	<i class=\"icon-batteryaltthird text-danger\" ng-show=\"device._battery <= 50\"></i>\n" +
-    "	<i class=\"icon-batteryaltsixty text-warning\" ng-show=\"device._battery > 50 && device._battery < 75\"></i>\n" +
-    "	<i class=\"icon-batteryaltfull text-success\" ng-show=\"device._battery >= 75\"></i>\n" +
+    "<h4 style=\" white-space: nowrap\">\n" +
+    "	<span ng-show=\"device._battery\">{{device._battery | number:0}}%</span>\n" +
+    "	<i class=\"icon-batteryaltthird text-danger\" ng-show=\"device._battery <= 50 || device.low_battery\"></i>\n" +
+    "	<i class=\"icon-batteryaltsixty text-warning\" ng-show=\"device._battery > 50 && device._battery < 75 && !device.low_battery\"></i>\n" +
+    "	<i class=\"icon-batteryaltfull text-success\" ng-show=\"device._battery >= 75 || !device.low_battery\"></i>\n" +
     "</h4>\n"
   );
 
@@ -90750,6 +90755,12 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "            <span class=\"badge\" ng-show=\"ngModel.$is('temperature_sensor')\">{{ngModel._temperature}} <i class=\"wi wi-thermometer\"></i></span>\n" +
     "            <span class=\"badge\" ng-show=\"ngModel.$is('humidity_sensor')\">{{ngModel._humidity}} <i class=\"wi wi-humidity\"></i></span>\n" +
     "            <span class=\"badge\" ng-show=\"ngModel.$is('light_sensor')\">{{ngModel._lumens}} <i class=\"wi wi-day-sunny wi-fw\"></i></span>\n" +
+    "            <span class=\"badge\" ng-show=\"ngModel.$is('battery_sensor')\">\n" +
+    "              <span ng-show=\"device._battery\">{{device._battery | number:0}}%</span>\n" +
+    "              <i class=\"icon-batteryaltthird text-danger\" ng-show=\"device._battery <= 50 || device.low_battery\"></i>\n" +
+    "              <i class=\"icon-batteryaltsixty text-warning\" ng-show=\"device._battery > 50 && device._battery < 75 && !device.low_battery\"></i>\n" +
+    "              <i class=\"icon-batteryaltfull text-success\" ng-show=\"device._battery >= 75 || !device.low_battery\"></i>\n" +
+    "            </span>\n" +
     "\n" +
     "            <device-toggle ng-model=\"ngModel\" ng-if=\"ngModel.$is('onoff', 'light', 'fan')\"></device-toggle>\n" +
     "            <device-toggle ng-model=\"ngModel\" ng-if=\"ngModel.$is('motion_sensor')\" on-color=\"#af4b4b\" off-color=\"#4baf4d\"></device-toggle>\n" +
@@ -90771,10 +90782,26 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "      </div>\n" +
     "    </div>\n" +
     "    <div class=\"row\" ng-show=\"ngModel.age\">\n" +
-    "      <div class=\"col-xs-12 text-muted\"><small><span ng-show=\"ngModel._on || ngModel._motion\">On</span><span ng-show=\"!ngModel._on && !ngModel._motion\">Off</span> Age: {{ngModel.age | ageHumanReadable}}</small></div>\n" +
+    "      <div class=\"col-xs-12 text-muted\">\n" +
+    "        <small>\n" +
+    "          <span ng-show=\"ngModel._on && !ngModel.$is('motion_sensor')\">On</span>\n" +
+    "          <span ng-show=\"ngModel._motion && ngModel.$is('motion_sensor')\">On</span>\n" +
+    "          <span ng-show=\"!ngModel._on && !ngModel.$is('motion_sensor')\">Off</span>\n" +
+    "          <span ng-show=\"!ngModel._motion && ngModel.$is('motion_sensor')\">Off</span>\n" +
+    "          Age: {{ngModel.age | ageHumanReadable}}\n" +
+    "        </small>\n" +
+    "      </div>\n" +
     "    </div>\n" +
     "    <div class=\"row\" ng-show=\"ngModel.last_seen\">\n" +
-    "      <div class=\"col-xs-12 text-muted\"><small>Seen: {{ngModel.last_seen | date: 'medium'}}</small></div>\n" +
+    "      <div class=\"col-xs-10 text-muted\"><small>Seen: {{ngModel.last_seen | date: 'medium'}}</small></div>\n" +
+    "      <div class=\"col-xs-2\">\n" +
+    "          <span ng-show=\"ngModel.$is('battery_sensor') && !showControls\">\n" +
+    "            <span ng-show=\"device._battery\">{{device._battery | number:0}}%</span>\n" +
+    "            <i class=\"icon-batteryaltthird text-danger\" ng-show=\"device._battery <= 50 || device.low_battery\"></i>\n" +
+    "            <i class=\"icon-batteryaltsixty text-warning\" ng-show=\"device._battery > 50 && device._battery < 75 && !device.low_battery\"></i>\n" +
+    "            <i class=\"icon-batteryaltfull text-success\" ng-show=\"device._battery >= 75 || !device.low_battery\"></i>\n" +
+    "          </span>\n" +
+    "      </div>\n" +
     "    </div>\n" +
     "  </div>\n" +
     "</li>\n"
@@ -90950,6 +90977,18 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                    <div class=\"form-group\">\n" +
     "                      <label for=\"name\">Tags</label>\n" +
     "                      <tags tag-model=\"device.tags\" />\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                      <label for=\"name\">Last Seen:</label>\n" +
+    "                      {{device.last_seen}}\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                      <label for=\"name\">Last Off:</label>\n" +
+    "                      {{device.last_off}}\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                      <label for=\"name\">Last On:</label>\n" +
+    "                      {{device.last_on}}\n" +
     "                    </div>\n" +
     "                    <div class=\"form-group\">\n" +
     "                      <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +

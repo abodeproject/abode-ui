@@ -280,7 +280,9 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
             });
 
             $scope.filter_counts[f] = match.length;
-            $scope.on_counts[f] = match.filter( function (d) {return d._on; }).length;
+            $scope.on_counts[f] = match.filter( function (d) {
+              return (d.capabilities.indexOf('motion_sensor') === -1 && d._on) || (d.capabilities.indexOf('motion_sensor') > -1 && d._motion);
+            }).length;
 
             if ($scope.filter_condition !== undefined) return;
 

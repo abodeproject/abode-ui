@@ -19,19 +19,19 @@ insteon.controller('insteonAdd', function ($scope, $http, $timeout, abode) {
     },
     {
       'name': 'Door Sensor',
-      'capabilities': ['door', 'onoff'],
+      'capabilities': ['door', 'onoff', 'battery_sensor'],
       'controller': false,
       'active': false,
     },
     {
       'name': 'Window Sensor',
-      'capabilities': ['window', 'onoff'],
+      'capabilities': ['window', 'onoff', 'battery_sensor'],
       'controller': false,
       'active': false,
     },
     {
       'name': 'Motion Sensor',
-      'capabilities': ['motion_sensor'],
+      'capabilities': ['motion_sensor', 'battery_sensor'],
       'controller': false,
       'active': false,
     },
