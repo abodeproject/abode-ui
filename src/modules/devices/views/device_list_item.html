@@ -38,12 +38,6 @@
             <span class="badge" ng-show="ngModel.$is('temperature_sensor')">{{ngModel._temperature}} <i class="wi wi-thermometer"></i></span>
             <span class="badge" ng-show="ngModel.$is('humidity_sensor')">{{ngModel._humidity}} <i class="wi wi-humidity"></i></span>
             <span class="badge" ng-show="ngModel.$is('light_sensor')">{{ngModel._lumens}} <i class="wi wi-day-sunny wi-fw"></i></span>
-            <span class="badge" ng-show="ngModel.$is('battery_sensor')">
-              <span ng-show="device._battery">{{device._battery | number:0}}%</span>
-              <i class="icon-batteryaltthird text-danger" ng-show="device._battery <= 50 || device.low_battery"></i>
-              <i class="icon-batteryaltsixty text-warning" ng-show="device._battery > 50 && device._battery < 75 && !device.low_battery"></i>
-              <i class="icon-batteryaltfull text-success" ng-show="device._battery >= 75 || !device.low_battery"></i>
-            </span>
 
             <device-toggle ng-model="ngModel" ng-if="ngModel.$is('onoff', 'light', 'fan')"></device-toggle>
             <device-toggle ng-model="ngModel" ng-if="ngModel.$is('motion_sensor')" on-color="#af4b4b" off-color="#4baf4d"></device-toggle>
@@ -78,7 +72,7 @@
     <div class="row" ng-show="ngModel.last_seen">
       <div class="col-xs-10 text-muted"><small>Seen: {{ngModel.last_seen | date: 'medium'}}</small></div>
       <div class="col-xs-2">
-          <span ng-show="ngModel.$is('battery_sensor') && !showControls">
+          <span ng-show="ngModel.$is('battery_sensor')">
             <span ng-show="device._battery">{{device._battery | number:0}}%</span>
             <i class="icon-batteryaltthird text-danger" ng-show="device._battery <= 50 || device.low_battery"></i>
             <i class="icon-batteryaltsixty text-warning" ng-show="device._battery > 50 && device._battery < 75 && !device.low_battery"></i>

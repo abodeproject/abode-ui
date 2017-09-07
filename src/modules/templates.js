@@ -1183,12 +1183,6 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "            <span class=\"badge\" ng-show=\"ngModel.$is('temperature_sensor')\">{{ngModel._temperature}} <i class=\"wi wi-thermometer\"></i></span>\n" +
     "            <span class=\"badge\" ng-show=\"ngModel.$is('humidity_sensor')\">{{ngModel._humidity}} <i class=\"wi wi-humidity\"></i></span>\n" +
     "            <span class=\"badge\" ng-show=\"ngModel.$is('light_sensor')\">{{ngModel._lumens}} <i class=\"wi wi-day-sunny wi-fw\"></i></span>\n" +
-    "            <span class=\"badge\" ng-show=\"ngModel.$is('battery_sensor')\">\n" +
-    "              <span ng-show=\"device._battery\">{{device._battery | number:0}}%</span>\n" +
-    "              <i class=\"icon-batteryaltthird text-danger\" ng-show=\"device._battery <= 50 || device.low_battery\"></i>\n" +
-    "              <i class=\"icon-batteryaltsixty text-warning\" ng-show=\"device._battery > 50 && device._battery < 75 && !device.low_battery\"></i>\n" +
-    "              <i class=\"icon-batteryaltfull text-success\" ng-show=\"device._battery >= 75 || !device.low_battery\"></i>\n" +
-    "            </span>\n" +
     "\n" +
     "            <device-toggle ng-model=\"ngModel\" ng-if=\"ngModel.$is('onoff', 'light', 'fan')\"></device-toggle>\n" +
     "            <device-toggle ng-model=\"ngModel\" ng-if=\"ngModel.$is('motion_sensor')\" on-color=\"#af4b4b\" off-color=\"#4baf4d\"></device-toggle>\n" +
@@ -1223,7 +1217,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "    <div class=\"row\" ng-show=\"ngModel.last_seen\">\n" +
     "      <div class=\"col-xs-10 text-muted\"><small>Seen: {{ngModel.last_seen | date: 'medium'}}</small></div>\n" +
     "      <div class=\"col-xs-2\">\n" +
-    "          <span ng-show=\"ngModel.$is('battery_sensor') && !showControls\">\n" +
+    "          <span ng-show=\"ngModel.$is('battery_sensor')\">\n" +
     "            <span ng-show=\"device._battery\">{{device._battery | number:0}}%</span>\n" +
     "            <i class=\"icon-batteryaltthird text-danger\" ng-show=\"device._battery <= 50 || device.low_battery\"></i>\n" +
     "            <i class=\"icon-batteryaltsixty text-warning\" ng-show=\"device._battery > 50 && device._battery < 75 && !device.low_battery\"></i>\n" +
