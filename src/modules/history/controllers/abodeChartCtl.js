@@ -299,7 +299,7 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
 
     // Ensure we stay with our range
     $scope.data[data.index] = $scope.data[data.index].filter(function (record) {
-      return (record.x >= parseChartDate($scope.start) && record.x <= parseChartDate($scope.end));
+      return (new Date(record.x) >= parseChartDate($scope.start) && new Date(record.x) <= parseChartDate($scope.end));
     });
   });
 
