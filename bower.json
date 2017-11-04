@@ -21,6 +21,9 @@
     "angular-resource": "^1.5.8",
     "angular-bootstrap": "^2.1.1",
     "angularjs-slider": "^5.9.0",
-    "angular-google-maps": "^2.4.1"
+    "angular-google-maps": "^2.4.1",
+    "moment": "momentjs#^2.19.1",
+    "angular-chart.js": "^1.1.1",
+    "chart.js": "^2.7.1"
   }
 }

@@ -5,6 +5,8 @@ module.exports = function(grunt) {
   var server_port = process.env.ABODE_WEB_PORT || 8080;
 
   var scriptFiles = [
+    'src/vendor/moment/moment.js',
+    'src/vendor/chart.js/dist/Chart.js',
     'src/vendor/angular/angular.js',
     'src/vendor/angular-resource/angular-resource.js',
     'src/vendor/angular-ui-router/release/angular-ui-router.js',
@@ -13,6 +15,7 @@ module.exports = function(grunt) {
     'src/vendor/lodash/dist/lodash.js',
     'src/vendor/angular-simple-logger/dist/angular-simple-logger.js',
     'src/vendor/angular-google-maps/dist/angular-google-maps.js',
+    'src/vendor/angular-chart.js/dist/angular-chart.js',
     'src/modules/**/*.js',
     'src/scripts/**/*.js'
   ];
@@ -163,6 +166,8 @@ module.exports = function(grunt) {
       },
       scripts: {
         src: [
+          'src/vendor/moment/moment.js',
+          'src/vendor/chart.js/dist/Chart.js',
           'src/vendor/angular/angular.js',
           'src/vendor/angular-resource/angular-resource.js',
           'src/vendor/angular-ui-router/release/angular-ui-router.js',
@@ -171,6 +176,7 @@ module.exports = function(grunt) {
           'src/vendor/lodash/dist/lodash.js',
           'src/vendor/angular-simple-logger/dist/angular-simple-logger.js',
           'src/vendor/angular-google-maps/dist/angular-google-maps.js',
+          'src/vendor/angular-chart.js/dist/angular-chart.js',
           'src/modules/**/*.js',
           'src/scripts/**/*.js'
         ],

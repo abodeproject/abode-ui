@@ -15,6 +15,7 @@ var abode = angular.module('abode', [
   'abode.weather',
   'abode.alarmclock',
   'abode.notifications',
+  'abode.chart',
   'insteon',
   'insteonhub',
   'camera',

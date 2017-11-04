@@ -1,0 +1,1 @@
+angular.module('abode.chart', ['chart.js']);
