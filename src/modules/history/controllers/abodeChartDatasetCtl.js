@@ -1,6 +1,6 @@
 var abodechart = angular.module('abode.chart');
 
-abodechart.controller('abodeChartDatasetCtl', ['$scope', 'Devices', 'Scenes', 'Rooms', function ($scope, Devices, Scenes, Rooms) {
+abodechart.controller('abodeChartDatasetCtl', ['$scope', '$timeout', 'Devices', 'Scenes', 'Rooms', function ($scope, $timeout, Devices, Scenes, Rooms) {
 
   var item;
 
@@ -28,6 +28,7 @@ abodechart.controller('abodeChartDatasetCtl', ['$scope', 'Devices', 'Scenes', 'R
 
   // Listen for events requesting data
   $scope.$on('abode-chart-request-dataset', function (event, config) {
+    var page = 1;
     // If request is not for this dataset, ignore
     if (config.type !== $scope.type || config.name !== $scope.name || config.value !== $scope.value) {
       return;
@@ -36,19 +37,33 @@ abodechart.controller('abodeChartDatasetCtl', ['$scope', 'Devices', 'Scenes', 'R
     // Stop propagation
     event.preventDefault();
 
-    // Get history data with the splied range and dataset value
-    item.$get_history(config.range, $scope.value).then(function (data) {
+    var records = [];
 
-      // Emit our chart data
-      $scope.$emit('abode-chart-dataset-updated', {
-        index: config.index,
-        type: $scope.type,
-        name: $scope.name,
-        value: $scope.value,
-        data: data,
-        range: config.range
+    var get_page = function (page) {
+      // Get history data with the splied range and dataset value
+      item.$get_history(config.range, $scope.value, page).then(function (data) {
+
+          Array.prototype.push.apply(records, data.records);
+
+        if (data['total-pages'] && parseInt(data['total-pages'], 10) > page) {
+          page += 1;
+          $timeout(function () {get_page(page)}, 100);
+        } else {
+
+          // Emit our chart data
+          $scope.$emit('abode-chart-dataset-updated', {
+              index: config.index,
+              type: $scope.type,
+              name: $scope.name,
+              value: $scope.value,
+              data: records,
+              range: config.range
+          });
+        }
       });
-    })
+    };
+
+    get_page(page);
   });
 
 }]);

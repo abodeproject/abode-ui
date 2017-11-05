@@ -20,7 +20,7 @@ scenes.service('scenes', function ($http, $q, $uibModal, $resource, abode, Scene
     var req,
       self = this,
       defer = $q.defer(),
-      url = abode.url('/api/history/scenes/' + self.name + '/' + range.start + '/' + range.end).value();
+      url = abode.url('/api/history/scenes/' + self.name + '/' + range.start + '/' + range.end + '?page=' + (page || 1)).value();
       
     $http.get(url).then(function (results) {
       var history = results.data.map(function (record) {
@@ -29,8 +29,12 @@ scenes.service('scenes', function ($http, $q, $uibModal, $resource, abode, Scene
           'y': record[key]
         };
       });
-      
-      defer.resolve(history);
+
+      defer.resolve({
+          'records': history,
+          'total-count': count,
+          'total-pages': pages
+      });
     }, function (err) {
       defer.reject(err);
     });

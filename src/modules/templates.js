@@ -1562,6 +1562,17 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('modules/history/views/abode-chart.html',
+    "<div>\n" +
+    "  <canvas id=\"line\" class=\"chart chart-line\" chart-data=\"data\"\n" +
+    "  chart-labels=\"labels\" chart-series=\"series\" chart-options=\"options\"\n" +
+    "  chart-dataset-override=\"datasetOverride\" chart-click=\"onClick\">\n" +
+    "  </canvas>\n" +
+    "  <div ng-transclude></div>\n" +
+    "</div>"
+  );
+
+
   $templateCache.put('modules/home/views/controller.html',
     "<div class=\"controller\" ng-mousedown=\"start()\" ng-mouseup=\"stop()\">\n" +
     "  <div class=\"controller-icon\" ng-class=\"{'controller-pending': pending || obj._state == 'pending', 'controller-success': success, 'controller-failed': failed, 'controller-success': (obj._on || obj._lights_on || obj._fans_on) && (action == 'toggle' || action == 'on' || action == 'off') && obj._state != 'pending', 'controller-cool': obj._mode == 'COOL', 'controller-heat': obj._mode == 'HEAT', 'spin': (obj._on || obj._fans_on) && spin}\">\n" +
