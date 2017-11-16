@@ -43,7 +43,7 @@ abodechart.controller('abodeChartDatasetCtl', ['$scope', '$timeout', 'Devices', 
       // Get history data with the splied range and dataset value
       item.$get_history(config.range, $scope.value, page).then(function (data) {
 
-          Array.prototype.push.apply(records, data.records);
+        Array.prototype.push.apply(records, data.records);
 
         if (data['total-pages'] && parseInt(data['total-pages'], 10) > page) {
           page += 1;
