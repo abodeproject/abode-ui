@@ -37,6 +37,34 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
     $state.go('main.devices.edit', {'name': this.name});
   };
 
+  methods.$get_history = function (range, key, page, limit) {
+    var req,
+      self = this,
+      defer = $q.defer(),
+      url = abode.url('/api/history/devices/' + self.name + '/' + range.start + '/' + range.end + '?page=' + (page || 1)).value();
+      
+    $http.get(url).then(function (results) {
+      var history = results.data.map(function (record) {
+        return {
+          'x': record.timestamp,
+          'y': record[key]
+        };
+      });
+
+      var count = results.headers('total-count'),
+        pages = results.headers('total-pages');
+
+      defer.resolve({
+          'records': history,
+          'total-count': count,
+          'total-pages': pages
+      });
+    }, function (err) {
+      defer.reject(err);
+    });
+    
+    return defer.promise;
+  };
 
   methods.$refresh = function (force) {
     var req,

@@ -1591,6 +1591,17 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('modules/history/views/abode-chart.html',
+    "<div>\n" +
+    "  <canvas id=\"line\" class=\"chart chart-line\" chart-data=\"data\"\n" +
+    "  chart-labels=\"labels\" chart-series=\"series\" chart-options=\"options\"\n" +
+    "  chart-dataset-override=\"datasetOverride\" chart-click=\"onClick\">\n" +
+    "  </canvas>\n" +
+    "  <div ng-transclude></div>\n" +
+    "</div>"
+  );
+
+
   $templateCache.put('modules/home/views/controller.html',
     "<div class=\"controller\" ng-mousedown=\"start()\" ng-mouseup=\"stop()\">\n" +
     "  <div class=\"controller-icon\" ng-class=\"{'controller-pending': pending || obj._state == 'pending', 'controller-success': success, 'controller-failed': failed, 'controller-success': (obj._on || obj._lights_on || obj._fans_on) && (action == 'toggle' || action == 'on' || action == 'off') && obj._state != 'pending', 'controller-cool': obj._mode == 'COOL', 'controller-heat': obj._mode == 'HEAT', 'spin': (obj._on || obj._fans_on) && spin}\">\n" +
@@ -4404,6 +4415,60 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "</div>\n" +
     "\n"
+  );
+
+
+  $templateCache.put('modules/settings/views/settings.history.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Client\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "            <form name=\"settings\">\n" +
+    "\n" +
+    "              <div class=\"form-group\">\n" +
+    "                <label for=\"enabled\">Enabled: </label>\n" +
+    "                <toggle value=\"stats.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              </div>\n" +
+    "\n" +
+    "              <div class=\"form-group\">\n" +
+    "                <label for=\"stats.max_history_age\">Max Age (hours):</label>\n" +
+    "                <input type=\"text\" class=\"form-control\" id=\"stats.max_history_age\" placeholder=\"Max History Age\" required=\"\" ng-model=\"stats.max_history_age\">\n" +
+    "              </div>\n" +
+    "\n" +
+    "              <div class=\"form-group\">\n" +
+    "                <label for=\"stats.record_stats.record_counts\">Record Count:</label>\n" +
+    "                {{stats.record_stats.recordCount}}\n" +
+    "              </div>\n" +
+    "\n" +
+    "              <div class=\"form-group\">\n" +
+    "                <label for=\"stats.avgObjSize\">Average State Size:</label>\n" +
+    "                {{stats.record_stats.avgObjSize}}\n" +
+    "              </div>\n" +
+    "\n" +
+    "              <div class=\"form-group\">\n" +
+    "                <label for=\"stats.storageSize\">Total History Size:</label>\n" +
+    "                {{stats.record_stats.storageSize}}\n" +
+    "              </div>\n" +
+    "\n" +
+    "              <div class=\"form-group\">\n" +
+    "                <label for=\"enabled\">Debug: </label>\n" +
+    "                <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "              </div>\n" +
+    "            </form>\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "</div>\n" +
+    "</div>"
   );
 
 

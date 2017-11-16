@@ -33,7 +33,8 @@ settings.config(function($stateProvider, $urlRouterProvider) {
         //{'name': 'Sensors', 'route': 'main.settings.sensors'},
         {'name': 'Providers', 'route': 'main.settings.providers'},
         //{'name': 'Display', 'route': 'main.settings.display'},
-        //{'name': 'Networking', 'route': 'main.settings.networking'},
+        //{'name': 'Networking', 'route': 'main.settings.networking'},,
+        {'name': 'History', 'route': 'main.settings.history'},
         {'name': 'Advanced', 'route': 'main.settings.advanced'}
       ];
     }
@@ -61,6 +62,11 @@ settings.config(function($stateProvider, $urlRouterProvider) {
         return AuthDevice.get().$promise;
       }]
     }
+  })
+  .state('main.settings.history', {
+    url: '/history',
+    templateUrl: 'modules/settings/views/settings.history.html',
+    controller: 'historyCtl',
   })
   .state('main.settings.users', {
     url: '/users',

@@ -130,8 +130,12 @@ welcome.controller('welcomeController', ['$scope', '$timeout', '$interval', '$ht
         abode.config.server = source.url;
         abode.save(abode.config);
         check_server();
-      }, function () {
-        ssl_checker = $timeout(check_ssl, 5000);
+      }, function (err) {
+        if (err.status > 0) {
+          check_server();
+        } else {
+          ssl_checker = $timeout(check_ssl, 5000);
+        }
       });
     };
 

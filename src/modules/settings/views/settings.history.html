@@ -1,0 +1,50 @@
+
+<div class="container-fluid bg-muted" style="padding-bottom: 2em;">
+<div class="row">
+  <div class="col-sm-8 col-sm-offset-2 col-xs-offset-1">
+    <h2>Settings / Client
+           <div class="pull-right pointer"  ui-sref="^"><i class="glyphicon glyphicon-arrow-left"></i></div></h2>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-8 col-sm-offset-2">
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <form name="settings">
+
+              <div class="form-group">
+                <label for="enabled">Enabled: </label>
+                <toggle value="stats.enabled" class="pull-right"></toggle>
+              </div>
+
+              <div class="form-group">
+                <label for="stats.max_history_age">Max Age (hours):</label>
+                <input type="text" class="form-control" id="stats.max_history_age" placeholder="Max History Age" required="" ng-model="stats.max_history_age">
+              </div>
+
+              <div class="form-group">
+                <label for="stats.record_stats.record_counts">Record Count:</label>
+                {{stats.record_stats.recordCount}}
+              </div>
+
+              <div class="form-group">
+                <label for="stats.avgObjSize">Average State Size:</label>
+                {{stats.record_stats.avgObjSize}}
+              </div>
+
+              <div class="form-group">
+                <label for="stats.storageSize">Total History Size:</label>
+                {{stats.record_stats.storageSize}}
+              </div>
+
+              <div class="form-group">
+                <label for="enabled">Debug: </label>
+                <toggle value="config.debug" class="pull-right"></toggle>
+              </div>
+            </form>
+          </div>
+        </div>
+    </div>
+</div>
+</div>

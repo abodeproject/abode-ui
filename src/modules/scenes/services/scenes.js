@@ -16,6 +16,32 @@ scenes.service('scenes', function ($http, $q, $uibModal, $resource, abode, Scene
 
   };
 
+  methods.$get_history = function (range, key) {
+    var req,
+      self = this,
+      defer = $q.defer(),
+      url = abode.url('/api/history/scenes/' + self.name + '/' + range.start + '/' + range.end + '?page=' + (page || 1)).value();
+      
+    $http.get(url).then(function (results) {
+      var history = results.data.map(function (record) {
+        return {
+          'x': record.timestamp,
+          'y': record[key]
+        };
+      });
+
+      defer.resolve({
+          'records': history,
+          'total-count': count,
+          'total-pages': pages
+      });
+    }, function (err) {
+      defer.reject(err);
+    });
+    
+    return defer.promise;
+  };
+
   methods.$refresh = function () {
     var self = this,
       defer = $q.defer(),

@@ -48,6 +48,32 @@ rooms.factory('Rooms', ['$resource', '$q', '$http', '$state', 'abode', 'rooms', 
     return defer.promise;
   };
 
+  Rooms.prototype.$get_history = function (range, key) {
+      var req,
+          self = this,
+          defer = $q.defer(),
+          url = abode.url('/api/history/rooms/' + self.name + '/' + range.start + '/' + range.end + '?page=' + (page || 1)).value();
+
+      $http.get(url).then(function (results) {
+          var history = results.data.map(function (record) {
+              return {
+                  'x': record.timestamp,
+                  'y': record[key]
+              };
+          });
+
+          defer.resolve({
+              'records': history,
+              'total-count': count,
+              'total-pages': pages
+          });
+      }, function (err) {
+          defer.reject(err);
+      });
+
+      return defer.promise;
+  };
+
   Rooms.prototype.$devices = function () {
     return RoomDevices.query({'room': this.name});
   };
