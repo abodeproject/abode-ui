@@ -1,6 +1,7 @@
 
-<h4 style=" white-space: nowrap">{{device._battery | number:0}}%
-	<i class="icon-batteryaltthird text-danger" ng-show="device._battery <= 50"></i>
-	<i class="icon-batteryaltsixty text-warning" ng-show="device._battery > 50 && device._battery < 75"></i>
-	<i class="icon-batteryaltfull text-success" ng-show="device._battery >= 75"></i>
+<h4 style=" white-space: nowrap">
+	<span ng-show="device._battery">{{device._battery | number:0}}%</span>
+	<i class="icon-batteryaltthird text-danger" ng-show="device._battery <= 50 || device.low_battery"></i>
+	<i class="icon-batteryaltsixty text-warning" ng-show="device._battery > 50 && device._battery < 75 && !device.low_battery"></i>
+	<i class="icon-batteryaltfull text-success" ng-show="device._battery >= 75 || !device.low_battery"></i>
 </h4>

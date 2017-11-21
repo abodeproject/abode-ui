@@ -124,6 +124,14 @@ abode.directive('iconSelector', ['$compile', function () {
           'class': 'icon-lock'
         },
         {
+          'name': 'Location',
+          'class': 'icon-map-marker'
+        },
+        {
+          'name': 'Brain',
+          'class': 'icon-brain'
+        },
+        {
           'name': 'Unlock',
           'class': 'icon-unlock'
         },

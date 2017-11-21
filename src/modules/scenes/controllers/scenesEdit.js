@@ -369,21 +369,21 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
           }
         };
 
-        $scope.set_mode = function (mode) {
+        $scope.device.$set_mode = function (mode) {
           if (isNaN($scope.device._set_point)) {
             $scope.device._set_point = 58;
           }
           $scope.device._mode = mode;
         };
 
-        $scope.temp_up = function () {
+        $scope.device.$temp_up = function () {
           if (isNaN($scope.device._set_point)) {
             $scope.device._set_point = 58;
           }
           $scope.device._set_point += 1;
         };
 
-        $scope.temp_down = function () {
+        $scope.device.$temp_down = function () {
           if (isNaN($scope.device._set_point)) {
             $scope.device._set_point = 58;
           }
@@ -458,6 +458,28 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
           $scope.selected.stages = 0;
           $scope.selected.duration = 0;
           $scope.device = o;
+
+            $scope.device.$set_mode = function (mode) {
+              if (isNaN($scope.device._set_point)) {
+                $scope.device._set_point = 58;
+              }
+              $scope.device._mode = mode;
+            };
+
+            $scope.device.$temp_up = function () {
+              if (isNaN($scope.device._set_point)) {
+                $scope.device._set_point = 58;
+              }
+              $scope.device._set_point += 1;
+            };
+
+            $scope.device.$temp_down = function () {
+              if (isNaN($scope.device._set_point)) {
+                $scope.device._set_point = 58;
+              }
+              $scope.device._set_point -= 1;
+            };
+
           if (o.capabilities) {
             $scope.selected_capabilities = o.capabilities;
           }
@@ -660,27 +682,6 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
           if ($scope.device._level === 0){
             $scope.device._on = false;
           }
-        };
-
-        $scope.set_mode = function (mode) {
-          if (isNaN($scope.device._set_point)) {
-            $scope.device._set_point = 58;
-          }
-          $scope.device._mode = mode;
-        };
-
-        $scope.temp_up = function () {
-          if (isNaN($scope.device._set_point)) {
-            $scope.device._set_point = 58;
-          }
-          $scope.device._set_point += 1;
-        };
-
-        $scope.temp_down = function () {
-          if (isNaN($scope.device._set_point)) {
-            $scope.device._set_point = 58;
-          }
-          $scope.device._set_point -= 1;
         };
 
       }
