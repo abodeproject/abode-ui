@@ -9,6 +9,14 @@
 <div class="modal-body">
   <div class="container-fluid">
     <div class="row">
+      <div uib-alert ng-repeat="issue in device.issues" ng-class="{'alert-warning': issue.level === 'warn', 'alert-danger': issue.level === 'crit'}" close="device.$delete_issue(issue._id)">
+        <i class="icon-warning-sign" ng-show="issue.level === 'warn'"></i>
+        <i class="icon-erroralt" ng-show="issue.level === 'crit'"></i>
+        {{issue.message}}
+        <h6 class="text-muted">{{issue.created | date: 'medium'}}</h6>
+      </div>
+    </div>
+    <div class="row">
       <div ng-class="{'col-xs-12': sensors.length == 0, 'col-xs-9': sensors.length != 0}" ng-hide="controls.length == 0">
         <div ng-repeat="control in controls" ng-include="control.view" class="row" > </div>
       </div>
