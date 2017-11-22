@@ -154,7 +154,7 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
       displayColors: false,
       callbacks: {
         'title': function (titles) {
-          return moment(titles[0].xLabel).format('ddd, MMM Qo @ H:mm A');
+          return moment(titles[0].xLabel).format('ddd, MMM Do @ H:mm A');
         },
         'label': function (tooltipItem, data) {
           var dataset = data.datasets[tooltipItem.datasetIndex];
@@ -267,6 +267,8 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
     //Push our configs
     $scope.datasetOverride.push(chartStyle);
     $scope.series.push(data.label || data.name);
+    
+    console.dir($scope.datasetOverride);
 
     // Add an empty dataset
     $scope.data.push([]);

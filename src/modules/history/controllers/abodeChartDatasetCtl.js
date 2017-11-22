@@ -1,6 +1,6 @@
 var abodechart = angular.module('abode.chart');
 
-abodechart.controller('abodeChartDatasetCtl', ['$scope', 'Devices', 'Scenes', 'Rooms', function ($scope, Devices, Scenes, Rooms) {
+abodechart.controller('abodeChartDatasetCtl', ['$scope', '$timeout', 'Devices', 'Scenes', 'Rooms', function ($scope, $timeout, Devices, Scenes, Rooms) {
 
   var item;
 
@@ -37,18 +37,36 @@ abodechart.controller('abodeChartDatasetCtl', ['$scope', 'Devices', 'Scenes', 'R
     event.preventDefault();
 
     // Get history data with the splied range and dataset value
-    item.$get_history(config.range, $scope.value).then(function (data) {
+    var get_history = function () {
+      item.$get_history(config.range, $scope.value).then(function (data) {
 
-      // Emit our chart data
-      $scope.$emit('abode-chart-dataset-updated', {
-        index: config.index,
-        type: $scope.type,
-        name: $scope.name,
-        value: $scope.value,
-        data: data,
-        range: config.range
+        // If no data returned, stop processing
+        if (data.length === 0) {
+          return;
+        }
+        // Emit our chart data
+        $scope.$emit('abode-chart-dataset-updated', {
+          index: config.index,
+          type: $scope.type,
+          name: $scope.name,
+          value: $scope.value,
+          data: data,
+          range: config.range
+        });
+        
+        var last_result_date = new Date(data[data.length -1].x);
+        
+        // Handle pagination
+        console.log(last_result_date, config.range.end, last_result_date < config.range.end)
+        if (last_result_date < config.range.end) {
+          last_result_date.setSeconds(last_result_date.getSeconds() + 1);
+          config.range.start = last_result_date;
+          $timeout(get_history, 1000);
+        }
       });
-    })
+    }
+    
+    get_history();
   });
 
 }]);
