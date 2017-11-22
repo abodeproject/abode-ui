@@ -37,11 +37,11 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
     $state.go('main.devices.edit', {'name': this.name});
   };
 
-  methods.$get_history = function (range, key) {
+  methods.$get_history = function (range, key, page, limit) {
     var req,
       self = this,
       defer = $q.defer(),
-      url = abode.url('/api/history/devices/' + self.name + '/' + range.start + '/' + range.end).value();
+      url = abode.url('/api/history/devices/' + self.name + '/' + range.start + '/' + range.end + '?page=' + (page || 1)).value();
       
     $http.get(url).then(function (results) {
       var history = results.data.map(function (record) {
@@ -50,8 +50,15 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
           'y': record[key]
         };
       });
-      
-      defer.resolve(history);
+
+      var count = results.headers('total-count'),
+        pages = results.headers('total-pages');
+
+      defer.resolve({
+          'records': history,
+          'total-count': count,
+          'total-pages': pages
+      });
     }, function (err) {
       defer.reject(err);
     });

@@ -28,6 +28,7 @@ abodechart.controller('abodeChartDatasetCtl', ['$scope', '$timeout', 'Devices', 
 
   // Listen for events requesting data
   $scope.$on('abode-chart-request-dataset', function (event, config) {
+    var page = 1;
     // If request is not for this dataset, ignore
     if (config.type !== $scope.type || config.name !== $scope.name || config.value !== $scope.value) {
       return;
@@ -35,38 +36,33 @@ abodechart.controller('abodeChartDatasetCtl', ['$scope', '$timeout', 'Devices', 
 
     // Stop propagation
     event.preventDefault();
+    var records = [];
 
-    // Get history data with the splied range and dataset value
-    var get_history = function () {
-      item.$get_history(config.range, $scope.value).then(function (data) {
+    var get_page = function (page) {
+      // Get history data with the splied range and dataset value
+      item.$get_history(config.range, $scope.value, page).then(function (data) {
 
-        // If no data returned, stop processing
-        if (data.length === 0) {
-          return;
-        }
-        // Emit our chart data
-        $scope.$emit('abode-chart-dataset-updated', {
-          index: config.index,
-          type: $scope.type,
-          name: $scope.name,
-          value: $scope.value,
-          data: data,
-          range: config.range
-        });
-        
-        var last_result_date = new Date(data[data.length -1].x);
-        
-        // Handle pagination
-        console.log(last_result_date, config.range.end, last_result_date < config.range.end)
-        if (last_result_date < config.range.end) {
-          last_result_date.setSeconds(last_result_date.getSeconds() + 1);
-          config.range.start = last_result_date;
-          $timeout(get_history, 1000);
+        Array.prototype.push.apply(records, data.records);
+
+        if (data['total-pages'] && parseInt(data['total-pages'], 10) > page) {
+          page += 1;
+          $timeout(function () {get_page(page)}, 100);
+        } else {
+
+          // Emit our chart data
+          $scope.$emit('abode-chart-dataset-updated', {
+              index: config.index,
+              type: $scope.type,
+              name: $scope.name,
+              value: $scope.value,
+              data: records,
+              range: config.range
+          });
         }
       });
-    }
-    
-    get_history();
+    };
+
+    get_page(page);
   });
 
 }]);
