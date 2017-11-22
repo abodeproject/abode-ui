@@ -6,7 +6,7 @@
       </div>
     </div>
   </div>
-  <div class="col-xs-3" style=" ng-show="has_capability('dimmer')">
+  <div class="col-xs-3" ng-show="has_capability('dimmer')">
     <div style="height: 10em;">
       <rzslider rz-slider-model="device._level" ng-disabled="device.$loading" rz-slider-options="{floor: 0, ceil: 100, step: 1, vertical: true, hideLimitLabels: true, hidePointerLabels: true, onEnd: level_wait}" rz-slider-tpl-url="vendor/angularjs-slider/src/rzSliderTpl.html"></rzslider>
     </div>
