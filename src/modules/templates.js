@@ -960,11 +960,16 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "      </div>\n" +
     "    </div>\n" +
     "  </div>\n" +
-    "  <div class=\"col-xs-7\" style=\"font-size: 2.5em; text-align: right; padding-left: 1em;\" ng-show=\"has_capability('dimmer')\">\n" +
-    "    <div style=\"width: 1em;\">\n" +
-    "      <div><i class=\"icon-chevron-up\" style=\"cursor: pointer;\" ng-click=\"level_up();\"></i></div>\n" +
-    "      <div style=\"text-align: center; font-size: .75em\">{{device._level}}<i class=\"icon-ban-circle\" ng-show=\"device._level === undefined\"></i></div>\n" +
-    "      <div><i class=\"icon-chevron-down\" style=\"cursor: pointer;\" ng-click=\"level_down();\"></i></div>\n" +
+    "  <div class=\"col-xs-3\" ng-show=\"has_capability('dimmer')\">\n" +
+    "    <div style=\"height: 10em;\">\n" +
+    "      <rzslider rz-slider-model=\"device._level\" ng-disabled=\"device.$loading\" rz-slider-options=\"{floor: 0, ceil: 100, step: 1, vertical: true, hideLimitLabels: true, hidePointerLabels: true, onEnd: level_wait}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"col-xs-4\" style=\"text-align: center; padding-left: 1em;\" ng-show=\"has_capability('dimmer')\">\n" +
+    "    <div style=\"width: 1em; font-size: 1.75em\">\n" +
+    "      <div><i class=\"icon-chevron-up\" style=\"cursor: pointer;\" ng-click=\"level_up()\"></i></div>\n" +
+    "      <div style=\"text-align: center; font-size: .75em\">{{device._level}}</div>\n" +
+    "      <div><i class=\"icon-chevron-down\" style=\"cursor: pointer;\" ng-click=\"level_down()\"></i></div>\n" +
     "    </div>\n" +
     "  </div>\n" +
     "  <p><b>Display Lock</b></p>\n" +
@@ -1008,7 +1013,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "      </div>\n" +
     "    </div>\n" +
     "  </div>\n" +
-    "  <div class=\"col-xs-3\" style=\" ng-show=\"has_capability('dimmer')\">\n" +
+    "  <div class=\"col-xs-3\" ng-show=\"has_capability('dimmer')\">\n" +
     "    <div style=\"height: 10em;\">\n" +
     "      <rzslider rz-slider-model=\"device._level\" ng-disabled=\"device.$loading\" rz-slider-options=\"{floor: 0, ceil: 100, step: 1, vertical: true, hideLimitLabels: true, hidePointerLabels: true, onEnd: level_wait}\" rz-slider-tpl-url=\"vendor/angularjs-slider/src/rzSliderTpl.html\"></rzslider>\n" +
     "    </div>\n" +
@@ -1569,6 +1574,14 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "<div class=\"modal-body\">\n" +
     "  <div class=\"container-fluid\">\n" +
+    "    <div class=\"row\">\n" +
+    "      <div uib-alert ng-repeat=\"issue in device.issues\" ng-class=\"{'alert-warning': issue.level === 'warn', 'alert-danger': issue.level === 'crit'}\" close=\"device.$delete_issue(issue._id)\">\n" +
+    "        <i class=\"icon-warning-sign\" ng-show=\"issue.level === 'warn'\"></i>\n" +
+    "        <i class=\"icon-erroralt\" ng-show=\"issue.level === 'crit'\"></i>\n" +
+    "        {{issue.message}}\n" +
+    "        <h6 class=\"text-muted\">{{issue.created | date: 'medium'}}</h6>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
     "    <div class=\"row\">\n" +
     "      <div ng-class=\"{'col-xs-12': sensors.length == 0, 'col-xs-9': sensors.length != 0}\" ng-hide=\"controls.length == 0\">\n" +
     "        <div ng-repeat=\"control in controls\" ng-include=\"control.view\" class=\"row\" > </div>\n" +

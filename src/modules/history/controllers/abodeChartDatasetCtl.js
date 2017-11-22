@@ -36,7 +36,6 @@ abodechart.controller('abodeChartDatasetCtl', ['$scope', '$timeout', 'Devices', 
 
     // Stop propagation
     event.preventDefault();
-
     var records = [];
 
     var get_page = function (page) {

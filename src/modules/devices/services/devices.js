@@ -66,6 +66,34 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
     return defer.promise;
   };
 
+  methods.$delete_issue = function (id) {
+    var req,
+      self = this,
+      defer = $q.defer(),
+      url = abode.url('/api/devices/' + this._id + '/issues/' + id).value();
+    
+    self.$loading = true;
+    self.$error = false;
+    
+    req = $http.delete(url).then(function () {
+      self.$loading = false;
+      self.$error = false;
+      
+      self.issues = self.issues.filter(function (issue) {
+        return (issue._id !== id);
+      });
+      
+      defer.resolve();
+    }, function (err) {
+      self.$loading = false;
+      self.$error = true;
+      
+      defer.reject(err);
+    });
+    
+    return defer.promise;
+  };
+  
   methods.$refresh = function (force) {
     var req,
       self = this,
@@ -277,18 +305,31 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
       defer = $q.defer(),
       url = abode.url('/api/devices/' + this.name).value();
 
+    self.$loading = true;
+    self.$error = false;
+
     if (self.active) {
       action = (self._on) ? self.$off : self.$on;
       action.apply(self).then(function (response) {
+        self.$loading = false;
+        self.$error = false;
         defer.resolve(response);
       }, function (err) {
+        self.$loading = false;
+        self.$error = true;
         defer.reject(err);
       });
     } else {
-      $http.put(url, {'_on': !self._on}).then(function (response) {
+      $http.put(url, {'_on': !self._on, '_level': (!self._on) ? 100 : 0}).then(function (response) {
+        self.$loading = false;
+        self.$error = false;
+        
         self._on = !self._on;
+        self._on = (!self._on) ? 100 : 0;
         defer.resolve(response.data);
       }, function (err) {
+        self.$loading = false;
+        self.$error = true;
         defer.reject(err.data);
       });
     }
