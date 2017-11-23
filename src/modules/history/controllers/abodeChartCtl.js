@@ -195,8 +195,8 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
           position: 'right',
           ticks: {
             source: 'auto',
-            suggestedMin: 40,
-            suggestedMax: 100
+            suggestedMin: 60,
+            suggestedMax: 70
           }
         },
         {
@@ -267,8 +267,6 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
     //Push our configs
     $scope.datasetOverride.push(chartStyle);
     $scope.series.push(data.label || data.name);
-    
-    console.dir($scope.datasetOverride);
 
     // Add an empty dataset
     $scope.data.push([]);
@@ -303,6 +301,7 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
     $scope.data[data.index] = $scope.data[data.index].filter(function (record) {
       return (new Date(record.x) >= parseChartDate($scope.start) && new Date(record.x) <= parseChartDate($scope.end));
     });
+
   });
 
   $scope.reload = function () {
