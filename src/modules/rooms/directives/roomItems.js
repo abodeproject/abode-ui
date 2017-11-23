@@ -7,11 +7,13 @@ rooms.directive('roomItems', function () {
       'room': '@',
       'rooms': '=?',
       'showImages': '@?',
+      'hideOn': '=?',
+      'hideOff': '=?'
     },
     restrict: 'E',
     replace: true,
     transclude: false,
     controller: 'roomItemsCtl',
-    templateUrl: 'modules/rooms/views/room.items.html',
+    templateUrl: 'modules/rooms/views/room.items.html'
   };
 });

@@ -3361,7 +3361,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "  <div ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i> Loading...</div>\n" +
     "  <div class=\"room-items-list\" ng-hide=\"loading\">\n" +
     "    <ul class=\"list-group\">\n" +
-    "      <device-list-item ng-repeat=\"device in items | orderBy: ['-_motion', '-_on', '+age', '+name']\" ng-model=\"device\" show-controls=\"true\" show-image=\"{{showImages}}\"></device-list-item>\n" +
+    "      <device-list-item ng-repeat=\"device in items | orderBy: ['-_motion', '-_on', '+age', '+name']\" ng-model=\"device\" show-controls=\"true\" show-image=\"{{showImages}}\" ng-hide=\"hideDevice(device)\"></device-list-item>\n" +
     "    </ul>\n" +
     "  </div>\n" +
     "</div>\n"

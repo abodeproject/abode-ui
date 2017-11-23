@@ -42,9 +42,17 @@ rooms.controller('roomItemsCtl', ['$scope', '$timeout','abode', 'rooms', functio
       }, function () {
         next();
       });
-    }
+    };
 
     next();
+  };
+
+  $scope.hideDevice = function (device) {
+    if ($scope.hideOn === undefined && $scope.hideOff === undefined) {
+      return false;
+    }
+
+    return (($scope.hideOn === true && device._on) || ($scope.hideOff === true && !device._on));
   };
 
   $timeout($scope.load_rooms, 0);
