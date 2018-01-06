@@ -28,6 +28,7 @@ var abode = angular.module('abode', [
   'zwave',
   'video',
   'autoshades',
+  'synology',
 ]);
 
 abode.config(['$stateProvider', '$urlRouterProvider', 'abodeProvider', 'uiGmapGoogleMapApiProvider', function($state, $urlRouter, abode, uiGmapGoogleMapApiProvider) {

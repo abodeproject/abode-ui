@@ -5304,6 +5304,127 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('modules/synology/views/add.html',
+    "<div ng-controller=\"synologyAdd\">\n" +
+    "  <h3>Surveillance Station Cameras</h3>\n" +
+    "  <p>\n" +
+    "    <div class=\"input-group\">\n" +
+    "      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"camera_search\" autocomplete='off'>\n" +
+    "      <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "      <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !loading && !error, 'btn-danger': error, 'btn-muted': loading}\" ng-disabled=\"loading\" ng-click=\"refresh()\">\n" +
+    "        <span ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i></span>\n" +
+    "        <span ng-show=\"!loading\"><i class=\"icon-refresh\"></i></span>\n" +
+    "      </button>\n" +
+    "    </div>\n" +
+    "  </p>\n" +
+    "  <p>\n" +
+    "    <ul class=\"list-group\">\n" +
+    "      <li class=\"list-group-item pointer\"\n" +
+    "          ng-repeat=\"camera in cameras | orderBy: 'name' | filter: {'name': camera_search}\"\n" +
+    "          ng-click=\"select(camera)\"\n" +
+    "          ng-class=\"{'list-group-item-info': camera.id == device.config.id}\"\n" +
+    "          ng-hide=\"camera.abode_device\">\n" +
+    "        <button class=\"btn btn-xs btn-default\" ng-class=\"{'btn-danger': camera.recStatus > 0}\"><i class=\"icon-videocamerathree\"></i></button> {{camera.name}}\n" +
+    "        <div><small>{{camera.vendor}} {{camera.model}} ({{camera.host}})</small></div>\n" +
+    "      </li>\n" +
+    "    </ul>\n" +
+    "  </p>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/synology/views/edit.html',
+    ""
+  );
+
+
+  $templateCache.put('modules/synology/views/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "  <div class=\"row\">\n" +
+    "    <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "      <h2>Settings / Synology\n" +
+    "             <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"row\">\n" +
+    "    <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "      <div class=\"panel panel-default\">\n" +
+    "        <div class=\"panel-body\">\n" +
+    "          <uib-tabset active=\"active\">\n" +
+    "            <uib-tab index=\"0\" heading=\"Settings\">\n" +
+    "              <div class=\"panel-body\">\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <label for=\"enabled\">Enabled: </label>\n" +
+    "                  <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                    <span ng-show=\"enabling && !status.enabled\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                    <span ng-show=\"enabling && status.enabled\"><i class=\"icon-circleselection spin\"></i> Disabling</span>\n" +
+    "                    <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                    <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "                  </button>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <label for=\"server\">Server</label>\n" +
+    "                  <input type=\"text\" class=\"form-control\" id=\"server\" placeholder=\"Server\" required=\"\" ng-model=\"config.server\">\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <label for=\"user\">User</label>\n" +
+    "                  <input type=\"text\" class=\"form-control\" id=\"user\" placeholder=\"User\" required=\"\" ng-model=\"config.user\">\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <label for=\"password\">Password</label>\n" +
+    "                  <input type=\"password\" class=\"form-control\" id=\"password\" placeholder=\"Password\" required=\"\" ng-model=\"config.password\">\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <label for=\"enabled\">Debug: </label>\n" +
+    "                  <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "                </div>\n" +
+    "\n" +
+    "              </div>\n" +
+    "            </uib-tab>\n" +
+    "            <uib-tab index=\"1\" heading=\"Cameras\">\n" +
+    "\n" +
+    "\n" +
+    "                <p>\n" +
+    "                </p>\n" +
+    "                <p>\n" +
+    "                  <div class=\"input-group\">\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"camera_search\" autocomplete='off'>\n" +
+    "                    <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "                    <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !loading && !error, 'btn-danger': error, 'btn-muted': loading}\" ng-disabled=\"loading\" ng-click=\"refresh()\">\n" +
+    "                      <span ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i></span>\n" +
+    "                      <span ng-show=\"!loading\"><i class=\"icon-refresh\"></i></span>\n" +
+    "                    </button>\n" +
+    "                  </div>\n" +
+    "                </p>\n" +
+    "                <p>\n" +
+    "                  <ul class=\"list-group\">\n" +
+    "                    <li class=\"list-group-item\" ng-repeat=\"camera in status.cameras | orderBy: 'name' | filter: {'name': camera_search}\">\n" +
+    "                      <button class=\"btn btn-xs btn-default\" ng-class=\"{'btn-danger': camera.recStatus > 0}\"><i class=\"icon-videocamerathree\"></i></button> {{camera.name}}\n" +
+    "                      <div><small>{{camera.vendor}} {{camera.model}} ({{camera.host}})</small></div>\n" +
+    "                    </li>\n" +
+    "                  </ul>\n" +
+    "                </p>\n" +
+    "\n" +
+    "            </uib-tab>\n" +
+    "          </uib-tabset>\n" +
+    "        </div>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>"
+  );
+
+
   $templateCache.put('modules/triggers/views/conditions.edit.html',
     "<div class=\"modal-header\">\n" +
     "    <h4 class=\"modal-title\">{{title}}</h4>\n" +

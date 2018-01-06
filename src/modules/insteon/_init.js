@@ -3,13 +3,13 @@ angular.module('insteon', [])
 
   $stateProvider
   .state('main.settings.insteon', {
-    url: '/settings',
+    url: '/insteon',
     templateUrl: 'modules/insteon/views/settings.html',
     controller: 'insteonSettings',
     resolve: {
       status: function (insteon) {
         return insteon.status();
-      }
+      },
     }
   });
 })

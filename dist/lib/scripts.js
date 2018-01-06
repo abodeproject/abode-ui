@@ -1,5 +1,5 @@
 //! moment.js
-//! version : 2.19.1
+//! version : 2.19.2
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT
 //! momentjs.com
@@ -814,7 +814,7 @@ function get (mom, unit) {
 
 function set$1 (mom, unit, value) {
     if (mom.isValid() && !isNaN(value)) {
-        if (unit === 'FullYear' && isLeapYear(mom.year())) {
+        if (unit === 'FullYear' && isLeapYear(mom.year()) && mom.month() === 1 && mom.date() === 29) {
             mom._d['set' + (mom._isUTC ? 'UTC' : '') + unit](value, mom.month(), daysInMonth(value, mom.month()));
         }
         else {
@@ -1920,10 +1920,11 @@ function defineLocale (name, config) {
 
 function updateLocale(name, config) {
     if (config != null) {
-        var locale, parentConfig = baseConfig;
+        var locale, tmpLocale, parentConfig = baseConfig;
         // MERGE
-        if (locales[name] != null) {
-            parentConfig = locales[name]._config;
+        tmpLocale = loadLocale(name);
+        if (tmpLocale != null) {
+            parentConfig = tmpLocale._config;
         }
         config = mergeConfigs(parentConfig, config);
         locale = new Locale(config);
@@ -4477,7 +4478,7 @@ addParseToken('x', function (input, array, config) {
 // Side effect imports
 
 
-hooks.version = '2.19.1';
+hooks.version = '2.19.2';
 
 setHookCallback(createLocal);
 
@@ -95744,6 +95745,7 @@ var abode = angular.module('abode', [
   'zwave',
   'video',
   'autoshades',
+  'synology',
 ]);
 
 abode.config(['$stateProvider', '$urlRouterProvider', 'abodeProvider', 'uiGmapGoogleMapApiProvider', function($state, $urlRouter, abode, uiGmapGoogleMapApiProvider) {
@@ -102271,13 +102273,13 @@ angular.module('insteon', [])
 
   $stateProvider
   .state('main.settings.insteon', {
-    url: '/settings',
+    url: '/insteon',
     templateUrl: 'modules/insteon/views/settings.html',
     controller: 'insteonSettings',
     resolve: {
       status: function (insteon) {
         return insteon.status();
-      }
+      },
     }
   });
 })
@@ -109238,6 +109240,251 @@ settings.service('settings', function ($q, $http, $templateCache, $timeout, abod
 
 
 
+angular.module('synology', [])
+.config(function($stateProvider, $urlRouterProvider) {
+
+  $stateProvider
+  .state('main.settings.synology', {
+    url: '/synology',
+    templateUrl: 'modules/synology/views/settings.html',
+    controller: 'synologySettings',
+    resolve: {
+      status: function (synology) {
+        return synology.status();
+      },
+      config: function (synology) {
+        return synology.get_config();
+      }
+    }
+  });
+})
+
+
+
+var synology = angular.module('synology');
+
+synology.controller('synologyAdd', function ($scope, $http, $timeout, synology, abode) {
+
+  $scope.device = $scope.$parent.device;
+  $scope.loading = false;
+  $scope.cameras = [];
+
+  $scope.refresh = function () {
+    if ($scope.loading) {
+      return;
+    }
+
+    $scope.loading = true;
+    $scope.error = false;
+
+    synology.refresh_cameras().then(function (results) {
+
+      $scope.loading = false;
+      $scope.error = false;
+
+      $scope.cameras = results;
+    }, function (err) {
+      $scope.loading = false;
+      $scope.error = true;
+
+      $timeout(function () {
+        $scope.error = false;
+      }, 1500);
+
+      abode.message({
+        'type': 'failed',
+        'message': err.message || 'Failed to refresh cameras'
+      });
+    });
+  };
+
+  $scope.select = function (camera) {
+    $scope.device.name = camera.name;
+    $scope.device.active = true;
+    $scope.device.capabilities = [
+      'camera',
+      'motion_sensor'
+    ];
+    $scope.device.config = camera;
+    $scope.device.icon = 'icon-cctv';
+  };
+
+  $scope.refresh();
+});
+
+
+var synology = angular.module('synology');
+
+synology.controller('synologyEdit', function ($scope, $http, $timeout, synology, abode) {
+
+});
+
+
+var synology = angular.module('synology');
+
+synology.controller('synologySettings', function ($scope, $http, $timeout, synology, abode, status, config) {
+
+  $scope.status = status;
+  $scope.enabling = false;
+  $scope.config = config;
+
+  $scope.toggle = function () {
+    if ($scope.enabling) {
+      return;
+    }
+
+    $scope.enabling = true;
+
+    var success = function () {
+      $scope.enabling = false;
+
+      synology.status().then(function (status) {
+        $scope.status = status;
+      })
+    };
+
+    var failure = function (err) {
+      $scope.enabling = false;
+
+      abode.message({
+        'type': 'failed',
+        'message': err.message
+      });
+    };
+
+    if (!$scope.status.enabled) {
+      synology.enable().then(success, failure);
+    } else {
+      synology.disable().then(success, failure);
+    }
+
+  };
+
+  $scope.refresh = function () {
+    if ($scope.loading) {
+      return;
+    }
+
+    $scope.loading = true;
+    $scope.error = false;
+
+    synology.refresh_cameras().then(function (results) {
+
+      $scope.loading = false;
+      $scope.error = false;
+
+      $scope.status.cameras = results;
+    }, function (err) {
+      $scope.loading = false;
+      $scope.error = true;
+
+      $timeout(function () {
+        $scope.error = false;
+      }, 1500);
+
+      abode.message({
+        'type': 'failed',
+        'message': err.message || 'Failed to refresh cameras'
+      });
+    });
+  };
+
+  $scope.save = function () {
+
+    synology.save_config($scope.config).then(function () {
+      $scope.status = 'saved';
+
+      abode.message({
+        'type': 'success',
+        'message': 'Synology Settings Saved'
+      });
+
+    }, function (err) {
+      abode.message({
+        'type': 'failed',
+        'message': 'Synology Settings Failed to Saved',
+        'details': err
+      });
+    });
+  };
+
+});
+
+
+var synology = angular.module('synology');
+
+synology.service('synology', function ($http, $q, $timeout, abode, settings) {
+
+  var getStatus = function () {
+    var defer = $q.defer();
+
+    $http.get(abode.url('/api/synology').value()).then(function (result) {
+      defer.resolve(result.data);
+    }, function (err) {
+      defer.reject({'message': err.data.message || 'Failed to Enable Synology'});
+    });
+
+    return defer.promise;
+  };
+
+  var enable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/synology/enable').value()).then(function () {
+      defer.resolve();
+    }, function (err) {
+      defer.reject({'message': err.data.message || 'Failed to Enable Synology'});
+    });
+
+    return defer.promise;
+  };
+
+  var disable = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/synology/disable').value()).then(function () {
+      defer.resolve();
+    }, function (err) {
+      defer.reject({'message': err.data.message || 'Failed to disable Synology'});
+    });
+
+    return defer.promise;
+  };
+
+  var get_config = function () {
+
+    return settings.get_config('synology');
+
+  };
+
+  var save_config = function (config) {
+
+    return settings.save_config('synology', config);
+
+  };
+
+  var refresh_cameras = function (config) {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/synology/refresh').value()).then(function (result) {
+      defer.resolve(result.data);
+    }, function (err) {
+      defer.reject({'message': err.data.message || 'Failed to get Synology Cameras'});
+    });
+
+    return defer.promise;
+  };
+
+  return {
+    'status': getStatus,
+    'enable': enable,
+    'disable': disable,
+    'get_config': get_config,
+    'save_config': save_config,
+    'refresh_cameras': refresh_cameras,
+  }
+});
+
 angular.module('abode').run(['$templateCache', function($templateCache) {
   'use strict';
 
@@ -114541,6 +114788,127 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "  <div class=\"bg-success img-circle \" style=\"position: fixed; bottom: 1.5em; right: 1.5em; font-size: 1.5em; height: 2.5em; width: 2.5em; text-align: center; box-shadow: .2em .2em .3em black; line-height: 2.7em; font-weight: bold; cursor: pointer;\" ui-sref=\"^.add\"><i class=\"icon-plus\"></i></button>\n" +
     "</div>\n" +
     "\n"
+  );
+
+
+  $templateCache.put('modules/synology/views/add.html',
+    "<div ng-controller=\"synologyAdd\">\n" +
+    "  <h3>Surveillance Station Cameras</h3>\n" +
+    "  <p>\n" +
+    "    <div class=\"input-group\">\n" +
+    "      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"camera_search\" autocomplete='off'>\n" +
+    "      <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "      <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !loading && !error, 'btn-danger': error, 'btn-muted': loading}\" ng-disabled=\"loading\" ng-click=\"refresh()\">\n" +
+    "        <span ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i></span>\n" +
+    "        <span ng-show=\"!loading\"><i class=\"icon-refresh\"></i></span>\n" +
+    "      </button>\n" +
+    "    </div>\n" +
+    "  </p>\n" +
+    "  <p>\n" +
+    "    <ul class=\"list-group\">\n" +
+    "      <li class=\"list-group-item pointer\"\n" +
+    "          ng-repeat=\"camera in cameras | orderBy: 'name' | filter: {'name': camera_search}\"\n" +
+    "          ng-click=\"select(camera)\"\n" +
+    "          ng-class=\"{'list-group-item-info': camera.id == device.config.id}\"\n" +
+    "          ng-hide=\"camera.abode_device\">\n" +
+    "        <button class=\"btn btn-xs btn-default\" ng-class=\"{'btn-danger': camera.recStatus > 0}\"><i class=\"icon-videocamerathree\"></i></button> {{camera.name}}\n" +
+    "        <div><small>{{camera.vendor}} {{camera.model}} ({{camera.host}})</small></div>\n" +
+    "      </li>\n" +
+    "    </ul>\n" +
+    "  </p>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/synology/views/edit.html',
+    ""
+  );
+
+
+  $templateCache.put('modules/synology/views/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "  <div class=\"row\">\n" +
+    "    <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "      <h2>Settings / Synology\n" +
+    "             <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"row\">\n" +
+    "    <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "      <div class=\"panel panel-default\">\n" +
+    "        <div class=\"panel-body\">\n" +
+    "          <uib-tabset active=\"active\">\n" +
+    "            <uib-tab index=\"0\" heading=\"Settings\">\n" +
+    "              <div class=\"panel-body\">\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <label for=\"enabled\">Enabled: </label>\n" +
+    "                  <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                    <span ng-show=\"enabling && !status.enabled\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                    <span ng-show=\"enabling && status.enabled\"><i class=\"icon-circleselection spin\"></i> Disabling</span>\n" +
+    "                    <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                    <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "                  </button>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <label for=\"server\">Server</label>\n" +
+    "                  <input type=\"text\" class=\"form-control\" id=\"server\" placeholder=\"Server\" required=\"\" ng-model=\"config.server\">\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <label for=\"user\">User</label>\n" +
+    "                  <input type=\"text\" class=\"form-control\" id=\"user\" placeholder=\"User\" required=\"\" ng-model=\"config.user\">\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <label for=\"password\">Password</label>\n" +
+    "                  <input type=\"password\" class=\"form-control\" id=\"password\" placeholder=\"Password\" required=\"\" ng-model=\"config.password\">\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <label for=\"enabled\">Debug: </label>\n" +
+    "                  <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "                </div>\n" +
+    "\n" +
+    "              </div>\n" +
+    "            </uib-tab>\n" +
+    "            <uib-tab index=\"1\" heading=\"Cameras\">\n" +
+    "\n" +
+    "\n" +
+    "                <p>\n" +
+    "                </p>\n" +
+    "                <p>\n" +
+    "                  <div class=\"input-group\">\n" +
+    "                    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"camera_search\" autocomplete='off'>\n" +
+    "                    <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "                    <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !loading && !error, 'btn-danger': error, 'btn-muted': loading}\" ng-disabled=\"loading\" ng-click=\"refresh()\">\n" +
+    "                      <span ng-show=\"loading\"><i class=\"icon-circleselection spin\"></i></span>\n" +
+    "                      <span ng-show=\"!loading\"><i class=\"icon-refresh\"></i></span>\n" +
+    "                    </button>\n" +
+    "                  </div>\n" +
+    "                </p>\n" +
+    "                <p>\n" +
+    "                  <ul class=\"list-group\">\n" +
+    "                    <li class=\"list-group-item\" ng-repeat=\"camera in status.cameras | orderBy: 'name' | filter: {'name': camera_search}\">\n" +
+    "                      <button class=\"btn btn-xs btn-default\" ng-class=\"{'btn-danger': camera.recStatus > 0}\"><i class=\"icon-videocamerathree\"></i></button> {{camera.name}}\n" +
+    "                      <div><small>{{camera.vendor}} {{camera.model}} ({{camera.host}})</small></div>\n" +
+    "                    </li>\n" +
+    "                  </ul>\n" +
+    "                </p>\n" +
+    "\n" +
+    "            </uib-tab>\n" +
+    "          </uib-tabset>\n" +
+    "        </div>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>"
   );
 
 

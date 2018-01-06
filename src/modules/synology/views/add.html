@@ -1,0 +1,25 @@
+<div ng-controller="synologyAdd">
+  <h3>Surveillance Station Cameras</h3>
+  <p>
+    <div class="input-group">
+      <input type="text" class="form-control" id="name" placeholder="Search" ng-model="camera_search" autocomplete='off'>
+      <div class="input-group-addon"><i class="icon-search"></i></div>
+      <button class="btn btn-sm pull-right" ng-class="{'btn-success': !loading && !error, 'btn-danger': error, 'btn-muted': loading}" ng-disabled="loading" ng-click="refresh()">
+        <span ng-show="loading"><i class="icon-circleselection spin"></i></span>
+        <span ng-show="!loading"><i class="icon-refresh"></i></span>
+      </button>
+    </div>
+  </p>
+  <p>
+    <ul class="list-group">
+      <li class="list-group-item pointer"
+          ng-repeat="camera in cameras | orderBy: 'name' | filter: {'name': camera_search}"
+          ng-click="select(camera)"
+          ng-class="{'list-group-item-info': camera.id == device.config.id}"
+          ng-hide="camera.abode_device">
+        <button class="btn btn-xs btn-default" ng-class="{'btn-danger': camera.recStatus > 0}"><i class="icon-videocamerathree"></i></button> {{camera.name}}
+        <div><small>{{camera.vendor}} {{camera.model}} ({{camera.host}})</small></div>
+      </li>
+    </ul>
+  </p>
+</div>
