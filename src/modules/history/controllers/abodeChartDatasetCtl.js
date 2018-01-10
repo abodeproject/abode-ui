@@ -1,8 +1,9 @@
 var abodechart = angular.module('abode.chart');
 
-abodechart.controller('abodeChartDatasetCtl', ['$scope', '$timeout', 'Devices', 'Scenes', 'Rooms', function ($scope, $timeout, Devices, Scenes, Rooms) {
+abodechart.controller('abodeChartDatasetCtl', ['$scope', '$timeout', '$element', 'Devices', 'Scenes', 'Rooms', function ($scope, $timeout, $element, Devices, Scenes, Rooms) {
 
   var item;
+  var element_index = [].slice.call($element[0].parentNode.children).indexOf($element[0]);
 
   var types = {
       'device': Devices,
@@ -15,6 +16,7 @@ abodechart.controller('abodeChartDatasetCtl', ['$scope', '$timeout', 'Devices', 
 
     // Register the dataset with the chart
     $scope.$emit('abode-chart-register-dataset', {
+      index: ($scope.index !== undefined) ? $scope.index : element_index,
       type: $scope.type,
       name: $scope.name,
       value: $scope.value,
@@ -29,6 +31,9 @@ abodechart.controller('abodeChartDatasetCtl', ['$scope', '$timeout', 'Devices', 
   // Listen for events requesting data
   $scope.$on('abode-chart-request-dataset', function (event, config) {
     var page = 1;
+    if (!config) {
+      return;
+    }
     // If request is not for this dataset, ignore
     if (config.type !== $scope.type || config.name !== $scope.name || config.value !== $scope.value) {
       return;

@@ -9,6 +9,7 @@ abodechart.directive('abodeChartDataset', [function () {
       label: '@',
       chart: '@',
       color: '@',
+      index: '@',
       backgroundColor: '@',
       borderColor: '@',
       data: '='

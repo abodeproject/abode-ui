@@ -2,6 +2,8 @@ var abodechart = angular.module('abode.chart');
 
 abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope, $interval) {
 
+  var gantts = [];
+  
   // Value formatters
   var formatters = {
     'temperature-axis': function (value) {
@@ -16,23 +18,26 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
       }
       return value;
     },
+    'openclose-axis': function (value) {
+      if (value === 0 || value === false || value === null) {
+        return 'Closed';
+      }
+      if (value >= 1 || value === true) {
+        return 'Open';
+      }
+      return '';
+    },
     'onoff-axis': function (value) {
-      if (value === 0 || value === false) {
+      if (value === 0 || value === false || value === null) {
         return 'Off';
       }
-      if (value === 1 || value === true) {
+      if (value >= 1 || value === true) {
         return 'On';
       }
       return '';
     },
-    'openclose-axis': function (value) {
-      if (value === 0 || value === false) {
-        return 'Closed';
-      }
-      if (value === 1 || value === true) {
-        return 'Open';
-      }
-      return '';
+    'gantt-axis': function (value) {
+      return $scope.series[gantts[value -1]];
     }
   };
 
@@ -55,7 +60,8 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
       yAxisID: 'level-axis',
       type: 'line',
       fill: true,
-      steppedLine: true,
+      steppedLine: false,
+      lineTension: 0,
       borderColor: 'rgba(0,0,0,1)',
       backgroundColor: 'rgb(239, 242, 94, 2)',
       pointRadius: 0,
@@ -68,9 +74,10 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
       type: 'line',
       fill: true,
       steppedLine: true,
-      borderWidth: 0,
+      spanGaps: true,
+      borderWidth: 1,
       borderColor: 'rgba(0,0,0,0)',
-      backgroundColor: 'rgba(255, 20, 20, .2)',
+      backgroundColor: 'rgba(55, 20, 20, .2)',
       pointRadius: 0,
       pointBorderColor: 'rgba(0,0,0, 1)',
       pointHoverBorderColor: 'rgba(0,0,0, 1)',
@@ -81,9 +88,24 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
       type: 'line',
       fill: true,
       steppedLine: true,
-      borderWidth: 0,
+      spanGaps: true,
+      borderWidth: 1,
       borderColor: 'rgba(0,0,0,0)',
-      backgroundColor: 'rgb(231, 76, 60, .2)',
+      backgroundColor: 'rgba(55, 20, 20, .2)',
+      pointRadius: 0,
+      pointBorderColor: 'rgba(0,0,0, 1)',
+      pointHoverBorderColor: 'rgba(0,0,0, 1)',
+      pointHoverBackgroundColor: 'rgba(200,200,200, 1)'
+    },
+    'gantt': {
+      yAxisID: 'gantt-axis',
+      type: 'line',
+      fill: false,
+      steppedLine: true,
+      spanGaps: false,
+      borderWidth: 10,
+      borderColor: 'rgb(231, 76, 60, .2)',
+      backgroundColor: 'rgb(0, 0, 0, 0)',
       pointRadius: 0,
       pointBorderColor: 'rgba(0,0,0, 1)',
       pointHoverBorderColor: 'rgba(0,0,0, 1)',
@@ -158,7 +180,12 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
         },
         'label': function (tooltipItem, data) {
           var dataset = data.datasets[tooltipItem.datasetIndex];
-
+          
+          // If we are gantt, just show the label
+          if (gantts.indexOf(tooltipItem.datasetIndex) !== -1) {
+            return dataset.label;
+          };
+          
           if (formatters[dataset.yAxisID]) {
             return dataset.label + ': ' + formatters[dataset.yAxisID](tooltipItem.yLabel);
           }
@@ -219,7 +246,7 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
           id: 'onoff-axis',
           type: 'linear',
           beginAtZero: 0,
-          display: true,
+          display: false,
           ticks: {
             min: 0,
             suggestedMin: 0,
@@ -233,7 +260,7 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
           id: 'openclose-axis',
           type: 'linear',
           beginAtZero: 0,
-          display: true,
+          display: false,
           ticks: {
             min: 0,
             suggestedMin: 0,
@@ -241,6 +268,20 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
             stepSize: 1,
             suggestedMax: 1,
             callback: formatters['openclose-axis']
+          }
+        },
+        {
+          id: 'gantt-axis',
+          type: 'linear',
+          beginAtZero: 0,
+          display: true,
+          ticks: {
+            min: 0,
+            suggestedMin: 0,
+            max: 1,
+            stepSize: 1,
+            suggestedMax: 1,
+            callback: formatters['gantt-axis']
           }
         }
       ]
@@ -257,29 +298,45 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
     var chartStyle = angular.copy(chartTypes[data.chart] || chartTypes.level);
 
     // Determine our dataset index
-    var dataset_index = $scope.series.length;
-
+    var dataset_index = (data.index !== undefined) ? data.index : $scope.series.length;
+    
+    // Add an empty dataset
+    [...Array(dataset_index).keys()].forEach(function (i) {
+      datasets[i] = datasets[i] || {};
+      $scope.data[i] = $scope.data[i] || [];
+      $scope.series[i] = $scope.series[i] || '';
+      $scope.datasetOverride[i] = $scope.datasetOverride[i] || {};
+    });
+    
     //Set our colors
     chartStyle.borderColor = data.borderColor || data.color || chartStyle.borderColor;
     chartStyle.backgroundColor = data.backgroundColor || data.color || chartStyle.backgroundColor;
     chartStyle.pointHoverBackgroundColor = data.pointHoverBackgroundColor || data.color || chartStyle.pointHoverBackgroundColor;
 
     //Push our configs
-    $scope.datasetOverride.push(chartStyle);
-    $scope.series.push(data.label || data.name);
+    $scope.datasetOverride[dataset_index] = chartStyle;
+    $scope.series[dataset_index] = data.label || data.name;
+    
+    $scope.data[dataset_index] = [];
 
-    // Add an empty dataset
-    $scope.data.push([]);
-
+    if (data.chart === 'gantt') {
+      gantts.push(dataset_index);
+      
+      var scale = $scope.options.scales.yAxes.filter(function (axis) { return (axis.id === chartStyle.yAxisID); });
+      
+      scale.forEach(function (scale) {
+        scale.ticks.max = gantts.length + 1;
+      });
+    }
 
     // Register the dataset
-    datasets.push({
+    datasets[dataset_index] = {
       index: dataset_index,
       type: data.type,
       name: data.name,
       value: data.value,
       range: initial_range
-    });
+    };
 
     // Request dataset return data
     $scope.$broadcast('abode-chart-request-dataset', datasets[dataset_index]);
@@ -294,6 +351,18 @@ abodechart.controller('abodeChartCtl', ['$scope', '$interval', function ($scope,
     datasets[data.index].start = data.range.start;
     datasets[data.index].end = data.range.end;
 
+    var gantt_index = gantts.indexOf(data.index);
+    if (gantt_index !== -1) {
+      data.data = data.data.map(function (data) {
+        if (data.y) {
+          data.y = gantt_index + 1;
+        } else {
+          data.y = null;
+        }
+        
+        return data;
+      })
+    }
     // Extend the dataset with the new data
     $scope.data[data.index].push.apply($scope.data[data.index], data.data);
 
