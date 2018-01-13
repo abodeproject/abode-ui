@@ -1,8 +1,0 @@
-<li class="list-group-item" style="cursor: pointer;" ng-class="{'text-muted': ngModel.$is_open}" ng-click="ngModel.$open()">
-  <i class="icon-circleselection spin" ng-show="ngModel.$is_open || ngModel.$loading"></i>
-  <i class="{{ngModel.icon}}" ng-show="ngModel.icon && !ngModel.$is_open && !ngModel.$loading"></i>
-  {{ngModel.name}} <div class="pull-right" style="margin-left: .5em; margin-top: -.25em"> <button class="btn btn-xs btn-default" ng-click="ngModel.$edit()" stop-event><i class="icon-edit"></i></button></div> <span class="badge">{{ngModel._devices.length}} <i class="glyphicon glyphicon-oil"></i></span>
-  <div style="font-size: .7em" class="text-muted" ng-show="ngModel.tags.length > 0"><i class="icon-tags"></i>
-    <span ng-repeat="tag in ngModel.tags" style="margin-right: 1em;">{{tag}}</span>
-  </div>
-</li>
