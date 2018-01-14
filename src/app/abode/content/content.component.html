@@ -1,0 +1,20 @@
+<div class="content"
+     [style.top]="outerStyles.top"
+     [style.left]="outerStyles.left"
+     [style.right]="outerStyles.right"
+     [style.bottom]="outerStyles.bottom"
+     [style.width]="outerStyles.width"
+     [style.height]="outerStyles.height"
+     [style.background]="outerStyles.background"
+     [style.overflow]="outerStyles.overflow">
+  <div class="content-table" >
+    <div class="content-cell" style="display:table-cell;"
+         [style.text-align]="innerStyles.textAlign"
+         [style.vertical-align]="innerStyles.verticalAlign"
+         [style.font-size]="innerStyles.fontSize"
+         [style.color]="innerStyles.color"
+         [style.text-shadow]="innerStyles.textShadow">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

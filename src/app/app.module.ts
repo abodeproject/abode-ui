@@ -1,22 +1,25 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import {MatGridListModule} from '@angular/material/grid-list';
-import {MatToolbarModule} from '@angular/material/toolbar';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-
+import { UIRouterModule } from "@uirouter/angular";
 
 import { AppComponent } from './app.component';
 
+import { WelcomeModule } from './welcome/welcome.module';
+
+const rootRoute = {
+  name: 'root',
+  url: '',
+  redirectTo: 'welcome'
+};
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
   ],
   imports: [
     BrowserModule,
-    BrowserAnimationsModule,
-    MatGridListModule,
-    MatToolbarModule
+    WelcomeModule,
+    UIRouterModule.forRoot({ states: [ rootRoute ], useHash: true })
   ],
   providers: [],
   bootstrap: [AppComponent]

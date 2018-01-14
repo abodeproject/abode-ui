@@ -1,0 +1,73 @@
+
+<app-content top="0" bottom="0" left="0" right="0" overflow="auto">
+    <div class="row">
+      <div class="col-lg-6 col-lg-offset-3 col-md-6 offset-md-3 col-sm-8 offset-sm-2 col-xs-10 offset-xs-1">
+        <div>&nbsp;</div>
+        <div>&nbsp;</div>
+        <div>&nbsp;</div>
+
+        <mat-card>
+          <div class="row">
+            <div class="col-xs-6 offset-xs-3 col-sm-4 offset-sm-4 col-md-4 offset-md-0">
+              <img src="images/home.png" class="img-fluid img-rounded" >
+            </div>
+            <div class="col-xs-12  col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-0">
+              <mat-vertical-stepper [linear]="isLinear">
+                <mat-step [stepControl]="serverSelectFormGroup">
+                  <form [formGroup]="serverSelectFormGroup">
+                    <ng-template matStepLabel>Select a Server</ng-template>
+
+                    <mat-form-field>
+                      <input matInput placeholder="Server" formControlName="serverCtrl" required>
+                    </mat-form-field>
+                    <div>
+                      <button mat-raised-button color="accent" matStepperNext>Next</button>
+                    </div>
+                  </form>
+                </mat-step>
+                <mat-step [stepControl]="serverLoginFormGroup">
+                  <form [formGroup]="serverLoginFormGroup">
+                    <ng-template matStepLabel>Login</ng-template>
+                    <mat-form-field>
+                      <input matInput placeholder="User" formControlName="userCtrl" required>
+                    </mat-form-field>
+                    <mat-form-field>
+                      <input matInput type="password" placeholder="Password" formControlName="passwordCtrl" required>
+                    </mat-form-field>
+                    <div>
+                      <button mat-raised-button color="primary" matStepperPrevious>Back</button>
+                      <button mat-raised-button color="accent" matStepperNext>Next</button>
+                    </div>
+                  </form>
+                </mat-step>
+                <mat-step [stepControl]="selectDeviceFormGroup">
+                  <form [formGroup]="selectDeviceFormGroup">
+                    <ng-template matStepLabel>Select a Device</ng-template>
+                    <mat-form-field>
+                      <input matInput placeholder="Device" formControlName="deviceCtrl" required>
+                    </mat-form-field>
+                    <div>
+                      <button mat-raised-button color="primary" matStepperPrevious>Back</button>
+                      <button mat-raised-button color="accent" matStepperNext>Next</button>
+                    </div>
+                  </form>
+                </mat-step>
+                <mat-step [stepControl]="selectInterfaceFormGroup">
+                  <form [formGroup]="selectInterfaceFormGroup">
+                    <ng-template matStepLabel>Select an Interface</ng-template>
+                    <mat-form-field>
+                      <input matInput placeholder="Interface" formControlName="interfaceCtrl" required>
+                    </mat-form-field>
+                    <div>
+                      <button mat-raised-button color="primary" matStepperPrevious>Back</button>
+                      <button mat-raised-button color="accent" matStepperNext>Next</button>
+                    </div>
+                  </form>
+                </mat-step>
+              </mat-vertical-stepper>
+            </div>
+          </div>
+        </mat-card>
+      </div>
+    </div>
+</app-content>

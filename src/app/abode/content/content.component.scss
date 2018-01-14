@@ -1,0 +1,15 @@
+@import "../../../abode-theme";
+
+.content {
+  position: absolute;
+  /* z-index: 10; */
+}
+.content-table {
+  display:table;
+  height: 100%;
+  width: 100%;
+}
+
+.content-cell {
+  display: table-cell;
+}
