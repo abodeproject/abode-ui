@@ -11,6 +11,7 @@ import { AbodeModule } from '../abode/abode.module';
 
 import { WelcomeComponent } from './welcome.component';
 import { ServerSelectorComponent } from './server-selector/server-selector.component';
+import { ServerService } from './server.service';
 
 const welcomeRoute = {
   name: 'welcome',
@@ -29,6 +30,7 @@ const welcomeRoute = {
     AbodeModule,
     UIRouterModule.forChild({ states: [ welcomeRoute ] })
   ],
-  declarations: [ WelcomeComponent, ServerSelectorComponent ]
+  declarations: [ WelcomeComponent, ServerSelectorComponent ],
+  providers: [ServerService]
 })
 export class WelcomeModule { }

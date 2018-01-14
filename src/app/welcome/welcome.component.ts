@@ -9,6 +9,8 @@ import {FormBuilder, FormGroup, Validators } from '@angular/forms';
 export class WelcomeComponent implements OnInit {
   isLinear = true;
 
+  server: string;
+
   serverSelectFormGroup: FormGroup;
   serverLoginFormGroup: FormGroup;
   selectDeviceFormGroup: FormGroup;
@@ -32,4 +34,7 @@ export class WelcomeComponent implements OnInit {
     });
   }
 
+  next(stepper) {
+    return () => { stepper.next(); };
+  }
 }

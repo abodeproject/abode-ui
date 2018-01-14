@@ -6,9 +6,9 @@ import { AppComponent } from './app.component';
 import {ContentComponent} from './abode/content/content.component';
 
 describe('AppComponent', () => {
-  const fixture;
-  const app;
-  const rendered;
+  let fixture;
+  let app;
+  let rendered;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
