@@ -1,9 +1,8 @@
 import { TestBed, async } from '@angular/core/testing';
-import { UIRouterModule } from "@uirouter/angular";
+import { UIRouterModule } from '@uirouter/angular';
 import {APP_BASE_HREF} from '@angular/common';
 
 import { AppComponent } from './app.component';
-import {ContentComponent} from './abode/content/content.component';
 
 describe('AppComponent', () => {
   let fixture;
