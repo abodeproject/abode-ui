@@ -140,6 +140,7 @@ mqtt.controller('mqttSettings', function ($scope, mqtt, abode, config, status) {
 mqtt.controller('mqttEdit', function ($scope) {
   $scope.device = $scope.$parent.device;
   $scope.parsers = [
+    {'name': 'Sensor', 'value': 'sensor'},
     {'name': 'WeeWx', 'value': 'weewx'}
   ];
 
@@ -148,6 +149,7 @@ mqtt.controller('mqttEdit', function ($scope) {
 mqtt.controller('mqttAdd', function ($scope) {
   $scope.device = $scope.$parent.device;
   $scope.parsers = [
+    {'name': 'Sensor', 'value': 'sensor'},
     {'name': 'WeeWx', 'value': 'weewx'}
   ];
 });

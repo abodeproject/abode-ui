@@ -2580,7 +2580,6 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "  </div>\n" +
     "  <div class=\"form-group\">\n" +
     "    <label for=\"name\">Parser</label>\n" +
-    "    <select size=\"1\" ng-model=\"device.config.parser\"></select>\n" +
     "    <select class=\"form-control\" size=\"1\" ng-model=\"device.config.parser\" ng-options=\"parser.value as parser.name for parser in parsers\"></select>\n" +
     "  </div>\n" +
     "</div>"
