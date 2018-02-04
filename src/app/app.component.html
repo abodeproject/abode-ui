@@ -1,1 +1,9 @@
-<ui-view></ui-view>
+<div>
+  <div class="abode-loading" [hidden]="!loading">
+    <div><i class="icon-circleselection spin"></i> Loading...</div>
+  </div>
+  <div *ngIf="!loading">
+    <ui-view></ui-view>
+    <app-statusbar></app-statusbar>
+  </div>
+</div>

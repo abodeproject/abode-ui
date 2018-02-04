@@ -1,0 +1,27 @@
+.statusbar {
+  position: absolute;
+  top: 0em;
+  left: 0em;
+  right: 0em;
+  height: 2em;
+  background-color: rgba(28, 30, 34,.5);
+  text-align: right;
+  padding: 0em 1em;
+  font-size: 1.5em;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.statusbar-nav {
+
+}
+
+.statusbar-icons {
+  flex: auto;
+}
+
+.statusbar-button {
+  cursor: pointer;
+}

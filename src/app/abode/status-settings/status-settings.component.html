@@ -1,0 +1,30 @@
+<app-status-item >
+  <!--
+  <div ngbDropdown placement="bottom-right">
+    <div class="statusbar-settings" ngbDropdownToggle>
+    <i class="fas fa-ellipsis-v "></i>
+    </div>
+    <div ngbDropdownMenu>
+      <button class="dropdown-item">Action - 1</button>
+      <button class="dropdown-item">Another Action</button>
+      <button class="dropdown-item">Something else is here</button>
+    </div>
+  </div>
+  -->
+  <div class="statusbar-settings" [matMenuTriggerFor]="appMenu">
+    <i class="fas fa-ellipsis-v "></i>
+  </div>
+
+  <mat-menu #appMenu="matMenu">
+    <button mat-menu-item><i class="icon-cpu-processor"></i> Devices </button>
+    <button mat-menu-item><i class="icon-boxbilling"></i> Rooms </button>
+    <button mat-menu-item><i class="icon-picture"></i> Scenes </button>
+    <button mat-menu-item><i class="icon-bomb"></i>  Triggers </button>
+    <button mat-menu-item><i class="icon-flag"></i> Notifications </button>
+    <button mat-menu-item><i class="icon-controlpanelalt"></i> Interfaces </button>
+    &nbsp;
+    <button mat-menu-item><i class="icon-settingsfour-gearsalt"></i> Settings </button>
+    &nbsp;
+    <button mat-menu-item><i class="icon-exitalt"></i> Logout </button>
+  </mat-menu>
+</app-status-item>

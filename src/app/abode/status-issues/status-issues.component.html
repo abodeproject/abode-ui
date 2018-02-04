@@ -1,0 +1,20 @@
+<app-status-item>
+
+  <div [matMenuTriggerFor]="appMenu">
+    <i class="icon-warning-sign text-danger"></i>
+  </div>
+
+  <mat-menu #appMenu="matMenu">
+
+    <mat-list>
+      <mat-list-item *ngFor="let message of messages">
+        <i class="icon-warning-sign"></i>
+        <h3 matLine> {{message.device}} </h3>
+        <p matLine>
+          <span> {{message.message}} </span>
+        </p>
+      </mat-list-item>
+    </mat-list>
+
+  </mat-menu>
+</app-status-item>
