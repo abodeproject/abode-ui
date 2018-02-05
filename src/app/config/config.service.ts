@@ -22,17 +22,13 @@ export class ConfigService {
     try {
       this.config = JSON.parse(raw_config);
     } catch (e) { }
-
-    console.log(this.config);
   }
 
   public get auth() {
-    console.log('here');
     return this.config.auth;
   }
 
   public get server() {
-    console.log('here');
     return this.config.server;
   }
 }

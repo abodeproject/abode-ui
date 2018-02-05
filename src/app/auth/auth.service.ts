@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import {Observable} from 'rxjs/Observable';
+import { of } from 'rxjs/observable/of';
+import { catchError, tap } from 'rxjs/operators';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 
 import { ConfigService } from '../config/config.service';
 
 @Injectable()
 export class AuthService {
 
-  constructor(private config: ConfigService) { }
+  constructor(private http: HttpClient, private config: ConfigService) { }
 
   public isAuthenticated(): Observable<boolean> {
     return Observable.create(observable => {
@@ -26,7 +29,7 @@ export class AuthService {
         // Check out auth status
         this.verify()
           .subscribe(result => {
-            if (result.status) {
+            if (result) {
               observable.next(false);
               return observable.complete();
             } else {
@@ -36,16 +39,6 @@ export class AuthService {
           });
       }, 3000);
     });
-  }
-
-  public call(url: String, data: Object): Observable<object> {
-
-    console.log(url, data);
-    return Observable.create(observable => {
-      observable.next({});
-      observable.complete();
-    });
-
   }
 
   public verify(): Observable<object> {
@@ -74,5 +67,11 @@ export class AuthService {
       observable.next({});
       observable.complete();
     });
+  }
+
+  public call(url: string, data: object): Observable<HttpResponse<object>> {
+
+    return this.http.get(url, { observe: 'response' });
+
   }
 }
