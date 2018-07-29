@@ -911,10 +911,8 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   $templateCache.put('modules/devices/views/capabilities/battery_sensor.html',
     "\n" +
     "<h4 style=\" white-space: nowrap\">\n" +
-    "	<span ng-show=\"device._battery\">{{device._battery | number:0}}%</span>\n" +
-    "	<i class=\"icon-batteryaltthird text-danger\" ng-show=\"device._battery <= 50 || device.low_battery\"></i>\n" +
-    "	<i class=\"icon-batteryaltsixty text-warning\" ng-show=\"device._battery > 50 && device._battery < 75 && !device.low_battery\"></i>\n" +
-    "	<i class=\"icon-batteryaltfull text-success\" ng-show=\"device._battery >= 75 || !device.low_battery\"></i>\n" +
+    "	<i class=\"icon-batteryaltthird text-danger\" ng-show=\"device.low_battery\"></i>\n" +
+    "	<i class=\"icon-batteryaltfull text-success\" ng-show=\"!device.low_battery\"></i>\n" +
     "</h4>\n"
   );
 
