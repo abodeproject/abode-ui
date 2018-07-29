@@ -71,10 +71,18 @@
     </div>
     <div class="row" ng-show="ngModel.last_seen">
       <div class="col-xs-10 text-muted"><small>Seen: {{ngModel.last_seen | date: 'medium'}}</small></div>
-      <div class="col-xs-2">
+      <div class="col-xs-2 text-right">
           <span ng-show="ngModel.$is('battery_sensor')">
-            <i class="icon-batteryaltthird text-danger" ng-show="device.low_battery"></i>
-            <i class="icon-batteryaltfull text-muted" ng-show="!device.low_battery"></i>
+            <i class="icon-batteryaltthird text-danger" ng-show="ngModel.low_battery"></i>
+            <i class="icon-batteryaltfull text-muted" ng-show="!ngModel.low_battery"></i>
+          </span>
+      </div>
+    </div>
+    <div class="row" ng-show="!ngModel.last_seen">
+      <div class="col-xs-12 text-right">
+          <span ng-show="ngModel.$is('battery_sensor')">
+            <i class="icon-batteryaltthird text-danger" ng-show="ngModel.low_battery"></i>
+            <i class="icon-batteryaltfull text-muted" ng-show="!ngModel.low_battery"></i>
           </span>
       </div>
     </div>

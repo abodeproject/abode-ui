@@ -1219,10 +1219,18 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "    </div>\n" +
     "    <div class=\"row\" ng-show=\"ngModel.last_seen\">\n" +
     "      <div class=\"col-xs-10 text-muted\"><small>Seen: {{ngModel.last_seen | date: 'medium'}}</small></div>\n" +
-    "      <div class=\"col-xs-2\">\n" +
+    "      <div class=\"col-xs-2 text-right\">\n" +
     "          <span ng-show=\"ngModel.$is('battery_sensor')\">\n" +
-    "            <i class=\"icon-batteryaltthird text-danger\" ng-show=\"device.low_battery\"></i>\n" +
-    "            <i class=\"icon-batteryaltfull text-muted\" ng-show=\"!device.low_battery\"></i>\n" +
+    "            <i class=\"icon-batteryaltthird text-danger\" ng-show=\"ngModel.low_battery\"></i>\n" +
+    "            <i class=\"icon-batteryaltfull text-muted\" ng-show=\"!ngModel.low_battery\"></i>\n" +
+    "          </span>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "    <div class=\"row\" ng-show=\"!ngModel.last_seen\">\n" +
+    "      <div class=\"col-xs-12 text-right\">\n" +
+    "          <span ng-show=\"ngModel.$is('battery_sensor')\">\n" +
+    "            <i class=\"icon-batteryaltthird text-danger\" ng-show=\"ngModel.low_battery\"></i>\n" +
+    "            <i class=\"icon-batteryaltfull text-muted\" ng-show=\"!ngModel.low_battery\"></i>\n" +
     "          </span>\n" +
     "      </div>\n" +
     "    </div>\n" +
