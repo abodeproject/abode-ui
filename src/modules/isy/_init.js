@@ -370,7 +370,6 @@ angular.module('isy', [])
 
     $scope.loading = true;
     $http.get(abode.url('/api/isy/' + t.type).value()).then(function (response) {
-      console.dir(response.data);
       $scope.devices = response.data;
       $scope.loading = false;
     }, function (err) {
@@ -395,6 +394,28 @@ angular.module('isy', [])
     $scope.device.name = d.RoomName;
     $scope.device.capabilities = d.capabilities || $scope.device.capabilities;
     $scope.device.config = d.config;
+  };
+
+  $scope.has_capability = function (capability) {
+    return ($scope.device.capabilities.indexOf(capability) !== -1);
+  };
+
+  $scope.toggle_capabilities = function (to_add, to_remove) {
+    to_add.forEach(function (capability) {
+      var index = $scope.device.capabilities.indexOf(capability);
+      if (index === -1) {
+        $scope.device.capabilities.push(capability);
+      } else {
+        $scope.device.capabilities.splice(index, 1);
+      }
+    });
+
+    to_remove.forEach(function (capability) {
+      var index = $scope.device.capabilities.indexOf(capability);
+      if (index > -1) {
+        $scope.device.capabilities.splice(index, 1);
+      }
+    });
   };
 
   $scope.reload = function () {

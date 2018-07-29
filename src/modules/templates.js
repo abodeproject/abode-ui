@@ -1221,10 +1221,8 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "      <div class=\"col-xs-10 text-muted\"><small>Seen: {{ngModel.last_seen | date: 'medium'}}</small></div>\n" +
     "      <div class=\"col-xs-2\">\n" +
     "          <span ng-show=\"ngModel.$is('battery_sensor')\">\n" +
-    "            <span ng-show=\"device._battery\">{{device._battery | number:0}}%</span>\n" +
-    "            <i class=\"icon-batteryaltthird text-danger\" ng-show=\"device._battery <= 50 || device.low_battery\"></i>\n" +
-    "            <i class=\"icon-batteryaltsixty text-warning\" ng-show=\"device._battery > 50 && device._battery < 75 && !device.low_battery\"></i>\n" +
-    "            <i class=\"icon-batteryaltfull text-muted\" ng-show=\"device._battery >= 75 || !device.low_battery\"></i>\n" +
+    "            <i class=\"icon-batteryaltthird text-danger\" ng-show=\"device.low_battery\"></i>\n" +
+    "            <i class=\"icon-batteryaltfull text-muted\" ng-show=\"!device.low_battery\"></i>\n" +
     "          </span>\n" +
     "      </div>\n" +
     "    </div>\n" +
@@ -2518,8 +2516,28 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "    <h3>Step 3: Confirm Your Device</h3>\n" +
     "    <label for=\"name\">Name</label>\n" +
     "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <label for=\"name\">Device Type</label>\n" +
+    "    <ul class=\"isy-types\" ng-show=\"has_capability('openclose')\">\n" +
+    "      <li ng-click=\"toggle_capabilities(['door'], ['window'])\" ng-class=\"{'bg-success': has_capability('door')}\">Door</li>\n" +
+    "      <li ng-click=\"toggle_capabilities(['window'], ['door'])\" ng-class=\"{'bg-success': has_capability('window')}\">Window</li>\n" +
+    "    </ul>\n" +
+    "    <ul class=\"isy-types\" ng-show=\"has_capability('onoff')\">\n" +
+    "      <li ng-click=\"toggle_capabilities(['light'], ['fan', 'appliance', 'scene'])\" ng-class=\"{'bg-success': has_capability('light')}\">Light</li>\n" +
+    "      <li ng-click=\"toggle_capabilities(['scene'], ['light', 'fan', 'appliance'])\" ng-class=\"{'bg-success': has_capability('scene')}\">Scene</li>\n" +
+    "      <li ng-click=\"toggle_capabilities(['fan'], ['light', 'appliance', 'scene'])\" ng-class=\"{'bg-success': has_capability('fan')}\">Fan</li>\n" +
+    "      <li ng-click=\"toggle_capabilities(['appliance'], ['light', 'fan', 'scene'])\" ng-class=\"{'bg-success': has_capability('appliance')}\">Appliance</li>\n" +
+    "    </ul>\n" +
+    "    <ul class=\"isy-types\" ng-show=\"has_capability('dimmable')\">\n" +
+    "      <li ng-click=\"toggle_capabilities(['light'], [])\" ng-class=\"{'bg-success': has_capability('light')}\">Light</li>\n" +
+    "    </ul>\n" +
+    "    <ul class=\"isy-types\" ng-show=\"has_capability('motionsensor')\">\n" +
+    "      <li ng-click=\"toggle_capabilities([], [])\" ng-class=\"{'bg-success': has_capability('motionsensor')}\">Motion</li>\n" +
+    "    </ul>\n" +
+    "    <ul class=\"isy-types\" ng-show=\"has_capability('lock')\">\n" +
+    "      <li ng-click=\"toggle_capabilities([], [])\" ng-class=\"{'bg-success': has_capability('lock')}\">Lock</li>\n" +
+    "    </ul>\n" +
     "  </div>\n" +
-    "  {{device}}\n" +
     "</div>\n"
   );
 

@@ -63,6 +63,26 @@
     <h3>Step 3: Confirm Your Device</h3>
     <label for="name">Name</label>
     <input type="text" class="form-control" id="name" placeholder="Name" required="" ng-model="device.name">
+    <div>&nbsp;</div>
+    <label for="name">Device Type</label>
+    <ul class="isy-types" ng-show="has_capability('openclose')">
+      <li ng-click="toggle_capabilities(['door'], ['window'])" ng-class="{'bg-success': has_capability('door')}">Door</li>
+      <li ng-click="toggle_capabilities(['window'], ['door'])" ng-class="{'bg-success': has_capability('window')}">Window</li>
+    </ul>
+    <ul class="isy-types" ng-show="has_capability('onoff')">
+      <li ng-click="toggle_capabilities(['light'], ['fan', 'appliance', 'scene'])" ng-class="{'bg-success': has_capability('light')}">Light</li>
+      <li ng-click="toggle_capabilities(['scene'], ['light', 'fan', 'appliance'])" ng-class="{'bg-success': has_capability('scene')}">Scene</li>
+      <li ng-click="toggle_capabilities(['fan'], ['light', 'appliance', 'scene'])" ng-class="{'bg-success': has_capability('fan')}">Fan</li>
+      <li ng-click="toggle_capabilities(['appliance'], ['light', 'fan', 'scene'])" ng-class="{'bg-success': has_capability('appliance')}">Appliance</li>
+    </ul>
+    <ul class="isy-types" ng-show="has_capability('dimmable')">
+      <li ng-click="toggle_capabilities(['light'], [])" ng-class="{'bg-success': has_capability('light')}">Light</li>
+    </ul>
+    <ul class="isy-types" ng-show="has_capability('motionsensor')">
+      <li ng-click="toggle_capabilities([], [])" ng-class="{'bg-success': has_capability('motionsensor')}">Motion</li>
+    </ul>
+    <ul class="isy-types" ng-show="has_capability('lock')">
+      <li ng-click="toggle_capabilities([], [])" ng-class="{'bg-success': has_capability('lock')}">Lock</li>
+    </ul>
   </div>
-  {{device}}
 </div>
