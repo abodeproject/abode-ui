@@ -1,0 +1,68 @@
+<div ng-controller="isyAdd">
+  <div class="form-group" ng-hide="type">
+    <h3>Step 1: Device Type</h3>
+    <ul class="isy-types">
+      <li ng-repeat="t in device_types" ng-click="changeType(t)" ng-class="{'bg-success': type.name == t.name}">{{t.name}}</li>
+    </ul>
+  </div>
+  <div class="form-group" ng-show="type.type == 'devices' && !device.config.address">
+      <button class="btn btn-primary btn-sm pull-right" ng-hide="errors || processing" ng-click="reload()"><i class="icon-refresh"></i></button>
+      <button class="btn btn-danger btn-sm pull-right" ng-show="errors" ng-click="reload()"><i class="icon-erroralt"></i></button>
+      <button class="btn btn-default btn-sm pull-right" ng-show="processing"><i class="icon-loadingalt spin"></i></button>
+    <h3>Step 2: Select your Device</h3>
+    <div>&nbsp;</div>
+    <div>
+      <p>
+        <div class="input-group" ng-hide="loading">
+          <input type="text" class="form-control" id="name" placeholder="Search" ng-model="device_search" autocomplete='off'>
+          <div class="input-group-addon"><i class="icon-search"></i></div>
+        </div>
+      </p>
+      <ul class="list-group bg-muted select-list">
+        <li class="list-group-item" style="cursor: pointer;" ng-repeat="d in devices | orderBy: 'name' | filter: {'name': device_search}" ng-click="selectDevice(d)">
+          {{d.name}}
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="form-group" ng-show="type.type == 'groups' && !device.config.address">
+      <button class="btn btn-primary btn-sm pull-right" ng-hide="errors || processing" ng-click="reload()"><i class="icon-refresh"></i></button>
+      <button class="btn btn-danger btn-sm pull-right" ng-show="errors" ng-click="reload()"><i class="icon-erroralt"></i></button>
+      <button class="btn btn-default btn-sm pull-right" ng-show="processing"><i class="icon-loadingalt spin"></i></button>
+    <h3>Step 2: Select your Group</h3>
+    <div>&nbsp;</div>
+    <div>
+      <p>
+        <div class="input-group" ng-hide="loading">
+          <input type="text" class="form-control" id="name" placeholder="Search" ng-model="group_search" autocomplete='off'>
+          <div class="input-group-addon"><i class="icon-search"></i></div>
+        </div>
+      </p>
+      <ul class="list-group bg-muted select-list">
+        <li class="list-group-item" style="cursor: pointer;" ng-repeat="g in devices | orderBy: 'name' | filter: {'name': group_search}" ng-click="selectDevice(g)">
+          {{g.name}}
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="form-group" ng-show="type.type == 'programs' && !device.config.address">
+      <button class="btn btn-primary btn-sm pull-right" ng-hide="errors || processing" ng-click="reload()"><i class="icon-refresh"></i></button>
+      <button class="btn btn-danger btn-sm pull-right" ng-show="errors" ng-click="reload()"><i class="icon-erroralt"></i></button>
+      <button class="btn btn-default btn-sm pull-right" ng-show="processing"><i class="icon-loadingalt spin"></i></button>
+    <h3>Step 2: Select your Program</h3>
+    <div>&nbsp;</div>
+    <div>
+      <ul class="list-group bg-muted select-list">
+        <li class="list-group-item" style="cursor: pointer;" ng-repeat="p in devices" ng-click="selectProgram(r)">
+          {{p.name}}
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="form-group" ng-show="device.config.address">
+    <h3>Step 3: Confirm Your Device</h3>
+    <label for="name">Name</label>
+    <input type="text" class="form-control" id="name" placeholder="Name" required="" ng-model="device.name">
+  </div>
+  {{device}}
+</div>

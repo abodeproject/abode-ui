@@ -9889,11 +9889,11 @@ body {
 
 
 
-.insteon-types {
+.isy-types, .insteon-types {
   list-style: none;
   padding: 0px;
 }
-.insteon-types li {
+.isy-types li, .insteon-types li {
   display: inline-block;
   height: 5em;
   width: 5em;
@@ -9904,7 +9904,7 @@ body {
   cursor: pointer;
 }
 
-.insteon-types li.active {
+.isy-types li.active, .insteon-types li.active {
   background-color: ;
 }
 

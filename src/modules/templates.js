@@ -2454,6 +2454,192 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('modules/isy/views/add.html',
+    "<div ng-controller=\"isyAdd\">\n" +
+    "  <div class=\"form-group\" ng-hide=\"type\">\n" +
+    "    <h3>Step 1: Device Type</h3>\n" +
+    "    <ul class=\"isy-types\">\n" +
+    "      <li ng-repeat=\"t in device_types\" ng-click=\"changeType(t)\" ng-class=\"{'bg-success': type.name == t.name}\">{{t.name}}</li>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\" ng-show=\"type.type == 'devices' && !device.config.address\">\n" +
+    "      <button class=\"btn btn-primary btn-sm pull-right\" ng-hide=\"errors || processing\" ng-click=\"reload()\"><i class=\"icon-refresh\"></i></button>\n" +
+    "      <button class=\"btn btn-danger btn-sm pull-right\" ng-show=\"errors\" ng-click=\"reload()\"><i class=\"icon-erroralt\"></i></button>\n" +
+    "      <button class=\"btn btn-default btn-sm pull-right\" ng-show=\"processing\"><i class=\"icon-loadingalt spin\"></i></button>\n" +
+    "    <h3>Step 2: Select your Device</h3>\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div>\n" +
+    "      <p>\n" +
+    "        <div class=\"input-group\" ng-hide=\"loading\">\n" +
+    "          <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"device_search\" autocomplete='off'>\n" +
+    "          <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "        </div>\n" +
+    "      </p>\n" +
+    "      <ul class=\"list-group bg-muted select-list\">\n" +
+    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"d in devices | orderBy: 'name' | filter: {'name': device_search}\" ng-click=\"selectDevice(d)\">\n" +
+    "          {{d.name}}\n" +
+    "        </li>\n" +
+    "      </ul>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\" ng-show=\"type.type == 'groups' && !device.config.address\">\n" +
+    "      <button class=\"btn btn-primary btn-sm pull-right\" ng-hide=\"errors || processing\" ng-click=\"reload()\"><i class=\"icon-refresh\"></i></button>\n" +
+    "      <button class=\"btn btn-danger btn-sm pull-right\" ng-show=\"errors\" ng-click=\"reload()\"><i class=\"icon-erroralt\"></i></button>\n" +
+    "      <button class=\"btn btn-default btn-sm pull-right\" ng-show=\"processing\"><i class=\"icon-loadingalt spin\"></i></button>\n" +
+    "    <h3>Step 2: Select your Group</h3>\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div>\n" +
+    "      <p>\n" +
+    "        <div class=\"input-group\" ng-hide=\"loading\">\n" +
+    "          <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"group_search\" autocomplete='off'>\n" +
+    "          <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "        </div>\n" +
+    "      </p>\n" +
+    "      <ul class=\"list-group bg-muted select-list\">\n" +
+    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"g in devices | orderBy: 'name' | filter: {'name': group_search}\" ng-click=\"selectDevice(g)\">\n" +
+    "          {{g.name}}\n" +
+    "        </li>\n" +
+    "      </ul>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\" ng-show=\"type.type == 'programs' && !device.config.address\">\n" +
+    "      <button class=\"btn btn-primary btn-sm pull-right\" ng-hide=\"errors || processing\" ng-click=\"reload()\"><i class=\"icon-refresh\"></i></button>\n" +
+    "      <button class=\"btn btn-danger btn-sm pull-right\" ng-show=\"errors\" ng-click=\"reload()\"><i class=\"icon-erroralt\"></i></button>\n" +
+    "      <button class=\"btn btn-default btn-sm pull-right\" ng-show=\"processing\"><i class=\"icon-loadingalt spin\"></i></button>\n" +
+    "    <h3>Step 2: Select your Program</h3>\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div>\n" +
+    "      <ul class=\"list-group bg-muted select-list\">\n" +
+    "        <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"p in devices\" ng-click=\"selectProgram(r)\">\n" +
+    "          {{p.name}}\n" +
+    "        </li>\n" +
+    "      </ul>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div class=\"form-group\" ng-show=\"device.config.address\">\n" +
+    "    <h3>Step 3: Confirm Your Device</h3>\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "  {{device}}\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/isy/views/edit.html',
+    "\n" +
+    "<div ng-controller=\"isyEdit\">\n" +
+    "  <div class=\"form-group\">\n" +
+    "    <label for=\"name\">Name</label>\n" +
+    "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "\n" +
+    "<div class=\"form-group\">\n" +
+    "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('modules/isy/views/settings.html',
+    "\n" +
+    "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2 col-xs-offset-1\">\n" +
+    "    <h2>Settings / Isy\n" +
+    "           <div class=\"pull-right pointer\"  ui-sref=\"^.providers\"><i class=\"glyphicon glyphicon-arrow-left\"></i></div></h2>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"row\">\n" +
+    "  <div class=\"col-sm-8 col-sm-offset-2\">\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "          <div class=\"panel-body\">\n" +
+    "            <uib-tabset active=\"active\">\n" +
+    "              <uib-tab index=\"0\" heading=\"Settings\">\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <label for=\"enabled\">Enabled: </label>\n" +
+    "                  <button class=\"btn btn-sm pull-right\" ng-class=\"{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}\" ng-disabled=\"enabling\" ng-click=\"toggle()\">\n" +
+    "                    <span ng-show=\"enabling\"><i class=\"icon-circleselection spin\"></i> Enabling</span>\n" +
+    "                    <span ng-show=\"!status.enabled && !enabling\">Enable</span>\n" +
+    "                    <span ng-show=\"status.enabled && !enabling\">Disable</span>\n" +
+    "                  </button>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <label for=\"api_key\">Server</label>\n" +
+    "                  <input type=\"text\" class=\"form-control\" id=\"server\" placeholder=\"Server\" required=\"\" ng-model=\"config.server\">\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <label for=\"user\">User</label>\n" +
+    "                  <input type=\"text\" class=\"form-control\" id=\"username\" placeholder=\"Isy User\" required=\"\" ng-model=\"config.username\">\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <label for=\"password\">Password</label>\n" +
+    "                  <input type=\"password\" class=\"form-control\" id=\"password\" placeholder=\"Isy Password\" required=\"\" ng-model=\"config.password\">\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <label for=\"enabled\">Debug: </label>\n" +
+    "                  <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
+    "                </div>\n" +
+    "\n" +
+    "              </uib-tab>\n" +
+    "              <uib-tab index=\"1\" heading=\"Devices\">\n" +
+    "                  <p>\n" +
+    "                    <div class=\"input-group\" ng-hide=\"loading\">\n" +
+    "                      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"device_search\" autocomplete='off'>\n" +
+    "                      <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "                    </div>\n" +
+    "                  </p>\n" +
+    "                  <p>\n" +
+    "                    <ul class=\"list-group\">\n" +
+    "                      <li class=\"list-group-item\" ng-repeat=\"device in devices | orderBy: 'name' | filter: {'name': device_search}\">\n" +
+    "                        <button class=\"btn btn-xs btn-default\" ng-class=\"{'btn-success': device._on || device._motion===false, 'btn-danger': device._motion}\">\n" +
+    "                          <i class=\"icon-info-sign\" ng-shide=\"device.low_battery\"></i>\n" +
+    "                          <i class=\"icon-batteryaltthird\" ng-show=\"device.low_battery\"></i>\n" +
+    "                        </button> <a ui-sref=\"main.devices.edit({name: device.name})\">{{device.name}}</a>\n" +
+    "                        <div><small>Last Seen: {{device.last_seen | date : 'short'}}</small></div>\n" +
+    "                      </li>\n" +
+    "                    </ul>\n" +
+    "                  </p>\n" +
+    "              </uib-tab>\n" +
+    "              <uib-tab index=\"2\" heading=\"Groups\">\n" +
+    "                  <p>\n" +
+    "                    <div class=\"input-group\" ng-hide=\"loading\">\n" +
+    "                      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"group_search\" autocomplete='off'>\n" +
+    "                      <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "                    </div>\n" +
+    "                  </p>\n" +
+    "                  <p>\n" +
+    "                    <ul class=\"list-group\">\n" +
+    "                      <li class=\"list-group-item\" ng-repeat=\"group in groups | orderBy: 'name' | filter: {'name': group_search}\">\n" +
+    "                        <button class=\"btn btn-xs btn-default\" ng-class=\"{'btn-success': device._on || device._motion===false, 'btn-danger': device._motion}\">\n" +
+    "                          <i class=\"icon-info-sign\"></i>\n" +
+    "                        </button> <a ui-sref=\"main.devices.edit({name: group.name})\">{{group.name}}</a>\n" +
+    "                        <div><small>Last Seen: {{group.last_seen | date : 'short'}}</small></div>\n" +
+    "                      </li>\n" +
+    "                    </ul>\n" +
+    "                  </p>\n" +
+    "              </uib-tab>\n" +
+    "\n" +
+    "          </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
   $templateCache.put('modules/lutroncaseta/views/add.html',
     "<div>\n" +
     "  <div class=\"form-group\">\n" +

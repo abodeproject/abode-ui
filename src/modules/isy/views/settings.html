@@ -1,0 +1,94 @@
+
+<div class="container-fluid bg-muted" style="padding-bottom: 2em;">
+<div class="row">
+  <div class="col-sm-8 col-sm-offset-2 col-xs-offset-1">
+    <h2>Settings / Isy
+           <div class="pull-right pointer"  ui-sref="^.providers"><i class="glyphicon glyphicon-arrow-left"></i></div></h2>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-8 col-sm-offset-2">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <uib-tabset active="active">
+              <uib-tab index="0" heading="Settings">
+
+                <div class="form-group">
+                  <label for="enabled">Enabled: </label>
+                  <button class="btn btn-sm pull-right" ng-class="{'btn-success': !status.enabled, 'btn-danger': status.enabled, 'btn-muted': enabling}" ng-disabled="enabling" ng-click="toggle()">
+                    <span ng-show="enabling"><i class="icon-circleselection spin"></i> Enabling</span>
+                    <span ng-show="!status.enabled && !enabling">Enable</span>
+                    <span ng-show="status.enabled && !enabling">Disable</span>
+                  </button>
+                </div>
+
+                <div class="form-group">
+                  <label for="api_key">Server</label>
+                  <input type="text" class="form-control" id="server" placeholder="Server" required="" ng-model="config.server">
+                </div>
+
+                <div class="form-group">
+                  <label for="user">User</label>
+                  <input type="text" class="form-control" id="username" placeholder="Isy User" required="" ng-model="config.username">
+                </div>
+
+                <div class="form-group">
+                  <label for="password">Password</label>
+                  <input type="password" class="form-control" id="password" placeholder="Isy Password" required="" ng-model="config.password">
+                </div>
+
+                <div class="form-group">
+                  <label for="enabled">Debug: </label>
+                  <toggle value="config.debug" class="pull-right"></toggle>
+                </div>
+
+                <div class="form-group">
+                  <button type="submit" class="pull-right btn btn-sm btn-primary" ng-click="save()"><i class="icon-savetodrive"></i> Save</button>
+                </div>
+
+              </uib-tab>
+              <uib-tab index="1" heading="Devices">
+                  <p>
+                    <div class="input-group" ng-hide="loading">
+                      <input type="text" class="form-control" id="name" placeholder="Search" ng-model="device_search" autocomplete='off'>
+                      <div class="input-group-addon"><i class="icon-search"></i></div>
+                    </div>
+                  </p>
+                  <p>
+                    <ul class="list-group">
+                      <li class="list-group-item" ng-repeat="device in devices | orderBy: 'name' | filter: {'name': device_search}">
+                        <button class="btn btn-xs btn-default" ng-class="{'btn-success': device._on || device._motion===false, 'btn-danger': device._motion}">
+                          <i class="icon-info-sign" ng-shide="device.low_battery"></i>
+                          <i class="icon-batteryaltthird" ng-show="device.low_battery"></i>
+                        </button> <a ui-sref="main.devices.edit({name: device.name})">{{device.name}}</a>
+                        <div><small>Last Seen: {{device.last_seen | date : 'short'}}</small></div>
+                      </li>
+                    </ul>
+                  </p>
+              </uib-tab>
+              <uib-tab index="2" heading="Groups">
+                  <p>
+                    <div class="input-group" ng-hide="loading">
+                      <input type="text" class="form-control" id="name" placeholder="Search" ng-model="group_search" autocomplete='off'>
+                      <div class="input-group-addon"><i class="icon-search"></i></div>
+                    </div>
+                  </p>
+                  <p>
+                    <ul class="list-group">
+                      <li class="list-group-item" ng-repeat="group in groups | orderBy: 'name' | filter: {'name': group_search}">
+                        <button class="btn btn-xs btn-default" ng-class="{'btn-success': device._on || device._motion===false, 'btn-danger': device._motion}">
+                          <i class="icon-info-sign"></i>
+                        </button> <a ui-sref="main.devices.edit({name: group.name})">{{group.name}}</a>
+                        <div><small>Last Seen: {{group.last_seen | date : 'short'}}</small></div>
+                      </li>
+                    </ul>
+                  </p>
+              </uib-tab>
+
+          </div>
+        </div>
+
+  </div>
+</div>
+</div>
+
