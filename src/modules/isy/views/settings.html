@@ -51,16 +51,25 @@
                   <p>
                     <div class="input-group" ng-hide="loading">
                       <input type="text" class="form-control" id="name" placeholder="Search" ng-model="device_search" autocomplete='off'>
-                      <div class="input-group-addon"><i class="icon-search"></i></div>
+                      <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-disabled="devices_loading" ng-click="reload_devices()"><i class="icon-refresh" ng-class="{'spin': devices_loading}"></i></button>
+                      </span>
                     </div>
                   </p>
                   <p>
                     <ul class="list-group">
                       <li class="list-group-item" ng-repeat="device in devices | orderBy: 'name' | filter: {'name': device_search}">
-                        <button class="btn btn-xs btn-default" ng-class="{'btn-success': device._on || device._motion===false, 'btn-danger': device._motion}">
-                          <i class="icon-info-sign" ng-shide="device.low_battery"></i>
-                          <i class="icon-batteryaltthird" ng-show="device.low_battery"></i>
-                        </button> <a ui-sref="main.devices.edit({name: device.name})">{{device.name}}</a>
+                        <div class="pull-right">
+                          <button class="btn btn-primary btn-xs" ng-click="replace(device)">Replace</button></button>
+                          <div class="btn-group">
+                            <button class="btn btn-xs btn-default" ng-disabled="sending_command" ng-click="send_off(device)">OFF</button>
+                            <button class="btn btn-xs btn-default" ng-disabled="sending_command" ng-click="send_on(device)">ON</button>
+                          </div>
+                        </div>
+                        <button class="btn btn-xs btn-default" ng-disabled="sending_command" ng-click="get_status(device)" ng-class="{'btn-success': device._on, 'btn-danger': device._motion}">
+                          <i class="icon-cpu-processor" ng-hide="device.low_battery"></i>
+                          <i class="icon-batteryaltthird text-danger" ng-show="device.low_battery"></i>
+                        </button> {{device.name}}
                         <div><small>Last Seen: {{device.last_seen | date : 'short'}}</small></div>
                       </li>
                     </ul>
@@ -70,15 +79,24 @@
                   <p>
                     <div class="input-group" ng-hide="loading">
                       <input type="text" class="form-control" id="name" placeholder="Search" ng-model="group_search" autocomplete='off'>
-                      <div class="input-group-addon"><i class="icon-search"></i></div>
+                      <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-disabled="groups_loading" ng-click="reload_groups()"><i class="icon-refresh" ng-class="{'spin': groups_loading}"></i></button>
+                      </span>
                     </div>
                   </p>
                   <p>
                     <ul class="list-group">
                       <li class="list-group-item" ng-repeat="group in groups | orderBy: 'name' | filter: {'name': group_search}">
-                        <button class="btn btn-xs btn-default" ng-class="{'btn-success': device._on || device._motion===false, 'btn-danger': device._motion}">
-                          <i class="icon-info-sign"></i>
-                        </button> <a ui-sref="main.devices.edit({name: group.name})">{{group.name}}</a>
+                        <div class="pull-right">
+                          <button class="btn btn-primary btn-xs" ng-click="replace(group)">Replace</button></button>
+                          <div class="btn-group">
+                            <button class="btn btn-xs btn-default" ng-disabled="sending_command" ng-click="send_off(group)">OFF</button>
+                            <button class="btn btn-xs btn-default" ng-disabled="sending_command" ng-click="send_on(group)">ON</button>
+                          </div>
+                        </div>
+                        <button class="btn btn-xs btn-default">
+                          <i class="icon-picture"></i>
+                        </button> {{group.name}}
                         <div><small>Last Seen: {{group.last_seen | date : 'short'}}</small></div>
                       </li>
                     </ul>

@@ -2542,6 +2542,60 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('modules/isy/views/replace.html',
+    "<div class=\"modal-header\">\n" +
+    "    <h4 class=\"modal-title\">Replace Device\n" +
+    "\n" +
+    "      <button class=\"btn btn-primary btn-sm pull-right\" ng-hide=\"errors || processing\" ng-click=\"reload(true)\"><i class=\"icon-refresh\"></i></button>\n" +
+    "      <button class=\"btn btn-danger btn-sm pull-right\" ng-show=\"errors\" ng-click=\"reload()\"><i class=\"icon-erroralt\"></i></button>\n" +
+    "      <button class=\"btn btn-default btn-sm pull-right\" ng-show=\"processing\"><i class=\"icon-loadingalt spin\"></i></button>\n" +
+    "    </h4>\n" +
+    "</div>\n" +
+    "<div class=\"modal-body\">\n" +
+    "  <div>\n" +
+    "    <div class=\"input-group\">\n" +
+    "      <div class=\"input-group-addon\">Isy Device</div>\n" +
+    "      <input type=\"text\" class=\"form-control\" disabled=\"true\" placeholder=\"Search\" ng-model=\"node.name\" autocomplete='off'>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div ng-hide=\"replacing\">\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div class=\"input-group\" ng-hide=\"loading || replacing\">\n" +
+    "      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"search\" autocomplete='off'>\n" +
+    "      <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "\n" +
+    "  <div ng-show=\"loading\"><i class=\"icon-refresh spin\"></i> Loading Devices</div>\n" +
+    "  <div class=\"form-group\" ng-hide=\"loading || replacing\">\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <ul class=\"list-group\">\n" +
+    "      <li style=\"cursor: pointer;\" class=\"list-group-item\" ng-show=\"!devices\">None</li>\n" +
+    "      <li style=\"cursor: pointer;\" class=\"list-group-item\" ng-repeat=\"device in devices | filter: search | orderBy: '+name'\" ng-hide=\"device.config.address === node.config.address\" ng-click=\"select(device)\">{{device.name}}</li>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
+    "  <div ng-show=\"replacing\">\n" +
+    "    <div>&nbsp;</div>\n" +
+    "    <div class=\"input-group\">\n" +
+    "      <div class=\"input-group-addon\">Abode Device</div>\n" +
+    "      <input type=\"text\" class=\"form-control\" disabled=\"true\" placeholder=\"Search\" ng-model=\"device.name\" autocomplete='off'>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "  <div ng-show=\"replacing && !error\">\n" +
+    "    <h4 class=\"text-center\" ng-hide=\"complete\"><i class=\"icon-circleselection spin\"></i> Replacing Devices</h4>\n" +
+    "    <h4 class=\"text-center\" ng-show=\"complete\"><i class=\"icon-ok-sign text-success\"></i> Device Replaced</h4>\n" +
+    "  </div>\n" +
+    "  <div ng-show=\"replacing && error\">\n" +
+    "    <h4 class=\"text-center\"><i class=\"icon-warning-sign text-danger\"></i> {{error_msg}}</h4>\n" +
+    "  </div>\n" +
+    "</div>\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-disabled=\"replacing && !error\" ng-click=\"cancel()\">Cancel</button>\n" +
+    "    <button class=\"btn btn-sm pull-right btn-success\" type=\"button\" ng-show=\"complete\" ng-click=\"cancel()\">Done</button>\n" +
+    "</div>"
+  );
+
+
   $templateCache.put('modules/isy/views/settings.html',
     "\n" +
     "<div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
@@ -2596,16 +2650,25 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                  <p>\n" +
     "                    <div class=\"input-group\" ng-hide=\"loading\">\n" +
     "                      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"device_search\" autocomplete='off'>\n" +
-    "                      <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "                      <span class=\"input-group-btn\">\n" +
+    "                        <button class=\"btn btn-default\" type=\"button\" ng-disabled=\"devices_loading\" ng-click=\"reload_devices()\"><i class=\"icon-refresh\" ng-class=\"{'spin': devices_loading}\"></i></button>\n" +
+    "                      </span>\n" +
     "                    </div>\n" +
     "                  </p>\n" +
     "                  <p>\n" +
     "                    <ul class=\"list-group\">\n" +
     "                      <li class=\"list-group-item\" ng-repeat=\"device in devices | orderBy: 'name' | filter: {'name': device_search}\">\n" +
-    "                        <button class=\"btn btn-xs btn-default\" ng-class=\"{'btn-success': device._on || device._motion===false, 'btn-danger': device._motion}\">\n" +
-    "                          <i class=\"icon-info-sign\" ng-shide=\"device.low_battery\"></i>\n" +
-    "                          <i class=\"icon-batteryaltthird\" ng-show=\"device.low_battery\"></i>\n" +
-    "                        </button> <a ui-sref=\"main.devices.edit({name: device.name})\">{{device.name}}</a>\n" +
+    "                        <div class=\"pull-right\">\n" +
+    "                          <button class=\"btn btn-primary btn-xs\" ng-click=\"replace(device)\">Replace</button></button>\n" +
+    "                          <div class=\"btn-group\">\n" +
+    "                            <button class=\"btn btn-xs btn-default\" ng-disabled=\"sending_command\" ng-click=\"send_off(device)\">OFF</button>\n" +
+    "                            <button class=\"btn btn-xs btn-default\" ng-disabled=\"sending_command\" ng-click=\"send_on(device)\">ON</button>\n" +
+    "                          </div>\n" +
+    "                        </div>\n" +
+    "                        <button class=\"btn btn-xs btn-default\" ng-disabled=\"sending_command\" ng-click=\"get_status(device)\" ng-class=\"{'btn-success': device._on, 'btn-danger': device._motion}\">\n" +
+    "                          <i class=\"icon-cpu-processor\" ng-hide=\"device.low_battery\"></i>\n" +
+    "                          <i class=\"icon-batteryaltthird text-danger\" ng-show=\"device.low_battery\"></i>\n" +
+    "                        </button> {{device.name}}\n" +
     "                        <div><small>Last Seen: {{device.last_seen | date : 'short'}}</small></div>\n" +
     "                      </li>\n" +
     "                    </ul>\n" +
@@ -2615,15 +2678,24 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                  <p>\n" +
     "                    <div class=\"input-group\" ng-hide=\"loading\">\n" +
     "                      <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Search\" ng-model=\"group_search\" autocomplete='off'>\n" +
-    "                      <div class=\"input-group-addon\"><i class=\"icon-search\"></i></div>\n" +
+    "                      <span class=\"input-group-btn\">\n" +
+    "                        <button class=\"btn btn-default\" type=\"button\" ng-disabled=\"groups_loading\" ng-click=\"reload_groups()\"><i class=\"icon-refresh\" ng-class=\"{'spin': groups_loading}\"></i></button>\n" +
+    "                      </span>\n" +
     "                    </div>\n" +
     "                  </p>\n" +
     "                  <p>\n" +
     "                    <ul class=\"list-group\">\n" +
     "                      <li class=\"list-group-item\" ng-repeat=\"group in groups | orderBy: 'name' | filter: {'name': group_search}\">\n" +
-    "                        <button class=\"btn btn-xs btn-default\" ng-class=\"{'btn-success': device._on || device._motion===false, 'btn-danger': device._motion}\">\n" +
-    "                          <i class=\"icon-info-sign\"></i>\n" +
-    "                        </button> <a ui-sref=\"main.devices.edit({name: group.name})\">{{group.name}}</a>\n" +
+    "                        <div class=\"pull-right\">\n" +
+    "                          <button class=\"btn btn-primary btn-xs\" ng-click=\"replace(group)\">Replace</button></button>\n" +
+    "                          <div class=\"btn-group\">\n" +
+    "                            <button class=\"btn btn-xs btn-default\" ng-disabled=\"sending_command\" ng-click=\"send_off(group)\">OFF</button>\n" +
+    "                            <button class=\"btn btn-xs btn-default\" ng-disabled=\"sending_command\" ng-click=\"send_on(group)\">ON</button>\n" +
+    "                          </div>\n" +
+    "                        </div>\n" +
+    "                        <button class=\"btn btn-xs btn-default\">\n" +
+    "                          <i class=\"icon-picture\"></i>\n" +
+    "                        </button> {{group.name}}\n" +
     "                        <div><small>Last Seen: {{group.last_seen | date : 'short'}}</small></div>\n" +
     "                      </li>\n" +
     "                    </ul>\n" +

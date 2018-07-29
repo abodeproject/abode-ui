@@ -9,6 +9,8 @@ abode.service('confirm', function ($q, $uibModal) {
       animation: true,
       templateUrl: 'modules/abode/views/confirm.html',
       size: 'sm',
+      keyboard: false,
+      backdrop: 'static',
       controller: function ($scope, $uibModalInstance) {
         $scope.msg = msg;
         $scope.options = options;
