@@ -2661,6 +2661,14 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                </div>\n" +
     "\n" +
     "                <div class=\"form-group\">\n" +
+    "                  <label for=\"enabled\">Database: </label>\n" +
+    "                  <button class=\"btn btn-sm pull-right btn-default\" ng-disabled=\"nodes_loading\" ng-click=\"get_nodes()\">\n" +
+    "                    <span ng-show=\"nodes_loading\"><i class=\"icon-circleselection spin\"></i> Loading</span>\n" +
+    "                    <span ng-show=\"!nodes_loading\"><i class=\"icon-database\"></i> Reload</span>\n" +
+    "                  </button>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
     "                  <label for=\"enabled\">Debug: </label>\n" +
     "                  <toggle value=\"config.debug\" class=\"pull-right\"></toggle>\n" +
     "                </div>\n" +
