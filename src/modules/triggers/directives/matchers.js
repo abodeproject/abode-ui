@@ -25,6 +25,7 @@ triggers.directive('triggerMatchers', function () {
               {name: 'Room', value: 'room', icon: 'glyphicon glyphicon-modal-window'},
               {name: 'Scene', value: 'scene', icon: 'icon-picture'},
               {name: 'Time', value: 'time', icon: 'icon-clockalt-timealt'},
+              {name: 'Time Offset', value: 'timeoffset', icon: 'icon-timer'},
               {name: 'Date', value: 'date', icon: 'icon-calendar'},
               {name: 'String', value: 'string', icon: 'icon-quote'},
               {name: 'Number', value: 'number', icon: 'icon-infinityalt'}

@@ -1000,6 +1000,42 @@ body {
   text-align: center;
   background-color: #464545;
 }
+
+
+.timeoffset {
+  font-size: .9em;
+}
+.timeoffset>div {
+  display: inline-block;
+  vertical-align: middle;
+  height: 6em;
+  width: 3em;
+}
+.etimeoffset-days input, .timeoffset-hours input, .timeoffset-minutes input, .timeoffset-days button, .timeoffset-hours button, .timeoffset-minutes button {
+  width: 2.5em;
+  height: 2em;
+  text-align: center;
+}
+.timeoffset-days button, .timeoffset-hours button, .timeoffset-minutes button {
+  border: 0px;
+  background-color: inherit;
+}
+.timeoffset-offset {
+  padding-top: 2em;
+  width: 3em !important;
+  text-align: center;
+}
+.timeoffset-label {
+  padding-top: 2em;
+  width: 1em !important;
+  text-align: center;
+}
+.timeoffset-offset button {
+  width: 2.5em;
+  height: 2em;
+  text-align: center;
+  background-color: #464545;
+}
 .events {
   position: absolute;
   top: 0px;

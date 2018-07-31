@@ -391,6 +391,19 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('modules/abode/views/timeoffset.html',
+    "<div class=\"timeoffset\">\n" +
+    "  <div class=\"timeoffset-offset\"><button ng-click=\"changeOffset()\">\n" +
+    "    <i class=\"icon-plus\" ng-hide=\"offset == '-'\"></i>\n" +
+    "    <i class=\"icon-minus\" ng-show=\"offset == '-'\"></i>\n" +
+    "  </button></div>\n" +
+    "  <div class=\"timeoffset-hours\"><button ng-click=\"increaseHour()\"><i class=\"icon-pigpenv\"></i></button><input type=\"text\" ng-model=\"hours\"><button ng-click=\"decreaseHour()\"><i class=\"icon-pigpens\"></i></button></div>\n" +
+    "  <div class=\"timeoffset-label\">:</div>\n" +
+    "  <div class=\"timeoffset-minutes\"><button ng-click=\"increaseMinute()\"><i class=\"icon-pigpenv\"></i></button><input type=\"text\" ng-model=\"minutes\"><button ng-click=\"decreaseMinute()\"><i class=\"icon-pigpens\"></i></button></div>\n" +
+    "</div>"
+  );
+
+
   $templateCache.put('modules/alarmclock/views/add.html',
     "<div class=\"modal-body\">\n" +
     "  <div class=\"form-group\">\n" +
@@ -6263,6 +6276,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "              <li ng-repeat=\"t in trigger.triggers\">\n" +
     "              <span ng-show=\"t.match\">{{t.match_type | capitalize}} is\n" +
     "                <span ng-show=\"t.match_type == 'time'\">{{t.match | time}} during </span>\n" +
+    "                <span ng-show=\"t.match_type == 'timeoffset'\">{{t.match | timeOffsetHumanReadable}} </span>\n" +
     "                <span ng-show=\"t.match_type == 'date'\">{{t.match | date: 'EEE MMM d, yyyy'}} during </span>\n" +
     "                <span ng-show=\"t.match_type == 'device'\">{{t.match}} from </span>\n" +
     "                <span ng-show=\"t.match_type == 'string'\">{{t.match}} from </span>\n" +
@@ -6366,6 +6380,10 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "            <div ng-show=\"matcher.match_type == 'time'\" style=\"padding-left: 1em;\">\n" +
     "              <epochtime time=\"matcher.match\" disabled=\"{{matcher.match_type != 'time'}}\"></epochtime>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div ng-show=\"matcher.match_type == 'timeoffset'\" style=\"padding-left: 1em;\">\n" +
+    "              <timeoffset time=\"matcher.match\" disabled=\"{{matcher.match_type != 'timeoffset'}}\"></timeoffset>\n" +
     "            </div>\n" +
     "\n" +
     "            <div ng-show=\"matcher.match_type == 'string'\" style=\"padding-left: 1em;\">\n" +

@@ -63,6 +63,10 @@
               <epochtime time="matcher.match" disabled="{{matcher.match_type != 'time'}}"></epochtime>
             </div>
 
+            <div ng-show="matcher.match_type == 'timeoffset'" style="padding-left: 1em;">
+              <timeoffset time="matcher.match" disabled="{{matcher.match_type != 'timeoffset'}}"></timeoffset>
+            </div>
+
             <div ng-show="matcher.match_type == 'string'" style="padding-left: 1em;">
               <input type="text" class="form-control" id="match" placeholder="String" required="" ng-model="matcher.match">
             </div>
