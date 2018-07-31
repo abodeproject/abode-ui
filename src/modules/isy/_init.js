@@ -67,6 +67,19 @@ angular.module('isy', [])
   };
 
 
+  var get_nodes = function () {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/isy/get_nodes').value()).then(function (response) {
+      defer.resolve(response.data);
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+
   var get_devices = function () {
     var defer = $q.defer();
 
@@ -154,6 +167,7 @@ angular.module('isy', [])
     status: status,
     enable: enable,
     disable: disable,
+    get_nodes: get_nodes,
     get_devices: get_devices,
     get_groups: get_groups,
     node_on: node_on,
@@ -275,6 +289,19 @@ angular.module('isy', [])
       });
     });
 
+  };
+
+  $scope.get_nodes = function () {
+    $scope.nodes_loading = true;
+
+    isy.get_nodes().then(function (results) {
+      $scope.nodes_loading = false;
+      $scope.devices = results.devices;
+      $scope.groups = results.groups;
+      $scope.programs = results.programs;
+    }, function () {
+      $scope.nodes_loading = false;
+    });
   };
 
   $scope.reload_devices = function () {

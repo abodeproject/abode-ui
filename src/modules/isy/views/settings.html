@@ -38,6 +38,14 @@
                 </div>
 
                 <div class="form-group">
+                  <label for="enabled">Database: </label>
+                  <button class="btn btn-sm pull-right btn-default" ng-disabled="nodes_loading" ng-click="get_nodes()">
+                    <span ng-show="nodes_loading"><i class="icon-circleselection spin"></i> Loading</span>
+                    <span ng-show="!nodes_loading"><i class="icon-database"></i> Reload</span>
+                  </button>
+                </div>
+
+                <div class="form-group">
                   <label for="enabled">Debug: </label>
                   <toggle value="config.debug" class="pull-right"></toggle>
                 </div>
