@@ -632,7 +632,6 @@ body {
 .room-icon-conditioner {
   right: -.4em;
 }
-
 .room-light {
   background-color: #c27b0a !important;
 }
@@ -652,10 +651,39 @@ body {
 }
 
 .room-motion {
-  border-color: #5a100c !important;
   box-shadow: 0em 0em .2em white;
   border-color: #fff !important;
   box-shadow: inset 0em 0em .2em black;
+}
+
+.room-motion-0 {
+  transition: border-color 1s;
+  border-color: #cccc !important;
+}
+
+.room-motion-2 {
+  transition: border-color 1s;
+  border-color: #bbb !important;
+}
+
+.room-motion-4 {
+  transition: border-color 1s;
+  border-color: #aaa !important;
+}
+
+.room-motion-8 {
+  transition: border-color 1s;
+  border-color: #777 !important;
+}
+
+.room-motion-16 {
+  transition: border-color 1s;
+  border-color: #666 !important;
+}
+
+.room-motion-32 {
+  transition: border-color 1s;
+  border-color: #555 !important;
 }
 
 .room-openclose {

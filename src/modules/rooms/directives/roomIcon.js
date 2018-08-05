@@ -141,19 +141,46 @@ rooms.directive('roomIcon', function () {
 
       $scope.loader = $timeout($scope.load, 100);
 
+      $scope.motion_fader = $interval(function () {
+        var now = new Date(),
+          off_age = (now - new Date($scope.room._last_motion_off)) / 1000 / 60;
+
+        if ($scope.room._motion_on) {
+          $scope.motion_class = '';
+          return;
+        }
+        
+        if (off_age > 64) {
+          $scope.motion_class = '';
+        } else if (off_age > 32) {
+          $scope.motion_class = 'motion32';
+        } else if (off_age > 16) {
+          $scope.motion_class = 'motion16';
+        } else if (off_age > 8) {
+          $scope.motion_class = 'motion8';
+        } else if (off_age > 4) {
+          $scope.motion_class = 'motion4';
+        } else if (off_age > 2) {
+          $scope.motion_class = 'motion2';
+        } else if (off_age >= 0) {
+          $scope.motion_class = 'motion0';
+        }
+        console.dir($scope.motion_class);
+      }, 1000);
+
       $scope.$on('$destroy', function () {
         //Kill our even listeners
         room_events();
         feed_detector();
 
+        $interval.cancel($scope.motion_fader);
         // Kill our loader timeout if active
         if ($scope.loader) {
           $timeout.cancel($scope.loader);
         }
       });
-
     },
-    replace: true,
+    replace: true
   };
 
 });
