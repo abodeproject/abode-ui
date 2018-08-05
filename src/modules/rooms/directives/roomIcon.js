@@ -149,7 +149,7 @@ rooms.directive('roomIcon', function () {
           $scope.motion_class = '';
           return;
         }
-        
+
         if (off_age > 64) {
           $scope.motion_class = '';
         } else if (off_age > 32) {
@@ -165,7 +165,6 @@ rooms.directive('roomIcon', function () {
         } else if (off_age >= 0) {
           $scope.motion_class = 'motion0';
         }
-        console.dir($scope.motion_class);
       }, 1000);
 
       $scope.$on('$destroy', function () {
