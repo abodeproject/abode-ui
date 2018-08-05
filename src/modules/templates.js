@@ -2539,8 +2539,8 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "    <ul class=\"isy-types\" ng-show=\"has_capability('dimmable')\">\n" +
     "      <li ng-click=\"toggle_capabilities(['light'], [])\" ng-class=\"{'bg-success': has_capability('light')}\">Light</li>\n" +
     "    </ul>\n" +
-    "    <ul class=\"isy-types\" ng-show=\"has_capability('motionsensor')\">\n" +
-    "      <li ng-click=\"toggle_capabilities([], [])\" ng-class=\"{'bg-success': has_capability('motionsensor')}\">Motion</li>\n" +
+    "    <ul class=\"isy-types\" ng-show=\"has_capability('motion_sensor')\">\n" +
+    "      <li ng-click=\"toggle_capabilities([], [])\" ng-class=\"{'bg-success': has_capability('motion_sensor')}\">Motion</li>\n" +
     "    </ul>\n" +
     "    <ul class=\"isy-types\" ng-show=\"has_capability('lock')\">\n" +
     "      <li ng-click=\"toggle_capabilities([], [])\" ng-class=\"{'bg-success': has_capability('lock')}\">Lock</li>\n" +
@@ -3628,7 +3628,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('modules/rooms/views/room.icon.html',
-    "<div class=\"room-icon\" ng-style=\"styles\" ng-class=\"{'room-motion': room._motion_on, 'room-light': room._lights_on, 'active': room._motion_on || room._lights_on || room._doors_open || rooms._windows_open || tempType}\" ng-click=\"view()\">\n" +
+    "<div class=\"room-icon\" ng-style=\"styles\" ng-class=\"{'room-motion-0': motion_class == 'motion0', 'room-motion-2': motion_class == 'motion2', 'room-motion-4': motion_class == 'motion4', 'room-motion-8': motion_class == 'motion8', 'room-motion-16': motion_class == 'motion16', 'room-motion-32': motion_class == 'motion32', 'room-motion': room._motion_on, 'room-light': room._lights_on, 'active': room._motion_on || room._lights_on || room._doors_open || rooms._windows_open || tempType}\" ng-click=\"view()\">\n" +
     "\n" +
     "  <div class=\"room-icon-display\" ng-show=\"icon && room._temperature && tempType && !opening\"><i class=\"{{icon}}\"></i></div>\n" +
     "  <div class=\"room-icon-temp\" ng-show=\"tempType && room._temperature && !opening\">{{room._temperature | number:0}}</div>\n" +
