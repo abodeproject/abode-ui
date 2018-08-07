@@ -912,7 +912,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "<h4 style=\" white-space: nowrap\">\n" +
     "	<i class=\"icon-batteryaltthird text-danger\" ng-show=\"device.low_battery\"></i>\n" +
-    "	<i class=\"icon-batteryaltfull text-success\" ng-show=\"!device.low_battery\"></i>\n" +
+    "	<i class=\"icon-batteryaltfull text-success\" ng-show=\"!device.low_battery\"></i><small>{{device._battery}}%</small>\n" +
     "</h4>\n"
   );
 
@@ -1035,12 +1035,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('modules/devices/views/capabilities/lock.html',
     "<div style=\"text-align: center;\">\n" +
-    "  <div style=\"border: .1em solid white; border-radius: .4em; height: 12em; width: 8em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; padding-top: 1em; transition: 2s;\" >\n" +
+    "  <div style=\"border: .1em solid white; border-radius: .4em; height: 12em; width: 8em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; padding-top: 1em; transition: 2s;\"  ng-class=\"{'bg-success': device._on, 'bg-danger': !device._on}\">\n" +
     "    <div style=\"text-align: center;\">\n" +
     "      <h2 style=\" cursor: pointer;position: absolute; top: .25em; left: 0em; width: 100%; text-align: center;\" ng-click=\"lock()\"><i class=\"icon-lock\"></i></h2>\n" +
     "      <h2 style=\" cursor: pointer;position: absolute; bottom: .25em; left: 0em; width: 100%; text-align: center;\"  ng-click=\"unlock()\"><i class=\"icon-unlock\"></i></h2>\n" +
     "    </div>\n" +
     "  </div>\n" +
+    "  <div>{{device._alerts}}</div>\n" +
     "</div>\n"
   );
 
