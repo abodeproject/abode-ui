@@ -25,6 +25,22 @@
       </div>
     </div>
     <div class="row">
+      <div class="col-xs-12" ng-show="device._alerts">
+        <h5>History:</h5>
+        <div  style="max-height: 6em; overflow: auto">
+        <ul class="list-group" ng-repeat="alert in device._alerts">
+          <li class="list-group-item">
+            <div>
+              <i class="{{alert.icon}}" ng-class="{'text-danger': alert.type =='danger', 'text-warn': alert.type == 'warn'}"></i> {{alert.message}}
+            </div>
+            <div>
+              <small>{{alert.date | date: 'medium'}}</small>
+            </div>
+          </li>
+        </ul>
+        </div>
+      </div>
+    <div class="row">
     <h6 class="text-muted">Seen: {{device.last_seen | date: 'medium'}}</h6>
     </div>
   </div>
