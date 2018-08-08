@@ -1041,7 +1041,6 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "      <h2 style=\" cursor: pointer;position: absolute; bottom: .25em; left: 0em; width: 100%; text-align: center;\"  ng-click=\"unlock()\"><i class=\"icon-unlock\"></i></h2>\n" +
     "    </div>\n" +
     "  </div>\n" +
-    "  <div>{{device._alerts}}</div>\n" +
     "</div>\n"
   );
 
@@ -1595,6 +1594,22 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "        <div ng-repeat=\"sensor in sensors\" ng-include=\"sensor.view\" class=\"row\" style=\"\" > </div>\n" +
     "      </div>\n" +
     "    </div>\n" +
+    "    <div class=\"row\">\n" +
+    "      <div class=\"col-xs-12\" ng-show=\"device._alerts\">\n" +
+    "        <h5>History:</h5>\n" +
+    "        <div  style=\"max-height: 6em; overflow: auto\">\n" +
+    "        <ul class=\"list-group\" ng-repeat=\"alert in device._alerts\">\n" +
+    "          <li class=\"list-group-item\">\n" +
+    "            <div>\n" +
+    "              <i class=\"{{alert.icon}}\" ng-class=\"{'text-danger': alert.type =='danger', 'text-warn': alert.type == 'warn'}\"></i> {{alert.message}}\n" +
+    "            </div>\n" +
+    "            <div>\n" +
+    "              <small>{{alert.date | date: 'medium'}}</small>\n" +
+    "            </div>\n" +
+    "          </li>\n" +
+    "        </ul>\n" +
+    "        </div>\n" +
+    "      </div>\n" +
     "    <div class=\"row\">\n" +
     "    <h6 class=\"text-muted\">Seen: {{device.last_seen | date: 'medium'}}</h6>\n" +
     "    </div>\n" +
