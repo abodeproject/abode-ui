@@ -911,8 +911,9 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   $templateCache.put('modules/devices/views/capabilities/battery_sensor.html',
     "\n" +
     "<h4 style=\" white-space: nowrap\">\n" +
+    "	<small ng-show=\"device._battery > 1\">{{device._battery}}%</small>\n" +
     "	<i class=\"icon-batteryaltthird text-danger\" ng-show=\"device.low_battery\"></i>\n" +
-    "	<i class=\"icon-batteryaltfull text-success\" ng-show=\"!device.low_battery\"></i><small>{{device._battery}}%</small>\n" +
+    "	<i class=\"icon-batteryaltfull text-success\" ng-show=\"!device.low_battery\"></i>\n" +
     "</h4>\n"
   );
 
@@ -1597,17 +1598,17 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "    <div class=\"row\">\n" +
     "      <div class=\"col-xs-12\" ng-show=\"device._alerts\">\n" +
     "        <h5>History:</h5>\n" +
-    "        <div  style=\"max-height: 6em; overflow: auto\">\n" +
-    "        <ul class=\"list-group\" ng-repeat=\"alert in device._alerts\">\n" +
-    "          <li class=\"list-group-item\">\n" +
-    "            <div>\n" +
-    "              <i class=\"{{alert.icon}}\" ng-class=\"{'text-danger': alert.type =='danger', 'text-warn': alert.type == 'warn'}\"></i> {{alert.message}}\n" +
-    "            </div>\n" +
-    "            <div>\n" +
-    "              <small>{{alert.date | date: 'medium'}}</small>\n" +
-    "            </div>\n" +
-    "          </li>\n" +
-    "        </ul>\n" +
+    "        <div  style=\"max-height: 18em; overflow: auto\">\n" +
+    "          <ul class=\"list-group\">\n" +
+    "            <li class=\"list-group-item\" ng-repeat=\"alert in device._alerts\">\n" +
+    "              <div>\n" +
+    "                <i class=\"{{alert.icon}}\" ng-class=\"{'text-danger': alert.type =='danger', 'text-warn': alert.type == 'warn'}\"></i> {{alert.message}}\n" +
+    "              </div>\n" +
+    "              <div>\n" +
+    "                <small>{{alert.date | date: 'medium'}}</small>\n" +
+    "              </div>\n" +
+    "            </li>\n" +
+    "          </ul>\n" +
     "        </div>\n" +
     "      </div>\n" +
     "    <div class=\"row\">\n" +
