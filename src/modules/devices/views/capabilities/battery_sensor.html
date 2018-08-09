@@ -1,5 +1,6 @@
 
 <h4 style=" white-space: nowrap">
+	<small ng-show="device._battery > 1">{{device._battery}}%</small>
 	<i class="icon-batteryaltthird text-danger" ng-show="device.low_battery"></i>
-	<i class="icon-batteryaltfull text-success" ng-show="!device.low_battery"></i><small>{{device._battery}}%</small>
+	<i class="icon-batteryaltfull text-success" ng-show="!device.low_battery"></i>
 </h4>

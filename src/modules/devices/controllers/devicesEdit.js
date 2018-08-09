@@ -128,12 +128,10 @@ devices.controller('devicesEdit', function ($scope, $state, $uibModal, $q, abode
 
   };
 
-  $scope.toggle_capability = function (device, capability) {
+  $scope.toggle_capability = function (capability) {
     if ($scope.has_capability(capability)) {
-      console.log('removing', capability);
       $scope.device.capabilities.splice($scope.device.capabilities.indexOf(capability), 1);
     } else {
-      console.log('adding', capability);
       $scope.device.capabilities.push(capability);
     }
   };
