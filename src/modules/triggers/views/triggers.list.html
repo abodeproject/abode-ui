@@ -32,6 +32,7 @@
               <li ng-repeat="t in trigger.triggers">
               <span ng-show="t.match">{{t.match_type | capitalize}} is
                 <span ng-show="t.match_type == 'time'">{{t.match | time}} during </span>
+                <span ng-show="t.match_type == 'timeoffset'">{{t.match | timeOffsetHumanReadable}} </span>
                 <span ng-show="t.match_type == 'date'">{{t.match | date: 'EEE MMM d, yyyy'}} during </span>
                 <span ng-show="t.match_type == 'device'">{{t.match}} from </span>
                 <span ng-show="t.match_type == 'string'">{{t.match}} from </span>

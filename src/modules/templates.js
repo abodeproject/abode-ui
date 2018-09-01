@@ -6605,6 +6605,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "              <li ng-repeat=\"t in trigger.triggers\">\n" +
     "              <span ng-show=\"t.match\">{{t.match_type | capitalize}} is\n" +
     "                <span ng-show=\"t.match_type == 'time'\">{{t.match | time}} during </span>\n" +
+    "                <span ng-show=\"t.match_type == 'timeoffset'\">{{t.match | timeOffsetHumanReadable}} </span>\n" +
     "                <span ng-show=\"t.match_type == 'date'\">{{t.match | date: 'EEE MMM d, yyyy'}} during </span>\n" +
     "                <span ng-show=\"t.match_type == 'device'\">{{t.match}} from </span>\n" +
     "                <span ng-show=\"t.match_type == 'string'\">{{t.match}} from </span>\n" +
@@ -6677,7 +6678,6 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          </div>\n" +
     "        </div>\n" +
     "        <div class=\"col-sm-6\">\n" +
-    "\n" +
     "          <div class=\"form-group\">\n" +
     "            <div ng-show=\"matcher.match_type == 'device'\">\n" +
     "              <div ng-show=\"devices_loading\"><i class=\"icon-loadingalt spin\"></i> Loading...</div>\n" +
@@ -6708,6 +6708,10 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "            <div ng-show=\"matcher.match_type == 'time'\" style=\"padding-left: 1em;\">\n" +
     "              <epochtime time=\"matcher.match\" disabled=\"{{matcher.match_type != 'time'}}\"></epochtime>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div ng-show=\"matcher.match_type == 'timeoffset'\" style=\"padding-left: 1em;\">\n" +
+    "              <timeoffset time=\"matcher.match\" disabled=\"{{matcher.match_type != 'timeoffset'}}\"></timeoffset>\n" +
     "            </div>\n" +
     "\n" +
     "            <div ng-show=\"matcher.match_type == 'string'\" style=\"padding-left: 1em;\">\n" +
