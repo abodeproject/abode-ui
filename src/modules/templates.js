@@ -6349,7 +6349,6 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          </div>\n" +
     "        </div>\n" +
     "        <div class=\"col-sm-6\">\n" +
-    "\n" +
     "          <div class=\"form-group\">\n" +
     "            <div ng-show=\"matcher.match_type == 'device'\">\n" +
     "              <div ng-show=\"devices_loading\"><i class=\"icon-loadingalt spin\"></i> Loading...</div>\n" +

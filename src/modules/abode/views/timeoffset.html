@@ -1,0 +1,9 @@
+<div class="timeoffset">
+  <div class="timeoffset-offset"><button ng-click="changeOffset()">
+    <i class="icon-plus" ng-hide="offset == '-'"></i>
+    <i class="icon-minus" ng-show="offset == '-'"></i>
+  </button></div>
+  <div class="timeoffset-hours"><button ng-click="increaseHour()"><i class="icon-pigpenv"></i></button><input type="text" ng-model="hours"><button ng-click="decreaseHour()"><i class="icon-pigpens"></i></button></div>
+  <div class="timeoffset-label">:</div>
+  <div class="timeoffset-minutes"><button ng-click="increaseMinute()"><i class="icon-pigpenv"></i></button><input type="text" ng-model="minutes"><button ng-click="decreaseMinute()"><i class="icon-pigpens"></i></button></div>
+</div>
