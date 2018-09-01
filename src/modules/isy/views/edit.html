@@ -4,8 +4,31 @@
     <label for="name">Name</label>
     <input type="text" class="form-control" id="name" placeholder="Name" required="" ng-model="device.name">
   </div>
+  <div class="form-group" ng-show="device.$is('user_codes')">
+    <label for="name">User Codes</label>
+    <ul class="list-group">
+      <li class="list-group-item" ng-repeat="code in codes.existing">
+        <div>
+        <div class="input-group">
+          <input type="number" class="form-control" placeholder="Update User {{index + 1}}" minlength="1" maxlength="8" ng-model="code">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" ng-click="update_user($index, code)"><i class="icon-save-floppy"></i> Save</button>
+            <button class="btn btn-default btn-danger" type="button" ng-click="delete_user($index)"><i class="icon-removeuseralt"></i></button>
+          </span>
+        </div>
+        </div>
+      </li>
+      <li class="list-group-item">
+        <div class="input-group">
+          <input type="number" class="form-control" placeholder="Add User" minlength="1" maxlength="8" ng-model="codes.new">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" ng-click="add_user()"><i class="icon-adduseralt"></i> Add</button>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
 </div>
-
 <div class="form-group">
   <button type="submit" class="pull-right btn btn-sm btn-primary" ng-click="save()" ng-disabled="editDevice.$invalid"><i class="icon-savetodrive"></i> Save</button>
   <button type="submit" class="btn btn-sm btn-default" ng-click="remove()"><i class="icon-circledelete"></i> Remove</button>

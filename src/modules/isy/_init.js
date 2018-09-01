@@ -161,6 +161,30 @@ angular.module('isy', [])
     });
   };
 
+  var set_code = function (node, user, code) {
+    var defer = $q.defer();
+
+    $http.post(abode.url('/api/isy/devices/' + node.config.address + '/code/' + user + '/' + code).value()).then(function () {
+      defer.resolve();
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
+  var delete_code = function (node, user) {
+    var defer = $q.defer();
+
+    $http.delete(abode.url('/api/isy/devices/' + node.config.address + '/code/' + user).value()).then(function () {
+      defer.resolve();
+    }, function (err) {
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  };
+
   return {
     get_config: get_config,
     save: save_config,
@@ -173,7 +197,9 @@ angular.module('isy', [])
     node_on: node_on,
     node_off: node_off,
     node_status: node_status,
-    open_replace: open_replace
+    open_replace: open_replace,
+    set_code: set_code,
+    delete_code: delete_code
   };
 
 })
@@ -361,8 +387,48 @@ angular.module('isy', [])
   $scope.reload_devices();
   $scope.reload_groups();
 })
-.controller('isyEdit', function ($scope, $http, $timeout, abode) {
+.controller('isyEdit', function ($scope, $http, $timeout, abode, confirm, isy) {
   $scope.device = $scope.$parent.device;
+  $scope.codes = {};
+  $scope.codes.existing = new Array($scope.device.config.user_codes || 0);
+  $scope.codes.new = '';
+
+  $scope.update_user = function (index, code) {
+    if ($scope.codes.existing.length >= index) {
+      isy.set_code($scope.device, index + 1, code).then(function () {
+        abode.message({'type': 'success', 'message': 'User code updated'});
+
+      }, function (err) {
+        abode.message({'type': 'failed', 'message': 'Failed to update user'});
+      });
+    } else {
+        abode.message({'type': 'failed', 'message': 'User code not found: ' + index});
+      }
+  };
+
+  $scope.add_user = function () {
+    isy.set_code($scope.device, $scope.codes.existing.length + 1, $scope.codes.new).then(function () {
+      abode.message({'type': 'success', 'message': 'User code added'});
+      $scope.codes.existing.push('');
+    }, function (err) {
+      abode.message({'type': 'failed', 'message': 'Failed to add user'});
+    });
+  };
+
+  $scope.delete_user = function (index) {
+    confirm('Are you sure you want to delete this code?').then(function () {
+      if ($scope.codes.existing.length >= index) {
+        isy.delete_code($scope.device, index + 1).then(function () {
+          abode.message({'type': 'success', 'message': 'User code deleted: ' + index});
+          $scope.codes.existing.splice(index, 1);
+        }, function (err) {
+          abode.message({'type': 'failed', 'message': 'Failed to delete user: ' + index});
+        });
+      } else {
+        abode.message({'type': 'failed', 'message': 'User code not found: ' + index});
+      }
+    });
+  };
 })
 .controller('isyAdd', function ($scope, $http, $timeout, abode) {
   $scope.device = $scope.$parent.device;

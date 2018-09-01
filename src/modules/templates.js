@@ -391,6 +391,19 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('modules/abode/views/timeoffset.html',
+    "<div class=\"timeoffset\">\n" +
+    "  <div class=\"timeoffset-offset\"><button ng-click=\"changeOffset()\">\n" +
+    "    <i class=\"icon-plus\" ng-hide=\"offset == '-'\"></i>\n" +
+    "    <i class=\"icon-minus\" ng-show=\"offset == '-'\"></i>\n" +
+    "  </button></div>\n" +
+    "  <div class=\"timeoffset-hours\"><button ng-click=\"increaseHour()\"><i class=\"icon-pigpenv\"></i></button><input type=\"text\" ng-model=\"hours\"><button ng-click=\"decreaseHour()\"><i class=\"icon-pigpens\"></i></button></div>\n" +
+    "  <div class=\"timeoffset-label\">:</div>\n" +
+    "  <div class=\"timeoffset-minutes\"><button ng-click=\"increaseMinute()\"><i class=\"icon-pigpenv\"></i></button><input type=\"text\" ng-model=\"minutes\"><button ng-click=\"decreaseMinute()\"><i class=\"icon-pigpens\"></i></button></div>\n" +
+    "</div>"
+  );
+
+
   $templateCache.put('modules/alarmclock/views/add.html',
     "<div class=\"modal-body\">\n" +
     "  <div class=\"form-group\">\n" +
@@ -911,6 +924,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   $templateCache.put('modules/devices/views/capabilities/battery_sensor.html',
     "\n" +
     "<h4 style=\" white-space: nowrap\">\n" +
+    "	<small ng-show=\"device._battery > 1\">{{device._battery}}%</small>\n" +
     "	<i class=\"icon-batteryaltthird text-danger\" ng-show=\"device.low_battery\"></i>\n" +
     "	<i class=\"icon-batteryaltfull text-success\" ng-show=\"!device.low_battery\"></i>\n" +
     "</h4>\n"
@@ -1035,7 +1049,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('modules/devices/views/capabilities/lock.html',
     "<div style=\"text-align: center;\">\n" +
-    "  <div style=\"border: .1em solid white; border-radius: .4em; height: 12em; width: 8em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; padding-top: 1em; transition: 2s;\" >\n" +
+    "  <div style=\"border: .1em solid white; border-radius: .4em; height: 12em; width: 8em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; padding-top: 1em; transition: 2s;\"  ng-class=\"{'bg-success': device._on, 'bg-danger': !device._on}\">\n" +
     "    <div style=\"text-align: center;\">\n" +
     "      <h2 style=\" cursor: pointer;position: absolute; top: .25em; left: 0em; width: 100%; text-align: center;\" ng-click=\"lock()\"><i class=\"icon-lock\"></i></h2>\n" +
     "      <h2 style=\" cursor: pointer;position: absolute; bottom: .25em; left: 0em; width: 100%; text-align: center;\"  ng-click=\"unlock()\"><i class=\"icon-unlock\"></i></h2>\n" +
@@ -1334,7 +1348,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "          </div>\n" +
     "        </div>\n" +
-    "\n" +
+    "{{device}}\n" +
     "      </div>\n" +
     "    </div>\n" +
     "  </div>\n"
@@ -1594,6 +1608,22 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "        <div ng-repeat=\"sensor in sensors\" ng-include=\"sensor.view\" class=\"row\" style=\"\" > </div>\n" +
     "      </div>\n" +
     "    </div>\n" +
+    "    <div class=\"row\">\n" +
+    "      <div class=\"col-xs-12\" ng-show=\"device._alerts\">\n" +
+    "        <h5>History:</h5>\n" +
+    "        <div  style=\"max-height: 18em; overflow: auto\">\n" +
+    "          <ul class=\"list-group\">\n" +
+    "            <li class=\"list-group-item\" ng-repeat=\"alert in device._alerts\">\n" +
+    "              <div>\n" +
+    "                <i class=\"{{alert.icon}}\" ng-class=\"{'text-danger': alert.type =='danger', 'text-warn': alert.type == 'warn'}\"></i> {{alert.message}}\n" +
+    "              </div>\n" +
+    "              <div>\n" +
+    "                <small>{{alert.date | date: 'medium'}}</small>\n" +
+    "              </div>\n" +
+    "            </li>\n" +
+    "          </ul>\n" +
+    "        </div>\n" +
+    "      </div>\n" +
     "    <div class=\"row\">\n" +
     "    <h6 class=\"text-muted\">Seen: {{device.last_seen | date: 'medium'}}</h6>\n" +
     "    </div>\n" +
@@ -2557,8 +2587,31 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "    <label for=\"name\">Name</label>\n" +
     "    <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"device.name\">\n" +
     "  </div>\n" +
+    "  <div class=\"form-group\" ng-show=\"device.$is('user_codes')\">\n" +
+    "    <label for=\"name\">User Codes</label>\n" +
+    "    <ul class=\"list-group\">\n" +
+    "      <li class=\"list-group-item\" ng-repeat=\"code in codes.existing\">\n" +
+    "        <div>\n" +
+    "        <div class=\"input-group\">\n" +
+    "          <input type=\"number\" class=\"form-control\" placeholder=\"Update User {{index + 1}}\" minlength=\"1\" maxlength=\"8\" ng-model=\"code\">\n" +
+    "          <span class=\"input-group-btn\">\n" +
+    "            <button class=\"btn btn-default\" type=\"button\" ng-click=\"update_user($index, code)\"><i class=\"icon-save-floppy\"></i> Save</button>\n" +
+    "            <button class=\"btn btn-default btn-danger\" type=\"button\" ng-click=\"delete_user($index)\"><i class=\"icon-removeuseralt\"></i></button>\n" +
+    "          </span>\n" +
+    "        </div>\n" +
+    "        </div>\n" +
+    "      </li>\n" +
+    "      <li class=\"list-group-item\">\n" +
+    "        <div class=\"input-group\">\n" +
+    "          <input type=\"number\" class=\"form-control\" placeholder=\"Add User\" minlength=\"1\" maxlength=\"8\" ng-model=\"codes.new\">\n" +
+    "          <span class=\"input-group-btn\">\n" +
+    "            <button class=\"btn btn-default\" type=\"button\" ng-click=\"add_user()\"><i class=\"icon-adduseralt\"></i> Add</button>\n" +
+    "          </span>\n" +
+    "        </div>\n" +
+    "      </li>\n" +
+    "    </ul>\n" +
+    "  </div>\n" +
     "</div>\n" +
-    "\n" +
     "<div class=\"form-group\">\n" +
     "  <button type=\"submit\" class=\"pull-right btn btn-sm btn-primary\" ng-click=\"save()\" ng-disabled=\"editDevice.$invalid\"><i class=\"icon-savetodrive\"></i> Save</button>\n" +
     "  <button type=\"submit\" class=\"btn btn-sm btn-default\" ng-click=\"remove()\"><i class=\"icon-circledelete\"></i> Remove</button>\n" +
