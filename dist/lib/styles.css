@@ -9355,6 +9355,12 @@ body {
 
 }
 
+.room-filter-offset.quick-controls {
+  margin-top: -6.5em;
+  padding-bottom: -1em;
+
+}
+
 
 .on-ok {
   background-color: #00bc8c !important;
@@ -9582,7 +9588,7 @@ body {
   text-shadow: 0em 0em .2em black;
   top: 40%; cursor:
   pointer;
-  font-size: 4em;
+  font-size: 2em;
   position: absolute;
   right: 0em;
   opacity: .7
@@ -9593,11 +9599,11 @@ body {
   position: absolute;
   text-align: center;
   text-shadow: 0em 0em .2em black;
-  font-size: 4em;
+  font-size: 2em;
   top: 1em;
-  opacity: .3;
-  left: 40%;
-  right: 40%;
+  opacity: .7;
+  left: 50%;
+  right: 0%;
   cursor: pointer;
 }
 
@@ -9612,11 +9618,15 @@ body {
 }
 
 .room-cameras-controls.play {
-  left: 40%;
-  right: 40%;
+  position: absolute;
   text-align: center;
-  font-size: 5.5em;
-  opacity: .3;
+  text-shadow: 0em 0em .2em black;
+  font-size: 2em;
+  top: 1em;
+  opacity: .7;
+  left: 0%;
+  right: 50%;
+  cursor: pointer;
 }
 
 

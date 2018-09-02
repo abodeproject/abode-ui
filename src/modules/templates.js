@@ -1671,8 +1671,8 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('modules/home/views/controller.html',
     "<div class=\"controller\" ng-mousedown=\"start()\" ng-mouseup=\"stop()\">\n" +
-    "  <div class=\"controller-icon\" ng-class=\"{'controller-pending': pending || obj._state == 'pending', 'controller-success': success, 'controller-failed': failed, 'controller-success': (obj._on || obj._lights_on || obj._fans_on) && (action == 'toggle' || action == 'on' || action == 'off') && obj._state != 'pending', 'controller-cool': obj._mode == 'COOL', 'controller-heat': obj._mode == 'HEAT', 'spin': (obj._on || obj._fans_on) && spin}\">\n" +
-    "    <span ng-show=\"icon && !obj._temperature\"><i class=\"{{icon}}\"></i></span>\n" +
+    "  <div class=\"controller-icon\" ng-class=\"{'controller-pending': pending || obj._state == 'pending', 'controller-success': success, 'controller-failed': (failed || (!obj._on && obj.$is('lock')) || (obj._on && obj.$is('door'))), 'controller-success': ((obj._on || obj._lights_on || obj._fans_on) && (action == 'toggle' || action == 'on' || action == 'off') && obj._state != 'pending') || (!obj._on && obj.$is('door')), 'controller-cool': obj._mode == 'COOL', 'controller-heat': obj._mode == 'HEAT', 'spin': (obj._on || obj._fans_on) && spin}\">\n" +
+    "    <span ng-show=\"icon && !obj._temperature\"><i class=\"{{onIcon}}\" ng-show=\"obj._on\"></i><i class=\"{{offIcon}}\" ng-hide=\"obj._on\"></i></span>\n" +
     "    <span ng-show=\"obj._temperature\">{{obj._temperature | number:0}}</span>\n" +
     "  </div>\n" +
     "  <div class=\"controller-status\" ng-show=\"loading\"><i class=\"icon-loadingalt spin\"></i></div>\n" +
@@ -3782,11 +3782,11 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   $templateCache.put('modules/rooms/views/rooms.cameras.html',
     "<div>\n" +
     "  <div style=\"position: relative;\">\n" +
-    "    <div ng-click=\"play()\" ng-show=\"cameras[index].video\" class=\"room-cameras-controls play\"><i class=\"icon-circleplayempty\"></i></div>\n" +
+    "    <div ng-click=\"play(index)\" ng-show=\"cameras[index].video\" class=\"room-cameras-controls play\"><i class=\"icon-circleplayempty\"></i></div>\n" +
     "    <div ng-click=\"previous()\" ng-show=\"cameras.length > 1\" class=\"room-cameras-controls previous\"><i class=\"icon-chevron-left\"></i></div>\n" +
     "    <div ng-click=\"next()\" ng-show=\"cameras.length > 1\"  class=\"room-cameras-controls next\"><i class=\"icon-chevron-right\"></i></div>\n" +
     "  <img ng-repeat=\"camera in cameras\" src=\"{{camera.image}}\" ng-show=\"$index == index\" style=\"width: 100%\">\n" +
-    "    <div ng-click=\"reload($index)\" ng-show=\"cameras.length > 1\" class=\"room-cameras-refresh\"><i class=\"icon-refresh\"></i></div>\n" +
+    "    <div ng-click=\"reload(index)\" ng-show=\"cameras.length > 1\" class=\"room-cameras-refresh\"><i class=\"icon-refresh\"></i></div>\n" +
     "  </div>\n" +
     "</div>\n"
   );
@@ -3934,6 +3934,14 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "<div class=\"modal-body\">\n" +
     "  <div  ng-hide=\"controls\">\n" +
     "    <room-cameras devices=\"cameras\" source=\"source\" ng-hide=\"\"></room-cameras>\n" +
+    "    <div class=\"row text-center quick-controls\" ng-class=\"{'room-filter-offset': cameras.length > 0}\">\n" +
+    "      <div class=\"col-xs-12\">\n" +
+    "        <div>\n" +
+    "          <controller ng-repeat=\"lock in locks | limitTo: 2\" name=\"{{lock.name}}\" show-title=\"false\" action=\"toggle\" on-icon=\"icon-lock\" off-icon=\"icon-unlock\"></controller>\n" +
+    "          <controller ng-repeat=\"door in doors | limitTo: 2\" name=\"{{door.name}}\" show-title=\"false\" action=\"toggle\" on-icon=\"fi-door-open\" off-icon=\"fi-door-closed\"></controller>\n" +
+    "        </div>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
     "    <div class=\"row\" ng-class=\"{'room-filter-offset': cameras.length > 0}\">\n" +
     "      <div class=\"col-xs-2\">\n" +
     "        <div class=\"room_filter\" ng-click=\"filter('light')\" ng-class=\"{selected: filter_condition =='light'}\">\n" +

@@ -23,6 +23,8 @@ rooms.directive('roomIcon', function () {
       'tempType': '@',
       'interval': '@',
       'source': '@',
+      'onDevice': '@',
+      'offDevice': '@'
     },
     templateUrl: 'modules/rooms/views/room.icon.html',
     controller: function ($scope, $interval, $timeout, $rootScope, abode, rooms, Rooms) {
@@ -142,6 +144,9 @@ rooms.directive('roomIcon', function () {
       $scope.loader = $timeout($scope.load, 100);
 
       $scope.motion_fader = $interval(function () {
+        if (!$scope.room) {
+          return;
+        }
         var now = new Date(),
           off_age = (now - new Date($scope.room._last_motion_off)) / 1000 / 60;
 

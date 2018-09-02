@@ -10,6 +10,14 @@
 <div class="modal-body">
   <div  ng-hide="controls">
     <room-cameras devices="cameras" source="source" ng-hide=""></room-cameras>
+    <div class="row text-center quick-controls" ng-class="{'room-filter-offset': cameras.length > 0}">
+      <div class="col-xs-12">
+        <div>
+          <controller ng-repeat="lock in locks | limitTo: 2" name="{{lock.name}}" show-title="false" action="toggle" on-icon="icon-lock" off-icon="icon-unlock"></controller>
+          <controller ng-repeat="door in doors | limitTo: 2" name="{{door.name}}" show-title="false" action="toggle" on-icon="fi-door-open" off-icon="fi-door-closed"></controller>
+        </div>
+      </div>
+    </div>
     <div class="row" ng-class="{'room-filter-offset': cameras.length > 0}">
       <div class="col-xs-2">
         <div class="room_filter" ng-click="filter('light')" ng-class="{selected: filter_condition =='light'}">

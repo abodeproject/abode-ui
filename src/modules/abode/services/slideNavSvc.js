@@ -17,6 +17,9 @@ abode.service('slideNavSvc', ['$window', '$document', function () {
 
   var press = function (e) {
     status.event = e.type;
+    if (!e.touches[0]) {
+      return;
+    }
     status.x = e.touches[0].clientX;
 
     if (status.x < nav_scope.minLeft || (status.is_open && status.x > status.menu_width)) {

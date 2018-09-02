@@ -151,7 +151,7 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
     return defer.promise;
   };
 
-  var viewRoom = function (room, devices, scenes, controls) {
+  var viewRoom = function (room, devices, scenes, controls, options) {
 
     return $uibModal.open({
       animation: false,
@@ -177,6 +177,14 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
         $scope.destroyed = false;
         $scope.controls = controls || false;
 
+        $scope.doors = $scope.devices.filter(function (device) {
+          return (device.$is('door'));
+        });
+
+        $scope.locks = $scope.devices.filter(function (device) {
+          return (device.$is('lock'));
+        });
+
         var filters = {
           'light': ['light', 'scene'],
           'motion_sensor': ['motion_sensor'],
@@ -186,7 +194,6 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
           'shade': ['shade'],
           'scenes': ['scene'],
         };
-
         $scope.set_device_level = function (device) {
           return function (id, level) {
             device.$set_level(level);
@@ -295,6 +302,9 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
           if ($scope.scenes.length > 0) {
             $scope.filter_condition = 'scenes';
           }
+
+          console.dir($scope.doors);
+          console.dir($scope.locks);
         };
 
         $scope.reload = function () {

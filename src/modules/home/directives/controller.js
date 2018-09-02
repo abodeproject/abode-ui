@@ -10,6 +10,8 @@ home.directive('controller', [function () {
       name: '@',
       title: '@',
       icon: '@',
+      onIcon: '@',
+      offIcon: '@',
       spin: '@',
       showTitle: '@',
       source: '@',
@@ -96,6 +98,12 @@ home.directive('controller', [function () {
         types[$scope.type].get({'id': $scope.name}).$promise.then(function (result) {
           $scope.obj = result;
           $scope.icon = $scope.icon || $scope.obj.icon || 'icon-lightbulb-idea';
+          $scope.onIcon = $scope.onIcon || $scope.icon;
+          $scope.offIcon = $scope.offIcon || $scope.icon;
+          if ($scope.icon.indexOf('garage') >= 0) {
+            $scope.onIcon = $scope.icon;
+            $scope.offIcon = $scope.icon;
+          }
           $scope.loading = false;
           $scope.error = false;
 
