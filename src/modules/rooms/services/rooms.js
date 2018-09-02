@@ -302,9 +302,6 @@ rooms.service('rooms', function ($http, $q, $uibModal, $resource, $rootScope, $t
           if ($scope.scenes.length > 0) {
             $scope.filter_condition = 'scenes';
           }
-
-          console.dir($scope.doors);
-          console.dir($scope.locks);
         };
 
         $scope.reload = function () {
