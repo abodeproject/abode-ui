@@ -16,7 +16,7 @@ home.directive('controller', [function () {
       action: '@',
       longPress: '@',
       args: '=?',
-      onsuccess: '=',
+      onsuccess: '='
     },
     templateUrl: 'modules/home/views/controller.html',
     controller: ['$scope', '$timeout', '$interval', 'abode', 'Devices', 'Scenes', 'Rooms', 'Notifications', function ($scope, $timeout, $interval, abode, Devices, Scenes, Rooms, Notifications) {

@@ -1,0 +1,16 @@
+
+<div class="modal-body">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-xs-3 col-sm-2">
+        <button class="btn" ng-class="{'btn-primary': device._on, 'btn-default': !device._on}" ng-disabled="device.$loading" ng-click="device.$off()">Off</button>
+      </div>
+      <div class="col-xs-6 col-sm-8">
+        <device-level ng-model="device"></device-level>
+      </div>
+      <div class="col-xs-3 col-sm-2">
+        <button class="btn" ng-class="{'btn-primary': !device._on, 'btn-default': device._on}" ng-disabled="device.$loading" ng-click="device.$on()">On</button>
+      </div>
+    </div>
+  </div>
+</div>

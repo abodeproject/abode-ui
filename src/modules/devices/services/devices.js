@@ -383,6 +383,26 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
     return modal;
   };
 
+  methods.$fader = function () {
+    var self = this;
+
+    if (self.$is_open) {
+      return;
+    }
+
+    var modal = openFader(self);
+
+    self.$is_open = true;
+
+    modal.result.then(function () {
+      self.$is_open = false;
+    }, function () {
+      self.$is_open = false;
+    });
+
+    return modal;
+  };
+
   methods.$camera = function () {
     var self = this;
 
@@ -655,6 +675,24 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
           $scope.camera_url = abode.url(source_uri + '/devices/' + device._id + '/video?client_token=' + abode.config.auth.token.client_token + '&auth_token=' + abode.config.auth.token.auth_token).value();
         } else {
           $scope.camera_url = abode.url(source_uri + '/devices/' + device._id + '/image?client_token=' + abode.config.auth.token.client_token + '&auth_token=' + abode.config.auth.token.auth_token).value();
+        }
+      }
+    });
+  };
+
+  var openFader = function (device) {
+    return $uibModal.open({
+      animation: false,
+      templateUrl: 'modules/devices/views/devices.fader.html',
+      controller: 'deviceFader',
+      resolve: {
+        device: function (Devices) {
+          if (typeof device === 'object') {
+            //return device;
+            return Devices.get({'id': device._id}).$promise;
+          } else {
+            return Devices.get({'id': device}).$promise;
+          }
         }
       }
     });

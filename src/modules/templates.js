@@ -1487,6 +1487,26 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('modules/devices/views/devices.fader.html',
+    "\n" +
+    "<div class=\"modal-body\">\n" +
+    "  <div class=\"container-fluid\">\n" +
+    "    <div class=\"row\">\n" +
+    "      <div class=\"col-xs-3 col-sm-2\">\n" +
+    "        <button class=\"btn\" ng-class=\"{'btn-primary': device._on, 'btn-default': !device._on}\" ng-disabled=\"device.$loading\" ng-click=\"device.$off()\">Off</button>\n" +
+    "      </div>\n" +
+    "      <div class=\"col-xs-6 col-sm-8\">\n" +
+    "        <device-level ng-model=\"device\"></device-level>\n" +
+    "      </div>\n" +
+    "      <div class=\"col-xs-3 col-sm-2\">\n" +
+    "        <button class=\"btn\" ng-class=\"{'btn-primary': !device._on, 'btn-default': device._on}\" ng-disabled=\"device.$loading\" ng-click=\"device.$on()\">On</button>\n" +
+    "      </div>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>"
+  );
+
+
   $templateCache.put('modules/devices/views/devices.html',
     "<div class=\"bg-muted\" style=\"position: absolute; top: 0px; bottom: 0px; right: 0px; left: 0px; overflow: auto;\" ui-view>\n" +
     "</div>\n"
