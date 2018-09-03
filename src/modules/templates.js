@@ -5085,6 +5085,10 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "            <uib-alert ng-repeat=\"alert in alerts\" type=\"{{alert.type}}\" close=\"closeAlert($index)\">{{alert.msg}}</uib-alert>\n" +
     "            <form name=\"addPin\">\n" +
     "              <div class=\"form-group\">\n" +
+    "                <label for=\"pin.enabled\">Enabled: </label>\n" +
+    "                <toggle value=\"pin.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              </div>\n" +
+    "              <div class=\"form-group\">\n" +
     "                <label for=\"name\">Name</label>\n" +
     "                <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"pin.name\">\n" +
     "              </div>\n" +
@@ -5178,6 +5182,10 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <div class=\"panel-body\">\n" +
     "            <uib-alert ng-repeat=\"alert in alerts\" type=\"{{alert.type}}\" close=\"closeAlert($index)\">{{alert.msg}}</uib-alert>\n" +
     "            <form name=\"pinFrm\">\n" +
+    "              <div class=\"form-group\">\n" +
+    "                <label for=\"pin.enabled\">Enabled: </label>\n" +
+    "                <toggle value=\"pin.enabled\" class=\"pull-right\"></toggle>\n" +
+    "              </div>\n" +
     "              <div class=\"form-group\">\n" +
     "                <label for=\"name\">Name</label>\n" +
     "                <input type=\"text\" class=\"form-control\" id=\"name\" placeholder=\"Name\" required=\"\" ng-model=\"pin.name\">\n" +
