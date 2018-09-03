@@ -5100,13 +5100,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "              </div>\n" +
     "              <div class=\"form-group\">\n" +
     "                <label for=\"panels\">Panels</label>\n" +
-    "                <button class=\"btn btn-default btn-xs pull-right\" ng-click=\"addPanel(pin.panels)\"><i class=\"icon-plus-sign\"></i> Add</button>\n" +
-    "                <div class=\"well well-sm\" ng-show=\"!pin.panels || pin.panels.length === 0\">No Panels Added</div>\n" +
+    "                <button class=\"btn btn-default btn-xs pull-right\" ng-click=\"addPanel(pin.devices)\"><i class=\"icon-plus-sign\"></i> Add</button>\n" +
+    "                <div class=\"well well-sm\" ng-show=\"!pin.devices || pin.devices.length === 0\">No Panels Added</div>\n" +
     "                <div>\n" +
-    "                  <ul class=\"list-group bg-muted select-list\" ng-show=\"pin.panels.length > 0\">\n" +
-    "                    <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"panel in pin.panels\" ng-click=\"editPanel($index, panel, pin.panels)\">\n" +
+    "                  <ul class=\"list-group bg-muted select-list\" ng-show=\"pin.devices.length > 0\">\n" +
+    "                    <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"panel in pin.devices\" ng-click=\"editPanel($index, panel, pin.devices)\">\n" +
     "                    {{panel.device.name}} (User No. {{panel.user}})\n" +
-    "                    <button class=\"pull-right btn btn-xs btn-danger\" ng-click=\"removePanel(pin.panels, $index)\" stop-event><i class=\"icon-trash\"></i></button>\n" +
+    "                    <button class=\"pull-right btn btn-xs btn-danger\" ng-click=\"removePanel(pin.devices, $index)\" stop-event><i class=\"icon-trash\"></i></button>\n" +
     "                    </li>\n" +
     "                  </ul>\n" +
     "                </div>\n" +
@@ -5198,13 +5198,13 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "              </div>\n" +
     "              <div class=\"form-group\">\n" +
     "                <label for=\"panels\">Panels</label>\n" +
-    "                <button class=\"btn btn-default btn-xs pull-right\" ng-click=\"addPanel(pin.panels)\"><i class=\"icon-plus-sign\"></i> Add</button>\n" +
-    "                <div class=\"well well-sm\" ng-show=\"!pin.panels || pin.panels.length === 0\">No Panels Added</div>\n" +
+    "                <button class=\"btn btn-default btn-xs pull-right\" ng-click=\"addPanel(pin.devices)\"><i class=\"icon-plus-sign\"></i> Add</button>\n" +
+    "                <div class=\"well well-sm\" ng-show=\"!pin.devices || pin.devices.length === 0\">No Panels Added</div>\n" +
     "                <div>\n" +
-    "                  <ul class=\"list-group bg-muted select-list\" ng-show=\"pin.panels.length > 0\">\n" +
-    "                    <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"panel in pin.panels\" ng-click=\"editPanel($index, panel, pin.panels)\">\n" +
+    "                  <ul class=\"list-group bg-muted select-list\" ng-show=\"pin.devices.length > 0\">\n" +
+    "                    <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"panel in pin.devices\" ng-click=\"editPanel($index, panel, pin.devices)\">\n" +
     "                    {{panel.device.name}} (User No. {{panel.user}})\n" +
-    "                    <button class=\"pull-right btn btn-xs btn-danger\" ng-click=\"removePanel(pin.panels, $index)\" stop-event><i class=\"icon-trash\"></i></button>\n" +
+    "                    <button class=\"pull-right btn btn-xs btn-danger\" ng-click=\"removePanel(pin.devices, $index)\" stop-event><i class=\"icon-trash\"></i></button>\n" +
     "                    </li>\n" +
     "                  </ul>\n" +
     "                </div>\n" +

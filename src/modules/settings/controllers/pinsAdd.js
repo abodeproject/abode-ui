@@ -5,7 +5,7 @@ settings.controller('pinsAdd', ['$scope', '$state', 'abode', 'triggers', 'settin
   'use strict';
 
   $scope.pin = new Pins();
-  $scope.pin.panels = $scope.pin.panels || [];
+  $scope.pin.devices = $scope.pin.devices || [];
   $scope.pin.actions = $scope.pin.actions || [];
 
   $scope.addAction = triggers.addAction;

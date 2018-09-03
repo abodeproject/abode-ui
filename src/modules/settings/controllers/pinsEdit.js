@@ -3,7 +3,7 @@ var settings = angular.module('abode.settings');
 
 settings.controller('pinsEdit', ['$scope', '$state', '$uibModal', 'abode', 'triggers', 'devices', 'settings', 'confirm', 'pin', function ($scope, $state, $uibModal, abode, triggers, devices, settings, confirm, pin) {
   $scope.pin = pin;
-  $scope.pin.panels = $scope.pin.panels || [];
+  $scope.pin.devices = $scope.pin.devices || [];
   $scope.pin.actions = $scope.pin.actions || [];
 
   $scope.addAction = triggers.addAction;
