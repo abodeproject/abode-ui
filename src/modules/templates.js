@@ -1671,7 +1671,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('modules/home/views/controller.html',
     "<div class=\"controller\" ng-mousedown=\"start()\" ng-mouseup=\"stop()\">\n" +
-    "  <div class=\"controller-icon\" ng-class=\"{'controller-pending': pending || obj._state == 'pending', 'controller-success': success, 'controller-failed': (failed || (!obj._on && obj.$is('lock')) || (obj._on && obj.$is('door'))), 'controller-success': ((obj._on || obj._lights_on || obj._fans_on) && (action == 'toggle' || action == 'on' || action == 'off') && obj._state != 'pending') || (!obj._on && obj.$is('door')), 'controller-cool': obj._mode == 'COOL', 'controller-heat': obj._mode == 'HEAT', 'spin': (obj._on || obj._fans_on) && spin}\">\n" +
+    "  <div class=\"controller-icon\" ng-class=\"{'controller-pending': pending || obj._state == 'pending', 'controller-success': success, 'controller-failed': (failed || (!obj._on && obj.$is('lock')) || (obj._on && obj.$is('door'))), 'controller-success': ((obj._on || obj._lights_on || obj._fans_on) && (action == 'toggle' || action == 'on' || action == 'off' || action == 'fader') && obj._state != 'pending') || (!obj._on && obj.$is('door')), 'controller-cool': obj._mode == 'COOL', 'controller-heat': obj._mode == 'HEAT', 'spin': (obj._on || obj._fans_on) && spin}\">\n" +
     "    <span ng-show=\"icon && !obj._temperature\"><i class=\"{{onIcon}}\" ng-show=\"obj._on\"></i><i class=\"{{offIcon}}\" ng-hide=\"obj._on\"></i></span>\n" +
     "    <span ng-show=\"obj._temperature\">{{obj._temperature | number:0}}</span>\n" +
     "  </div>\n" +
