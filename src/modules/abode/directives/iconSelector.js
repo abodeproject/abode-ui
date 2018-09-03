@@ -140,10 +140,6 @@ abode.directive('iconSelector', ['$compile', function () {
           'class': 'icon-sleep'
         },
         {
-          'name': 'Away',
-          'class': 'icon-travel'
-        },
-        {
           'name': 'Video Camera',
           'class': 'icon-videocamerathree',
         },
@@ -296,8 +292,16 @@ abode.directive('iconSelector', ['$compile', function () {
           'class': 'icon-baby'
         },
         {
+          'name': 'User',
+          'class': 'icon-user'
+        },
+        {
+          'name': 'Password Alt',
+          'class': 'icon-passwordalt'
+        },
+        {
           'name': 'Speaker Off',
-          'class': 'icon-volume-off',
+          'class': 'icon-volume-off'
         },
         {
           'name': 'Speaker Up',

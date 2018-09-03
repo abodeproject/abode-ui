@@ -5095,6 +5095,19 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                </div>\n" +
     "              </div>\n" +
     "              <div class=\"form-group\">\n" +
+    "                <label for=\"panels\">Panels</label>\n" +
+    "                <button class=\"btn btn-default btn-xs pull-right\" ng-click=\"addPanel(pin.panels)\"><i class=\"icon-plus-sign\"></i> Add</button>\n" +
+    "                <div class=\"well well-sm\" ng-show=\"!pin.panels || pin.panels.length === 0\">No Panels Added</div>\n" +
+    "                <div>\n" +
+    "                  <ul class=\"list-group bg-muted select-list\" ng-show=\"pin.panels.length > 0\">\n" +
+    "                    <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"panel in pin.panels\" ng-click=\"editPanel($index, panel, pin.panels)\">\n" +
+    "                    {{panel.device.name}} (User No. {{panel.user}})\n" +
+    "                    <button class=\"pull-right btn btn-xs btn-danger\" ng-click=\"removePanel(pin.panels, $index)\" stop-event><i class=\"icon-trash\"></i></button>\n" +
+    "                    </li>\n" +
+    "                  </ul>\n" +
+    "                </div>\n" +
+    "              </div>\n" +
+    "              <div class=\"form-group\">\n" +
     "                <label for=\"actions\">Unlock Actions</label>\n" +
     "                <button class=\"btn btn-default btn-xs pull-right\" ng-click=\"addAction(pin.actions)\"><i class=\"icon-plus-sign\"></i> Add</button>\n" +
     "                <div class=\"well well-sm\" ng-show=\"pin.actions.length === 0\">No Actions Added</div>\n" +
@@ -5126,6 +5139,31 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('modules/settings/views/settings.pins.add.panel.modal.html',
+    "<div class=\"modal-header\"><h3>Add Panel</h3></div>\n" +
+    "\n" +
+    "<div class=\"modal-body\">\n" +
+    "\n" +
+    "    <form name=\"pinPanelFrm\">\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"user\">User No.</label>\n" +
+    "        <input type=\"number\" class=\"form-control\" id=\"user\" placeholder=\"User No.\" required=\"true\" ng-model=\"panel.user\">\n" +
+    "      </div>\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"device\">Device</label>\n" +
+    "        <select-device value=\"panel.device\" required=\"true\" capabilities=\"['user_codes']\" exclude=\"current\"></select-device>\n" +
+    "      </div>\n" +
+    "    </form>\n" +
+    "</div>\n" +
+    "\n" +
+    "\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"cancel()\">Cancel</button>\n" +
+    "    <button class=\"btn btn-success btn-sm\" type=\"button\" ng-click=\"add()\" ng-disabled=\"pinPanelFrm.$invalid || !panel.device\"><i class=\"glyphicon glyphicon-plus-sign\"></i> Add</button>\n" +
+    "</div>\n"
+  );
+
+
   $templateCache.put('modules/settings/views/settings.pins.edit.html',
     "  <div class=\"container-fluid bg-muted\" style=\"padding-bottom: 2em;\">\n" +
     "    <div class=\"row\">\n" +
@@ -5148,6 +5186,19 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "                <label for=\"name\">PIN</label>\n" +
     "                <div style=\"text-align: center\">\n" +
     "                  <pin-entry pin-model=\"pin.pin\"></pin-entry>\n" +
+    "                </div>\n" +
+    "              </div>\n" +
+    "              <div class=\"form-group\">\n" +
+    "                <label for=\"panels\">Panels</label>\n" +
+    "                <button class=\"btn btn-default btn-xs pull-right\" ng-click=\"addPanel(pin.panels)\"><i class=\"icon-plus-sign\"></i> Add</button>\n" +
+    "                <div class=\"well well-sm\" ng-show=\"!pin.panels || pin.panels.length === 0\">No Panels Added</div>\n" +
+    "                <div>\n" +
+    "                  <ul class=\"list-group bg-muted select-list\" ng-show=\"pin.panels.length > 0\">\n" +
+    "                    <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"panel in pin.panels\" ng-click=\"editPanel($index, panel, pin.panels)\">\n" +
+    "                    {{panel.device.name}} (User No. {{panel.user}})\n" +
+    "                    <button class=\"pull-right btn btn-xs btn-danger\" ng-click=\"removePanel(pin.panels, $index)\" stop-event><i class=\"icon-trash\"></i></button>\n" +
+    "                    </li>\n" +
+    "                  </ul>\n" +
     "                </div>\n" +
     "              </div>\n" +
     "              <div class=\"form-group\">\n" +
@@ -5181,6 +5232,31 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "      </div>\n" +
     "    </div>\n" +
     "  </div>\n"
+  );
+
+
+  $templateCache.put('modules/settings/views/settings.pins.edit.panel.modal.html',
+    "<div class=\"modal-header\"><h3>Edit Panel</h3></div>\n" +
+    "\n" +
+    "<div class=\"modal-body\">\n" +
+    "\n" +
+    "    <form name=\"pinPanelFrm\">\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"user\">User No.</label>\n" +
+    "        <input type=\"number\" class=\"form-control\" id=\"user\" placeholder=\"User No.\" required=\"true\" ng-model=\"panel.user\">\n" +
+    "      </div>\n" +
+    "      <div class=\"form-group\">\n" +
+    "        <label for=\"device\">Device</label>\n" +
+    "        <select-device value=\"panel.device\" required=\"true\" capabilities=\"['user_codes']\" exclude=\"current\"></select-device>\n" +
+    "      </div>\n" +
+    "    </form>\n" +
+    "</div>\n" +
+    "\n" +
+    "\n" +
+    "<div class=\"modal-footer\">\n" +
+    "    <button class=\"btn btn-warning btn-sm pull-left\" type=\"button\" ng-click=\"cancel()\">Cancel</button>\n" +
+    "    <button class=\"btn btn-success btn-sm\" type=\"button\" ng-click=\"save()\" ng-disabled=\"pinPanelFrm.$invalid || !panel.device\"><i class=\"icon-save-floppy\"></i> Save</button>\n" +
+    "</div>\n"
   );
 
 

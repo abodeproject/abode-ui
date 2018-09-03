@@ -9,10 +9,12 @@ devices.directive('selectDevice', function () {
     scope: {
       value: '=',
       required: '=',
-      capabilities: '='
+      capabilities: '=',
+      exclude: '='
     },
     controller: function ($scope, $uibModal, devices) {
       $scope.capabilities = $scope.capabilities || [];
+      $scope.exclude = $scope.exclude || [];
       $scope.loading = false;
       $scope.error = false;
 
@@ -61,6 +63,20 @@ devices.directive('selectDevice', function () {
 
                   $scope.capabilities.forEach(function (c) {
                     found = (device.capabilities.indexOf(c) >= 0) ? true : found;
+                  });
+
+                  $scope.exclude.forEach(function (d) {
+                    found = (device._id === d._id) ? false : found;
+                  });
+
+                  return found;
+                });
+              } else {
+                $uiscope.devices = devices.filter(function (device) {
+                  var found = true;
+
+                  $scope.exclude.forEach(function (d) {
+                    found = (device._id === d._id) ? false : found;
                   });
 
                   return found;

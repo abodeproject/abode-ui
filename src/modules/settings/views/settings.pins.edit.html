@@ -22,6 +22,19 @@
                 </div>
               </div>
               <div class="form-group">
+                <label for="panels">Panels</label>
+                <button class="btn btn-default btn-xs pull-right" ng-click="addPanel(pin.panels)"><i class="icon-plus-sign"></i> Add</button>
+                <div class="well well-sm" ng-show="!pin.panels || pin.panels.length === 0">No Panels Added</div>
+                <div>
+                  <ul class="list-group bg-muted select-list" ng-show="pin.panels.length > 0">
+                    <li class="list-group-item" style="cursor: pointer;" ng-repeat="panel in pin.panels" ng-click="editPanel($index, panel, pin.panels)">
+                    {{panel.device.name}} (User No. {{panel.user}})
+                    <button class="pull-right btn btn-xs btn-danger" ng-click="removePanel(pin.panels, $index)" stop-event><i class="icon-trash"></i></button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class="form-group">
                 <label for="actions">Unlock Actions</label>
                 <button class="btn btn-default btn-xs pull-right" ng-click="addAction(pin.actions)"><i class="icon-plus-sign"></i> Add</button>
                 <div class="well well-sm" ng-show="pin.actions.length === 0">No Actions Added</div>

@@ -1169,6 +1169,6 @@ devices.service('devices', function ($q, $http, $uibModal, $rootScope, $timeout,
     'removeRoom': removeDeviceRoom,
     'openDevice': openDevice,
     'openCamera': openCamera,
-    'methods': methods,
+    'methods': methods
   };
 });

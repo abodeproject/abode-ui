@@ -1,7 +1,7 @@
 
 var settings = angular.module('abode.settings');
 
-settings.service('settings', function ($q, $http, $templateCache, $timeout, abode) {
+settings.service('settings', function ($q, $http, $templateCache, $timeout, $uibModal, abode, confirm) {
 
   var get_sources = function () {
     var defer = $q.defer();
@@ -250,6 +250,83 @@ settings.service('settings', function ($q, $http, $templateCache, $timeout, abod
     return defer.promise;
   };
 
+  var add_pin_panel = function (panels) {
+    var addPanelModal = $uibModal.open({
+      animation: true,
+      templateUrl: 'modules/settings/views/settings.pins.add.panel.modal.html',
+      size: 'sm',
+      resolve: {
+        'current': function () {
+          var current = panels.map(function (panel) {
+            return panel.device;
+          });
+
+          return current;
+        }
+      },
+      controller: ['$scope', '$uibModalInstance', 'current', function ($scope, $uibModalInstance, current) {
+        $scope.panel = {};
+        $scope.current = current;
+
+        $scope.add = function () {
+          $uibModalInstance.close($scope.panel);
+        };
+
+        $scope.cancel = function () {
+          $uibModalInstance.dismiss();
+        };
+      }]
+    });
+
+    addPanelModal.result.then(function (panel) {
+      panels.push(panel);
+    });
+  };
+
+  var edit_pin_panel = function (index, panel, panels) {
+    var editPanelModal = $uibModal.open({
+      animation: true,
+      templateUrl: 'modules/settings/views/settings.pins.edit.panel.modal.html',
+      size: 'sm',
+      resolve: {
+        'panel': function () {
+          return angular.copy(panel);
+        },
+        'current': function () {
+          var current = panels.map(function (panel) {
+            return panel.device;
+          });
+
+          return current;
+        }
+      },
+      controller: ['$scope', '$uibModalInstance', 'panel', 'current', function ($scope, $uibModalInstance, panel, current) {
+        $scope.panel = panel;
+        $scope.current = current;
+
+        $scope.save = function () {
+          $uibModalInstance.close($scope.panel);
+        };
+
+        $scope.cancel = function () {
+          $uibModalInstance.dismiss();
+        };
+      }]
+    });
+
+    editPanelModal.result.then(function (panel) {
+      panels.splice(index, 1, panel);
+    });
+  };
+
+  var remove_pin_panel = function (panels, index) {
+
+    confirm('Are you sure?', {'title': 'Delete Panel', 'icon': 'icon-trash'}).then(function () {
+      panels.splice(index, 1);
+    });
+
+  };
+
   return {
     get_config: get_config,
     save_config: save_config,
@@ -265,7 +342,10 @@ settings.service('settings', function ($q, $http, $templateCache, $timeout, abod
     reload: reload,
     get_providers: get_providers,
     install_provider: install_provider,
-    remove_provider: remove_provider
+    remove_provider: remove_provider,
+    add_pin_panel: add_pin_panel,
+    edit_pin_panel: edit_pin_panel,
+    remove_pin_panel: remove_pin_panel,
   };
 
 });

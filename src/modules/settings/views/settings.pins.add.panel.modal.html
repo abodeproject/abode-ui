@@ -1,0 +1,21 @@
+<div class="modal-header"><h3>Add Panel</h3></div>
+
+<div class="modal-body">
+
+    <form name="pinPanelFrm">
+      <div class="form-group">
+        <label for="user">User No.</label>
+        <input type="number" class="form-control" id="user" placeholder="User No." required="true" ng-model="panel.user">
+      </div>
+      <div class="form-group">
+        <label for="device">Device</label>
+        <select-device value="panel.device" required="true" capabilities="['user_codes']" exclude="current"></select-device>
+      </div>
+    </form>
+</div>
+
+
+<div class="modal-footer">
+    <button class="btn btn-warning btn-sm pull-left" type="button" ng-click="cancel()">Cancel</button>
+    <button class="btn btn-success btn-sm" type="button" ng-click="add()" ng-disabled="pinPanelFrm.$invalid || !panel.device"><i class="glyphicon glyphicon-plus-sign"></i> Add</button>
+</div>
