@@ -83,8 +83,10 @@
 
                                     <ul class="list-group">
                                       <li class="list-group-item" ng-repeat="action in step.actions" style="cursor: pointer" ng-click="editAction(action)">
-                                        {{action.name}} <button class="pull-right btn btn-default btn-xs" ng-click="removeDevice(step, $index)"><i class="icon-remove-sign"></i></button>
+                                        {{action.name}} ({{action.object_type}})<button class="pull-right btn btn-default btn-xs" ng-click="removeDevice(step, $index)"><i class="icon-remove-sign"></i></button>
                                         <div style="font-size: .70em;">
+                                          <span ng-show="action._enabled">Enable</span>
+                                          <span ng-show="!action._enabled">Disable</span>
                                           <span ng-show="!action._level && action._on">Turn ON</span>
                                           <span ng-show="action.locked === true">Lock</span>
                                           <span ng-show="action.locked === false">Unlock</span>

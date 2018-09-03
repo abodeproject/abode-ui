@@ -49,6 +49,15 @@
         </ul>
     </div>
 
+    <div class="col-sm-4" ng-show="type == 'pins'">
+        <label for="trigger">Pin <span ng-show="obj">({{obj | capitalize}})</span></label>
+        <ul class="list-group bg-muted select-list" >
+          <li class="list-group-item" style="cursor: pointer;" ng-repeat="t in pins | orderBy: '+name'" ng-click="changeItem(t);" ng-class="{'list-group-item-success': obj == t.name}">
+            {{t.name}}
+          </li>
+        </ul>
+    </div>
+
     <div class="col-sm-4" ng-if="type == 'boolean'">
         <label for="trigger">Boolean</label>
         <ul class="list-group bg-muted select-list" >

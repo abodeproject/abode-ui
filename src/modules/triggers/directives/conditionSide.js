@@ -10,6 +10,7 @@ triggers.directive('conditionSide', function ($uibModal, devices, rooms, scenes)
       'devices': '=',
       'rooms': '=',
       'scenes': '=',
+      'pins': '=',
     },
     controller: function ($scope) {
       $scope.expanded = true;
@@ -31,6 +32,7 @@ triggers.directive('conditionSide', function ($uibModal, devices, rooms, scenes)
         {name: 'Device', value: 'devices', icon: 'glyphicon glyphicon-oil'},
         {name: 'Room', value: 'rooms', icon: 'glyphicon glyphicon-modal-window', capabilities: ['room']},
         {name: 'Scene', value: 'scenes', icon: 'icon-picture', capabilities: ['onoff']},
+        {name: 'Pin', value: 'pins', icon: 'icon-passwordalt', capabilities: ['enabledisable']},
         {name: 'Video', value: 'video', icon: 'icon-playvideo', capabilities: ['video']},
         {name: 'Display', value: 'display', icon: 'icon-monitor', capabilities: ['display']},
         {name: 'Time', value: 'timeofday', icon: 'icon-clockalt-timealt'},
@@ -45,6 +47,8 @@ triggers.directive('conditionSide', function ($uibModal, devices, rooms, scenes)
       $scope.condition_keys = [
         {name: 'Is On', value: 'is_on', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
         {name: 'Is Off', value: 'is_off', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
+        {name: 'Is Enabled', value: 'is_enabled', arguments: [], capabilities: ['enabledisable']},
+        {name: 'Is Disabled', value: 'is_disabled', arguments: [], capabilities: ['enabledisable']},
         {name: 'On Time', value: 'on_time', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
         {name: 'Off Time', value: 'off_time', arguments: [], capabilities: ['light', 'dimmer', 'display', 'fan', 'onoff']},
         {name: 'Has Motion', value: '_motion', arguments: [], capabilities: ['motion_sensor']},

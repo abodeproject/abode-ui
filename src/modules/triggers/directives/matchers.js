@@ -16,7 +16,7 @@ triggers.directive('triggerMatchers', function () {
           animation: true,
           templateUrl: 'modules/triggers/views/triggers.matchers.matcher.html',
           size: 'lg',
-          controller: function ($scope, $uibModalInstance, matcher, devices, rooms, scenes, types) {
+          controller: function ($scope, $uibModalInstance, matcher, devices, rooms, scenes, pins, types) {
             $scope.matcher = matcher;
             $scope.trigger_types = types;
             $scope.match_types = [
@@ -24,6 +24,7 @@ triggers.directive('triggerMatchers', function () {
               {name: 'Device', value: 'device', icon: 'glyphicon glyphicon-oil'},
               {name: 'Room', value: 'room', icon: 'glyphicon glyphicon-modal-window'},
               {name: 'Scene', value: 'scene', icon: 'icon-picture'},
+              {name: 'Pin', value: 'pin', icon: 'icon-passwordalt'},
               {name: 'Time', value: 'time', icon: 'icon-clockalt-timealt'},
               {name: 'Time Offset', value: 'timeoffset', icon: 'icon-timer'},
               {name: 'Date', value: 'date', icon: 'icon-calendar'},
@@ -34,6 +35,7 @@ triggers.directive('triggerMatchers', function () {
             $scope.devices = devices;
             $scope.rooms = rooms;
             $scope.scenes = scenes;
+            $scope.pins = pins;
 
             $scope.changeType = function (type) {
               $scope.matcher.match_type = type;
@@ -55,6 +57,11 @@ triggers.directive('triggerMatchers', function () {
             $scope.changeScene = function (scene) {
               $scope.matcher.match = scene.name;
             };
+
+            $scope.changePin = function (pin) {
+              $scope.matcher.match = pin.name;
+            };
+
 
             $scope.save = function () {
               $uibModalInstance.close($scope.matcher);
@@ -99,6 +106,17 @@ triggers.directive('triggerMatchers', function () {
               var defer = $q.defer();
 
               Scenes.query().$promise.then(function (scenes) {
+                defer.resolve(scenes);
+              }, function (err) {
+                defer.reject(err);
+              });
+
+              return defer.promise;
+            },
+            'pins': function ($q, Pins) {
+              var defer = $q.defer();
+
+              Pins.query().$promise.then(function (scenes) {
                 defer.resolve(scenes);
               }, function (err) {
                 defer.reject(err);

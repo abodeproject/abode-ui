@@ -12,7 +12,7 @@ triggers.filter('conditionReadable', function ($filter) {
           key = condition[side + '_key'];
 
 
-        if (['devices', 'scenes', 'rooms'].indexOf(type) != -1) {
+        if (['devices', 'scenes', 'rooms', 'pins'].indexOf(type) != -1) {
           type = type.substr(0, type.length - 1);
           text = 'the ' + type + ' key ' + obj + '.' + key;
         } else if (type === 'boolean') {

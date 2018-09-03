@@ -1,7 +1,7 @@
 
 var scenes = angular.module('abode.scenes');
 
-scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devices, abode, scenes, rooms, confirm) {
+scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devices, abode, scenes, rooms, Pins, confirm) {
   $scope.scene = scene;
   $scope.alerts = [];
   $scope.rooms = [];
@@ -178,6 +178,8 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
               return rooms.get(action.object_id);
             case 'scenes':
               return scenes.get(action.object_id);
+            case 'pins':
+              return Pins.get({'id': action.object_id});
             default:
               return undefined;
           }
@@ -206,6 +208,9 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
           case 'scenes':
             $scope.selected_capabilities = ['dimmer', 'light'];
             break;
+          case 'pins':
+            $scope.selected_capabilities = ['enabledisable'];
+            break;
         }
 
         $scope.capabilities = angular.copy($scope.selected_capabilities).map(function (c) {
@@ -227,6 +232,10 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
         };
 
         $scope.save = function () {
+
+          if ($scope.has_capability('enabledisable')) {
+            $scope.selected._enabled = $scope.device._enabled;
+          }
 
           if ($scope.has_capability('fan')) {
             $scope.selected._on = $scope.device._on;
@@ -283,6 +292,16 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
           }
           if ($scope.selected.stages > 0){
             $scope.selected.stages -= 1;
+          }
+        };
+
+
+        $scope.toggle_enabledisable = function () {
+
+          if ($scope.device._enabled) {
+            $scope.device._enabled = false;
+          } else {
+            $scope.device._enabled = true;
           }
         };
 
@@ -429,12 +448,16 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
         },
         rooms: function (Rooms) {
           return Rooms.query().$promise;
+        },
+        pins: function (Pins) {
+          return Pins.query().$promise;
         }
       },
-      controller: function ($scope, $uibModalInstance, devices, scenes, rooms, assigned) {
+      controller: function ($scope, $uibModalInstance, devices, scenes, rooms, pins, assigned) {
         $scope.devices = devices;
         $scope.scenes = scenes;
         $scope.rooms = rooms;
+        $scope.pins = pins;
         $scope.assigned = assigned;
         $scope.selected = {};
         $scope.selected_capabilities = [];
@@ -445,6 +468,7 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
           {name: 'Device', value: 'devices', icon: 'glyphicon glyphicon-oil'},
           {name: 'Room', value: 'rooms', icon: 'glyphicon glyphicon-modal-window', capabilities: ['light']},
           {name: 'Scene', value: 'scenes', icon: 'icon-picture', capabilities: ['light']},
+          {name: 'Pins', value: 'pins', icon: 'icon-passwordalt', capabilities: ['enabledisable']},
         ];
 
         $scope.changeType = function (t) {
@@ -458,6 +482,10 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
           $scope.selected.stages = 0;
           $scope.selected.duration = 0;
           $scope.device = o;
+          $scope.device._on = false;
+          $scope.device._enabled = false;
+          $scope.device._level = 0;
+          $scope.device.locked = false;
 
             $scope.device.$set_mode = function (mode) {
               if (isNaN($scope.device._set_point)) {
@@ -540,6 +568,10 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
           if ($scope.has_capability('fan')) {
             $scope.selected._on = $scope.device._on;
           }
+
+          if ($scope.has_capability('enabledisable')) {
+            $scope.selected._enabled = $scope.device._enabled;
+          }
           if ($scope.has_capability('display')) {
             $scope.selected._on = $scope.device._on;
             $scope.selected._level = $scope.device._level;
@@ -615,6 +647,20 @@ scenes.controller('scenesEdit', function ($scope, $state, $uibModal, scene, devi
           } else {
             $scope.device._on = true;
             $scope.device._level = 100;
+          }
+        };
+
+
+        $scope.toggle_enabledisable = function () {
+
+          $scope.processing = true;
+          $scope.errors = false;
+          $scope.device.locked = undefined;
+
+          if ($scope.device._enabled) {
+            $scope.device._enabled = false;
+          } else {
+            $scope.device._enabled = true;
           }
         };
 

@@ -1,0 +1,8 @@
+<div style="text-align: center;" ng-show="has_capability('enabledisable')">
+  <div style="border: .1em solid white; border-radius: .4em; height: 6em; width: 14em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; cursor: pointer; padding-top: 1em; transition: 2s;" ng-class="{'bg-danger':  !device._enabled, 'bg-success':  device._enabled}" ng-click="toggle_enabledisable()">
+    <div style="text-align: center;">
+      <h2 ng-show="device._enabled">Enabled</h2>
+      <h2 ng-show="!device._enabled">Disabled</h2>
+    </div>
+  </div>
+</div>

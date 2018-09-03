@@ -49,6 +49,15 @@
           </ul>
       </div>
 
+      <div class="col-sm-6" ng-show="builder.type == 'pins'">
+          <label for="trigger">Pin<span ng-show="builder.item">: {{builder.item.name}}</span></label>
+          <ul class="list-group bg-muted select-list" >
+            <li class="list-group-item" style="cursor: pointer;" ng-repeat="t in pins | orderBy: '+name'" ng-click="changeItem(t);" ng-class="{'list-group-item-success': builder.item == t}">
+              {{t.name}}
+            </li>
+          </ul>
+      </div>
+
       <div class="col-sm-6">
 
         <div class="form-group">

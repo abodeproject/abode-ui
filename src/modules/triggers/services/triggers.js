@@ -1,7 +1,7 @@
 
 var triggers = angular.module('abode.triggers');
 
-triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, confirm, Devices, Rooms, Scenes) {
+triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, confirm, Devices, Rooms, Scenes, Pins) {
   var model = $resource(abode.url('/api/triggers/:id/:action'), {id: '@_id'}, {
     'update': { method: 'PUT' },
   });
@@ -92,7 +92,7 @@ triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, c
       animation: true,
       templateUrl: 'modules/triggers/views/triggers.action.html',
       size: 'lg',
-      controller: function ($scope, $uibModalInstance, $timeout, action, devices, rooms, scenes, title) {
+      controller: function ($scope, $uibModalInstance, $timeout, action, devices, rooms, scenes, pins, title) {
         $scope.action = action;
         $scope.title = title;
         $scope.builder = {};
@@ -100,6 +100,7 @@ triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, c
         $scope.devices = devices;
         $scope.rooms = rooms;
         $scope.scenes = scenes;
+        $scope.pins = pins;
         $scope.alerts = [];
 
 
@@ -107,6 +108,7 @@ triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, c
           {name: 'Device', value: 'devices', icon: 'glyphicon glyphicon-oil'},
           {name: 'Room', value: 'rooms', icon: 'glyphicon glyphicon-modal-window', capabilities: ['light', 'dimmer', 'conditioner', 'lock', 'motion_sensor']},
           {name: 'Scene', value: 'scenes', icon: 'icon-picture', capabilities: ['light']},
+          {name: 'Pin', value: 'pins', icon: 'icon-passwordalt', capabilities: ['enabledisable']},
           {name: 'Video', value: 'video', icon: 'icon-playvideo', capabilities: ['video']},
           {name: 'Display', value: 'display', icon: 'icon-monitor', capabilities: ['display']},
         ];
@@ -125,6 +127,8 @@ triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, c
           {name: 'Temperature', value: 'set_point', arguments: ['temperature'], capabilities: ['conditioner']},
           {name: 'Play', value: 'play', arguments: ['url', 'duration'], capabilities: ['video']},
           {name: 'Stop', value: 'stop', arguments: [], capabilities: ['video']},
+          {name: 'Enable', value: 'enable', arguments: [], capabilities: ['enabledisable']},
+          {name: 'Disable', value: 'disable', arguments: [], capabilities: ['enabledisable']},
         ];
 
         var get_type = function (t) {
@@ -289,6 +293,9 @@ triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, c
         scenes: function (Scenes) {
           return Scenes.query();
         },
+        pins: function (Pins) {
+          return Pins.query();
+        },
         title: function () {
           return title;
         },
@@ -321,7 +328,7 @@ triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, c
       animation: true,
       templateUrl: 'modules/triggers/views/conditions.edit.html',
       size: 'lg',
-      controller: function ($scope, $uibModalInstance, devices, rooms, scenes, title, condition) {
+      controller: function ($scope, $uibModalInstance, devices, rooms, scenes, pins, title, condition) {
         $scope.title = title;
         $scope.condition = condition || {'and': [], 'or': []};
         $scope.devices = devices;
@@ -329,6 +336,7 @@ triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, c
         $scope.right_capabilities = [];
         $scope.rooms = rooms;
         $scope.scenes = scenes;
+        $scope.pins = pins;
         $scope.condition_options = [
           {title: '<', value: 'lt'},
           {title: '≤', value: 'le'},
@@ -399,6 +407,9 @@ triggers.service('triggers', function ($http, $q, $uibModal, $resource, abode, c
         },
         scenes: function () {
           return Scenes.query();
+        },
+        pins: function () {
+          return Pins.query();
         },
         title: function () {
           return title;

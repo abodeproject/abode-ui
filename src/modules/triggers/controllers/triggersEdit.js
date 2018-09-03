@@ -1,7 +1,7 @@
 
 var triggers = angular.module('abode.triggers');
 
-triggers.controller('triggersEdit', function ($scope, $state, $uibModal, abode, triggers, trigger, Devices, Rooms, Scenes, confirm, types) {
+triggers.controller('triggersEdit', function ($scope, $state, $uibModal, abode, triggers, trigger, Devices, Rooms, Scenes, Pins, confirm, types) {
   $scope.trigger = trigger;
   $scope.alerts = [];
   $scope.state = $state;
@@ -24,6 +24,7 @@ triggers.controller('triggersEdit', function ($scope, $state, $uibModal, abode, 
     {name: 'Device', value: 'device', icon: 'glyphicon glyphicon-oil'},
     {name: 'Room', value: 'room', icon: 'glyphicon glyphicon-modal-window'},
     {name: 'Scene', value: 'scene', icon: 'icon-picture'},
+    {name: 'Pin', value: 'pin', icon: 'icon-passwordalt'},
     {name: 'Time', value: 'time', icon: 'icon-clockalt-timealt'},
     {name: 'Date', value: 'date', icon: 'icon-calendar'},
     {name: 'String', value: 'string', icon: 'icon-quote'},
@@ -174,10 +175,21 @@ triggers.controller('triggersEdit', function ($scope, $state, $uibModal, abode, 
       $scope.scenes_loading = false;
     });
   };
+  var getPins = function () {
+    $scope.pins_loading = true;
+    Pins.query().$promise.then(function (pins) {
+      $scope.pins = pins;
+      $scope.pins_loading = false;
+    }, function () {
+      $scope.pins = [];
+      $scope.pins_loading = false;
+    });
+  };
 
   getDevices();
   getRooms();
   getScenes();
+  getPins();
 
   $scope.$watch('delay', function (type) {
     if (!type) {
@@ -215,6 +227,10 @@ triggers.controller('triggersEdit', function ($scope, $state, $uibModal, abode, 
 
   $scope.changeScene = function (scene) {
     trigger.match = scene.name;
+  };
+
+  $scope.changePin = function (pin) {
+    trigger.match = pin.name;
   };
 
   $scope.closeAlert = function(index) {

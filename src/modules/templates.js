@@ -999,6 +999,18 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('modules/devices/views/capabilities/enabledisable.html',
+    "<div style=\"text-align: center;\" ng-show=\"has_capability('enabledisable')\">\n" +
+    "  <div style=\"border: .1em solid white; border-radius: .4em; height: 6em; width: 14em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; cursor: pointer; padding-top: 1em; transition: 2s;\" ng-class=\"{'bg-danger':  !device._enabled, 'bg-success':  device._enabled}\" ng-click=\"toggle_enabledisable()\">\n" +
+    "    <div style=\"text-align: center;\">\n" +
+    "      <h2 ng-show=\"device._enabled\">Enabled</h2>\n" +
+    "      <h2 ng-show=\"!device._enabled\">Disabled</h2>\n" +
+    "    </div>\n" +
+    "  </div>\n" +
+    "</div>\n"
+  );
+
+
   $templateCache.put('modules/devices/views/capabilities/fan.html',
     "<div style=\"text-align: center;\">\n" +
     "  <div style=\"border: .1em solid white; border-radius: .4em; height: 9em; width: 10em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; cursor: pointer; padding-top: 2em; transition: 2s;\" ng-class=\"{'bg-success':  device._on}\" ng-click=\"toggle_onoff()\">\n" +
@@ -4066,6 +4078,15 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "        </ul>\n" +
     "    </div>\n" +
     "\n" +
+    "    <div class=\"col-sm-6\" ng-show=\"selected.object_type == 'pins'\">\n" +
+    "        <label for=\"trigger\">Pin <span ng-show=\"obj\">({{obj | capitalize}})</span></label>\n" +
+    "        <ul class=\"list-group bg-muted select-list\" >\n" +
+    "          <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"t in pins | orderBy: '+name'\" ng-click=\"changeItem(t);\" ng-class=\"{'list-group-item-success': selected.object_id == t._id}\">\n" +
+    "            {{t.name}}\n" +
+    "          </li>\n" +
+    "        </ul>\n" +
+    "    </div>\n" +
+    "\n" +
     "  </div>\n" +
     "\n" +
     "  <div ng-show=\"selected.object_id\">\n" +
@@ -4355,8 +4376,10 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "                                    <ul class=\"list-group\">\n" +
     "                                      <li class=\"list-group-item\" ng-repeat=\"action in step.actions\" style=\"cursor: pointer\" ng-click=\"editAction(action)\">\n" +
-    "                                        {{action.name}} <button class=\"pull-right btn btn-default btn-xs\" ng-click=\"removeDevice(step, $index)\"><i class=\"icon-remove-sign\"></i></button>\n" +
+    "                                        {{action.name}} ({{action.object_type}})<button class=\"pull-right btn btn-default btn-xs\" ng-click=\"removeDevice(step, $index)\"><i class=\"icon-remove-sign\"></i></button>\n" +
     "                                        <div style=\"font-size: .70em;\">\n" +
+    "                                          <span ng-show=\"action._enabled\">Enable</span>\n" +
+    "                                          <span ng-show=\"!action._enabled\">Disable</span>\n" +
     "                                          <span ng-show=\"!action._level && action._on\">Turn ON</span>\n" +
     "                                          <span ng-show=\"action.locked === true\">Lock</span>\n" +
     "                                          <span ng-show=\"action.locked === false\">Unlock</span>\n" +
@@ -5930,7 +5953,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "    </div>\n" +
     "    <div ng-show=\"type == 'condition'\">\n" +
     "\n" +
-    "      <condition-side side=\"left\" value=\"condition\" rooms=\"rooms\" devices=\"devices\" scenes=\"scenes\"></condition-side>\n" +
+    "      <condition-side side=\"left\" value=\"condition\" rooms=\"rooms\" devices=\"devices\" scenes=\"scenes\" pins=\"pins\"></condition-side>\n" +
     "\n" +
     "      <div class=\"row\">\n" +
     "\n" +
@@ -5945,7 +5968,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "\n" +
     "      </div>\n" +
     "\n" +
-    "      <condition-side side=\"right\" value=\"condition\" rooms=\"rooms\" devices=\"devices\" scenes=\"scenes\"></condition-side>\n" +
+    "      <condition-side side=\"right\" value=\"condition\" rooms=\"rooms\" devices=\"devices\" scenes=\"scenes\" pins=\"pins\"></condition-side>\n" +
     "\n" +
     "    </div>\n" +
     "  </form>\n" +
@@ -6005,6 +6028,15 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "        <label for=\"trigger\">Scene <span ng-show=\"obj\">({{obj | capitalize}})</span></label>\n" +
     "        <ul class=\"list-group bg-muted select-list\" >\n" +
     "          <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"t in scenes | orderBy: '+name'\" ng-click=\"changeItem(t);\" ng-class=\"{'list-group-item-success': obj == t.name}\">\n" +
+    "            {{t.name}}\n" +
+    "          </li>\n" +
+    "        </ul>\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <div class=\"col-sm-4\" ng-show=\"type == 'pins'\">\n" +
+    "        <label for=\"trigger\">Pin <span ng-show=\"obj\">({{obj | capitalize}})</span></label>\n" +
+    "        <ul class=\"list-group bg-muted select-list\" >\n" +
+    "          <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"t in pins | orderBy: '+name'\" ng-click=\"changeItem(t);\" ng-class=\"{'list-group-item-success': obj == t.name}\">\n" +
     "            {{t.name}}\n" +
     "          </li>\n" +
     "        </ul>\n" +
@@ -6120,6 +6152,15 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "          <label for=\"trigger\">Scene<span ng-show=\"builder.item\">: {{builder.item.name}}</span></label>\n" +
     "          <ul class=\"list-group bg-muted select-list\" >\n" +
     "            <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"t in scenes | orderBy: '+name'\" ng-click=\"changeItem(t);\" ng-class=\"{'list-group-item-success': builder.item == t}\">\n" +
+    "              {{t.name}}\n" +
+    "            </li>\n" +
+    "          </ul>\n" +
+    "      </div>\n" +
+    "\n" +
+    "      <div class=\"col-sm-6\" ng-show=\"builder.type == 'pins'\">\n" +
+    "          <label for=\"trigger\">Pin<span ng-show=\"builder.item\">: {{builder.item.name}}</span></label>\n" +
+    "          <ul class=\"list-group bg-muted select-list\" >\n" +
+    "            <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"t in pins | orderBy: '+name'\" ng-click=\"changeItem(t);\" ng-class=\"{'list-group-item-success': builder.item == t}\">\n" +
     "              {{t.name}}\n" +
     "            </li>\n" +
     "          </ul>\n" +
@@ -6749,7 +6790,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "    <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"t in ngModel | orderBy: '+trigger'\" ng-click=\"editTriggerMatcher(t)\">\n" +
     "        <button class=\"btn btn-xs btn-danger pull-right\" ng-click=\"deleteTriggerMatcher($index)\" stop-event><i class=\"icon-trash\"></i></button>\n" +
     "      {{t.trigger}}\n" +
-    "        <div ng-show=\"t.match_type === 'device' || t.match_type === 'room' || t.match_type === 'scene'\">From the {{t.match_type}} {{t.match}}</div>\n" +
+    "        <div ng-show=\"t.match_type === 'device' || t.match_type === 'room' || t.match_type === 'scene' || t.match_type === 'pin'\">From the {{t.match_type}} {{t.match}}</div>\n" +
     "        <div ng-show=\"t.match_type === 'number' || t.match_type === 'string'\">{{t.match_type | capitalize}} of {{t.match}}</div>\n" +
     "        <div ng-show=\"t.match_type === 'time'\">{{t.match_type | capitalize}} is {{t.match | time}}</div>\n" +
     "    </li>\n" +
@@ -6815,6 +6856,14 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "              <ul class=\"list-group bg-muted select-list\" ng-hide=\"scenes_loading\">\n" +
     "                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"scene in scenes | orderBy: '+name'\" ng-click=\"changeScene(scene)\" ng-class=\"{'list-group-item-success': matcher.match == scene.name}\">\n" +
     "                  {{scene.name}}\n" +
+    "                </li>\n" +
+    "              </ul>\n" +
+    "            </div>\n" +
+    "            <div ng-show=\"matcher.match_type == 'pin'\">\n" +
+    "              <div ng-show=\"pins_loading\"><i class=\"icon-loadingalt spin\"></i> Loading...</div>\n" +
+    "              <ul class=\"list-group bg-muted select-list\" ng-hide=\"pins_loading\">\n" +
+    "                <li class=\"list-group-item\" style=\"cursor: pointer;\" ng-repeat=\"pin in pins | orderBy: '+name'\" ng-click=\"changePin(pin)\" ng-class=\"{'list-group-item-success': matcher.match == pin.name}\">\n" +
+    "                  {{pin.name}}\n" +
     "                </li>\n" +
     "              </ul>\n" +
     "            </div>\n" +

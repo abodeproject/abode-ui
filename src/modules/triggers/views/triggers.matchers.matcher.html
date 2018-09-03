@@ -57,6 +57,14 @@
                 </li>
               </ul>
             </div>
+            <div ng-show="matcher.match_type == 'pin'">
+              <div ng-show="pins_loading"><i class="icon-loadingalt spin"></i> Loading...</div>
+              <ul class="list-group bg-muted select-list" ng-hide="pins_loading">
+                <li class="list-group-item" style="cursor: pointer;" ng-repeat="pin in pins | orderBy: '+name'" ng-click="changePin(pin)" ng-class="{'list-group-item-success': matcher.match == pin.name}">
+                  {{pin.name}}
+                </li>
+              </ul>
+            </div>
 
             <div ng-show="matcher.match_type == 'time'" style="padding-left: 1em;">
               <epochtime time="matcher.match" disabled="{{matcher.match_type != 'time'}}"></epochtime>
