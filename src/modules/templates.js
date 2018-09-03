@@ -1204,6 +1204,7 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
     "            <device-toggle ng-model=\"ngModel\" ng-if=\"ngModel.$is('onoff', 'light', 'fan')\"></device-toggle>\n" +
     "            <device-toggle ng-model=\"ngModel\" ng-if=\"ngModel.$is('motion_sensor')\" on-color=\"#af4b4b\" off-color=\"#4baf4d\"></device-toggle>\n" +
     "            <device-toggle ng-model=\"ngModel\" ng-if=\"ngModel.$is('openclose')\" on-label=\"Open\" off-label=\"Closed\" on-color=\"#af4b4b\" off-color=\"#4baf4d\"></device-toggle>\n" +
+    "            <device-toggle ng-model=\"ngModel\" ng-if=\"ngModel.$is('lock')\" on-label=\"Locked\" off-label=\"UnLocked\" off-color=\"#af4b4b\" on-color=\"#4baf4d\"></device-toggle>\n" +
     "          </div>\n" +
     "      </div>\n" +
     "      <div class=\"col-xs-4 text-right\" ng-if=\"!showControls\" stop-event>\n" +
