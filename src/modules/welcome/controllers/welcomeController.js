@@ -48,7 +48,7 @@ welcome.controller('welcomeController', ['$scope', '$timeout', '$interval', '$ht
             'ca_url': response.data.ca_url,
           });
 
-          $http.get('/api/abode/upnp').then(function (response) {
+          $http.get('/api/abode/mdns').then(function (response) {
             $scope.sources.push.apply($scope.sources, response.data);
             $scope.loading = false;
           }, function () {
