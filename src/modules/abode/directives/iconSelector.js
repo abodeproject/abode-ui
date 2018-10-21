@@ -442,6 +442,10 @@ abode.directive('iconSelector', ['$compile', function () {
         {
           'name': 'Exit',
           'class': 'icon-exit'
+        },
+        {
+          'name': 'Outlet',
+          'class': 'icon-powerplugus'
         }
       ];
     }]

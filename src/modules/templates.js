@@ -1102,6 +1102,19 @@ angular.module('abode').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('modules/devices/views/capabilities/power_sensor.html',
+    "\n" +
+    "<h4 style=\" white-space: nowrap\">\n" +
+    "	<button class=\"btn btn-sm btn-default\" style=\"text-align: left\">\n" +
+    "	<small ng-show=\"device._power >= 0\"><div> {{device._power}} W</div></small>\n" +
+    "	<small ng-show=\"device._voltage >= 0\"><div>{{device._voltage}} V</div></small>\n" +
+    "	<small ng-show=\"device._current >= 0\"><div>{{device._current}} A</div></small>\n" +
+    "	<small ng-show=\"device._total_power >= 0\"><div><i class=\"icon-sum\"></i> {{device._power}} kW</div></small>\n" +
+    "	</button>\n" +
+    "</h4>\n"
+  );
+
+
   $templateCache.put('modules/devices/views/capabilities/scene.html',
     "<div style=\"text-align: center;\" ng-hide=\"has_capability('dimmer')\">\n" +
     "  <div style=\"border: .1em solid white; border-radius: .4em; height: 10em; width: 14em; text-align: center; vertical-align: middle; margin: 0 auto; position: relative; cursor: pointer; transition: 2s;\">\n" +
