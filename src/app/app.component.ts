@@ -20,13 +20,11 @@ export class AppComponent implements OnInit {
     this.loading = true;
     this.auth.isAuthenticated()
       .subscribe(authenticated => {
-        console.log(authenticated);
         this.loading = false;
         if (authenticated) {
           this.$state.go('home');
         } else {
-          console.log('welcome');
-          //this.$state.go('welcome');
+          this.$state.go('welcome');
         }
       });
 
